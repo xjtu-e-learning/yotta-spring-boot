@@ -1,5 +1,7 @@
-# 工程启动检查模块
-
-spring-boot启动的时候，进行的各种检查。
-
-其中startofos.java 是检查什么系统，然后采用相应的第三方插件。
+#需要写认知依赖关系API统计
+>1. getDependenceByKeyowrd
+>2. getDomain
+>3. createDependence
+>3. getGexfByClassName
+>4. getDependenceByDomain
+>5. getDomainTerm

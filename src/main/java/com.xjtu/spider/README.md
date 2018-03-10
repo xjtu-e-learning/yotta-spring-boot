@@ -1,5 +1,9 @@
-# 工程启动检查模块
-
-spring-boot启动的时候，进行的各种检查。
-
-其中startofos.java 是检查什么系统，然后采用相应的第三方插件。
+#需要写爬虫API统计
+>1. getFragment
+>2. getDomainTermFacetsFragment
+>3. createFragment
+>3. getFragmentByID
+>4. updateFragment
+>5. getWordCount
+>6. getFragmentCountBySource
+>7. getFragmentByTopicArray
