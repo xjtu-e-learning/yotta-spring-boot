@@ -21,11 +21,9 @@ public interface TopicRepository extends JpaRepository<Topic, Long>, JpaSpecific
     @Transactional
     List<Topic> findByTopicName(String topicName);
 
-    @Transactional
-    Topic findByTopicIdAndTopicName(Long topicId, String topicName);
 
     @Transactional
-    List<Topic> findByTopicNameAndDomainId(String topicName, Long domainId);
+    Topic findByTopicNameAndDomainId(String topicName, Long domainId);
 
     @Transactional
     void deleteByTopicNameAndDomainId(String topicName, Long domainId);

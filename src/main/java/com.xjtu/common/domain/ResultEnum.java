@@ -41,18 +41,40 @@ public enum ResultEnum {
 
     //主题
     TOPIC_INSERT_ERROR(125, "主题信息插入失败：主题名不存在或者为空"),
-    TOPIC_INSERT_ERROR_1(126, "主题信息插入失败：插入已经存在的主题"),
+    TOPIC_INSERT_ERROR_1(126, "主题信息插入失败：插入主题已经存在"),
     TOPIC_INSERT_ERROR_2(127, "主题信息插入失败：数据库插入语句失败"),
     TOPIC_DELETE_ERROR(128, "主题删除失败"),
-    TOPIC_DELETE_ERROR_1(135, "主题删除失败:没有主题对应的课程"),
-    TOPIC_DELETE_ERROR_2(136, "主题删除失败:主题数据不存在"),
     TOPIC_UPDATE_ERROR(129, "主题更新失败：更新语句执行失败"),
     TOPIC_UPDATE_ERROR_1(130, "主题更新失败：主题名不存在或者为空"),
     TOPIC_UPDATE_ERROR_2(131, "主题更新失败：课程不存在"),
-    TOPIC_UPDATE_ERROR_3(137, "主题更新失败：原主题不存在"),
     TOPIC_SEARCH_ERROR(132, "主题查询失败：没有主题信息记录"),
     TOPIC_SEARCH_ERROR_1(133, "主题查询失败：课程下没有主题信息记录"),
     TOPIC_SEARCH_ERROR_2(134, "主题分页查询失败：查询的页数超过最大页数"),
+    TOPIC_DELETE_ERROR_1(135, "主题删除失败:没有主题对应的课程"),
+    TOPIC_DELETE_ERROR_2(136, "主题删除失败:主题数据不存在"),
+    TOPIC_UPDATE_ERROR_3(137, "主题更新失败：原主题不存在"),
+    TOPIC_INSERT_ERROR_3(138, "主题信息插入失败：没有对应的课程"),
+
+
+    //分面
+    FACET_INSERT_ERROR(139, "分面信息插入失败：分面名不存在或者为空"),
+    FACET_INSERT_ERROR_1(140, "分面信息插入失败：分面插入语句执行失败"),
+    FACET_DELETE_ERROR(141,"分面信息删除失败：分面不存在"),
+    FACET_DELETE_ERROR_1(141,"分面信息删除失败：删除语句执行失败"),
+    FACET_UPDATE_ERROR(142,"分面更新失败：更新语句执行失败"),
+    FACET_SEARCH_ERROR(143,"分面查询失败：查询语句执行失败"),
+    FACET_SEARCH_ERROR_1(144,"分面分页查询失败：没有数据源记录"),
+    FACET_SEARCH_ERROR_2(145,"分面分页查询失败：查询的页数超过最大页数"),
+    FACET_SEARCH_ERROR_3(147,"分面查询失败：对应课程不存在"),
+    FACET_SEARCH_ERROR_4(148,"分面查询失败：对应主题不存在"),
+    FACET_SEARCH_ERROR_5(149,"分面查询失败：对应课程和主题下没有分面"),
+    FACET_SEARCH_ERROR_6(150,"分面查询失败：对应课程和主题下没有对应分面"),
+    FACET_SEARCH_ERROR_7(151,"分面查询失败：对应课程、主题下以及分面下没有子分面"),
+
+    FACET_INSERT_ERROR_2(152, "分面信息插入失败：对应课程不存在"),
+    FACET_INSERT_ERROR_3(153, "分面信息插入失败：对应主题不存在"),
+
+
     ;
 
     private Integer code;

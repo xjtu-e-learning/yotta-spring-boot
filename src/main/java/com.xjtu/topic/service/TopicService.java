@@ -39,8 +39,8 @@ public class TopicService {
      * */
     public Result insertTopic(Topic topic){
 
-        Long topicId = topic.getTopicId();
         String topicName = topic.getTopicName();
+        Long domainId = topic.getDomainId();
 
         //插入主题的主题名必须存在且不能为空
         if(topicName==null||topicName.equals("")||topicName.length()==0){
@@ -48,7 +48,7 @@ public class TopicService {
             return ResultUtil.error(ResultEnum.TOPIC_INSERT_ERROR.getCode(),ResultEnum.TOPIC_INSERT_ERROR.getMsg());
         }
         //保证插入主题不存在数据库中
-        else if(topicRepository.findByTopicIdAndTopicName(topicId, topicName)==null){
+        else if(topicRepository.findByTopicNameAndDomainId(topicName, domainId)==null){
             Topic topicInsert = topicRepository.save(topic);
             if(topicInsert==null){
                 logger.error("主题信息插入失败：数据库插入语句失败");
@@ -60,10 +60,27 @@ public class TopicService {
             }
         }
         //主题信息已经在数据库中
-        logger.error("主题信息插入失败：主题已在数据库中");
+        logger.error("主题信息插入失败：插入主题已经存在");
         return ResultUtil.error(ResultEnum.TOPIC_INSERT_ERROR_1.getCode(), ResultEnum.TOPIC_INSERT_ERROR_1.getMsg());
     }
 
+    /**
+     * 插入主题信息
+     * @param domainName 课程名
+     * @param topicName 主题名
+     * @return 插入结果
+     * */
+    public Result insertDomainByNameAndTopicName(String domainName, String topicName){
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if(domain==null){
+            logger.error("主题信息插入失败：没有对应的课程");
+            return ResultUtil.error(ResultEnum.TOPIC_INSERT_ERROR_3.getCode(), ResultEnum.TOPIC_INSERT_ERROR_3.getMsg());
+        }
+        Topic topic = new Topic();
+        topic.setDomainId(domain.getDomainId());
+        topic.setTopicName(topicName);
+        return insertTopic(topic);
+    }
 
     /**
      * 删除主题信息：根据主题Id
@@ -96,8 +113,8 @@ public class TopicService {
                 return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR_1.getCode(),ResultEnum.TOPIC_DELETE_ERROR_1.getMsg());
             }
 
-            List<Topic> topics = topicRepository.findByTopicNameAndDomainId(topicName, domain.getDomainId());
-            if(topics.size()<1){
+            Topic topic = topicRepository.findByTopicNameAndDomainId(topicName, domain.getDomainId());
+            if(topic == null){
                 logger.error("主题名删除失败：主题数据不存在");
                 return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR_2.getCode(),ResultEnum.TOPIC_DELETE_ERROR_2.getMsg());
             }

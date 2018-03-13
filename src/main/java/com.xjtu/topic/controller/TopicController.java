@@ -30,14 +30,24 @@ public class TopicController {
      * API
      * 添加一个主题
      * 在选定的课程下添加新主题
-     * 未写
      * */
+    @GetMapping("/insertDomainByNameAndTopicName")
+    @ApiOperation(value = "插入主题信息", notes = "插入课程名和主题名")
+    public ResponseEntity insertDomainByNameAndTopicName(@RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "topicName") String topicName){
+        Result result = topicService.insertDomainByNameAndTopicName(domainName, topicName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
 
     /**
      * API
      * 删除主题
      * 根据课程名和主题名进行删除
-     * 未写
      * */
     @GetMapping("/deleteDomainByNameAndTopicName")
     @ApiOperation(value = "删除主题", notes = "根据课程名和主题名进行删除")
