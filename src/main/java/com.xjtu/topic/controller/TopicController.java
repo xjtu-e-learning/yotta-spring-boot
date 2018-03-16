@@ -8,10 +8,7 @@ import org.apache.regexp.RE;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  *api:处理topic主题数据
@@ -96,12 +93,35 @@ public class TopicController {
      * 获得指定课程、指定主题的所有信息
      * 获得指定课程下指定主题的所有信息
      * */
-
     @GetMapping("/getCompleteTopicByNameAndDomainName")
     @ApiOperation(value = "获得指定课程、指定主题的所有信息", notes = "获得指定课程、指定主题的所有信息")
     public ResponseEntity getCompleteTopicByNameAndDomainName(@RequestParam(name = "domainName") String domainName
             , @RequestParam(name = "topicName") String topicName){
         Result result = topicService.findCompleteTopicByNameAndDomainName(domainName, topicName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    /**
+     * API
+     * 获得指定课程、指定主题的所有信息，添加hasFragment,如果为false分面树信息不添加碎片
+     * 获得指定课程下指定主题的所有信息
+     * */
+    @PostMapping("/getCompleteTopicByNameAndDomainNameWithHasFragment")
+    @ApiOperation(value = "获得指定课程、指定主题的所有信息", notes = "获得指定课程、指定主题的所有信息")
+    public ResponseEntity getCompleteTopicByNameAndDomainNameWithHasFragment(@RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "topicName") String topicName
+            , @RequestParam(name = "hasFragment") boolean hasFragment){
+        if(hasFragment == true){
+            Result result = topicService.findCompleteTopicByNameAndDomainName(domainName, topicName);
+            if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(result);
+        }
+        Result result = topicService.findCompleteTopicByNameAndDomainNameWithoutAssemble(domainName, topicName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }

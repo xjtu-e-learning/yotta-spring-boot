@@ -226,6 +226,7 @@ public class TopicService {
             //如果存在二级分面，设置一级分面下的二级分面
             List<Facet> secondLayerFacets = facetRepository.findByParentFacetId(facet.getFacetId());
             if(secondLayerFacets.size()>0){
+                firstLayerFacet.setContainChildrenFacet(true);
                 List<FacetContainAssemble> secondLayerFacetContainAssembles = new ArrayList<>();
                 for(Facet secondLayerFacet:secondLayerFacets){
                     FacetContainAssemble secondLayerFacetContainAssemble = new FacetContainAssemble();
@@ -256,6 +257,56 @@ public class TopicService {
                 }
                 firstLayerFacet.setChildrenNumber(assembleContainTypes.size());
                 firstLayerFacet.setChildren(assembleContainTypes);
+            }
+            firstLayerFacets.add(firstLayerFacet);
+        }
+        topicContainFacet.setChildren(firstLayerFacets);
+        topicContainFacet.setChildrenNumber(firstLayerFacets.size());
+        logger.info("主题信息查询成功");
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(),topicContainFacet);
+    }
+    /**
+     * 指定课程名和主题名，获取主题并包含其完整的下的分面、不包含碎片数据
+     * @param domainName 课程名
+     * @param topicName 主题名
+     * @return
+     * */
+    public Result findCompleteTopicByNameAndDomainNameWithoutAssemble(String domainName, String topicName){
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if(domain==null){
+            logger.error("主题查询失败：没有指定课程");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_2.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_2.getMsg());
+        }
+        Topic topic = topicRepository.findByTopicNameAndDomainId(topicName,domain.getDomainId());
+        if(topic==null){
+            logger.error("主题查询失败：没有指定主题");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR.getCode(), ResultEnum.TOPIC_SEARCH_ERROR.getMsg());
+
+        }
+        List<Facet> facets = facetRepository.findByFacetLayerAndTopicId(1,topic.getTopicId());
+        //初始化Topic
+        TopicContainFacet topicContainFacet = new TopicContainFacet();
+        topicContainFacet.setTopic(topic);
+
+        //firstLayerFacets一级分面列表，将二级分面挂到对应一级分面下
+        List<Facet> firstLayerFacets = new ArrayList<>();
+        for(Facet facet:facets){
+            //设置一级分面
+            FacetContainAssemble firstLayerFacet = new FacetContainAssemble();
+            firstLayerFacet.setFacet(facet);
+
+            //如果存在二级分面，设置一级分面下的二级分面
+            List<Facet> secondLayerFacets = facetRepository.findByParentFacetId(facet.getFacetId());
+            if(secondLayerFacets.size()>0){
+                firstLayerFacet.setContainChildrenFacet(true);
+                List<FacetContainAssemble> secondLayerFacetContainAssembles = new ArrayList<>();
+                for(Facet secondLayerFacet:secondLayerFacets){
+                    FacetContainAssemble secondLayerFacetContainAssemble = new FacetContainAssemble();
+                    secondLayerFacetContainAssemble.setFacet(secondLayerFacet);
+                    secondLayerFacetContainAssembles.add(secondLayerFacetContainAssemble);
+                }
+                firstLayerFacet.setChildren(secondLayerFacetContainAssembles);
+                firstLayerFacet.setChildrenNumber(secondLayerFacets.size());
             }
             firstLayerFacets.add(firstLayerFacet);
         }

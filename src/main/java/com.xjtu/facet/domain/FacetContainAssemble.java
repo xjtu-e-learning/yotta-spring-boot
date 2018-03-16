@@ -15,6 +15,13 @@ public class FacetContainAssemble extends Facet {
     Integer childrenNumber = 0;
     String type = "branch";
 
+
+
+    /**
+     * 是否包含子级分面
+     * */
+    boolean containChildrenFacet = false;
+
     public FacetContainAssemble() {
     }
 
@@ -62,6 +69,13 @@ public class FacetContainAssemble extends Facet {
 
     public void setChildrenNumber(Integer childrenNumber) {
         this.childrenNumber = childrenNumber;
+    }
+    public boolean isContainChildrenFacet() {
+        return containChildrenFacet;
+    }
+
+    public void setContainChildrenFacet(boolean containChildrenFacet) {
+        this.containChildrenFacet = containChildrenFacet;
     }
 
     public void setFacet(Facet facet){
