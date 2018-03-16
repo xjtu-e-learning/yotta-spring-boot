@@ -9,31 +9,59 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-
+/**
+ * 主题数据的数据库操作
+ * @author yangkuan
+ * @date 2018/03/09 15:15
+ * */
 public interface TopicRepository extends JpaRepository<Topic, Long>, JpaSpecificationExecutor<Topic>{
 
     /**
      * 根据课程名，查询课程下的所有主题
-     */
-    @Transactional
+     * @param domainId 课程id
+     * @return List<Topic>
+     * */
+    @Transactional(rollbackFor = Exception.class)
     List<Topic> findByDomainId(Long domainId);
 
-    @Transactional
+    /**
+     * 根据主题名，查询课程下的所有主题
+     * @param topicName 主题名
+     * @return List<Topic>
+     * */
+    @Transactional(rollbackFor = Exception.class)
     List<Topic> findByTopicName(String topicName);
 
-
-    @Transactional
+    /**
+     * 根据主题名和课程id，查询对应主题信息
+     * @param topicName 主题名
+     * @param domainId 课程id
+     * @return Topic
+     * */
+    @Transactional(rollbackFor = Exception.class)
     Topic findByTopicNameAndDomainId(String topicName, Long domainId);
 
-    @Transactional
+    /**
+     * 根据主题名和课程id，删除对应主题信息
+     * @param topicName 主题名
+     * @param domainId 课程id
+     * @return void
+     * */
+    @Transactional(rollbackFor = Exception.class)
     void deleteByTopicNameAndDomainId(String topicName, Long domainId);
-
 
     /**
      * 修改主题名字
      * */
+    /**
+     * 根据主题名，修改对应主题信息(新主题名、课程id)
+     * @param oldTopicName 旧主题名
+     * @param newTopicName 新主题名
+     * @param domainId 课程id
+     * @return void
+     * */
     @Modifying(clearAutomatically = true)
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Query("update Topic t set t.topicName = ?2, t.domainId = ?3 where t.topicName = ?1")
     void updateByTopicName(String oldTopicName, String newTopicName, Long domainId);
 

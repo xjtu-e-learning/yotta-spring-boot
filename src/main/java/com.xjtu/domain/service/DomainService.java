@@ -8,6 +8,7 @@ import com.xjtu.subject.domain.Subject;
 import com.xjtu.subject.domain.SubjectContainDomain;
 import com.xjtu.subject.repository.SubjectRepository;
 import com.xjtu.utils.ResultUtil;
+import org.apache.xalan.xsltc.DOM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +61,7 @@ public class DomainService {
             Domain domainInsert = domainRepository.save(domain);
             if(domainInsert != null){
                 logger.info("插入课程信息成功");
-                return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), domainInsert);
+                return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "课程:"+domainName+"插入成功");
             }
             else {
                 logger.error("课程信息插入失败：数据库插入语句失败");
@@ -71,6 +72,17 @@ public class DomainService {
         logger.error("课程信息插入失败：课程已在数据库中");
         return ResultUtil.error(ResultEnum.Domain_INSERT_ERROR_1.getCode(), ResultEnum.Domain_INSERT_ERROR_1.getMsg());
     }
+    /**
+     * 指定课程名，插入一门课程
+     * @param domainName 需要插入的课程名
+     * @return 插入结果
+     * */
+    public Result insertDomainByName(String domainName){
+        Domain domain = new Domain();
+        domain.setDomainName(domainName);
+        return insertDomain(domain);
+    }
+
 
 
     /**

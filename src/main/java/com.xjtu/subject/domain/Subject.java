@@ -6,6 +6,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+/**
+ *学科类
+ * @author yangkuan
+ * @date:2018/03/06 15:36
+ */
 @Entity
 @Table(name = "subject")
 public class Subject {

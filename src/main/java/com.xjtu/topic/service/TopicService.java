@@ -1,11 +1,17 @@
 package com.xjtu.topic.service;
 
+import com.xjtu.assemble.domain.Assemble;
+import com.xjtu.assemble.domain.AssembleContainType;
+import com.xjtu.assemble.repository.AssembleRepository;
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
 import com.xjtu.domain.domain.Domain;
 import com.xjtu.domain.repository.DomainRepository;
-import com.xjtu.domain.service.DomainService;
+import com.xjtu.facet.domain.Facet;
+import com.xjtu.facet.domain.FacetContainAssemble;
+import com.xjtu.facet.repository.FacetRepository;
 import com.xjtu.topic.domain.Topic;
+import com.xjtu.topic.domain.TopicContainFacet;
 import com.xjtu.topic.repository.TopicRepository;
 import com.xjtu.utils.ResultUtil;
 import org.slf4j.Logger;
@@ -13,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,6 +38,12 @@ public class TopicService {
 
     @Autowired
     private DomainRepository domainRepository;
+
+    @Autowired
+    private FacetRepository facetRepository;
+
+    @Autowired
+    private AssembleRepository assembleRepository;
 
     /**
      * 插入主题信息
@@ -56,7 +69,7 @@ public class TopicService {
             }
             else {
                 logger.info("插入主题信息成功");
-                return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicInsert);
+                return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "插入主题:"+topicName+"成功");
             }
         }
         //主题信息已经在数据库中
@@ -70,7 +83,7 @@ public class TopicService {
      * @param topicName 主题名
      * @return 插入结果
      * */
-    public Result insertDomainByNameAndTopicName(String domainName, String topicName){
+    public Result insertTopicByNameAndDomainName(String domainName, String topicName){
         Domain domain = domainRepository.findByDomainName(domainName);
         if(domain==null){
             logger.error("主题信息插入失败：没有对应的课程");
@@ -179,6 +192,77 @@ public class TopicService {
             logger.error("主题查询失败：该课程下没有主题记录");
             return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_1.getCode(),ResultEnum.TOPIC_SEARCH_ERROR_1.getMsg());
         }
+    }
+    /**
+     * 指定课程名和主题名，获取主题并包含其完整的下的分面、碎片数据
+     * @param domainName 课程名
+     * @param topicName 主题名
+     * @return
+     * */
+    public Result findCompleteTopicByNameAndDomainName(String domainName, String topicName){
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if(domain==null){
+            logger.error("主题查询失败：没有指定课程");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_2.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_2.getMsg());
+        }
+        Topic topic = topicRepository.findByTopicNameAndDomainId(topicName,domain.getDomainId());
+        if(topic==null){
+            logger.error("主题查询失败：没有指定主题");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR.getCode(), ResultEnum.TOPIC_SEARCH_ERROR.getMsg());
+
+        }
+        List<Facet> facets = facetRepository.findByFacetLayerAndTopicId(1,topic.getTopicId());
+        //初始化Topic
+        TopicContainFacet topicContainFacet = new TopicContainFacet();
+        topicContainFacet.setTopic(topic);
+
+        //firstLayerFacets一级分面列表，将二级分面挂到对应一级分面下
+        List<Facet> firstLayerFacets = new ArrayList<>();
+        for(Facet facet:facets){
+            //设置一级分面
+            FacetContainAssemble firstLayerFacet = new FacetContainAssemble();
+            firstLayerFacet.setFacet(facet);
+
+            //如果存在二级分面，设置一级分面下的二级分面
+            List<Facet> secondLayerFacets = facetRepository.findByParentFacetId(facet.getFacetId());
+            if(secondLayerFacets.size()>0){
+                List<FacetContainAssemble> secondLayerFacetContainAssembles = new ArrayList<>();
+                for(Facet secondLayerFacet:secondLayerFacets){
+                    FacetContainAssemble secondLayerFacetContainAssemble = new FacetContainAssemble();
+                    secondLayerFacetContainAssemble.setFacet(secondLayerFacet);
+                    //设置二级分面下的碎片
+                    List<Assemble> secondLayerAssembles = assembleRepository.findByFacetId(secondLayerFacet.getFacetId());
+                    List<AssembleContainType> secondLayerAssembleContainTypes = new ArrayList<>();
+                    for(Assemble secondLayerAssemble:secondLayerAssembles){
+                        AssembleContainType secondLayerAssembleContainType = new AssembleContainType();
+                        secondLayerAssembleContainType.setAssemble(secondLayerAssemble);
+                        secondLayerAssembleContainTypes.add(secondLayerAssembleContainType);
+                    }
+                    secondLayerFacetContainAssemble.setChildrenNumber(secondLayerAssembleContainTypes.size());
+                    secondLayerFacetContainAssemble.setChildren(secondLayerAssembleContainTypes);
+                    secondLayerFacetContainAssembles.add(secondLayerFacetContainAssemble);
+                }
+                firstLayerFacet.setChildren(secondLayerFacetContainAssembles);
+                firstLayerFacet.setChildrenNumber(secondLayerFacets.size());
+            }
+            //如果存在碎片，设置一级分面下的碎片
+            List<Assemble> assembles = assembleRepository.findByFacetId(facet.getFacetId());
+            if(assembles.size()>0){
+                List<AssembleContainType> assembleContainTypes = new ArrayList<>();
+                for(Assemble assemble:assembles){
+                    AssembleContainType assembleContainType = new AssembleContainType();
+                    assembleContainType.setAssemble(assemble);
+                    assembleContainTypes.add(assembleContainType);
+                }
+                firstLayerFacet.setChildrenNumber(assembleContainTypes.size());
+                firstLayerFacet.setChildren(assembleContainTypes);
+            }
+            firstLayerFacets.add(firstLayerFacet);
+        }
+        topicContainFacet.setChildren(firstLayerFacets);
+        topicContainFacet.setChildrenNumber(firstLayerFacets.size());
+        logger.info("主题信息查询成功");
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(),topicContainFacet);
     }
 
 }

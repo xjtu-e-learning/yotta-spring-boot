@@ -52,9 +52,17 @@ public class DomainController {
 
     /**
      * 插入一门课程
-     * 未写
      * insertDomain
      */
+    @GetMapping("/insertDomain")
+    @ApiOperation(value = "插入一门课程", notes = "插入一门课程")
+    public ResponseEntity insertDomain(@RequestParam(name = "domainName") String domainName){
+        Result result = domainService.insertDomainByName(domainName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 
     @GetMapping("/countDomains")
     @ApiOperation(value = "统计课程数量", notes = "统计课程数量")

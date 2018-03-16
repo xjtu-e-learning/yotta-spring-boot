@@ -31,11 +31,11 @@ public class TopicController {
      * 添加一个主题
      * 在选定的课程下添加新主题
      * */
-    @GetMapping("/insertDomainByNameAndTopicName")
-    @ApiOperation(value = "插入主题信息", notes = "插入课程名和主题名")
-    public ResponseEntity insertDomainByNameAndTopicName(@RequestParam(name = "domainName") String domainName
+    @GetMapping("/insertTopicByNameAndDomainName")
+    @ApiOperation(value = "插入主题信息，指定插入课程名和主题名", notes = "插入主题信息，指定插入课程名和主题名")
+    public ResponseEntity insertTopicByNameAndDomainName(@RequestParam(name = "domainName") String domainName
             , @RequestParam(name = "topicName") String topicName){
-        Result result = topicService.insertDomainByNameAndTopicName(domainName, topicName);
+        Result result = topicService.insertTopicByNameAndDomainName(domainName, topicName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
@@ -93,10 +93,21 @@ public class TopicController {
 
     /**
      * API
-     * 获得指定领域下指定主题的信息
-     * 获得指定领域下指定主题的信息
-     * 未写
+     * 获得指定课程、指定主题的所有信息
+     * 获得指定课程下指定主题的所有信息
      * */
+
+    @GetMapping("/getCompleteTopicByNameAndDomainName")
+    @ApiOperation(value = "获得指定课程、指定主题的所有信息", notes = "获得指定课程、指定主题的所有信息")
+    public ResponseEntity getCompleteTopicByNameAndDomainName(@RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "topicName") String topicName){
+        Result result = topicService.findCompleteTopicByNameAndDomainName(domainName, topicName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
 
 
 
