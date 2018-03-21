@@ -3,5 +3,5 @@
 >2. getTopicByDomain
 >3. getTopicDetails
 >4. getDomainInfoBySubject
->5. getTopicInfoByDomain
+>5. getTopicInfoByDomain 新：getStatisticalInformationByDomainName
 >6. 

@@ -5,6 +5,8 @@
 >4. updateTermName 新：updateTopicByTopicName
 >4. deleteTermName 新：deleteDomainByNameAndTopicName
 >5. createTopic 新：insertTopicByNameAndDomainName
+>6. getTreeByTopicForFragment（原api在assemble下） 新：getCompleteTopicByNameAndDomainNameWithHasFragment
+>7. 
 
 
 error:关于无穷递归

@@ -74,7 +74,11 @@ public enum ResultEnum {
     FACET_INSERT_ERROR_3(153, "分面信息插入失败：对应主题不存在"),
 
     //用户登录
-    LOGIN_ERROR(154, "登录失败：用户不存在")
+    LOGIN_ERROR(154, "登录失败：用户不存在"),
+
+    //依赖关系
+    DEPENDENCY_SEARCH_ERROR(155, "主题依赖关系查询失败：没有课程信息记录"),
+    DEPENDENCY_SEARCH_ERROR_1(156, "主题依赖关系查询失败：该课程下没有主题依赖关系记录")
 
     ;
 

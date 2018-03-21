@@ -32,21 +32,29 @@ public class Dependency {
     * */
     private float confidence;
 
+    /**
+     * 课程名
+     * */
+    private Long domainId;
+
     public Dependency() {
     }
 
-    public Dependency(Long startTopicId, Long endTopicId, float confidence) {
+    public Dependency(Long startTopicId, Long endTopicId, float confidence, Long domainId) {
         this.startTopicId = startTopicId;
         this.endTopicId = endTopicId;
         this.confidence = confidence;
+        this.domainId = domainId;
     }
 
     @Override
     public String toString() {
         return "Dependency{" +
-                "startTopicId=" + startTopicId +
+                "dependencyId=" + dependencyId +
+                ", startTopicId=" + startTopicId +
                 ", endTopicId=" + endTopicId +
                 ", confidence=" + confidence +
+                ", domainId=" + domainId +
                 '}';
     }
 
@@ -72,5 +80,21 @@ public class Dependency {
 
     public void setConfidence(float confidence) {
         this.confidence = confidence;
+    }
+
+    public Long getDependencyId() {
+        return dependencyId;
+    }
+
+    public void setDependencyId(Long dependencyId) {
+        this.dependencyId = dependencyId;
+    }
+
+    public Long getDomainId() {
+        return domainId;
+    }
+
+    public void setDomainId(Long domainId) {
+        this.domainId = domainId;
     }
 }
