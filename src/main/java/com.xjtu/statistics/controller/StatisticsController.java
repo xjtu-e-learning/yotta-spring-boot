@@ -7,10 +7,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * API数据统计
@@ -37,4 +34,56 @@ public class StatisticsController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
+    /**
+     * API
+     * 根据课程名、主题名列表（以“，”分割的字符串），查询该课程下的碎片统计数据
+     * */
+    @PostMapping("/getAssembleDistributionByDomainNameAndTopicNames")
+    @ApiOperation(value = "根据课程名、主题名列表（以“，”分割的字符串），查询该课程下的碎片统计数据"
+            , notes = "根据课程名、主题名列表（以“，”分割的字符串），查询该课程下的碎片统计数据")
+    public ResponseEntity getAssembleDistributionByDomainNameAndTopicNames(@RequestParam(name = "domainName") String domainName
+            ,@RequestParam(name = "topicNamesSegmentedByComma") String topicNamesSegmentedByComma){
+        Result result = statisticsService.findAssembleDistributionByDomainNameAndTopicNamesSplitedByComma(domainName,topicNamesSegmentedByComma);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    /**
+     * API
+     * 根据课程名、主题名列表（以“，”分割的字符串），查询该课程及主题下的碎片数据
+     * */
+    @PostMapping("/getAssemblesByDomainNameAndTopicNames")
+    @ApiOperation(value = "根据课程名、主题名列表（以“，”分割的字符串），查询该课程及主题下的碎片数据"
+            , notes = "根据课程名、主题名列表（以“，”分割的字符串），查询该课程及主题下的碎片数据")
+    public ResponseEntity getAssemblesByDomainNameAndTopicNames(@RequestParam(name = "domainName") String domainName
+            ,@RequestParam(name = "topicNamesSegmentedByComma") String topicNamesSegmentedByComma){
+        Result result = statisticsService.findAssemblesByDomainNameAndTopicNamesSplitedByComma(domainName,topicNamesSegmentedByComma);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+    /**
+     * findWordFrequencyBySourceNameAndDomainNameAndTopicNames
+     * API
+     * 根据课程名、主题名列表（以“，”分割的字符串）以及数据源、是否包含数据源，对碎片数据进行分词，统计词频信息
+     * */
+    @PostMapping("/getWordFrequencyBySourceNameAndDomainNameAndTopicNames")
+    @ApiOperation(value = "根据课程名、主题名列表（以“，”分割的字符串）以及数据源、是否包含数据源，对碎片数据进行分词，统计词频信息"
+            , notes = "根据课程名、主题名列表（以“，”分割的字符串）以及数据源、是否包含数据源，对碎片数据进行分词，统计词频信息")
+    public ResponseEntity getWordFrequencyBySourceNameAndDomainNameAndTopicNames(@RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "topicNamesSegmentedByComma") String topicNamesSegmentedByComma
+            , @RequestParam(name = "sourceName") String sourceName
+            , @RequestParam(name = "hasSourceName") boolean hasSourceName){
+        Result result = statisticsService.findWordFrequencyBySourceNameAndDomainNameAndTopicNames(domainName
+                , topicNamesSegmentedByComma, sourceName, hasSourceName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
 }

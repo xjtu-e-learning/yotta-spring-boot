@@ -29,15 +29,15 @@ public enum ResultEnum {
     SUBJECT_SEARCH_ERROR_2(115, "学科分页查询失败：查询的页数超过最大页数"),
 
     //课程
-    Domain_INSERT_ERROR(116, "课程信息插入失败：课程名不存在或者为空"),
-    Domain_INSERT_ERROR_1(117, "课程信息插入失败：插入已经存在的课程"),
-    Domain_INSERT_ERROR_2(118, "课程信息插入失败：数据库插入语句失败"),
-    Domain_DELETE_ERROR(119, "课程删除失败"),
-    Domain_UPDATE_ERROR(120, "课程更新失败：更新语句执行失败"),
-    Domain_UPDATE_ERROR_1(121, "课程更新失败：课程名不存在或者为空"),
-    Domain_SEARCH_ERROR(122, "课程查询失败：没有课程信息记录"),
-    Domain_SEARCH_ERROR_1(123, "课程分页查询失败：没有课程信息记录"),
-    Domain_SEARCH_ERROR_2(124, "课程分页查询失败：查询的页数超过最大页数"),
+    DOMAIN_INSERT_ERROR(116, "课程信息插入失败：课程名不存在或者为空"),
+    DOMAIN_INSERT_ERROR_1(117, "课程信息插入失败：插入已经存在的课程"),
+    DOMAIN_INSERT_ERROR_2(118, "课程信息插入失败：数据库插入语句失败"),
+    DOMAIN_DELETE_ERROR(119, "课程删除失败"),
+    DOMAIN_UPDATE_ERROR(120, "课程更新失败：更新语句执行失败"),
+    DOMAIN_UPDATE_ERROR_1(121, "课程更新失败：课程名不存在或者为空"),
+    DOMAIN_SEARCH_ERROR(122, "课程查询失败：没有课程信息记录"),
+    DOMAIN_SEARCH_ERROR_1(123, "课程分页查询失败：没有课程信息记录"),
+    DOMAIN_SEARCH_ERROR_2(124, "课程分页查询失败：查询的页数超过最大页数"),
 
     //主题
     TOPIC_INSERT_ERROR(125, "主题信息插入失败：主题名不存在或者为空"),
@@ -78,8 +78,10 @@ public enum ResultEnum {
 
     //依赖关系
     DEPENDENCY_SEARCH_ERROR(155, "主题依赖关系查询失败：没有课程信息记录"),
-    DEPENDENCY_SEARCH_ERROR_1(156, "主题依赖关系查询失败：该课程下没有主题依赖关系记录")
+    DEPENDENCY_SEARCH_ERROR_1(156, "主题依赖关系查询失败：该课程下没有主题依赖关系记录"),
 
+    //课程数据统计
+    STATISTICS_SEARCH_ERROR(157, "词频查询失败：中文分词失败")
     ;
 
     private Integer code;

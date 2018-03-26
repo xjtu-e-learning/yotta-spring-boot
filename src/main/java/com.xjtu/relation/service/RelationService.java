@@ -48,7 +48,7 @@ public class RelationService {
         Domain domain = domainRepository.findByDomainName(domainName);
         if(domain==null){
             logger.error("课程查询失败：没有课程信息记录");
-            return ResultUtil.error(ResultEnum.Domain_SEARCH_ERROR.getCode(), ResultEnum.Domain_SEARCH_ERROR.getMsg());
+            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
         }
         //获取课程id
         Long domainId = domain.getDomainId();

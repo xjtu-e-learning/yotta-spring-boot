@@ -16,8 +16,9 @@ public class AssembleContainType extends Assemble{
     public AssembleContainType() {
     }
 
-    public AssembleContainType(String assembleContent, String assembleText, String assembleScratchTime, Long facetId, String type, String flag, String url) {
-        super(assembleContent, assembleText, assembleScratchTime, facetId);
+    public AssembleContainType(String assembleContent, String assembleText, String assembleScratchTime
+            , Long facetId, Long sourceId, String type, String flag, String url) {
+        super(assembleContent, assembleText, assembleScratchTime, facetId, sourceId);
         this.type = type;
         this.flag = flag;
         this.url = url;
@@ -34,6 +35,7 @@ public class AssembleContainType extends Assemble{
                 ", assembleText='" + assembleText + '\'' +
                 ", assembleScratchTime='" + assembleScratchTime + '\'' +
                 ", facetId=" + facetId +
+                ", sourceId=" + sourceId +
                 '}';
     }
 
@@ -61,6 +63,7 @@ public class AssembleContainType extends Assemble{
         this.url = url;
     }
 
+
     public void setAssemble(Assemble assemble){
         setAssembleId(assemble.getAssembleId());
         setAssembleContent(assemble.getAssembleContent());
@@ -68,4 +71,5 @@ public class AssembleContainType extends Assemble{
         setAssembleScratchTime(assemble.getAssembleScratchTime());
         setFacetId(assemble.getFacetId());
     }
+
 }

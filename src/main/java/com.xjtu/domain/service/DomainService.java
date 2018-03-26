@@ -54,7 +54,7 @@ public class DomainService {
         //插入课程的课程名必须存在且不能为空
         if(domainName == null||("").equals(domainName)||domainName.length()==0){
             logger.error("课程信息插入失败：课程名不存在或者为空");
-            return ResultUtil.error(ResultEnum.Domain_INSERT_ERROR.getCode(),ResultEnum.Domain_INSERT_ERROR.getMsg());
+            return ResultUtil.error(ResultEnum.DOMAIN_INSERT_ERROR.getCode(),ResultEnum.DOMAIN_INSERT_ERROR.getMsg());
         }
         //保证插入课程不存在数据库中
         else if(domainRepository.findByDomainIdAndDomainName(domain.getDomainId(), domainName)==null){
@@ -65,12 +65,12 @@ public class DomainService {
             }
             else {
                 logger.error("课程信息插入失败：数据库插入语句失败");
-                return ResultUtil.error(ResultEnum.Domain_INSERT_ERROR_2.getCode(), ResultEnum.Domain_INSERT_ERROR_2.getMsg());
+                return ResultUtil.error(ResultEnum.DOMAIN_INSERT_ERROR_2.getCode(), ResultEnum.DOMAIN_INSERT_ERROR_2.getMsg());
             }
         }
         //课程已经在数据库中
         logger.error("课程信息插入失败：课程已在数据库中");
-        return ResultUtil.error(ResultEnum.Domain_INSERT_ERROR_1.getCode(), ResultEnum.Domain_INSERT_ERROR_1.getMsg());
+        return ResultUtil.error(ResultEnum.DOMAIN_INSERT_ERROR_1.getCode(), ResultEnum.DOMAIN_INSERT_ERROR_1.getMsg());
     }
     /**
      * 指定课程名，插入一门课程
@@ -98,7 +98,7 @@ public class DomainService {
         }
         catch (Exception e){
             logger.error("删除课程失败");
-            return ResultUtil.error(ResultEnum.Domain_DELETE_ERROR.getCode(), ResultEnum.Domain_DELETE_ERROR.getMsg());
+            return ResultUtil.error(ResultEnum.DOMAIN_DELETE_ERROR.getCode(), ResultEnum.DOMAIN_DELETE_ERROR.getMsg());
         }
     }
 
@@ -115,7 +115,7 @@ public class DomainService {
         Long newSubjectId = newDomain.getSubjectId();
         if(newDomainName==null||newDomainName.equals("")||newDomainName.length()==0){
             logger.error("课程更新失败：课程名不存在或为空");
-            return ResultUtil.error(ResultEnum.Domain_UPDATE_ERROR_1.getCode(),ResultEnum.Domain_UPDATE_ERROR_1.getMsg());
+            return ResultUtil.error(ResultEnum.DOMAIN_UPDATE_ERROR_1.getCode(),ResultEnum.DOMAIN_UPDATE_ERROR_1.getMsg());
         }
         try {
             domainRepository.updateByDomainId(domainId, newDomainId, newDomainName, newSubjectId);
@@ -124,7 +124,7 @@ public class DomainService {
         }
         catch (Exception err){
             logger.error("课程更新失败：更新语句执行失败");
-            return ResultUtil.error(ResultEnum.Domain_UPDATE_ERROR.getCode(),ResultEnum.Domain_UPDATE_ERROR.getMsg());
+            return ResultUtil.error(ResultEnum.DOMAIN_UPDATE_ERROR.getCode(),ResultEnum.DOMAIN_UPDATE_ERROR.getMsg());
         }
     }
 
@@ -137,7 +137,7 @@ public class DomainService {
     public Result updateDomainByDomainName(String oldDomainName, String newDomainName){
         if(newDomainName==null||newDomainName.equals("")||newDomainName.length()==0){
             logger.error("课程名更新失败：新课程名不存在或为空");
-            return ResultUtil.error(ResultEnum.Domain_UPDATE_ERROR_1.getCode(),ResultEnum.Domain_UPDATE_ERROR_1.getMsg());
+            return ResultUtil.error(ResultEnum.DOMAIN_UPDATE_ERROR_1.getCode(),ResultEnum.DOMAIN_UPDATE_ERROR_1.getMsg());
         }
         try {
             domainRepository.updateDomainByDomainName(oldDomainName, newDomainName);
@@ -146,7 +146,7 @@ public class DomainService {
         }
         catch (Exception err){
             logger.error("课程名更新失败：更新语句执行失败");
-            return ResultUtil.error(ResultEnum.Domain_UPDATE_ERROR.getCode(),ResultEnum.Domain_UPDATE_ERROR.getMsg());
+            return ResultUtil.error(ResultEnum.DOMAIN_UPDATE_ERROR.getCode(),ResultEnum.DOMAIN_UPDATE_ERROR.getMsg());
         }
     }
 
@@ -164,7 +164,7 @@ public class DomainService {
         }
         else {
             logger.error("课程查询失败：没有课程记录");
-            return ResultUtil.error(ResultEnum.Domain_SEARCH_ERROR.getCode(),ResultEnum.Domain_SEARCH_ERROR.getMsg());
+            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(),ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
         }
     }
 
@@ -181,7 +181,7 @@ public class DomainService {
         }
         catch (Exception err){
             logger.error("课程查询失败：没有课程记录");
-            return ResultUtil.error(ResultEnum.Domain_SEARCH_ERROR.getCode(), ResultEnum.Domain_SEARCH_ERROR.getMsg());
+            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
         }
     }
 
@@ -198,7 +198,7 @@ public class DomainService {
         }
         catch (Exception err){
             logger.error("课程查询失败：没有课程记录");
-            return ResultUtil.error(ResultEnum.Domain_SEARCH_ERROR.getCode(), ResultEnum.Domain_SEARCH_ERROR.getMsg());
+            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
         }
     }
 
@@ -257,11 +257,11 @@ public class DomainService {
     public Result domainPageJudge(Page<Domain> domainPage){
         if(domainPage.getNumber() >= domainPage.getTotalPages()){
             logger.error("课程分页查询失败：查询的页数超过最大页数");
-            return ResultUtil.error(ResultEnum.Domain_SEARCH_ERROR_2.getCode(),ResultEnum.Domain_SEARCH_ERROR_2.getMsg());
+            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR_2.getCode(),ResultEnum.DOMAIN_SEARCH_ERROR_2.getMsg());
         }
         else if(domainPage.getTotalElements()==0){
             logger.error("课程分页查询失败：没有课程信息记录");
-            return ResultUtil.error(ResultEnum.Domain_SEARCH_ERROR_1.getCode(),ResultEnum.Domain_SEARCH_ERROR_1.getMsg());
+            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR_1.getCode(),ResultEnum.DOMAIN_SEARCH_ERROR_1.getMsg());
         }
         //查询成功，返回查询的内容
         logger.info("课程分页查询成功"+domainPage);
@@ -275,7 +275,7 @@ public class DomainService {
         List<Subject> subjects = subjectRepository.findAll();
         if(subjects.size()==0){
             logger.error("课程查询失败：没有课程信息记录");
-            return ResultUtil.error(ResultEnum.Domain_SEARCH_ERROR.getCode(),ResultEnum.Domain_SEARCH_ERROR.getMsg());
+            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(),ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
         }
         List<SubjectContainDomain> subjectContainDomains = new ArrayList<>();
         for (Subject subject:subjects){
@@ -302,7 +302,7 @@ public class DomainService {
         }
         catch (Exception err){
             logger.error("课程数量统计查询失败");
-            return ResultUtil.error(ResultEnum.Domain_SEARCH_ERROR.getCode(), ResultEnum.Domain_SEARCH_ERROR.getMsg());
+            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
         }
     }
 

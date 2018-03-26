@@ -10,15 +10,21 @@ import com.xjtu.domain.domain.Domain;
 import com.xjtu.domain.repository.DomainRepository;
 import com.xjtu.facet.domain.Facet;
 import com.xjtu.facet.repository.FacetRepository;
+import com.xjtu.source.domain.Source;
+import com.xjtu.source.repository.SourceRepository;
 import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.repository.TopicRepository;
 import com.xjtu.utils.ResultUtil;
-import io.swagger.models.auth.In;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.wltea.analyzer.core.IKSegmenter;
+import org.wltea.analyzer.core.Lexeme;
 
+
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +39,9 @@ import java.util.Map;
 public class StatisticsService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    SourceRepository sourceRepository;
 
     @Autowired
     DomainRepository domainRepository;
@@ -59,7 +68,7 @@ public class StatisticsService {
         Domain domain = domainRepository.findByDomainName(domainName);
         if(domain==null){
             logger.error("课程查询失败：没有课程信息记录");
-            return ResultUtil.error(ResultEnum.Domain_SEARCH_ERROR.getCode(),ResultEnum.Domain_SEARCH_ERROR.getMsg());
+            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(),ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
         }
         //获取课程下的主题列表
         List<Topic> topics = topicRepository.findByDomainId(domain.getDomainId());
@@ -136,4 +145,174 @@ public class StatisticsService {
 
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), statisticsResult);
     }
+
+    /**
+     * 根据课程名、主题名列表（以“，”分割的字符串），查询每个数据源下碎片数量分布
+     * @param domainName 课程名
+     * @param topicNamesSegmentedByComma 主题名列表
+     * */
+    public Result findAssembleDistributionByDomainNameAndTopicNamesSplitedByComma(String domainName, String topicNamesSegmentedByComma){
+        String[] topicNames = topicNamesSegmentedByComma.split(",");
+        //1.查询所有数据源
+        List<Source> sources = sourceRepository.findAll();
+
+        //该课程及主题下所有碎片
+        Result result = findAssemblesByDomainNameAndTopicNames(domainName,topicNames);
+        List<Assemble> assemblesInDomainAndTopics;
+        if(result.getCode().equals(ResultEnum.SUCCESS.getCode())){
+            assemblesInDomainAndTopics = (ArrayList<Assemble>) result.getData();
+        }
+        else {
+            return result;
+        }
+        //2.按数据源统计碎片数量
+        List<Map<String,Object>> assembleDistributionGroupBySources = new ArrayList<>();
+        List<String> sourceNames = new ArrayList<>();
+        for(Source source:sources){
+            //获取数据源名列表
+            sourceNames.add(source.getSourceName());
+
+            Map<String,Object> assembleDistributionGroupBySource = new HashMap<>(2);
+            assembleDistributionGroupBySource.put("name",source.getSourceName());
+            Integer assembleCount = 0;
+            for(Assemble assemble:assemblesInDomainAndTopics){
+                if(assemble.getSourceId().equals(source.getSourceId())){
+                    assembleCount ++;
+                }
+            }
+            assembleDistributionGroupBySource.put("value",assembleCount);
+            assembleDistributionGroupBySources.add(assembleDistributionGroupBySource);
+        }
+        //拼接结果
+        Map<String,Object> assembleDistribution = new HashMap<>(2);
+        assembleDistribution.put("assembleDistributionGroupBySources",assembleDistributionGroupBySources);
+        assembleDistribution.put("sourceNames",sourceNames);
+        logger.info("查询碎片统计信息成功");
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),assembleDistribution);
+    }
+
+    /**
+     * 根据课程名、主题名列表（以“，”分割的字符串），查询每个其下的碎片
+     * @param domainName 课程名
+     * @param topicNamesSegmentedByComma 主题名列表
+     * @return 碎片列表
+     */
+    public Result findAssemblesByDomainNameAndTopicNamesSplitedByComma(String domainName, String topicNamesSegmentedByComma){
+        String[] topicNames = topicNamesSegmentedByComma.split(",");
+        //该课程及主题下所有碎片
+        Result result = findAssemblesByDomainNameAndTopicNames(domainName,topicNames);
+        List<Assemble> assemblesInDomainAndTopics;
+        if(result.getCode().equals(ResultEnum.SUCCESS.getCode())){
+            assemblesInDomainAndTopics = (ArrayList<Assemble>) result.getData();
+        }
+        else {
+            return result;
+        }
+        logger.info("查询碎片信息成功");
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),assemblesInDomainAndTopics);
+    }
+    /**
+     * 根据课程名、主题名列表（以“，”分割的字符串）、数据源，进行碎片词频统计
+     * @param domainName 课程名
+     * @param topicNamesSegmentedByComma 主题名列表
+     * @param sourceName 数据源名
+     * @param hasSourceName 是否包含数据源名
+     * @return
+     */
+    public Result findWordFrequencyBySourceNameAndDomainNameAndTopicNames(String domainName
+            , String topicNamesSegmentedByComma, String sourceName, boolean hasSourceName){
+        String[] topicNames = topicNamesSegmentedByComma.split(",");
+        //根据课程名、主题名列表，查询每个其下的碎片
+        //该课程及主题下所有碎片
+        Result result = findAssemblesByDomainNameAndTopicNames(domainName,topicNames);
+        List<Assemble> assemblesInDomainAndTopics;
+        if(result.getCode().equals(ResultEnum.SUCCESS.getCode())){
+            assemblesInDomainAndTopics = (ArrayList<Assemble>) result.getData();
+        }
+        else {
+            return result;
+        }
+        //如果存在数据源名，就过滤掉那些不是该数据源下的碎片
+        if(hasSourceName){
+            assemblesInDomainAndTopics = filterAssemblesBySourceName(assemblesInDomainAndTopics, sourceName);
+        }
+        // 存储所有碎片的文本
+        StringBuffer text = new StringBuffer();
+        for(Assemble assemblesInDomainAndTopic:assemblesInDomainAndTopics){
+            text.append(assemblesInDomainAndTopic.getAssembleText());
+        }
+        //使用Lucene Ik Analyzer 中文分词
+        StringReader reader = new StringReader(text.toString());
+        Map<String, Integer> wordFrequency = new HashMap<>();
+        // 当为true时，分词器进行最大词长切分
+        IKSegmenter ik = new IKSegmenter(reader, true);
+        Lexeme lexeme;
+        try {
+            while ((lexeme = ik.next()) != null) {
+                String word = lexeme.getLexemeText();
+                if (!wordFrequency.containsKey(word)) {
+                    wordFrequency.put(word, 1);
+                } else {
+                    wordFrequency.put(word, wordFrequency.get(word) + 1);
+                }
+            }
+        }
+        catch (IOException e){
+            logger.error("词频查询失败：中文分词失败");
+            return ResultUtil.error(ResultEnum.STATISTICS_SEARCH_ERROR.getCode()
+                    , ResultEnum.STATISTICS_SEARCH_ERROR.getMsg(), e);
+        }
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), wordFrequency);
+    }
+
+    /**
+     * 根据课程名、主题名列表，查询每个其下的碎片
+     * @param domainName 课程名
+     * @param topicNames 主题名列表
+     * @return
+     */
+    private Result findAssemblesByDomainNameAndTopicNames(String domainName, String[] topicNames){
+        //获取课程id
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if(domain==null){
+            logger.error("查询失败：没有对应课程");
+            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(),ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
+        }
+        Long domainId = domain.getDomainId();
+        //该课程及主题下所有碎片
+        List<Assemble> assemblesInDomainAndTopics = new ArrayList<>();
+        for(String topicName:topicNames){
+            //获取课程对应topic
+            Topic topic = topicRepository.findByTopicNameAndDomainId(topicName,domainId);
+            if(topic==null){
+                logger.error("查询失败：没有对应主题");
+                return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR.getCode(),ResultEnum.TOPIC_SEARCH_ERROR.getMsg());
+            }
+            //根据主题Id获取分面
+            List<Facet> facets = facetRepository.findByTopicId(topic.getTopicId());
+            for(Facet facet:facets){
+                //根据分面Id获取碎片
+                List<Assemble> assembles = assembleRepository.findByFacetId(facet.getFacetId());
+                assemblesInDomainAndTopics.addAll(assembles);
+            }
+        }
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),assemblesInDomainAndTopics);
+    }
+    /**
+     * 根据数据源，过滤碎片
+     * @param assembles
+     * @param sourceName
+     * @return 过滤后的碎片列表
+     */
+    private List<Assemble> filterAssemblesBySourceName(List<Assemble> assembles, String sourceName){
+        List<Assemble> newAssembles = new ArrayList<>();
+        Long sourceId = sourceRepository.findBySourceName(sourceName).getSourceId();
+        for(Assemble assemble:assembles){
+            if(assemble.getSourceId().equals(sourceId)){
+                newAssembles.add(assemble);
+            }
+        }
+        return newAssembles;
+    }
+
 }

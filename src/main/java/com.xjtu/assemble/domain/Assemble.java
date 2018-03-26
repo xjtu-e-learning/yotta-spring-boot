@@ -21,15 +21,17 @@ public class Assemble {
     String assembleText;
     String assembleScratchTime;
     Long facetId;
+    Long sourceId = 0L;
 
     public Assemble() {
     }
 
-    public Assemble(String assembleContent, String assembleText, String assembleScratchTime, Long facetId) {
+    public Assemble(String assembleContent, String assembleText, String assembleScratchTime, Long facetId, Long sourceId) {
         this.assembleContent = assembleContent;
         this.assembleText = assembleText;
         this.assembleScratchTime = assembleScratchTime;
         this.facetId = facetId;
+        this.sourceId = sourceId;
     }
 
     @Override
@@ -40,6 +42,7 @@ public class Assemble {
                 ", assembleText='" + assembleText + '\'' +
                 ", assembleScratchTime='" + assembleScratchTime + '\'' +
                 ", facetId=" + facetId +
+                ", sourceId=" + sourceId +
                 '}';
     }
 
@@ -81,5 +84,13 @@ public class Assemble {
 
     public void setFacetId(Long facetId) {
         this.facetId = facetId;
+    }
+
+    public Long getSourceId() {
+        return sourceId;
+    }
+
+    public void setSourceId(Long sourceId) {
+        this.sourceId = sourceId;
     }
 }

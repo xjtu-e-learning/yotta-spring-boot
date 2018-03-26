@@ -13,9 +13,29 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public interface SourceRepository extends JpaRepository<Source, Long>, JpaSpecificationExecutor<Source> {
 
+    /**
+     * 根据数据源id，查询数据源
+     * @param sourceId
+     * @return 数据源
+     */
+    @Transactional(rollbackFor = Exception.class)
     Source findBySourceId(Long sourceId);
 
+    /**
+     * 根据数据源id和数据源名，查询数据源
+     * @param sourceId
+     * @param sourceName
+     * @return 数据源
+     */
+    @Transactional(rollbackFor = Exception.class)
     Source findBySourceIdAndSourceName(Long sourceId, String sourceName);
+
+    /**
+     * 根据数据源名，查询数据源
+     * @param sourceName
+     * @return
+     */
+    Source findBySourceName(String sourceName);
 
     @Modifying(clearAutomatically = true)
     @Transactional
