@@ -39,8 +39,6 @@ public class TopicController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-
-
     /**
      * API
      * 删除主题
@@ -56,9 +54,6 @@ public class TopicController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
-
-
-
 
     /**
      * API
@@ -127,6 +122,22 @@ public class TopicController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
+    /**
+     * API
+     * 获得指定课程第一个主题的所有信息,用于构建分面树
+     * 获得指定课程第一个主题的所有信息,用于构建分面树
+     * */
+    @PostMapping("/getFirstTopicByDomianName")
+    @ApiOperation(value = "获得指定课程第一个主题的所有信息,用于构建分面树", notes = "获得指定课程第一个主题的所有信息,用于构建分面树")
+    public ResponseEntity getFirstTopicByDomianName(@RequestParam(name = "domainName") String domainName){
+        Result result = topicService.findFirstTopicByDomianName(domainName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
 
 
 

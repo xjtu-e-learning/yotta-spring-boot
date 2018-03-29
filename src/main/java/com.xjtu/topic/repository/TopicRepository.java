@@ -25,6 +25,14 @@ public interface TopicRepository extends JpaRepository<Topic, Long>, JpaSpecific
     List<Topic> findByDomainId(Long domainId);
 
     /**
+     *根据课程名，查询课程下的第一个主题
+     * @param domainId
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    Topic findFirstByDomainId(Long domainId);
+
+    /**
      * 根据主题名，查询课程下的所有主题
      * @param topicName 主题名
      * @return List<Topic>
@@ -59,6 +67,8 @@ public interface TopicRepository extends JpaRepository<Topic, Long>, JpaSpecific
      * */
     @Transactional(rollbackFor = Exception.class)
     void deleteByTopicNameAndDomainId(String topicName, Long domainId);
+
+
 
     /**
      * 修改主题名字

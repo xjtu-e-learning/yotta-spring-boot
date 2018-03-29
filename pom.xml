@@ -125,6 +125,14 @@
       <version>2012_u6</version>
     </dependency>
 
+    <!--gephi生成认知关系使用-->
+    <!--https://mvnrepository.com/artifact/org.gephi/gephi-toolkit-->
+    <dependency>
+      <groupId>org.gephi</groupId>
+      <artifactId>gephi-toolkit</artifactId>
+      <version>0.9.2</version>
+    </dependency>
+
   </dependencies>
 
   <build>

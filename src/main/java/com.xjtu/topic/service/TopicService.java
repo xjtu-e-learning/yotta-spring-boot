@@ -316,4 +316,20 @@ public class TopicService {
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(),topicContainFacet);
     }
 
+    /**
+     * 获得指定课程第一个主题的所有信息,用于构建分面树
+     * @param domainName
+     * @return
+     */
+    public Result findFirstTopicByDomianName(String domainName){
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if(domain == null){
+            logger.error("主题查询失败：没有指定课程");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_2.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_2.getMsg());
+        }
+        Long domainId = domain.getDomainId();
+        Topic topic = topicRepository.findFirstByDomainId(domainId);
+        return findCompleteTopicByNameAndDomainName(domainName,topic.getTopicName());
+    }
+
 }

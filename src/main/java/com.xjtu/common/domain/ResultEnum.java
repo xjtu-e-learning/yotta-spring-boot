@@ -79,9 +79,10 @@ public enum ResultEnum {
     //依赖关系
     DEPENDENCY_SEARCH_ERROR(155, "主题依赖关系查询失败：没有课程信息记录"),
     DEPENDENCY_SEARCH_ERROR_1(156, "主题依赖关系查询失败：该课程下没有主题依赖关系记录"),
+    DEPENDENCY_SEARCH_ERROR_2(157, "主题依赖关系生成失败：gexf文件生成失败"),
 
     //课程数据统计
-    STATISTICS_SEARCH_ERROR(157, "词频查询失败：中文分词失败")
+    STATISTICS_SEARCH_ERROR(158, "词频查询失败：中文分词失败")
     ;
 
     private Integer code;
