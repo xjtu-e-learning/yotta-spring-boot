@@ -4,6 +4,8 @@ package com.xjtu.assemble.repository;
 import com.xjtu.assemble.domain.Assemble;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -22,5 +24,27 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>,JpaSpe
     @Transactional(rollbackFor = Exception.class)
     List<Assemble> findByFacetId(Long facetId);
 
-
+    /**
+     * 查询课程下的所有碎片
+     * @param domainId 课程id
+     * @return
+     */
+    @Modifying(clearAutomatically = true)
+    @Transactional(rollbackFor = Exception.class)
+    @Query("SELECT\n" +
+            "a.assembleId,\n" +
+            "a.assembleContent,\n" +
+            "a.assembleText,\n" +
+            "a.assembleScratchTime,\n" +
+            "a.facetId,\n" +
+            "a.sourceId\n" +
+            "FROM\n" +
+            "Assemble AS a ,\n" +
+            "Facet AS f ,\n" +
+            "Topic AS t\n" +
+            "WHERE\n" +
+            "t.topicId = f.topicId AND\n" +
+            "f.facetId = a.facetId AND\n" +
+            "t.domainId = ?1\n")
+    List<Assemble> findAllAssemblesByDomainId(Long domainId);
 }

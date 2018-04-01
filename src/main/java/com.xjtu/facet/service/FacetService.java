@@ -235,7 +235,7 @@ public class FacetService {
             return ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR_4.getCode(), ResultEnum.FACET_SEARCH_ERROR_4.getMsg());
         }
         //查找到主题下的所有一级分面
-        List<Facet> firstLayerFacets = facetRepository.findByFacetLayerAndTopicId(1,topic.getTopicId());
+        List<Facet> firstLayerFacets = facetRepository.findByTopicIdAndFacetLayer(topic.getTopicId(),1);
         List<Map<String,Object>> results = new ArrayList<>();
         //根据一级分面作为父分面查找对应的二级分面
         for(Facet firstLayerFacet : firstLayerFacets){

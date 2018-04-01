@@ -67,7 +67,6 @@ public class StatisticsController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
     /**
-     * findWordFrequencyBySourceNameAndDomainNameAndTopicNames
      * API
      * 根据课程名、主题名列表（以“，”分割的字符串）以及数据源、是否包含数据源，对碎片数据进行分词，统计词频信息
      * */
@@ -80,6 +79,21 @@ public class StatisticsController {
             , @RequestParam(name = "hasSourceName") boolean hasSourceName){
         Result result = statisticsService.findWordFrequencyBySourceNameAndDomainNameAndTopicNames(domainName
                 , topicNamesSegmentedByComma, sourceName, hasSourceName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    /**
+     * API
+     * 统计所有课程的主题、分面、碎片数量分布信息
+     */
+    @ApiOperation(value = "统计所有课程的主题、分面、碎片数量分布信息"
+            ,notes = "统计所有课程的主题、分面、碎片数量分布信息")
+    @PostMapping("/getDomainDistribution")
+    public ResponseEntity getDomainDistribution(){
+        Result result = statisticsService.findDomainDistribution();
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }

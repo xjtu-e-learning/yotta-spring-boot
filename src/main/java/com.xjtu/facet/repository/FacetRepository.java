@@ -54,13 +54,56 @@ public interface FacetRepository extends JpaRepository<Facet, Long>, JpaSpecific
 
     /**
      * 指定分面所在层以及主题Id，查找分面
-     * @param facetLayer 分面所在层
      * @param topicId 主题Id
+     * @param facetLayer 分面所在层
      * @return List<Facet>
      */
     @Transactional(rollbackFor = Exception.class)
-    List<Facet> findByFacetLayerAndTopicId(Integer facetLayer, Long topicId);
+    List<Facet> findByTopicIdAndFacetLayer(Long topicId, Integer facetLayer);
 
+    /**
+     * 查询一门课程下的所有分面，连表查询
+     * @param domainId 课程Id
+     * @return
+     */
+    @Modifying(clearAutomatically = true)
+    @Transactional(rollbackFor = Exception.class)
+    @Query("SELECT \n" +
+            "f.facetId,\n" +
+            "f.facetName,\n" +
+            "f.facetLayer,\n" +
+            "f.parentFacetId,\n" +
+            "f.topicId \n" +
+            "FROM \n" +
+            "Topic t,\n" +
+            "Facet f \n" +
+            "WHERE \n" +
+            "t.domainId = ?1 AND \n" +
+            "t.topicId = f .topicId")
+    List<Facet> findAllFacetsByDomainId(Long domainId);
+
+    /**
+     * 查询一门课程下的各层分面，连表查询
+     * @param domainId 课程Id
+     * @param facetLayer 分面所在层
+     * @return
+     */
+    @Modifying(clearAutomatically = true)
+    @Transactional(rollbackFor = Exception.class)
+    @Query("SELECT \n" +
+            "f.facetId,\n" +
+            "f.facetName,\n" +
+            "f.facetLayer,\n" +
+            "f.parentFacetId,\n" +
+            "f.topicId \n" +
+            "FROM \n" +
+            "Topic t,\n" +
+            "Facet f \n" +
+            "WHERE \n" +
+            "t.domainId = ?1 AND \n" +
+            "t.topicId = f .topicId AND \n" +
+            "f.facetLayer = ?2 ")
+    List<Facet> findFacetsByDomainIdAndFacetLayer(Long domainId, Integer facetLayer);
 
     /**
      * 更新分面

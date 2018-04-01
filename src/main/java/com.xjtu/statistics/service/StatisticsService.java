@@ -12,6 +12,8 @@ import com.xjtu.facet.domain.Facet;
 import com.xjtu.facet.repository.FacetRepository;
 import com.xjtu.source.domain.Source;
 import com.xjtu.source.repository.SourceRepository;
+import com.xjtu.subject.domain.Subject;
+import com.xjtu.subject.repository.SubjectRepository;
 import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.repository.TopicRepository;
 import com.xjtu.utils.ResultUtil;
@@ -42,6 +44,9 @@ public class StatisticsService {
 
     @Autowired
     SourceRepository sourceRepository;
+
+    @Autowired
+    SubjectRepository subjectRepository;
 
     @Autowired
     DomainRepository domainRepository;
@@ -101,15 +106,15 @@ public class StatisticsService {
             facetNumbers.add(facets.size());
             facetNumberSum += facets.size();
             //获取一级分面
-            List<Facet> firstLayerFacets = facetRepository.findByFacetLayerAndTopicId(1,topicId);
+            List<Facet> firstLayerFacets = facetRepository.findByTopicIdAndFacetLayer(topicId, 1);
             firstLayerFacetNumbers.add(firstLayerFacets.size());
             firstLayerFacetNumberSum += firstLayerFacets.size();
             //获取二级分面
-            List<Facet> secondLayerFacets = facetRepository.findByFacetLayerAndTopicId(2,topicId);
+            List<Facet> secondLayerFacets = facetRepository.findByTopicIdAndFacetLayer(topicId,2);
             secondLayerFacetNumbers.add(secondLayerFacets.size());
             secondLayerFacetNumberSum += secondLayerFacets.size();
             //获取三级分面
-            List<Facet> thirdLayerFacets = facetRepository.findByFacetLayerAndTopicId(3,topicId);
+            List<Facet> thirdLayerFacets = facetRepository.findByTopicIdAndFacetLayer(topicId, 3);
             thirdLayerFacetNumbers.add(thirdLayerFacets.size());
             thirdLayerFacetNumberSum += thirdLayerFacets.size();
             //获取以主题为起始点的依赖关系
@@ -313,6 +318,59 @@ public class StatisticsService {
             }
         }
         return newAssembles;
+    }
+
+    /**
+     * 统计所有课程信息，包括包含学科名、课程名、课程id、主题数、
+     * 一级分面、二级分面和三级分面数、碎片数、依赖（认知关系）数
+     * @return
+     */
+    public Result findDomainDistribution(){
+        //查询所有课程
+        List<Domain> domains = domainRepository.findAll();
+        //存储统计结果
+        List<Map<String, Object>> results = new ArrayList<>();
+        for(Domain domain:domains){
+            Long domainId = domain.getDomainId();
+            Map<String, Object> result = new HashMap<>(11);
+            result.put("domainId",domain.getDomainId());
+            result.put("domainName",domain.getDomainName());
+            result.put("note","");
+            //查询课程所属学科
+            Subject subject = subjectRepository.findBySubjectId(domain.getSubjectId());
+            result.put("subjectName",subject.getSubjectName());
+            //根据课程查询课程主题
+            List<Topic> topics = topicRepository.findByDomainId(domain.getDomainId());
+            result.put("topicNumber",topics.size());
+            //根据主题查询分面（一级、二级、三级、总数）
+            //查询总分面
+            List<Facet> facets = facetRepository.findAllFacetsByDomainId(domainId);
+            int facetNumber = facets.size();
+            //一级分面
+            List<Facet> firstLayerFacets = facetRepository.findFacetsByDomainIdAndFacetLayer(domainId,1);
+            int firstLayerFacetNumber = firstLayerFacets.size();
+            //二级分面
+            List<Facet> secondLayerFacets = facetRepository.findFacetsByDomainIdAndFacetLayer(domainId,2);
+            int secondLayerFacetNumber = secondLayerFacets.size();
+            //三级分面
+            List<Facet> thirdLayerFacets = facetRepository.findFacetsByDomainIdAndFacetLayer(domainId,3);
+            int thirdLayerFacetNumber = thirdLayerFacets.size();
+            //查询碎片
+            List<Assemble> assembles = assembleRepository.findAllAssemblesByDomainId(domainId);
+            //碎片数量
+            int assembleNumber = assembles.size();
+            result.put("facetNumber", facetNumber);
+            result.put("firstLayerFacetNumber", firstLayerFacetNumber);
+            result.put("secondLayerFacetNumber", secondLayerFacetNumber);
+            result.put("thirdLayerFacetNumber", thirdLayerFacetNumber);
+            result.put("assembleNumber", assembleNumber);
+            //查询主题依赖关系
+            List<Dependency> dependencies = dependencyRepository.findByDomainId(domain.getDomainId());
+            result.put("dependencyNumber", dependencies.size());
+            results.add(result);
+        }
+        logger.info("统计所有课程的主题、分面、碎片数量分布信息成功");
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), results);
     }
 
 }

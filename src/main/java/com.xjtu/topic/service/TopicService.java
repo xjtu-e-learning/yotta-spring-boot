@@ -211,7 +211,7 @@ public class TopicService {
             return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR.getCode(), ResultEnum.TOPIC_SEARCH_ERROR.getMsg());
 
         }
-        List<Facet> facets = facetRepository.findByFacetLayerAndTopicId(1,topic.getTopicId());
+        List<Facet> facets = facetRepository.findByTopicIdAndFacetLayer(topic.getTopicId(),1);
         //初始化Topic
         TopicContainFacet topicContainFacet = new TopicContainFacet();
         topicContainFacet.setTopic(topic);
@@ -283,7 +283,7 @@ public class TopicService {
             return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR.getCode(), ResultEnum.TOPIC_SEARCH_ERROR.getMsg());
 
         }
-        List<Facet> facets = facetRepository.findByFacetLayerAndTopicId(1,topic.getTopicId());
+        List<Facet> facets = facetRepository.findByTopicIdAndFacetLayer(topic.getTopicId(),1);
         //初始化Topic
         TopicContainFacet topicContainFacet = new TopicContainFacet();
         topicContainFacet.setTopic(topic);
