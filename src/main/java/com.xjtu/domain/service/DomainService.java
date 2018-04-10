@@ -83,8 +83,6 @@ public class DomainService {
         return insertDomain(domain);
     }
 
-
-
     /**
      * 删除课程：根据课程Id
      * @param domainId 课程id

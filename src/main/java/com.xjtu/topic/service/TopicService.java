@@ -3,13 +3,17 @@ package com.xjtu.topic.service;
 import com.xjtu.assemble.domain.Assemble;
 import com.xjtu.assemble.domain.AssembleContainType;
 import com.xjtu.assemble.repository.AssembleRepository;
+import com.xjtu.common.Config;
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
+import com.xjtu.dependency.repository.DependencyRepository;
 import com.xjtu.domain.domain.Domain;
 import com.xjtu.domain.repository.DomainRepository;
 import com.xjtu.facet.domain.Facet;
 import com.xjtu.facet.domain.FacetContainAssemble;
 import com.xjtu.facet.repository.FacetRepository;
+import com.xjtu.relation.domain.Relation;
+import com.xjtu.relation.repository.RelationRepository;
 import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.domain.TopicContainFacet;
 import com.xjtu.topic.repository.TopicRepository;
@@ -18,9 +22,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 处理topic主题数据
@@ -45,6 +54,12 @@ public class TopicService {
     @Autowired
     private AssembleRepository assembleRepository;
 
+    @Autowired
+    private RelationRepository relationRepository;
+
+    @Autowired
+    private DependencyRepository dependencyRepository;
+
     /**
      * 插入主题信息
      * @param topic 需要插入的主题
@@ -61,7 +76,7 @@ public class TopicService {
             return ResultUtil.error(ResultEnum.TOPIC_INSERT_ERROR.getCode(),ResultEnum.TOPIC_INSERT_ERROR.getMsg());
         }
         //保证插入主题不存在数据库中
-        else if(topicRepository.findByTopicNameAndDomainId(topicName, domainId)==null){
+        else if(topicRepository.findByDomainIdAndTopicName(domainId, topicName)==null){
             Topic topicInsert = topicRepository.save(topic);
             if(topicInsert==null){
                 logger.error("主题信息插入失败：数据库插入语句失败");
@@ -113,12 +128,12 @@ public class TopicService {
     }
 
     /**
-     * 删除主题信息：根据课程名和主题名进行删除
+     * 删除某门课程的主题信息：根据课程名和主题名进行删除(注：删除过程的事务一致性问题未解决)
      * @param topicName 主题名
      * @param domainName 课程名
      * @return 删除结果
      */
-    public Result deleteDomainByNameAndTopicName(String topicName, String domainName){
+    public Result deleteTopicByNameAndDomainName(String topicName, String domainName){
         try {
             Domain domain = domainRepository.findByDomainName(domainName);
             if(domain==null){
@@ -126,16 +141,45 @@ public class TopicService {
                 return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR_1.getCode(),ResultEnum.TOPIC_DELETE_ERROR_1.getMsg());
             }
 
-            Topic topic = topicRepository.findByTopicNameAndDomainId(topicName, domain.getDomainId());
+            Topic topic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(),topicName);
             if(topic == null){
                 logger.error("主题名删除失败：主题数据不存在");
                 return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR_2.getCode(),ResultEnum.TOPIC_DELETE_ERROR_2.getMsg());
             }
-            topicRepository.deleteByTopicNameAndDomainId(topicName, domain.getDomainId());
+            Long topicId = topic.getTopicId();
+            //删除主题表中的对应主题
+            topicRepository.delete(topicId);
+            //删除分面表中主题下的分面
+            facetRepository.deleteByTopicId(topicId);
+            //删除碎片
+            assembleRepository.deleteByTopicId(topicId);
+
+            //先删除子主题对应上下位关系
+            relationRepository.deleteByChildTopicId(topicId);
+            //递归删除父主题对应上下位关系
+            //先找到父主题对应的关系
+            List<Relation> relations = relationRepository.findByParentTopicId(topicId);
+            //删除父主题对应的关系
+            relationRepository.deleteByParentTopicId(topicId);
+            while ((relations.size()!=0) && (relations!=null)){
+                List<Relation> childRelations = new ArrayList<>();
+                for(Relation relation:relations){
+                    //循环找到对应的下位主题
+                    childRelations.addAll(relationRepository.findByParentTopicId(relation.getChildTopicId()));
+                    //删除父主题对应的关系
+                    relationRepository.deleteByParentTopicId(relation.getChildTopicId());
+                }
+                relations = childRelations;
+            }
+            //删除依赖关系
+            dependencyRepository.deleteByStartTopicIdOrEndTopicId(topicId, topicId);
+            File gexfFile = new File(Config.GEXFPATH + "\\" + domainName + ".gexf");
+            gexfFile.delete();
             logger.info("主题删除成功");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "主题删除成功");
         }
         catch (Exception err){
+            logger.error("错误："+err);
             logger.error("主题名删除失败：删除语句执行失败");
             return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR.getCode(),ResultEnum.TOPIC_DELETE_ERROR.getMsg());
         }
@@ -183,13 +227,13 @@ public class TopicService {
     public Result findTopicsByDomainName(String domainName){
         Domain domain = domainRepository.findByDomainName(domainName);
         List<Topic> topics = topicRepository.findByDomainId(domain.getDomainId());
-        if(topics.size()>0){
+        try {
             logger.info("主题查询成功");
             topics.forEach(topic -> logger.info("查询结果为：" + topic.toString()));
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topics);
         }
-        else {
-            logger.error("主题查询失败：该课程下没有主题记录");
+        catch (Exception error){
+            logger.error("主题查询失败："+error);
             return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_1.getCode(),ResultEnum.TOPIC_SEARCH_ERROR_1.getMsg());
         }
     }
@@ -205,7 +249,7 @@ public class TopicService {
             logger.error("主题查询失败：没有指定课程");
             return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_2.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_2.getMsg());
         }
-        Topic topic = topicRepository.findByTopicNameAndDomainId(topicName,domain.getDomainId());
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(),topicName);
         if(topic==null){
             logger.error("主题查询失败：没有指定主题");
             return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR.getCode(), ResultEnum.TOPIC_SEARCH_ERROR.getMsg());
@@ -246,17 +290,20 @@ public class TopicService {
                 firstLayerFacet.setChildren(secondLayerFacetContainAssembles);
                 firstLayerFacet.setChildrenNumber(secondLayerFacets.size());
             }
-            //如果存在碎片，设置一级分面下的碎片
-            List<Assemble> assembles = assembleRepository.findByFacetId(facet.getFacetId());
-            if(assembles.size()>0){
-                List<AssembleContainType> assembleContainTypes = new ArrayList<>();
-                for(Assemble assemble:assembles){
-                    AssembleContainType assembleContainType = new AssembleContainType();
-                    assembleContainType.setAssemble(assemble);
-                    assembleContainTypes.add(assembleContainType);
+            else {
+                //注意：如果该分面存在子分面，那么忽略该分面下的碎片
+                //如果存在碎片，设置一级分面下的碎片
+                List<Assemble> assembles = assembleRepository.findByFacetId(facet.getFacetId());
+                if(assembles.size()>0){
+                    List<AssembleContainType> assembleContainTypes = new ArrayList<>();
+                    for(Assemble assemble:assembles){
+                        AssembleContainType assembleContainType = new AssembleContainType();
+                        assembleContainType.setAssemble(assemble);
+                        assembleContainTypes.add(assembleContainType);
+                    }
+                    firstLayerFacet.setChildrenNumber(assembleContainTypes.size());
+                    firstLayerFacet.setChildren(assembleContainTypes);
                 }
-                firstLayerFacet.setChildrenNumber(assembleContainTypes.size());
-                firstLayerFacet.setChildren(assembleContainTypes);
             }
             firstLayerFacets.add(firstLayerFacet);
         }
@@ -277,11 +324,10 @@ public class TopicService {
             logger.error("主题查询失败：没有指定课程");
             return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_2.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_2.getMsg());
         }
-        Topic topic = topicRepository.findByTopicNameAndDomainId(topicName,domain.getDomainId());
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(), topicName);
         if(topic==null){
             logger.error("主题查询失败：没有指定主题");
             return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR.getCode(), ResultEnum.TOPIC_SEARCH_ERROR.getMsg());
-
         }
         List<Facet> facets = facetRepository.findByTopicIdAndFacetLayer(topic.getTopicId(),1);
         //初始化Topic
@@ -332,4 +378,50 @@ public class TopicService {
         return findCompleteTopicByNameAndDomainName(domainName,topic.getTopicName());
     }
 
+    /**
+     * 查询指定课程、主题下的，主题信息、以及分面统计信息
+     * @param domainName
+     * @param topicName
+     * @return
+     */
+    public Result findTopicInformationByDomainNameAndTopicName(String domainName, String topicName){
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if(domain == null){
+            logger.error("主题查询失败：没有指定课程");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_2.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_2.getMsg());
+        }
+        //查询主题
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(), topicName);
+        if(topic==null){
+            logger.error("主题查询失败：没有指定主题");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR.getCode(), ResultEnum.TOPIC_SEARCH_ERROR.getMsg());
+        }
+        Long topicId = topic.getTopicId();
+        //查询一级分面
+        List<Facet> firstLayerFacets = facetRepository.findByTopicIdAndFacetLayer(topicId, 1);
+        //查询二级分面
+        List<Facet> secondLayerFacets = facetRepository.findByTopicIdAndFacetLayer(topicId, 2);
+        //查询三级分面
+        List<Facet> thirdLayerFacets = facetRepository.findByTopicIdAndFacetLayer(topicId, 3);
+        Map<String,Object> topicInformation = new HashMap<>(10);
+        topicInformation.put("topicId",topic.getTopicId());
+        topicInformation.put("topicName",topicName);
+        topicInformation.put("topicUrl",topic.getTopicUrl());
+        topicInformation.put("topicLayer",topic.getTopicLayer());
+        topicInformation.put("domainId",domain.getDomainId());
+        topicInformation.put("domainName",domainName);
+        topicInformation.put("firstLayerFacetNumber",firstLayerFacets.size());
+        topicInformation.put("secondLayerFacetNumber",secondLayerFacets.size());
+        topicInformation.put("thirdLayerFacetNumber",thirdLayerFacets.size());
+        topicInformation.put("facetNumber",firstLayerFacets.size()
+                +secondLayerFacets.size()
+                +thirdLayerFacets.size());
+        logger.info("主题信息查询成功");
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(),topicInformation);
+    }
+
+    public static void main(String[] args) {
+        TopicService topicService = new TopicService();
+        topicService.deleteTopicByNameAndDomainName("诺基亚操作系统","Java");
+    }
 }

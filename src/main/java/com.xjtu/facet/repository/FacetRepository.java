@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 分面表数据库操作
@@ -18,6 +19,14 @@ import java.util.List;
 public interface FacetRepository extends JpaRepository<Facet, Long>, JpaSpecificationExecutor<Facet> {
 
     /**
+     * 根据主题id删除主题下的所有分面
+     * @param topicId
+     */
+    @Modifying(clearAutomatically = true)
+    @Transactional(rollbackFor = Exception.class)
+    void deleteByTopicId(Long topicId);
+
+    /**
      * 指定主题Id，查找分面
      * @param topicId 主题Id
      * @return List<Facet>
@@ -25,6 +34,13 @@ public interface FacetRepository extends JpaRepository<Facet, Long>, JpaSpecific
     @Transactional(rollbackFor = Exception.class)
     List<Facet> findByTopicId(Long topicId);
 
+    /**
+     * 指定主题和分面名，查询对应分面
+     * @param topicId
+     * @param facetName
+     * @return
+     */
+    Facet findByTopicIdAndFacetName(Long topicId, String facetName);
     /**
      * 指定父分面Id，查找分面
      * @param parentFacetId 父分面Id
@@ -44,13 +60,13 @@ public interface FacetRepository extends JpaRepository<Facet, Long>, JpaSpecific
 
     /**
      * 指定分面名、主题Id以及分面所在层，查找分面
-     * @param facetName 分面名
      * @param topicId 主题Id
+     * @param facetName 分面名
      * @param facetLayer 分面所在层
      * @return Facet
      */
     @Transactional(rollbackFor = Exception.class)
-    Facet findByFacetNameAndTopicIdAndFacetLayer(String facetName, Long topicId, Integer facetLayer);
+    Facet findByTopicIdAndFacetNameAndFacetLayer(Long topicId, String facetName, Integer facetLayer);
 
     /**
      * 指定分面所在层以及主题Id，查找分面
@@ -121,5 +137,13 @@ public interface FacetRepository extends JpaRepository<Facet, Long>, JpaSpecific
     void updateFacetById(Long facetId, String facetName,
                          Integer facetLayer, Long parentFacetId, Long topicId);
 
+    /**
+     * 根据关键字，查询相关分面名、分面所在层、对应主题名、对应课程名
+     * @param keyword
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Query("select new map(f.facetName,f.facetLayer,t.topicName,d.domainName) from Facet f, Topic t, Domain d where f.topicId = t.topicId and t.domainId = d.domainId and f.facetName like %?1%")
+    List<Map<String,Object>> findFacetInformationByKeyword(String keyword);
 
 }

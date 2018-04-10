@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+
 /**
  * 主题数据的数据库操作
  * @author yangkuan
@@ -42,12 +44,12 @@ public interface TopicRepository extends JpaRepository<Topic, Long>, JpaSpecific
 
     /**
      * 根据主题名和课程id，查询对应主题信息
-     * @param topicName 主题名
      * @param domainId 课程id
+     * @param topicName 主题名
      * @return Topic
      * */
     @Transactional(rollbackFor = Exception.class)
-    Topic findByTopicNameAndDomainId(String topicName, Long domainId);
+    Topic findByDomainIdAndTopicName(Long domainId,String topicName);
 
 
     /**
@@ -61,12 +63,12 @@ public interface TopicRepository extends JpaRepository<Topic, Long>, JpaSpecific
 
     /**
      * 根据主题名和课程id，删除对应主题信息
-     * @param topicName 主题名
      * @param domainId 课程id
+     * @param topicName 主题名
      * @return void
      * */
     @Transactional(rollbackFor = Exception.class)
-    void deleteByTopicNameAndDomainId(String topicName, Long domainId);
+    void deleteByDomainIdAndTopicName(Long domainId,String topicName);
 
 
 
@@ -85,4 +87,12 @@ public interface TopicRepository extends JpaRepository<Topic, Long>, JpaSpecific
     @Query("update Topic t set t.topicName = ?2, t.domainId = ?3 where t.topicName = ?1")
     void updateByTopicName(String oldTopicName, String newTopicName, Long domainId);
 
+    /**
+     * 根据关键字，查询相关主题
+     * @param keyword
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Query("select new map(t.topicName,d.domainName) from Topic t, Domain d where t.domainId = d.domainId and t.topicName like %?1%")
+    List<Map<String,Object>> findTopicInformationByKeyword(String keyword);
 }

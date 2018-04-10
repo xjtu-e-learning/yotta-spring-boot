@@ -16,6 +16,24 @@ import java.util.List;
  * @date 2018/03/15 14:47
  * */
 public interface AssembleRepository extends JpaRepository<Assemble, Long>,JpaSpecificationExecutor<Assemble> {
+
+    /**
+     * 根据主题id，删除主题下的所有碎片
+     * @param topicId
+     * @return
+     */
+    @Modifying(clearAutomatically = true)
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "DELETE \n" +
+            "a \n"+
+            "FROM\n" +
+            "assemble AS a ,\n" +
+            "facet AS f \n" +
+            "WHERE\n" +
+            "a.facet_id = f.facet_id AND\n" +
+            "f.topic_id = ?1 ", nativeQuery = true)
+    void deleteByTopicId(Long topicId);
+
     /**
      *指定分面id，获取对应分面下的碎片
      * @param facetId 分面id
@@ -32,12 +50,7 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>,JpaSpe
     @Modifying(clearAutomatically = true)
     @Transactional(rollbackFor = Exception.class)
     @Query("SELECT\n" +
-            "a.assembleId,\n" +
-            "a.assembleContent,\n" +
-            "a.assembleText,\n" +
-            "a.assembleScratchTime,\n" +
-            "a.facetId,\n" +
-            "a.sourceId\n" +
+            "a \n" +
             "FROM\n" +
             "Assemble AS a ,\n" +
             "Facet AS f ,\n" +

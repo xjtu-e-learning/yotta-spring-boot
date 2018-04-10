@@ -8,6 +8,7 @@ import org.apache.regexp.RE;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -44,11 +45,11 @@ public class TopicController {
      * 删除主题
      * 根据课程名和主题名进行删除
      * */
-    @GetMapping("/deleteDomainByNameAndTopicName")
+    @GetMapping("/deleteTopicByNameAndDomainName")
     @ApiOperation(value = "删除主题", notes = "根据课程名和主题名进行删除")
-    public ResponseEntity deleteDomainByNameAndTopicName(@RequestParam(name = "domainName") String domainName
+    public ResponseEntity deleteTopicByNameAndDomainName(@RequestParam(name = "domainName") String domainName
             , @RequestParam(name = "topicName") String topicName){
-        Result result = topicService.deleteDomainByNameAndTopicName(topicName, domainName);
+        Result result = topicService.deleteTopicByNameAndDomainName(topicName, domainName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
@@ -75,7 +76,7 @@ public class TopicController {
 
     @GetMapping("/getTopicsByDomainName")
     @ApiOperation(value = "获得主题信息", notes = "输入课程名，获得课程下主题信息")
-    public ResponseEntity findTopicsByDomainName(@RequestParam(name = "domainName") String domainName){
+    public ResponseEntity getTopicsByDomainName(@RequestParam(name = "domainName") String domainName){
         Result result = topicService.findTopicsByDomainName(domainName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
@@ -105,7 +106,8 @@ public class TopicController {
      * 获得指定课程下指定主题的所有信息
      * */
     @PostMapping("/getCompleteTopicByNameAndDomainNameWithHasFragment")
-    @ApiOperation(value = "获得指定课程、指定主题的所有信息", notes = "获得指定课程、指定主题的所有信息")
+    @ApiOperation(value = "获得指定课程、指定主题的所有信息，用于构建分面树"
+            , notes = "获得指定课程、指定主题的所有信息，用于构建分面树")
     public ResponseEntity getCompleteTopicByNameAndDomainNameWithHasFragment(@RequestParam(name = "domainName") String domainName
             , @RequestParam(name = "topicName") String topicName
             , @RequestParam(name = "hasFragment") boolean hasFragment){
@@ -138,9 +140,21 @@ public class TopicController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-
-
-
-
+    /**
+     * API
+     * 查询指定课程、主题下的，主题信息、以及分面统计信息
+     * 查询指定课程、主题下的，主题信息、以及分面统计信息
+     * */
+    @GetMapping("/getTopicInformationByDomainNameAndTopicName")
+    @ApiOperation(value = "查询指定课程、主题下的，主题信息、以及分面统计信息"
+            , notes = "查询指定课程、主题下的，主题信息、以及分面统计信息")
+    public ResponseEntity getTopicInformationByDomainNameAndTopicName(@RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "topicName") String topicName){
+        Result result = topicService.findTopicInformationByDomainNameAndTopicName(domainName,topicName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 
 }

@@ -5,7 +5,7 @@
 >3. createClass
 >3. queryKeyword
 >4. getDomainManage(包含学科名、课程名、课程id、主题数、
-一级分面、二级分面和三级分面数、碎片数、依赖数(dependence)) 新API应该在数据统计模块下
+一级分面、二级分面和三级分面数、碎片数、依赖数(dependence)) 新API在statistics模块下getDomainDistribution
 
 
 > ## 访问课程信息的API

@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.xml.ws.Response;
+
 /**
  * API数据统计
  * @author yangkuan
@@ -94,6 +96,20 @@ public class StatisticsController {
     @PostMapping("/getDomainDistribution")
     public ResponseEntity getDomainDistribution(){
         Result result = statisticsService.findDomainDistribution();
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+    /**
+     * API
+     * 根据关键字，查询相关相似的课程、主题和分面
+     */
+    @ApiOperation(value = "根据关键字，查询相关相似的课程、主题和分面"
+            , notes = "根据关键字，查询相关相似的课程、主题和分面")
+    @GetMapping("/queryKeyword")
+    public ResponseEntity queryKeyword(@RequestParam(name = "keyword") String keyword){
+        Result result = statisticsService.queryKeyword(keyword);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }

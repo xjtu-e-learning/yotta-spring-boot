@@ -3,6 +3,7 @@ package com.xjtu.dependency.repository;
 import com.xjtu.dependency.domain.Dependency;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -39,5 +40,14 @@ public interface DependencyRepository extends JpaRepository<Dependency, Long>,Jp
      * */
     @Transactional(rollbackFor = Exception.class)
     List<Dependency> findByDomainId(Long domainId);
+
+    /**
+     * 删除依赖关系，指定起始主题以及终止主题
+     * @param startTopicId
+     * @param endTopicId
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Modifying(clearAutomatically = true)
+    void deleteByStartTopicIdOrEndTopicId(Long startTopicId, Long endTopicId);
 
 }

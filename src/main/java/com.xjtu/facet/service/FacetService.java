@@ -1,5 +1,7 @@
 package com.xjtu.facet.service;
 
+import com.xjtu.assemble.domain.Assemble;
+import com.xjtu.assemble.repository.AssembleRepository;
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
 import com.xjtu.domain.domain.Domain;
@@ -19,10 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 处理facet分面数据
@@ -34,6 +33,9 @@ import java.util.Map;
 public class FacetService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    private AssembleRepository assembleRepository;
 
     @Autowired
     private FacetRepository facetRepository;
@@ -80,7 +82,7 @@ public class FacetService {
             return ResultUtil.error(ResultEnum.FACET_INSERT_ERROR_2.getCode(), ResultEnum.FACET_INSERT_ERROR_2.getMsg());
         }
         Long domainId = domain.getDomainId();
-        Topic topic = topicRepository.findByTopicNameAndDomainId(topicName, domainId);
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
         if(topic==null){
             logger.error("分面插入失败：对应主题不存在");
             return ResultUtil.error(ResultEnum.FACET_INSERT_ERROR_3.getCode(), ResultEnum.FACET_INSERT_ERROR_3.getMsg());
@@ -164,7 +166,7 @@ public class FacetService {
             return ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR_3.getCode(), ResultEnum.FACET_SEARCH_ERROR_3.getMsg());
         }
         Long domainId = domain.getDomainId();
-        Topic topic = topicRepository.findByTopicNameAndDomainId(topicName, domainId);
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
         if(topic==null){
             logger.error("分面查询失败：对应主题不存在");
             return ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR_4.getCode(), ResultEnum.FACET_SEARCH_ERROR_4.getMsg());
@@ -192,12 +194,12 @@ public class FacetService {
             return ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR_3.getCode(), ResultEnum.FACET_SEARCH_ERROR_3.getMsg());
         }
         Long domainId = domain.getDomainId();
-        Topic topic = topicRepository.findByTopicNameAndDomainId(topicName, domainId);
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
         if(topic==null){
             logger.error("分面查询失败：对应主题不存在");
             return ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR_4.getCode(), ResultEnum.FACET_SEARCH_ERROR_4.getMsg());
         }
-        Facet parentLayerFacet = facetRepository.findByFacetNameAndTopicIdAndFacetLayer(parentLayerFacetName,topic.getTopicId(), facetLayer);
+        Facet parentLayerFacet = facetRepository.findByTopicIdAndFacetNameAndFacetLayer(topic.getTopicId(), parentLayerFacetName,facetLayer);
         if(parentLayerFacet == null||parentLayerFacet.getFacetLayer()!=1){
             logger.error("分面查询失败：对应课程和主题下没有对应分面");
             return ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR_6.getCode(), ResultEnum.FACET_SEARCH_ERROR_6.getMsg());
@@ -229,7 +231,7 @@ public class FacetService {
             return ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR_3.getCode(), ResultEnum.FACET_SEARCH_ERROR_3.getMsg());
         }
         Long domainId = domain.getDomainId();
-        Topic topic = topicRepository.findByTopicNameAndDomainId(topicName, domainId);
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
         if(topic==null){
             logger.error("分面查询失败：对应主题不存在");
             return ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR_4.getCode(), ResultEnum.FACET_SEARCH_ERROR_4.getMsg());
@@ -278,6 +280,112 @@ public class FacetService {
         return result;
     }
 
+    /**
+     * 根据课程名，查询该课程下面主题，以及分面按树状组织
+     * @param domainName 课程名
+     * @return
+     */
+    public Result findFacetTreeByDomainName(String domainName){
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if(domain==null){
+            logger.error("分面查询失败：对应课程不存在");
+            return ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR_3.getCode(), ResultEnum.FACET_SEARCH_ERROR_3.getMsg());
+        }
+        List<Topic> topics = topicRepository.findByDomainId(domain.getDomainId());
+        List<Map<String,Object>> topicNameContainFacets = new ArrayList<>();
+        //1.主题循环
+        for(Topic topic:topics){
+            Map<String,Object> topicNameContainFacet = new LinkedHashMap<>();
+            //设置课程名
+            topicNameContainFacet.put("domainName",domainName);
+            //设置主题名
+            topicNameContainFacet.put("topicName",topic.getTopicName());
+            //设置主题下分面名
+            List<Facet> firstLayerFacets = facetRepository.findByTopicIdAndFacetLayer(topic.getTopicId(),1);
+            List<Map<String,Object>> firstLayerFacetNameContainChildrens = new ArrayList<>();
+            //2.一级分面循环
+            for(Facet firstLayerFacet:firstLayerFacets){
+                Map<String,Object> firstLayerFacetNameContainChildren = new LinkedHashMap<>();
+                firstLayerFacetNameContainChildren.put("firstLayerFacetName",firstLayerFacet.getFacetName());
+                //一级分面下的二级分面获取
+                List<Facet> secondLayerFacets = facetRepository.findByParentFacetIdAndFacetLayer(firstLayerFacet.getFacetId()
+                        ,2);
+                List<Map<String,Object>> secondLayerFacetNameContainChildrens = new ArrayList<>();
+                //3.二级分面循环
+                for(Facet secondLayerFacet:secondLayerFacets){
+                    Map<String,Object> secondLayerFacetNameContainChildren = new LinkedHashMap<>();
+                    secondLayerFacetNameContainChildren.put("secondLayerFacetName", secondLayerFacet.getFacetName());
+                    //4.三级分面循环
+                    List<Map<String,Object>> thirdLayerFacetNames = new ArrayList<>();
+                    //二级分面下的三级分面获取
+                    List<Facet> thirdLayerFacets = facetRepository.findByParentFacetIdAndFacetLayer(secondLayerFacet.getFacetId()
+                            ,3);
+                    for(Facet thirdLayerFacet:thirdLayerFacets){
+                        Map<String,Object> thirdLayerFacetName  = new LinkedHashMap<>();
+                        thirdLayerFacetName.put("thirdLayerFacetName",thirdLayerFacet.getFacetName());
+                        thirdLayerFacetNames.add(thirdLayerFacetName);
+                    }
+                    secondLayerFacetNameContainChildren.put("thirdLayerFacets",thirdLayerFacetNames);
+                    secondLayerFacetNameContainChildrens.add(secondLayerFacetNameContainChildren);
+                }
+                firstLayerFacetNameContainChildren.put("secondLayerFacets",secondLayerFacetNameContainChildrens);
+                firstLayerFacetNameContainChildrens.add(firstLayerFacetNameContainChildren);
+            }
+            topicNameContainFacet.put("firstLayerFacets",firstLayerFacetNameContainChildrens);
+            topicNameContainFacets.add(topicNameContainFacet);
+        }
+        //考虑有没有什么降低复杂度的方法，此处显然循环太多（4层）
+        logger.info("分面查询成功");
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),topicNameContainFacets);
+    }
+
+
+    /**
+     * 获取对应分面下的碎片数量
+     * @param domainName
+     * @param topicName
+     * @param facetName
+     * @return
+     */
+    public Result findAssembleNumberInFacet(String domainName, String topicName, String facetName, Integer facetLayer){
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if(domain==null){
+            logger.error("分面查询失败：对应课程不存在");
+            return ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR_3.getCode(), ResultEnum.FACET_SEARCH_ERROR_3.getMsg());
+        }
+        Long domainId = domain.getDomainId();
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
+        if(topic==null){
+            logger.error("分面查询失败：对应主题不存在");
+            return ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR_4.getCode(), ResultEnum.FACET_SEARCH_ERROR_4.getMsg());
+        }
+        Long topicId = topic.getTopicId();
+        Facet facet = facetRepository.findByTopicIdAndFacetNameAndFacetLayer(topicId,facetName,facetLayer);
+        if(facet==null){
+            logger.error("分面查询失败：对应课程和主题下没有对应分面");
+            return ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR_6.getCode(), ResultEnum.FACET_SEARCH_ERROR_6.getMsg());
+        }
+        int assembleNumber = 0;
+        List<Assemble> assembles = assembleRepository.findByFacetId(facet.getFacetId());
+        assembleNumber += assembles.size();
+        //查询该分面是否有子分面
+        List<Facet> childFacets = facetRepository.findByParentFacetId(facet.getFacetId());
+        while (childFacets.size()!=0&&childFacets!=null){
+            List<Facet> grandchildFacets = new ArrayList<>();
+            for(Facet childFacet:childFacets){
+                List<Assemble> childAssembles = assembleRepository.findByFacetId(childFacet.getFacetId());
+                assembleNumber += childAssembles.size();
+                grandchildFacets.addAll(facetRepository.findByParentFacetId(childFacet.getFacetId()));
+            }
+            childFacets = grandchildFacets;
+        }
+        Map<String,Object> facetInformation = new HashMap<>(3);
+        facetInformation.put("facetName",facetName);
+        facetInformation.put("facetLayer",facet.getFacetLayer());
+        facetInformation.put("assembleNumber",assembleNumber);
+        logger.info("分面查询成功");
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(),facetInformation);
+    }
 
     /**
      * 分页查询查询所有分面信息，按照分面Id排序 (不带查询条件)
@@ -292,7 +400,8 @@ public class FacetService {
         if (!ascOrder) {
             direction = Sort.Direction.DESC;
         }
-        Pageable pageable = new PageRequest(page, size, direction, "sourceId");  // 分页和排序条件，默认按照id排序
+        // 分页和排序条件，默认按照id排序
+        Pageable pageable = new PageRequest(page, size, direction, "sourceId");
         Page<Facet> facetPage = facetRepository.findAll(pageable);
         return facetPageJudge(facetPage);
     }

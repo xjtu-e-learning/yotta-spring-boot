@@ -288,7 +288,7 @@ public class StatisticsService {
         List<Assemble> assemblesInDomainAndTopics = new ArrayList<>();
         for(String topicName:topicNames){
             //获取课程对应topic
-            Topic topic = topicRepository.findByTopicNameAndDomainId(topicName,domainId);
+            Topic topic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
             if(topic==null){
                 logger.error("查询失败：没有对应主题");
                 return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR.getCode(),ResultEnum.TOPIC_SEARCH_ERROR.getMsg());
@@ -319,7 +319,6 @@ public class StatisticsService {
         }
         return newAssembles;
     }
-
     /**
      * 统计所有课程信息，包括包含学科名、课程名、课程id、主题数、
      * 一级分面、二级分面和三级分面数、碎片数、依赖（认知关系）数
@@ -338,7 +337,9 @@ public class StatisticsService {
             result.put("note","");
             //查询课程所属学科
             Subject subject = subjectRepository.findBySubjectId(domain.getSubjectId());
-            result.put("subjectName",subject.getSubjectName());
+            if(subject != null){
+                result.put("subjectName",subject.getSubjectName());
+            }
             //根据课程查询课程主题
             List<Topic> topics = topicRepository.findByDomainId(domain.getDomainId());
             result.put("topicNumber",topics.size());
@@ -373,4 +374,41 @@ public class StatisticsService {
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), results);
     }
 
+    /**
+     * 根据关键词，查询与关键词相似的课程、主题和分面
+     * @param keyword
+     * @return
+     */
+    public Result queryKeyword(String keyword){
+        List<Map<String, Object>> queryResults = new ArrayList<>();
+        //根据关键字，查询相关课程
+        List<Domain> domains = domainRepository.findByKeyword(keyword);
+        for(Domain domain:domains){
+            Map<String, Object> domainQueryResult = new HashMap<>(2);
+            domainQueryResult.put("type","domain");
+            domainQueryResult.put("name",domain.getDomainName());
+            queryResults.add(domainQueryResult);
+        }
+        //根据关键字，查询相关主题
+        List<Map<String,Object>> topicInformations = topicRepository.findTopicInformationByKeyword(keyword);
+        for (Map<String,Object> topicInformation:topicInformations){
+            Map<String, Object> topicQueryResult = new HashMap<>(3);
+            topicQueryResult.put("type", "topic");
+            topicQueryResult.put("name",topicInformation.get("0"));
+            topicQueryResult.put("domainName", topicInformation.get("1"));
+            queryResults.add(topicQueryResult);
+        }
+        //根据关键字，查询相关分面
+        List<Map<String, Object>> facetInformations = facetRepository.findFacetInformationByKeyword(keyword);
+        for (Map<String,Object> facetInformation:facetInformations){
+            Map<String, Object> facetQueryResult = new HashMap<>(5);
+            facetQueryResult.put("type", "facet");
+            facetQueryResult.put("name",facetInformation.get("0"));
+            facetQueryResult.put("layer", facetInformation.get("1"));
+            facetQueryResult.put("topicName", facetInformation.get("2"));
+            facetQueryResult.put("domainName", facetInformation.get("3"));
+            queryResults.add(facetQueryResult);
+        }
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(),queryResults);
+    }
 }

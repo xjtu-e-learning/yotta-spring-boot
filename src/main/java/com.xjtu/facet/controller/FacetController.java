@@ -5,6 +5,7 @@ import com.xjtu.common.domain.ResultEnum;
 import com.xjtu.facet.service.FacetService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -82,6 +83,7 @@ public class FacetController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
     @ApiOperation(value = "指定课程、主题，获得所有一级分面下的二级分面信息", notes = "指定课程、主题，获得所有一级分面下的二级分面信息")
     @GetMapping("/getSecondLayerFacetGroupByFirstLayerFacet")
     public ResponseEntity getSecondLayerFacetGroupByFirstLayerFacet(@RequestParam(name = "domainName") String domainName
@@ -93,7 +95,28 @@ public class FacetController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @ApiOperation(value = "根据课程名，查询该课程下面主题，以及分面按树状组织", notes = "根据课程名，查询该课程下面主题，以及分面按树状组织")
+    @GetMapping("/getFacetTreeByDomainName")
+    public ResponseEntity getFacetTreeByDomainName(@RequestParam(name = "domainName") String domainName){
+        Result result = facetService.findFacetTreeByDomainName(domainName);
+        if(!result.getCode().equals(ResultEnum.SUCCESS.getCode())){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 
+    @ApiOperation(value="获取对应分面下的碎片数量", notes = "获取对应分面下的碎片数量")
+    @GetMapping("/getAssembleNumberInFacet")
+   public ResponseEntity getAssembleNumberInFacet(@RequestParam(name = "domainName") String domainName
+           , @RequestParam(name = "topicName") String topicName
+           , @RequestParam(name = "facetName") String facetName
+            ,@RequestParam(name = "facetLayer") Integer facetLayer){
+        Result result = facetService.findAssembleNumberInFacet(domainName,topicName,facetName,facetLayer);
+        if(!result.getCode().equals(ResultEnum.SUCCESS.getCode())){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+   }
 
 
 }

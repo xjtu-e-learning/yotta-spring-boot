@@ -1,5 +1,5 @@
 #需要写分面API统计
->1. getDomainInfo
+>1. getDomainInfo（根据课程名，查询该课程下面主题，以及分面按树状组织） getFacetTreeByDomainName
 >2. getTermFacet(和6似乎功能相同) 新：getFacetsByDomainNameAndTopicName
 >3. createFacet1(根据课程名、主题名、以及分面名创建一级分面) 新：insertFirstLayerFacet
 >4. createFacet2(根据课程名、主题名、以及分面名创建二级分面) 新：insertSecondLayerFacet
@@ -7,3 +7,4 @@
 >6. getTopicFacet 新：getSecondLayerFacetGroupByFirstLayerFacet
 >7. getFacet1Facet2Num 新：getSecondLayerFacetNumber
 >8. getFacet2Facet3Num 新：getThirdLayerFacetNumber
+>9. getTermFacet1Fragment（获取一级分面下的碎片数量） 新：getAssembleNumbersInFirstLayerFacet

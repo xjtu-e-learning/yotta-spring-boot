@@ -141,7 +141,8 @@ public class SourceService {
         if (!ascOrder) {
             direction = Sort.Direction.DESC;
         }
-        Pageable pageable = new PageRequest(page, size, direction, "sourceId");  // 分页和排序条件，默认按照id排序
+        // 分页和排序条件，默认按照id排序
+        Pageable pageable = new PageRequest(page, size, direction, "sourceId");
         Page<Source> sourcePage = sourceRepository.findAll(pageable);
         return sourcePageJudge(sourcePage);
     }
