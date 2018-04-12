@@ -30,19 +30,80 @@ public class FacetController {
     public ResponseEntity insertFirstLayerFacet(@RequestParam(name = "domainName") String domainName
             , @RequestParam(name = "topicName") String topicName
             , @RequestParam(name = "facetName") String facetName){
-        Result result = facetService.insertFacetByDomainAndTopic(domainName, topicName, facetName, 1);
+        Result result = facetService.insertFacetByDomainAndTopic(domainName, topicName
+                , facetName, 1, new Long(0));
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-    @ApiOperation(value = "在指定的课程和主题下添加二级分面", notes = "在指定的课程和主题下添加二级分面")
+    @ApiOperation(value = "在指定的课程、主题和一级分面下添加二级分面", notes = "在指定的课程、主题和一级分面下添加二级分面")
     @GetMapping("/insertSecondLayerFacet")
     public ResponseEntity insertSecondLayerFacet(@RequestParam(name = "domainName") String domainName
             , @RequestParam(name = "topicName") String topicName
-            , @RequestParam(name = "facetName") String facetName){
-        Result result = facetService.insertFacetByDomainAndTopic(domainName, topicName, facetName, 2);
+            , @RequestParam(name = "firstLayerFacetName") String firstLayerFacetName
+            , @RequestParam(name = "secondLayerFacetName") String secondLayerFacetName){
+        Result result = facetService.insertSecondLayerFacet(domainName, topicName
+                , firstLayerFacetName, secondLayerFacetName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @ApiOperation(value = "在指定的课程、主题和一级分面、二级分面下添加三级分面"
+            , notes = "在指定的课程、主题和一级分面、二级分面下添加三级分面")
+    @GetMapping("/insertThirdLayerFacet")
+    public ResponseEntity insertThirdLayerFacet(@RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "topicName") String topicName
+            , @RequestParam(name = "firstLayerFacetName") String firstLayerFacetName
+            , @RequestParam(name = "secondLayerFacetName") String secondLayerFacetName
+            , @RequestParam(name = "thirdLayerFacetName") String thirdLayerFacetName){
+        Result result = facetService.insertThirdLayerFacet(domainName, topicName
+                , firstLayerFacetName, secondLayerFacetName, thirdLayerFacetName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @ApiOperation(value = "更新一级分面名"
+            , notes = "更新一级分面名")
+    @GetMapping("/updateFirstLayerFacet")
+    public ResponseEntity updateFirstLayerFacet(@RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "topicName") String topicName
+            , @RequestParam(name = "facetName") String facetName
+            , @RequestParam(name = "newFacetName") String newFacetName){
+        Result result = facetService.updateSomeLayerFacet(domainName, topicName, facetName, newFacetName, 1);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @ApiOperation(value = "更新二级分面名"
+            , notes = "更新二级分面名")
+    @GetMapping("/updateSecondLayerFacet")
+    public ResponseEntity updateSecondLayerFacet(@RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "topicName") String topicName
+            , @RequestParam(name = "facetName") String facetName
+            , @RequestParam(name = "newFacetName") String newFacetName){
+        Result result = facetService.updateSomeLayerFacet(domainName, topicName, facetName, newFacetName, 2);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @ApiOperation(value = "更新三级分面名"
+            , notes = "更新三级分面名")
+    @GetMapping("/updateThirdLayerFacet")
+    public ResponseEntity updateThirdLayerFacet(@RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "topicName") String topicName
+            , @RequestParam(name = "facetName") String facetName
+            , @RequestParam(name = "newFacetName") String newFacetName){
+        Result result = facetService.updateSomeLayerFacet(domainName, topicName, facetName, newFacetName, 3);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
@@ -50,14 +111,39 @@ public class FacetController {
     }
 
     @ApiOperation(value = "获得主题的所有分面信息", notes = "输入课程名和主题名，获得知识主题的所有分面信息，知识森林VR使用（吴科炜）")
-    @GetMapping("/getFacetsByDomainNameAndTopicName")
-    public ResponseEntity getFacetsByDomainNameAndTopicName(@RequestParam(name = "domainName") String domainName
+    @GetMapping("/getFacetsInTopic")
+    public ResponseEntity getFacetsInTopic(@RequestParam(name = "domainName") String domainName
             , @RequestParam(name = "topicName") String topicName){
-        Result result = facetService.findFacetsByDomainNameAndTopicName(domainName, topicName);
+        Result result = facetService.findFacetsInTopic(domainName, topicName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @ApiOperation(value = "获得一级分面下的所有分面信息", notes = "输入课程名和主题名、一级分面名，获得该一级分面的所有分面信息")
+    @GetMapping("/getFacetsInFirstLayerFacet")
+    public ResponseEntity getFacetsInFirstLayerFacet(@RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "topicName") String topicName
+            , @RequestParam(name = "firstLayerFacetName") String firstLayerFacetName){
+        Result result = facetService.findFacetsInSomeLayerFacet(domainName, topicName, firstLayerFacetName,1);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @ApiOperation(value = "获得二级分面下的所有分面信息", notes = "输入课程名和主题名、二级分面名，获得该二级分面的所有分面信息")
+    @GetMapping("/getFacetsInSecondLayerFacet")
+    public ResponseEntity getFacetsInSecondLayerFacet(@RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "topicName") String topicName
+            , @RequestParam(name = "secondLayerFacetName") String secondLayerFacetName){
+        Result result = facetService.findFacetsInSomeLayerFacet(domainName, topicName, secondLayerFacetName,2);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+
     }
 
     @ApiOperation(value = "获得指定课程、主题和一级分面下的二级分面数", notes = "获得指定课程、主题和一级分面下的二级分面数")

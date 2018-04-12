@@ -62,6 +62,9 @@ public enum ResultEnum {
     FACET_DELETE_ERROR(141,"分面信息删除失败：分面不存在"),
     FACET_DELETE_ERROR_1(141,"分面信息删除失败：删除语句执行失败"),
     FACET_UPDATE_ERROR(142,"分面更新失败：更新语句执行失败"),
+    FACET_UPDATE_ERROR_1(160,"分面更新失败：对应课程不存在"),
+    FACET_UPDATE_ERROR_2(161,"分面更新失败：对应主题不存在"),
+    FACET_UPDATE_ERROR_3(162,"分面更新失败：原分面不存在"),
     FACET_SEARCH_ERROR(143,"分面查询失败：查询语句执行失败"),
     FACET_SEARCH_ERROR_1(144,"分面分页查询失败：没有数据源记录"),
     FACET_SEARCH_ERROR_2(145,"分面分页查询失败：查询的页数超过最大页数"),
@@ -72,6 +75,7 @@ public enum ResultEnum {
     FACET_SEARCH_ERROR_7(151,"分面查询失败：对应课程、主题下以及分面下没有子分面"),
     FACET_INSERT_ERROR_2(152, "分面信息插入失败：对应课程不存在"),
     FACET_INSERT_ERROR_3(153, "分面信息插入失败：对应主题不存在"),
+    FACET_INSERT_ERROR_4(159, "分面信息插入失败：对应父分面不存在"),
 
     //用户登录
     LOGIN_ERROR(154, "登录失败：用户不存在"),
