@@ -432,64 +432,6 @@ public class FacetService {
         return result;
     }
 
-    /**
-     * 根据课程名，查询该课程下面主题，以及分面按树状组织
-     * @param domainName 课程名
-     * @return
-     */
-    public Result findFacetTreeByDomainName(String domainName){
-        Domain domain = domainRepository.findByDomainName(domainName);
-        if(domain==null){
-            logger.error("分面查询失败：对应课程不存在");
-            return ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR_3.getCode(), ResultEnum.FACET_SEARCH_ERROR_3.getMsg());
-        }
-        List<Topic> topics = topicRepository.findByDomainId(domain.getDomainId());
-        List<Map<String,Object>> topicNameContainFacets = new ArrayList<>();
-        //1.主题循环
-        for(Topic topic:topics){
-            Map<String,Object> topicNameContainFacet = new LinkedHashMap<>();
-            //设置课程名
-            topicNameContainFacet.put("domainName",domainName);
-            //设置主题名
-            topicNameContainFacet.put("topicName",topic.getTopicName());
-            //设置主题下分面名
-            List<Facet> firstLayerFacets = facetRepository.findByTopicIdAndFacetLayer(topic.getTopicId(),1);
-            List<Map<String,Object>> firstLayerFacetNameContainChildrens = new ArrayList<>();
-            //2.一级分面循环
-            for(Facet firstLayerFacet:firstLayerFacets){
-                Map<String,Object> firstLayerFacetNameContainChildren = new LinkedHashMap<>();
-                firstLayerFacetNameContainChildren.put("firstLayerFacetName",firstLayerFacet.getFacetName());
-                //一级分面下的二级分面获取
-                List<Facet> secondLayerFacets = facetRepository.findByParentFacetIdAndFacetLayer(firstLayerFacet.getFacetId()
-                        ,2);
-                List<Map<String,Object>> secondLayerFacetNameContainChildrens = new ArrayList<>();
-                //3.二级分面循环
-                for(Facet secondLayerFacet:secondLayerFacets){
-                    Map<String,Object> secondLayerFacetNameContainChildren = new LinkedHashMap<>();
-                    secondLayerFacetNameContainChildren.put("secondLayerFacetName", secondLayerFacet.getFacetName());
-                    //4.三级分面循环
-                    List<Map<String,Object>> thirdLayerFacetNames = new ArrayList<>();
-                    //二级分面下的三级分面获取
-                    List<Facet> thirdLayerFacets = facetRepository.findByParentFacetIdAndFacetLayer(secondLayerFacet.getFacetId()
-                            ,3);
-                    for(Facet thirdLayerFacet:thirdLayerFacets){
-                        Map<String,Object> thirdLayerFacetName  = new LinkedHashMap<>();
-                        thirdLayerFacetName.put("thirdLayerFacetName",thirdLayerFacet.getFacetName());
-                        thirdLayerFacetNames.add(thirdLayerFacetName);
-                    }
-                    secondLayerFacetNameContainChildren.put("thirdLayerFacets",thirdLayerFacetNames);
-                    secondLayerFacetNameContainChildrens.add(secondLayerFacetNameContainChildren);
-                }
-                firstLayerFacetNameContainChildren.put("secondLayerFacets",secondLayerFacetNameContainChildrens);
-                firstLayerFacetNameContainChildrens.add(firstLayerFacetNameContainChildren);
-            }
-            topicNameContainFacet.put("firstLayerFacets",firstLayerFacetNameContainChildrens);
-            topicNameContainFacets.add(topicNameContainFacet);
-        }
-        //考虑有没有什么降低复杂度的方法，此处显然循环太多（4层）
-        logger.info("分面查询成功");
-        return ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),topicNameContainFacets);
-    }
 
 
     /**

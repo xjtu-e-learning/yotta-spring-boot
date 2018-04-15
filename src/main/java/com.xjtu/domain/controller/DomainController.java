@@ -50,6 +50,17 @@ public class DomainController {
      *  未写
      */
 
+
+    @ApiOperation(value = "根据课程名，查询该课程下面主题，以及分面按树状组织", notes = "根据课程名，查询该课程下面主题，以及分面按树状组织")
+    @GetMapping("/getDomainTreeByDomainName")
+    public ResponseEntity getDomainTreeByDomainName(@RequestParam(name = "domainName") String domainName){
+        Result result = domainService.findDomainTreeByDomainName(domainName);
+        if(!result.getCode().equals(ResultEnum.SUCCESS.getCode())){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
     /**
      * 插入一门课程
      * insertDomain

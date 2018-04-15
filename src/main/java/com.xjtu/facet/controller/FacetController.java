@@ -181,16 +181,6 @@ public class FacetController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-    @ApiOperation(value = "根据课程名，查询该课程下面主题，以及分面按树状组织", notes = "根据课程名，查询该课程下面主题，以及分面按树状组织")
-    @GetMapping("/getFacetTreeByDomainName")
-    public ResponseEntity getFacetTreeByDomainName(@RequestParam(name = "domainName") String domainName){
-        Result result = facetService.findFacetTreeByDomainName(domainName);
-        if(!result.getCode().equals(ResultEnum.SUCCESS.getCode())){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(result);
-    }
-
     @ApiOperation(value="获取对应分面下的碎片数量", notes = "获取对应分面下的碎片数量")
     @GetMapping("/getAssembleNumberInFacet")
    public ResponseEntity getAssembleNumberInFacet(@RequestParam(name = "domainName") String domainName

@@ -1,5 +1,4 @@
 #需要写分面API统计
->1. getDomainInfo（根据课程名，查询该课程下面主题，以及分面按树状组织） getFacetTreeByDomainName
 >2. getTermFacet/getDomainTermFacet1(和6似乎功能相同) 新：getFacetsInTopic
 >3. createFacet1(根据课程名、主题名、以及一级分面名创建一级分面) 新：insertFirstLayerFacet
 >4. createFacet2(根据课程名、主题名、以及一二级分面名创建二级分面) 新：insertSecondLayerFacet

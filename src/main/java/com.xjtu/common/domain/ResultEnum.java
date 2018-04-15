@@ -77,6 +77,24 @@ public enum ResultEnum {
     FACET_INSERT_ERROR_3(153, "分面信息插入失败：对应主题不存在"),
     FACET_INSERT_ERROR_4(159, "分面信息插入失败：对应父分面不存在"),
 
+    //碎片
+    Assemble_SEARCH_ERROR(163,"碎片查询失败：对应课程不存在"),
+    Assemble_SEARCH_ERROR_1(164,"碎片查询失败：对应主题不存在"),
+    Assemble_SEARCH_ERROR_2(165,"碎片查询失败：对应分面不存在"),
+    Assemble_SEARCH_ERROR_3(174,"碎片查询失败：查询语句执行失败"),
+    Assemble_INSERT_ERROR(166,"碎片插入失败：插入语句执行失败"),
+    Assemble_INSERT_ERROR_1(167,"碎片插入失败：碎片内容为空"),
+    Assemble_INSERT_ERROR_2(168,"碎片插入失败：对应课程不存在"),
+    Assemble_INSERT_ERROR_3(169,"碎片插入失败：对应主题不存在"),
+    Assemble_INSERT_ERROR_4(170,"碎片插入失败：对应分面不存在"),
+    Assemble_INSERT_ERROR_5(171,"碎片插入失败：碎片暂存表不存在该碎片"),
+    Assemble_INSERT_ERROR_6(172,"碎片插入失败：对应数据源不存在"),
+    Assemble_UPDATE_ERROR(173,"碎片更新失败：碎片id不存在"),
+    Assemble_UPDATE_ERROR_1(174,"碎片更新失败：更新语句执行失败"),
+    Assemble_DELETE_ERROR(175,"碎片删除失败：删除语句执行失败"),
+
+
+
     //用户登录
     LOGIN_ERROR(154, "登录失败：用户不存在"),
 
