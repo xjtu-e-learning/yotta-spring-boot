@@ -23,6 +23,26 @@ public class StatisticsController {
     @Autowired
     StatisticsService statisticsService;
 
+    @GetMapping("/getStatisticalInformation")
+    @ApiOperation(value = "查询所有课程下的统计数据", notes = "查询所有课程下的统计数据")
+    public ResponseEntity getStatisticalInformation(){
+        Result result = statisticsService.findStatisticalInformation();
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @GetMapping("/getStatisticalInformationBySubjectName")
+    @ApiOperation(value = "根据学科名，查询所有课程下的统计数据", notes = "根据学科名，查询所有课程下的统计数据")
+    public ResponseEntity getStatisticalInformationBySubjectName(@RequestParam(name = "subjectName") String subjectName){
+        Result result = statisticsService.findStatisticalInformationBySubjectName(subjectName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
     /**
      * API
      * 根据课程名，查询该课程下的统计数据
@@ -37,6 +57,20 @@ public class StatisticsController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    /**
+     * API
+     * 根据课程名、主题名，查询该主题下的统计数据
+     * */
+    @GetMapping("/getStatisticalInformationByDomainNameAndTopicName")
+    @ApiOperation(value = "根据课程名、主题名，查询该主题下的统计数据", notes = "根据课程名、主题名，查询该主题下的统计数据")
+    public ResponseEntity getStatisticalInformationByDomainNameAndTopicName(@RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "topicName") String topicName){
+        Result result = statisticsService.findStatisticalInformationByDomainNameAndTopicName(domainName,topicName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
     /**
      * API
      * 根据课程名、主题名列表（以“，”分割的字符串），查询该课程下的碎片统计数据

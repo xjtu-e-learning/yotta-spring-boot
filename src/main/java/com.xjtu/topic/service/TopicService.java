@@ -178,8 +178,8 @@ public class TopicService {
             logger.info("主题删除成功");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "主题删除成功");
         }
-        catch (Exception err){
-            logger.error("错误："+err);
+        catch (Exception exception){
+            logger.error("错误："+exception);
             logger.error("主题名删除失败：删除语句执行失败");
             return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR.getCode(),ResultEnum.TOPIC_DELETE_ERROR.getMsg());
         }

@@ -376,4 +376,26 @@ public class AssembleService {
         }
     }
 
+
+    /**
+     * 根据分面删除碎片
+     * @param facets 碎片所属分面
+     * @return
+     */
+    public Result deleteAssembles(Iterable<? extends Facet> facets){
+        List<Long> facetIds = new ArrayList<>();
+        for(Facet facet:facets){
+            facetIds.add(facet.getFacetId());
+        }
+        try {
+            assembleRepository.deleteByFacetIdIsIn(facetIds);
+            logger.info("碎片删除成功");
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(),"碎片删除成功");
+        }
+        catch (Exception exception){
+            logger.error("碎片删除失败：删除语句执行失败",exception);
+            return ResultUtil.error(ResultEnum.Assemble_DELETE_ERROR.getCode(),ResultEnum.Assemble_DELETE_ERROR.getMsg());
+        }
+    }
+
 }

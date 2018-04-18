@@ -337,7 +337,7 @@ public class DomainService {
      * 查询课程：由学科Id组织
      * @return 查询结果
      */
-    public Result findDomainsBySubject(){
+    public Result findDomainsGroupBySubject(){
         List<Subject> subjects = subjectRepository.findAll();
         if(subjects.size()==0){
             logger.error("课程查询失败：没有课程信息记录");

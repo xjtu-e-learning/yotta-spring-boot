@@ -61,6 +61,9 @@ public enum ResultEnum {
     FACET_INSERT_ERROR_1(140, "分面信息插入失败：分面插入语句执行失败"),
     FACET_DELETE_ERROR(141,"分面信息删除失败：分面不存在"),
     FACET_DELETE_ERROR_1(141,"分面信息删除失败：删除语句执行失败"),
+    FACET_DELETE_ERROR_2(179, "分面信息删除失败：对应课程不存在"),
+    FACET_DELETE_ERROR_3(180, "分面信息删除失败：对应主题不存在"),
+    FACET_DELETE_ERROR_4(181, "分面信息删除失败：删除语句执行失败"),
     FACET_UPDATE_ERROR(142,"分面更新失败：更新语句执行失败"),
     FACET_UPDATE_ERROR_1(160,"分面更新失败：对应课程不存在"),
     FACET_UPDATE_ERROR_2(161,"分面更新失败：对应主题不存在"),
@@ -76,6 +79,8 @@ public enum ResultEnum {
     FACET_INSERT_ERROR_2(152, "分面信息插入失败：对应课程不存在"),
     FACET_INSERT_ERROR_3(153, "分面信息插入失败：对应主题不存在"),
     FACET_INSERT_ERROR_4(159, "分面信息插入失败：对应父分面不存在"),
+
+
 
     //碎片
     Assemble_SEARCH_ERROR(163,"碎片查询失败：对应课程不存在"),
@@ -102,6 +107,11 @@ public enum ResultEnum {
     DEPENDENCY_SEARCH_ERROR(155, "主题依赖关系查询失败：没有课程信息记录"),
     DEPENDENCY_SEARCH_ERROR_1(156, "主题依赖关系查询失败：该课程下没有主题依赖关系记录"),
     DEPENDENCY_SEARCH_ERROR_2(157, "主题依赖关系生成失败：gexf文件生成失败"),
+    DEPENDENCY_SEARCH_ERROR_3(176, "主题依赖关系生成失败：起始或终止主题不存在"),
+    DEPENDENCY_SEARCH_ERROR_4(178, "主题依赖关系查询失败：查询语句执行失败"),
+    DEPENDENCY_INSERT_ERROR(177, "主题依赖关系插入失败:插入语句执行失败"),
+    DEPENDENCY_DELETE_ERROR(179, "主题依赖关系删除失败:没有课程信息记录"),
+    DEPENDENCY_DELETE_ERROR_1(180, "主题依赖关系删除失败：删除语句执行失败"),
 
     //课程数据统计
     STATISTICS_SEARCH_ERROR(158, "词频查询失败：中文分词失败")

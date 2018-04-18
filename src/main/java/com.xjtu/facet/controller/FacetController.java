@@ -68,6 +68,48 @@ public class FacetController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @ApiOperation(value = "指定课程、主题和一级分面，删除一级分面"
+            , notes = "指定课程、主题和一级分面，删除一级分面")
+    @GetMapping("/deleteFirstLayerFacet")
+    public ResponseEntity deleteFirstLayerFacet(@RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "topicName") String topicName
+            , @RequestParam(name = "firstLayerFacetName") String firstLayerFacetName){
+        Result result = facetService.deleteFirstLayerFacet(domainName,topicName,firstLayerFacetName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @ApiOperation(value = "指定课程、主题和二级分面，删除二级分面"
+            , notes = "指定课程、主题和二级分面，删除二级分面")
+    @GetMapping("/deleteSecondLayerFacet")
+    public ResponseEntity deleteSecondLayerFacet(@RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "topicName") String topicName
+            , @RequestParam(name = "secondLayerFacetName") String secondLayerFacetName){
+        Result result = facetService.deleteSecondLayerFacet(domainName,topicName,secondLayerFacetName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @ApiOperation(value = "指定课程、主题和三级分面，删除三级分面"
+            , notes = "指定课程、主题和三级分面，删除三级分面")
+    @GetMapping("/deleteThirdLayerFacet")
+    public ResponseEntity deleteThirdLayerFacet(@RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "topicName") String topicName
+            , @RequestParam(name = "thirdLayerFacetName") String thirdLayerFacetName){
+        Result result = facetService.deleteThirdLayerFacet(domainName,topicName,thirdLayerFacetName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
+
+
     @ApiOperation(value = "更新一级分面名"
             , notes = "更新一级分面名")
     @GetMapping("/updateFirstLayerFacet")

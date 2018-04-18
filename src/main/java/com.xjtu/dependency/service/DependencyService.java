@@ -8,9 +8,11 @@ import com.xjtu.dependency.domain.DependencyContainName;
 import com.xjtu.dependency.repository.DependencyRepository;
 import com.xjtu.domain.domain.Domain;
 import com.xjtu.domain.repository.DomainRepository;
+import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.repository.TopicRepository;
 import com.xjtu.utils.ResultUtil;
 import org.apache.commons.io.FileUtils;
+import org.apache.regexp.RE;
 import org.gephi.appearance.api.*;
 import org.gephi.appearance.plugin.PartitionElementColorTransformer;
 import org.gephi.appearance.plugin.RankingElementColorTransformer;
@@ -83,6 +85,100 @@ public class DependencyService {
     private DomainRepository domainRepository;
 
 
+    /**
+     * 通过主课程名，在课程下的插入、添加主题依赖关系
+     * @param domainName 课程名
+     * @param startTopicName 起始主题名
+     * @param endTopicName 终止主题名
+     * @return
+     */
+    public Result insertDependency(String domainName, String startTopicName,String endTopicName){
+        Domain domain = domainRepository.findByDomainName(domainName);
+        //查询课程错误
+        if(domain==null){
+            logger.error("主题依赖关系查询失败：没有课程信息记录");
+            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR.getCode(),ResultEnum.DEPENDENCY_SEARCH_ERROR.getMsg());
+        }
+        //查找主题id
+        Topic startTopic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(),startTopicName);
+        Topic endTopic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(),endTopicName);
+        if(startTopic==null || endTopic==null){
+            logger.error("主题依赖关系查询失败:起始或终止主题不存在");
+            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR_3.getCode(),ResultEnum.DEPENDENCY_SEARCH_ERROR_3.getMsg());
+
+        }
+        //插入依赖关系
+        Dependency dependency = new Dependency(startTopic.getTopicId(),endTopic.getTopicId(),0,domain.getDomainId());
+        try {
+            dependencyRepository.save(dependency);
+            logger.info("主题依赖关系插入成功");
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),"主题依赖关系插入成功");
+        }
+        catch (Exception exception){
+            logger.error("主题依赖关系插入失败:插入语句执行失败");
+            return ResultUtil.error(ResultEnum.DEPENDENCY_INSERT_ERROR.getCode(),ResultEnum.DEPENDENCY_INSERT_ERROR.getMsg());
+        }
+    }
+
+    /**
+     * 通过主课程名，起始、终止主题id删除依赖关系
+     * @param domainName 课程名
+     * @param startTopicId 起始主题id
+     * @param endTopicId 终止主题id
+     * @return
+     */
+    public Result deleteDependency(String domainName,Long startTopicId,Long endTopicId){
+        Domain domain = domainRepository.findByDomainName(domainName);
+        //查询课程错误
+        if(domain==null){
+            logger.error("主题依赖关系删除失败：没有课程信息记录");
+            return ResultUtil.error(ResultEnum.DEPENDENCY_DELETE_ERROR.getCode(),ResultEnum.DEPENDENCY_DELETE_ERROR.getMsg());
+        }
+        try {
+            dependencyRepository.deleteByDomainIdAndStartTopicIdAndEndTopicId(domain.getDomainId(),startTopicId,endTopicId);
+            logger.info("主题依赖关系删除成功");
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),"主题依赖关系删除成功");
+        }
+        catch (Exception exception){
+            logger.error("主题依赖关系删除失败：删除语句执行失败",exception);
+            return ResultUtil.error(ResultEnum.DEPENDENCY_DELETE_ERROR_1.getCode(),ResultEnum.DEPENDENCY_DELETE_ERROR_1.getMsg());
+        }
+
+    }
+    /**
+     * 通过课程名和关键词，获取该课程下的主题依赖关系
+     * @param domainName
+     * @param keyword
+     * @return
+     */
+    public Result findDependenciesByKeyword(String domainName , String keyword){
+        Domain domain = domainRepository.findByDomainName(domainName);
+        //查询课程错误
+        if(domain==null){
+            logger.error("主题依赖关系查询失败：没有课程信息记录");
+            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR.getCode(),ResultEnum.DEPENDENCY_SEARCH_ERROR.getMsg());
+        }
+        try {
+            List<Dependency> dependencies = dependencyRepository.findDependenciesByDomainIdAndKeyword(domain.getDomainId(),keyword);
+            List<DependencyContainName> dependencyContainNames = new ArrayList<>();
+            for(Dependency dependency:dependencies){
+                DependencyContainName dependencyContainName = new DependencyContainName(dependency);
+                //获取主题名
+                String startTopicName = topicRepository.findOne(dependency.getStartTopicId()).getTopicName();
+                String endTopicName = topicRepository.findOne(dependency.getEndTopicId()).getTopicName();
+                //设置主题名
+                dependencyContainName.setStartTopicName(startTopicName);
+                dependencyContainName.setEndTopicName(endTopicName);
+                dependencyContainNames.add(dependencyContainName);
+            }
+            logger.info("主题依赖关系查询成功");
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),dependencyContainNames);
+        }
+        catch (Exception exception){
+            logger.error("主题依赖关系查询失败：查询语句执行失败",exception);
+            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR_4.getCode(),ResultEnum.DEPENDENCY_SEARCH_ERROR_4.getMsg());
+        }
+    }
 
     /**
      * 通过主课程名，获取该课程下的主题依赖关系
@@ -98,17 +194,12 @@ public class DependencyService {
         }
         Long domainId = domain.getDomainId();
         List<Dependency> dependencies = dependencyRepository.findByDomainId(domainId);
-        //查询错误
-        if(dependencies.size()==0){
-            logger.error("主题依赖关系查询失败：该课程下没有主题依赖关系记录");
-            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR_1.getCode(),ResultEnum.DEPENDENCY_SEARCH_ERROR_1.getMsg());
-        }
         List<DependencyContainName> dependencyContainNames = new ArrayList<>();
         for(Dependency dependency:dependencies){
             DependencyContainName dependencyContainName = new DependencyContainName(dependency);
             //获取主题名
-            String startTopicName = topicRepository.findByTopicIdAndDomainId(dependency.getStartTopicId(),domainId).getTopicName();
-            String endTopicName = topicRepository.findByTopicIdAndDomainId(dependency.getEndTopicId(),domainId).getTopicName();
+            String startTopicName = topicRepository.findOne(dependency.getStartTopicId()).getTopicName();
+            String endTopicName = topicRepository.findOne(dependency.getEndTopicId()).getTopicName();
             //设置主题名
             dependencyContainName.setStartTopicName(startTopicName);
             dependencyContainName.setEndTopicName(endTopicName);

@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -16,6 +17,16 @@ import java.util.List;
  * @date 2018/03/15 14:47
  * */
 public interface AssembleRepository extends JpaRepository<Assemble, Long>,JpaSpecificationExecutor<Assemble> {
+
+
+    /**
+     * 根据分面id，删除分面下的所有碎片
+     * @param facetIds
+     */
+    @Modifying(clearAutomatically = true)
+    @Transactional(rollbackFor = Exception.class)
+    void deleteByFacetIdIsIn(Collection<Long> facetIds);
+
 
     /**
      * 根据主题id，删除主题下的所有碎片
@@ -41,6 +52,23 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>,JpaSpe
      * */
     @Transactional(rollbackFor = Exception.class)
     List<Assemble> findByFacetId(Long facetId);
+
+    /**
+     * 查询主题下的所有碎片
+     * @param topicId 主题id
+     * @return
+     */
+    @Modifying(clearAutomatically = true)
+    @Transactional(rollbackFor = Exception.class)
+    @Query("SELECT\n" +
+            "a \n" +
+            "FROM\n" +
+            "Assemble AS a ,\n" +
+            "Facet AS f \n" +
+            "WHERE\n" +
+            "f.topicId = ?1 AND\n" +
+            "f.facetId = a.facetId")
+    List<Assemble> findAllAssemblesByTopicId(Long topicId);
 
     /**
      * 查询课程下的所有碎片

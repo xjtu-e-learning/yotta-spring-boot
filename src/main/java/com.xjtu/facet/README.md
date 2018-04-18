@@ -11,3 +11,6 @@
 >11. updataFacet1 新：updateFirstLayerFacet
 >12. updataFacet2 新：updateSecondLayerFacet
 >13. updataFacet3 新：updateThirdLayerFacet
+>14. deleteFacet1 新：deleteFirstLayerFacet
+>15. deleteFacet2 新：deleteSecondLayerFacet
+>16. deleteFacet3 新：deleteThirdLayerFacet

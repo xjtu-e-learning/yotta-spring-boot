@@ -5,6 +5,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+/**
+ * 课程类
+ * @author yangkuan
+ * @date 2018/04/17 21:52
+ */
 @Entity
 @Table(name = "domain")
 public class Domain {

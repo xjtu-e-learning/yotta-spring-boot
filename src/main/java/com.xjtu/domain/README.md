@@ -6,7 +6,8 @@
 >3. queryKeyword
 >4. getDomainManage(包含学科名、课程名、课程id、主题数、
 一级分面、二级分面和三级分面数、碎片数、依赖数(dependence)) 新API在statistics模块下getDomainDistribution
->5. getDomainInfo（根据课程名，查询该课程下面主题，以及分面按树状组织） getDomainTreeByDomainName
+>5. getDomainInfo（根据课程名，查询该课程下面主题，以及分面按树状组织） 新：getDomainTreeByDomainName
+>6. getDomain(原DependencyAPI下，查询所有课程) 新：getDomains
 
 > ## 访问课程信息的API
 > 

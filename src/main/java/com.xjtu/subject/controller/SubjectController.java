@@ -26,7 +26,7 @@ public class SubjectController {
     @GetMapping(value = "/getSubjects")
     @ApiOperation(value = "获得所有学科信息", notes = "获得所有学科信息")
     public ResponseEntity getSubjects(){
-        Result result = subjectService.getSubjects();
+        Result result = subjectService.findSubjects();
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
@@ -46,7 +46,16 @@ public class SubjectController {
     }
 
     /**
-     * 获得学科、课程和主题信息 getSubjectWithDomain未写
+     * 获得学科、课程和主题信息 getSubjectTree
     * */
+    @GetMapping(value = "/getSubjectTree")
+    @ApiOperation(value = "获得所有学科、课程和主题信息", notes = "获得学科、课程和主题信息")
+    public ResponseEntity getSubjectTree(){
+        Result result = subjectService.findSubjectTree();
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 
 }

@@ -2,8 +2,11 @@ package com.xjtu.subject.service;
 
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
+import com.xjtu.domain.domain.Domain;
+import com.xjtu.domain.repository.DomainRepository;
 import com.xjtu.subject.domain.Subject;
 import com.xjtu.subject.repository.SubjectRepository;
+import com.xjtu.topic.repository.TopicRepository;
 import com.xjtu.utils.ResultUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +22,10 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 处理subject学科数据
@@ -33,6 +39,12 @@ public class SubjectService {
 
     @Autowired
     private SubjectRepository subjectRepository;
+
+    @Autowired
+    private DomainRepository domainRepository;
+
+    @Autowired
+    private TopicRepository topicRepository;
 
 
     /**
@@ -102,7 +114,7 @@ public class SubjectService {
      * 查询学科信息：所有学科信息
      * @return 查询结果
      */
-    public Result getSubjects(){
+    public Result findSubjects(){
         List<Subject> subjects = subjectRepository.findAll();
         if(subjects.size()>0){
             logger.info("查询成功");
@@ -120,14 +132,14 @@ public class SubjectService {
      * @param subjectId 指定学科Id
      * @return 查询结果
      */
-    public Result getSubjectById(Long subjectId){
+    public Result findSubjectById(Long subjectId){
         try {
             Subject subject = subjectRepository.findBySubjectId(subjectId);
             logger.info("查询成功" + subject.toString());
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), subject);
         } catch (Exception e) {
-            logger.error("数据源查询失败：没有学科信息记录");
-            return ResultUtil.error(ResultEnum.SUBJECT_SEARCH_ERROR_1.getCode(), ResultEnum.SUBJECT_SEARCH_ERROR_1.getMsg());
+            logger.error("学科查询失败：没有学科信息记录");
+            return ResultUtil.error(ResultEnum.SUBJECT_SEARCH_ERROR.getCode(), ResultEnum.SUBJECT_SEARCH_ERROR.getMsg());
         }
     }
 
@@ -138,7 +150,7 @@ public class SubjectService {
      * @param ascOrder 是否升序
      * @return 分页排序的数据
      */
-    public Result getSubjectByPagingAndSorting(Integer page, Integer size, Boolean ascOrder){
+    public Result findSubjectByPagingAndSorting(Integer page, Integer size, Boolean ascOrder){
         //页数从0开始计数
         Sort.Direction direction = Sort.Direction.ASC;
         if(!ascOrder){
@@ -150,6 +162,36 @@ public class SubjectService {
     }
 
     /**
+     * 获得所有学科、课程和主题信息
+     * @return
+     */
+    public Result findSubjectTree(){
+        //查找学科
+        List<Subject> subjects = subjectRepository.findAll();
+        List<Map<String,Object>> subjectTrees = new ArrayList<>();
+        for(Subject subject:subjects){
+            Map<String,Object> subjectTree = new HashMap<>(4);
+            subjectTree.put("subjectId",subject.getSubjectId());
+            subjectTree.put("subjectName",subject.getSubjectName());
+            subjectTree.put("note",subject.getNote());
+            //查找课程
+            List<Domain> domains = domainRepository.findBySubjectId(subject.getSubjectId());
+            List<Map<String,Object>> domainTrees = new ArrayList<>();
+            for(Domain domain:domains){
+                Map<String,Object> domainTree = new HashMap<>(5);
+                domainTree.put("domainId",domain.getDomainId());
+                domainTree.put("domainName",domain.getDomainName());
+                domainTree.put("topics",topicRepository.findByDomainId(domain.getDomainId()));
+                domainTrees.add(domainTree);
+            }
+            subjectTree.put("domains",domainTrees);
+            subjectTrees.add(subjectTree);
+        }
+        logger.info("学科查询数据成功");
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),subjectTrees);
+    }
+
+    /**
      * 获取分页学科数据，按照学科Id排序 (带查询条件：根据同一学科Id下的数据)
      * @param page 第几页的数据
      * @param size 每页数据的大小
@@ -157,7 +199,7 @@ public class SubjectService {
      * @param subjectId 学科Id (查询条件)
      * @return 分页排序的数据
      */
-    public Result getSubjectByIdAndPagingAndSorting(Integer page, Integer size, Boolean ascOrder, Long subjectId){
+    public Result findSubjectByIdAndPagingAndSorting(Integer page, Integer size, Boolean ascOrder, Long subjectId){
         //页数从0开始计数
         Sort.Direction direction = Sort.Direction.ASC;
         if(!ascOrder){

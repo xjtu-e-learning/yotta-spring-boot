@@ -25,10 +25,10 @@ public class DomainController {
     private DomainService domainService;
 
 
-    @GetMapping("/getDomainsBySubject")
+    @GetMapping("/getDomainsGroupBySubject")
     @ApiOperation(value = "获得学科和课程信息，不包含主题信息", notes = "获得学科和课程信息，不包含主题信息")
-    public ResponseEntity getDomainsBySubject(){
-        Result result = domainService.findDomainsBySubject();
+    public ResponseEntity getDomainsGroupBySubject(){
+        Result result = domainService.findDomainsGroupBySubject();
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }

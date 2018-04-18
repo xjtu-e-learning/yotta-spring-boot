@@ -190,6 +190,126 @@ public class FacetService {
         }
     }
 
+    public Result deleteFacet(Iterable<? extends Facet> facets){
+        try {
+            List<Long> facetIds = new ArrayList<>();
+            for(Facet facet:facets){
+                facetIds.add(facet.getFacetId());
+            }
+            //删除碎片
+            assembleRepository.deleteByFacetIdIsIn(facetIds);
+            //删除分面
+            facetRepository.delete(facets);
+            logger.info("分面信息删除成功");
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),"分面信息删除成功");
+
+        }
+        catch (Exception exception){
+            logger.error("分面信息删除失败：删除语句执行失败");
+            return ResultUtil.error(ResultEnum.FACET_DELETE_ERROR_4.getCode(),ResultEnum.FACET_DELETE_ERROR_4.getMsg());
+        }
+    }
+
+    /**
+     * 指定课程、主题和一级分面，删除一级分面
+     * @param domainName 课程名
+     * @param topicName 主题名
+     * @param firstLayerFacetName 一级分面名
+     * @return
+     */
+    public Result deleteFirstLayerFacet(String domainName, String topicName, String firstLayerFacetName){
+        //查询课程
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if(domain==null){
+            logger.error("分面删除失败：对应课程不存在");
+            return ResultUtil.error(ResultEnum.FACET_DELETE_ERROR_2.getCode(), ResultEnum.FACET_DELETE_ERROR_2.getMsg());
+        }
+        Long domainId = domain.getDomainId();
+        //查询主题
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
+        if(topic==null){
+            logger.error("分面删除失败：对应主题不存在");
+            return ResultUtil.error(ResultEnum.FACET_DELETE_ERROR_3.getCode(), ResultEnum.FACET_DELETE_ERROR_3.getMsg());
+        }
+        //删除一级分面，需要删除它的子分面
+        //查找一级分面
+        Facet firstLayerFacet = facetRepository.findByTopicIdAndFacetNameAndFacetLayer(topic.getTopicId(),firstLayerFacetName,1);
+        //查找二级分面
+        List<Facet> secondLayerFacets = facetRepository.findByParentFacetId(firstLayerFacet.getFacetId());
+        //查找三级分面
+        List<Facet> thirdLayerFacets = new ArrayList<>();
+        for(Facet secondLayerFacet:secondLayerFacets){
+            thirdLayerFacets.addAll(facetRepository.findByParentFacetId(secondLayerFacet.getFacetId()));
+        }
+        //所有分面合并
+        List<Facet> facets = new ArrayList<>();
+        facets.add(firstLayerFacet);
+        facets.addAll(secondLayerFacets);
+        facets.addAll(thirdLayerFacets);
+        return deleteFacet(facets);
+    }
+
+    /**
+     * 指定课程、主题和二级分面，删除二级分面
+     * @param domainName 课程名
+     * @param topicName 主题名
+     * @param secondLayerFacetName 分面名
+     * @return
+     */
+    public Result deleteSecondLayerFacet(String domainName, String topicName, String secondLayerFacetName){
+        //查询课程
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if(domain==null){
+            logger.error("分面删除失败：对应课程不存在");
+            return ResultUtil.error(ResultEnum.FACET_DELETE_ERROR_2.getCode(), ResultEnum.FACET_DELETE_ERROR_2.getMsg());
+        }
+        Long domainId = domain.getDomainId();
+        //查询主题
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
+        if(topic==null){
+            logger.error("分面删除失败：对应主题不存在");
+            return ResultUtil.error(ResultEnum.FACET_DELETE_ERROR_3.getCode(), ResultEnum.FACET_DELETE_ERROR_3.getMsg());
+        }
+        //删除二级分面，需要删除它的子分面
+        //查询二级分面
+        Facet secondLayerFacet = facetRepository.findByTopicIdAndFacetNameAndFacetLayer(topic.getTopicId(),secondLayerFacetName,2);
+        //查询三级分面
+        List<Facet> thirdLayerFacets = facetRepository.findByParentFacetId(secondLayerFacet.getFacetId());
+        //合并分面
+        List<Facet> facets = new ArrayList<>();
+        facets.add(secondLayerFacet);
+        facets.addAll(thirdLayerFacets);
+        return deleteFacet(facets);
+    }
+
+    /**
+     * 指定课程、主题和三级分面，删除三级分面
+     * @param domainName
+     * @param topicName
+     * @param thirdLayerFacetName
+     * @return
+     */
+    public Result deleteThirdLayerFacet(String domainName, String topicName, String thirdLayerFacetName){
+        //查询课程
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if(domain==null){
+            logger.error("分面删除失败：对应课程不存在");
+            return ResultUtil.error(ResultEnum.FACET_DELETE_ERROR_2.getCode(), ResultEnum.FACET_DELETE_ERROR_2.getMsg());
+        }
+        Long domainId = domain.getDomainId();
+        //查询主题
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
+        if(topic==null){
+            logger.error("分面删除失败：对应主题不存在");
+            return ResultUtil.error(ResultEnum.FACET_DELETE_ERROR_3.getCode(), ResultEnum.FACET_DELETE_ERROR_3.getMsg());
+        }
+        //删除三级分面
+        Facet thirdLayerFacet = facetRepository.findByTopicIdAndFacetNameAndFacetLayer(topic.getTopicId(),thirdLayerFacetName,3);
+        List<Facet> facets = new ArrayList<>();
+        facets.add(thirdLayerFacet);
+        return deleteFacet(facets);
+    }
+
     /**
      * 更新分面信息:根据分面Id
      * @param facet 需要更新的分面
