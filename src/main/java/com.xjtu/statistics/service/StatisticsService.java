@@ -604,37 +604,45 @@ public class StatisticsService {
                 result.put("subjectName",subject.getSubjectName());
             }
             //根据课程查询课程主题
-            List<Topic> topics = topicRepository.findByDomainId(domain.getDomainId());
-            result.put("topicNumber",topics.size());
+            int topicNumber = topicRepository.findTopicNumberByDomainId(domainId);
+            result.put("topicNumber",topicNumber);
             //根据主题查询分面（一级、二级、三级、总数）
-            //查询总分面
-            List<Facet> facets = facetRepository.findAllFacetsByDomainId(domainId);
-            int facetNumber = facets.size();
+            //查询总分面数
+            int facetNumber = facetRepository.findFacetNumberByDomainId(domainId);
             //一级分面
-            List<Facet> firstLayerFacets = facetRepository.findFacetsByDomainIdAndFacetLayer(domainId,1);
-            int firstLayerFacetNumber = firstLayerFacets.size();
+            int firstLayerFacetNumber = facetRepository.findFacetNumberByDomainIdAndFacetLayer(domainId,1);
             //二级分面
-            List<Facet> secondLayerFacets = facetRepository.findFacetsByDomainIdAndFacetLayer(domainId,2);
-            int secondLayerFacetNumber = secondLayerFacets.size();
+            int secondLayerFacetNumber = facetRepository.findFacetNumberByDomainIdAndFacetLayer(domainId,2);
             //三级分面
-            List<Facet> thirdLayerFacets = facetRepository.findFacetsByDomainIdAndFacetLayer(domainId,3);
-            int thirdLayerFacetNumber = thirdLayerFacets.size();
-            //查询碎片
-            List<Assemble> assembles = assembleRepository.findAllAssemblesByDomainId(domainId);
-            //碎片数量
-            int assembleNumber = assembles.size();
+            int thirdLayerFacetNumber = facetRepository.findFacetNumberByDomainIdAndFacetLayer(domainId,3);
+            //查询碎片数量
+            int assembleNumber = assembleRepository.findAssembleNumberByDomainId(domainId);
             result.put("facetNumber", facetNumber);
             result.put("firstLayerFacetNumber", firstLayerFacetNumber);
             result.put("secondLayerFacetNumber", secondLayerFacetNumber);
             result.put("thirdLayerFacetNumber", thirdLayerFacetNumber);
             result.put("assembleNumber", assembleNumber);
             //查询主题依赖关系
-            List<Dependency> dependencies = dependencyRepository.findByDomainId(domainId);
-            result.put("dependencyNumber", dependencies.size());
+            int dependencyNumber = dependencyRepository.findDependencyNumberByDomainId(domainId);
+            result.put("dependencyNumber", dependencyNumber);
             results.add(result);
         }
         logger.info("统计所有课程的主题、分面、碎片数量分布信息成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), results);
+    }
+
+    /**
+     * 统计学科、课程数量
+     * @return
+     */
+    public Result countSubjectAndDomain(){
+        List<Subject> subjects = subjectRepository.findAll();
+        List<Domain> domains = domainRepository.findAll();
+        Map<String,Integer> information = new HashMap<>(2);
+        information.put("subjectNumber",subjects.size());
+        information.put("domainNumber",domains.size());
+        logger.info("信息统计成功");
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(),information);
     }
 
     /**
@@ -672,6 +680,7 @@ public class StatisticsService {
             facetQueryResult.put("domainName", facetInformation.get("3"));
             queryResults.add(facetQueryResult);
         }
+        logger.info("信息统计成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(),queryResults);
     }
 }

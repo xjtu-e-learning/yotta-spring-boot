@@ -27,6 +27,15 @@ public interface TopicRepository extends JpaRepository<Topic, Long>, JpaSpecific
     List<Topic> findByDomainId(Long domainId);
 
     /**
+     * 根据课程名，查询课程下的主题数
+     * @param domainId 课程id
+     * @return 主题数
+     * */
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "select count(t.topic_id) from topic t where t.domain_id=?1",nativeQuery = true)
+    Integer findTopicNumberByDomainId(Long domainId);
+
+    /**
      *根据课程名，查询课程下的第一个主题
      * @param domainId
      * @return

@@ -71,6 +71,16 @@ public class StatisticsController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
+    @GetMapping("/countSubjectAndDomain")
+    @ApiOperation(value = "统计学科、课程数量", notes = "统计学科、课程数量")
+    public ResponseEntity countSubjectAndDomain(){
+        Result result = statisticsService.countSubjectAndDomain();
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
     /**
      * API
      * 根据课程名、主题名列表（以“，”分割的字符串），查询该课程下的碎片统计数据

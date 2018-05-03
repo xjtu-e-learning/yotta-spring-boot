@@ -355,6 +355,22 @@ public class DomainService {
     }
 
     /**
+     * 根据学科名，返回该学科下的所有课程
+     * @param subjectName
+     * @return
+     */
+    public Result findDomainsBySubject(String subjectName){
+        Subject subject = subjectRepository.findBySubjectName(subjectName);
+        if(subject==null){
+            logger.error("课程查询失败：没有学科信息记录");
+            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(),ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
+        }
+        List<Domain> domains = domainRepository.findBySubjectId(subject.getSubjectId());
+        logger.info("课程查询成功");
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), domains);
+    }
+
+    /**
      * 课程数量统计
      * @return 查询结果
      */

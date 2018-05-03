@@ -82,7 +82,6 @@ public interface FacetRepository extends JpaRepository<Facet, Long>, JpaSpecific
      * @param domainId 课程Id
      * @return
      */
-    @Modifying(clearAutomatically = true)
     @Transactional(rollbackFor = Exception.class)
     @Query("SELECT \n" +
             "f.facetId,\n" +
@@ -98,13 +97,29 @@ public interface FacetRepository extends JpaRepository<Facet, Long>, JpaSpecific
             "t.topicId = f .topicId")
     List<Facet> findAllFacetsByDomainId(Long domainId);
 
+
+    /**
+     * 查询一门课程下的所有分面的数量，连表查询
+     * @param domainId 课程Id
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "SELECT \n" +
+            "count(f.facet_id) \n" +
+            "FROM \n" +
+            "topic t,\n" +
+            "facet f \n" +
+            "WHERE \n" +
+            "t.domain_id = ?1 AND \n" +
+            "t.topic_id = f .topic_id",nativeQuery = true)
+    Integer findFacetNumberByDomainId(Long domainId);
+
     /**
      * 查询一门课程下的各层分面，连表查询
      * @param domainId 课程Id
      * @param facetLayer 分面所在层
      * @return
      */
-    @Modifying(clearAutomatically = true)
     @Transactional(rollbackFor = Exception.class)
     @Query("SELECT \n" +
             "f.facetId,\n" +
@@ -120,6 +135,26 @@ public interface FacetRepository extends JpaRepository<Facet, Long>, JpaSpecific
             "t.topicId = f .topicId AND \n" +
             "f.facetLayer = ?2 ")
     List<Facet> findFacetsByDomainIdAndFacetLayer(Long domainId, Integer facetLayer);
+
+    /**
+     * 查询一门课程下的各层分面数，连表查询
+     * @param domainId 课程Id
+     * @param facetLayer 分面所在层
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "SELECT \n" +
+            "count(f.facet_id) \n" +
+            "FROM \n" +
+            "topic t,\n" +
+            "facet f \n" +
+            "WHERE \n" +
+            "t.domain_id = ?1 AND \n" +
+            "t.topic_id = f .topic_id AND \n" +
+            "f.facet_layer = ?2 ", nativeQuery = true)
+    Integer findFacetNumberByDomainIdAndFacetLayer(Long domainId, Integer facetLayer);
+
+
 
     /**
      * 更新分面

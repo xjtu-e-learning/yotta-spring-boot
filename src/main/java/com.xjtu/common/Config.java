@@ -18,4 +18,14 @@ public class Config {
      */
     public static String GEXFPATH = "E:\\gexfpath";
 
+
+    /**
+     * 爬虫配置
+     */
+    public final static String SOURCE_TABLE = "source";
+    public final static String SUBJECT_TABLE = "subject";
+    public final static String DOMAIN_TABLE = "domain";
+    public final static String TOPIC_TABLE = "topic";
+    public final static String FACET_TABLE = "facet";
+    public final static String ASSEMBLE_TABLE = "assemble";
 }

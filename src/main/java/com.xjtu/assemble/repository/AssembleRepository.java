@@ -58,7 +58,6 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>,JpaSpe
      * @param topicId 主题id
      * @return
      */
-    @Modifying(clearAutomatically = true)
     @Transactional(rollbackFor = Exception.class)
     @Query("SELECT\n" +
             "a \n" +
@@ -75,7 +74,6 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>,JpaSpe
      * @param domainId 课程id
      * @return
      */
-    @Modifying(clearAutomatically = true)
     @Transactional(rollbackFor = Exception.class)
     @Query("SELECT\n" +
             "a \n" +
@@ -88,4 +86,22 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>,JpaSpe
             "f.facetId = a.facetId AND\n" +
             "t.domainId = ?1\n")
     List<Assemble> findAllAssemblesByDomainId(Long domainId);
+
+    /**
+     * 查询课程下的碎片数量
+     * @param domainId 课程id
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "SELECT\n" +
+            "count(a.assemble_id) \n" +
+            "FROM\n" +
+            "assemble AS a ,\n" +
+            "facet AS f ,\n" +
+            "topic AS t\n" +
+            "WHERE\n" +
+            "t.topic_id = f.topic_id AND\n" +
+            "f.facet_id = a.facet_id AND\n" +
+            "t.domain_id = ?1\n",nativeQuery = true)
+    Integer findAssembleNumberByDomainId(Long domainId);
 }

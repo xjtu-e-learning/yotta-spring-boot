@@ -51,6 +51,15 @@ public interface DependencyRepository extends JpaRepository<Dependency, Long>,Jp
     List<Dependency> findByDomainId(Long domainId);
 
     /**
+     * 根据课程id,查询依赖关系数量
+     * @param domainId
+     * @return
+     * */
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "select count(d.dependency_id) from dependency d where d.domain_id = ?1",nativeQuery = true)
+    Integer findDependencyNumberByDomainId(Long domainId);
+
+    /**
      * 删除依赖关系，指定起始主题或者终止主题
      * @param startTopicId
      * @param endTopicId
@@ -73,6 +82,7 @@ public interface DependencyRepository extends JpaRepository<Dependency, Long>,Jp
      * 通过课程名和关键词，获取该课程下的主题依赖关系
      * @param domainId
      * @param keyword
+     * @return
      */
     @Transactional(rollbackFor = Exception.class)
     @Modifying(clearAutomatically = true)

@@ -35,6 +35,16 @@ public class DomainController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @GetMapping("/getDomainsBySubject")
+    @ApiOperation(value = "根据学科名，返回该学科下的所有课程", notes = "根据学科名，返回该学科下的所有课程")
+    public ResponseEntity getDomainsBySubject(@RequestParam(name = "subjectName") String subjectName){
+        Result result = domainService.findDomainsBySubject(subjectName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
     @GetMapping("/getDomains")
     @ApiOperation(value = "获得所有课程信息", notes = "获得所有课程信息")
     public ResponseEntity getDomains(){
