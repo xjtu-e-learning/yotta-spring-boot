@@ -1,0 +1,174 @@
+﻿{
+    "totalbranchlevel": 2,
+    "branchnum": 5,
+    "term_id": 45,
+    "name": "K-d树",
+    "children": [
+        {
+            "totalbranchlevel": 0,
+            "facet_name": "摘要",
+            "totalbranchnum": 0,
+            "type": "branch",
+            "totalleafnum": 3,
+            "children": [
+                {
+                    "url": "https://zh.wikipedia.org/wiki/K-d%E6%A0%91",
+                    "content": "一个三维k-d树。第一次划分（红色）把根节点（白色）划分成两个节点，然后它们分别再次被划分（绿色）为两个子节点。最后这四个子节点的每一个都被划分（蓝色）为两个子节点。因为没有更进一步的划分，最后得到的八个节点称为叶子节点。",
+                    "fragment_id": "摘要_1",
+                    "scratchTime": "2016-12-20 09:45:03.0",
+                    "type": "leaf",
+                    "flag": "text"
+                },
+                {
+                    "url": "https://zh.wikipedia.org/wiki/K-d%E6%A0%91",
+                    "content": "在计算机科学里，k-d树（ k-维树的缩写）是在k维欧几里德空间组织点的数据结构。k-d树可以使用在多种应用场合，如多维键值搜索（例：范围搜寻及最邻近搜索）。k-d树是空间二分树（Binary space partitioning ）的一种特殊情况。",
+                    "fragment_id": "摘要_2",
+                    "scratchTime": "2016-12-20 09:45:03.0",
+                    "type": "leaf",
+                    "flag": "text"
+                },
+                {
+                    "url": "https://zh.wikipedia.org/wiki/K-d%E6%A0%91",
+                    "content": "//upload.wikimedia.org/wikipedia/commons/thumb/b/b6/3dtree.png/250px-3dtree.png",
+                    "fragment_id": "摘要_1",
+                    "scratchTime": "2016-12-20 09:45:03.0",
+                    "type": "leaf",
+                    "flag": "image"
+                }
+            ]
+        },
+        {
+            "totalbranchlevel": 0,
+            "facet_name": "定义",
+            "totalbranchnum": 0,
+            "type": "branch",
+            "totalleafnum": 3,
+            "children": [
+                {
+                    "url": "https://zh.wikipedia.org/wiki/K-d%E6%A0%91",
+                    "content": "k-d树（k-维树的缩写）是在k维欧几里德空间组织点的数据结构。",
+                    "fragment_id": "摘要_1",
+                    "scratchTime": "2016-12-20 09:45:03.0",
+                    "type": "leaf",
+                    "flag": "text"
+                },
+                {
+                    "url": "https://zh.wikipedia.org/wiki/K-d%E6%A0%91",
+                    "content": "在计算机科学里，k-d树可以使用在多种应用场合，如多维键值搜索。k-d树是二叉树的一种特殊情况。",
+                    "fragment_id": "摘要_2",
+                    "scratchTime": "2016-12-20 09:45:03.0",
+                    "type": "leaf",
+                    "flag": "text"
+                },
+                {
+                    "url": "https://zh.wikipedia.org/wiki/K-d%E6%A0%91",
+                    "content": "k-d树是每个节点都为k维点的二叉树。所有非叶子节点可以视作用一个超平面把空间分割成两部分。在超平面左边的点代表节点的左子树，在超平面右边的点代表节点的右子树。超平面的方向可以用下述方法来选择：每个节点都与k维中垂直于超平面的那一维有关。因此，如果选择按照x轴划分，所有x值小于指定值的节点都会出现在左子树，所有x值大于指定值的节点都会出现在右子树。这样，超平面可以用该x值来确定，其法矢为x轴的单位向量。",
+                    "fragment_id": "摘要_1",
+                    "scratchTime": "2016-12-20 09:45:03.0",
+                    "type": "leaf",
+                    "flag": "image"
+                }
+            ]
+        },
+        {
+            "totalbranchlevel": 0,
+            "facet_name": "简介",
+            "totalbranchnum": 0,
+            "type": "branch",
+            "totalleafnum": 1,
+            "children": [
+                {
+                    "url": "https://zh.wikipedia.org/wiki/K-d%E6%A0%91",
+                    "content": "k-d树是每个节点都为k维点的二叉树。所有非叶子节点可以视作用一个超平面把空间分区成两个半空间( Half-space )。节点左边的子树代表在超平面左边的点，节点右边的子树代表在超平面右边的点。选择超平面的方法如下：每个节点都与k维中垂直于超平面的那一维有关。因此，如果选择按照x轴划分，所有x值小于指定值的节点都会出现在左子树，所有x值大于指定值的节点都会出现在右子树。这样，超平面可以用该x值来确定，其法矢为x轴的单位向量。",
+                    "fragment_id": "简介_1",
+                    "scratchTime": "2016-12-20 09:45:03.0",
+                    "type": "leaf",
+                    "flag": "text"
+                }
+            ]
+        },
+        {
+            "totalbranchlevel": 1,
+            "facet_name": "k-d树的运算",
+            "totalbranchnum": 2,
+            "type": "branch",
+            "totalleafnum": 2,
+            "children": [
+                {
+                    "totalbranchlevel": 0,
+                    "facet_name": "创建k-d树",
+                    "totalbranchnum": 0,
+                    "type": "branch",
+                    "totalleafnum": 4,
+                    "children": [
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/K-d%E6%A0%91",
+                            "content": "有很多种方法可以选择轴垂直分区面（ axis-aligned splitting planes ），所以有很多种创建k-d树的方法。 最典型的方法如下：",
+                            "fragment_id": "创建k-d树_1",
+                            "scratchTime": "2016-12-20 09:45:03.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/K-d%E6%A0%91",
+                            "content": "随着树的深度轮流选择轴当作分区面。（例如：在三维空间中根节点是 x 轴垂直分区面，其子节点皆为 y 轴垂直分区面，其孙节点皆为 z 轴垂直分区面，其曾孙节点则皆为 x 轴垂直分区面，依此类推。） 点由垂直分区面之轴座标的中位数区分并放入子树",
+                            "fragment_id": "创建k-d树_2",
+                            "scratchTime": "2016-12-20 09:45:03.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/K-d%E6%A0%91",
+                            "content": "这个方法产生一个平衡的k-d树。每个叶节点的高度都十分接近。然而，平衡的树不一定对每个应用都是最佳的。",
+                            "fragment_id": "创建k-d树_3",
+                            "scratchTime": "2016-12-20 09:45:03.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/K-d%E6%A0%91",
+                            "content": "function kdtree (list of points pointList, int depth)\n{\n    // Select axis based on depth so that axis cycles through all valid values\n    var int axis := depth mod k;\n        \n    // Sort point list and choose median as pivot element\n    select median by axis from pointList;\n        \n    // Create node and construct subtrees\n    var tree_node node;\n    node.location := median;\n    node.leftChild := kdtree(points in pointList before median, depth+1);\n    node.rightChild := kdtree(points in pointList after median, depth+1);\n    return node;\n}",
+                            "fragment_id": "创建k-d树_4",
+                            "scratchTime": "2016-12-20 09:45:03.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        }
+                    ]
+                },
+                {
+                    "totalbranchlevel": 0,
+                    "facet_name": "最邻近搜索",
+                    "totalbranchnum": 0,
+                    "type": "branch",
+                    "totalleafnum": 3,
+                    "children": [
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/K-d%E6%A0%91",
+                            "content": "最邻近搜索用来找出在树中与输入点最接近的点。",
+                            "fragment_id": "最邻近搜索_1",
+                            "scratchTime": "2016-12-20 09:45:03.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/K-d%E6%A0%91",
+                            "content": "从根节点开始，递归的往下移。往左还是往右的决定方法与插入元素的方法一样(如果输入点在分区面的左边则进入左子节点，在右边则进入右子节点)。 一旦移动到叶节点，将该节点当作\"目前最佳点\"。 解开递归，并对每个经过的节点运行下列步骤： 如果目前所在点比目前最佳点更靠近输入点，则将其变为目前最佳点。 检查另一边子树有没有更近的点，如果有则从该节点往下找 当根节点搜索完毕后完成最邻近搜索",
+                            "fragment_id": "最邻近搜索_2",
+                            "scratchTime": "2016-12-20 09:45:03.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/K-d%E6%A0%91",
+                            "content": "libkdtree++, an open-source STL-like implementation of k-d trees in C++. A tutorial on KD Trees A C++ implementation of k-d trees for 3D point clouds, part of the Mobile Robot Programming Toolkit (MRPT) kdtree A simple C library for working with KD-Trees K-D Tree Demo, Java applet libANN Approximate Nearest Neighbour Library includes a k-d tree implementation Caltech Large Scale Image Search Toolbox: a Matlab toolbox implementing randomized k-d tree for fast approximate nearest neighbour search, in addition to LSH, Hierarchical K-Means, and Inverted File search algorithms.",
+                            "fragment_id": "最邻近搜索_3",
+                            "scratchTime": "2016-12-20 09:45:03.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

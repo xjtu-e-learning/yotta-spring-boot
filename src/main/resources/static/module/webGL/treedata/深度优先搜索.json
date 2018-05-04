@@ -1,0 +1,119 @@
+﻿{
+    "totalbranchlevel": 2,
+    "branchnum": 5,
+    "term_id": 58,
+    "name": "深度优先搜索",
+    "children": [{
+        "totalbranchlevel": 0,
+        "facet_name": "摘要",
+        "totalbranchnum": 0,
+        "type": "branch",
+        "totalleafnum": 3,
+        "children": [{
+            "url": "https://zh.wikipedia.org/wiki/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2",
+            "content": "节点进行深度优先搜索的时间复杂度： O ( b m ) {\\displaystyle O(b^{m})} 空间复杂度： O ( b m ) {\\displaystyle O(bm)} 最佳解： 否 完全性： 是 其他： b - 分支系数 m - 图的最大深度",
+            "fragment_id": "摘要_2",
+            "scratchTime": "2016-12-20 09:47:09.0",
+            "type": "leaf",
+            "flag": "text"
+        }, {
+            "url": "https://zh.wikipedia.org/wiki/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2",
+            "content": "深度优先搜索（缩写DFS）有点类似广度优先搜索，也是对一个连通图进行遍历的算法。它的思想是从一个顶点V0开始，沿着一条路一直走到底，如果发现不能到达目标解，那就返回到上一个节点，然后从另一条路开始走到底，这种尽量往深处走的概念即是深度优先的概念。",
+            "fragment_id": "摘要_3",
+            "scratchTime": "2016-12-20 09:47:09.0",
+            "type": "leaf",
+            "flag": "text"
+        }, {
+            "url": "https://zh.wikipedia.org/wiki/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2",
+            "content": "事实上，深度优先搜索属于图算法的一种，英文缩写为DFS即Depth First Search.其过程简要来说是对每一个可能的分支路径深入到不能再深入为止，而且每个节点只能访问一次。",
+            "fragment_id": "摘要_6",
+            "scratchTime": "2016-12-20 09:47:09.0",
+            "type": "leaf",
+            "flag": "text"
+        }]
+    }, {
+        "totalbranchlevel": 0,
+        "facet_name": "C++的实现",
+        "totalbranchnum": 0,
+        "type": "branch",
+        "totalleafnum": 3,
+        "children": [{
+            "url": "https://zh.wikipedia.org/wiki/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2",
+            "content": "struct Node \n{\n   int self; //数据 \n   Node *left; //左节点 \n   Node *right; //右节点 \n};",
+            "fragment_id": "C++的实现_2",
+            "scratchTime": "2016-12-20 09:47:09.0",
+            "type": "leaf",
+            "flag": "text"
+        }, {
+            "url": "https://zh.wikipedia.org/wiki/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2",
+            "content": "“                  A\n           B           C\n      D   E          F   G\n ”",
+            "fragment_id": "C++的实现_4",
+            "scratchTime": "2016-12-20 09:47:09.0",
+            "type": "leaf",
+            "flag": "text"
+        }, {
+            "url": "https://zh.wikipedia.org/wiki/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2",
+            "content": "const int TREE_SIZE = 9;\nstd::stack<Node*> unvisited; \nNode nodes[TREE_SIZE]; \nNode* current;\n\n//初始化树\nfor(int i=0; i<TREE_SIZE; i++)\n{\n  nodes[i].self = i;\n  int child = i*2+1;\n  if(child<TREE_SIZE) // Left child\n    nodes[i].left = &nodes[child];\n  else\n    nodes[i].left = NULL;\n  child++;\n  if(child<TREE_SIZE) // Right child    \n    nodes[i].right = &nodes[child];\n  else\n    nodes[i].right = NULL;\n}           \n\nunvisited.push(&nodes[0]); //先把0放入UNVISITED stack\n\n// 只有UNVISITED不空\nwhile(!unvisited.empty())\n{\n  current=(unvisited.top()); //当前应该访问的\n  unvisited.pop(); \n  if(current->right!=NULL) \n    unvisited.push(current->right); // 把右边压入 因为右边的访问次序是在左边之后\n  if(current->left!=NULL) \n    unvisited.push(current->left);\n  cout<<current->self<<endl;\n}",
+            "fragment_id": "C++的实现_7",
+            "scratchTime": "2016-12-20 09:47:09.0",
+            "type": "leaf",
+            "flag": "text"
+        }]
+    }, {
+        "totalbranchlevel": 0,
+        "facet_name": "定义",
+        "totalbranchnum": 0,
+        "type": "branch",
+        "totalleafnum": 2,
+        "children": [{
+            "url": "https://zh.wikipedia.org/wiki/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2",
+            "content": "深度优先搜索算法（英语：Depth-First-Search，简称DFS）是一种用于遍历或搜索树或图的算法。沿着树的深度遍历树的节点，尽可能深的搜索树的分支。当节点v的所在边都己被探寻过，搜索将回溯到发现节点v的那条边的起始节点。这一过程一直进行到已发现从源节点可达的所有节点为止。如果还存在未被发现的节点，则选择其中一个作为源节点并重复以上过程，整个进程反复进行直到所有节点都被访问为止。属于盲目搜索。",
+            "fragment_id": "定义_1",
+            "scratchTime": "2016-12-20 09:47:09.0",
+            "type": "leaf",
+            "flag": "text"
+        },{
+            "url": "https://zh.wikipedia.org/wiki/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2",
+            "content": "假设给定图G的初态是所有顶点均未曾访问过。在G中任选一顶点v为初始出发点(源点)，则深度优先遍历可定义如下：首先访问出发点v，并将其标记为已访问过；然后依次从v出发搜索v的每个邻接点w。若w未曾访问过，则以w为新的出发点继续进行深度优先遍历，直至图中所有和源点v有路径相通的顶点(亦称为从源点可达的顶点)均已被访问为止。若此时图中仍有未访问的顶点，则另选一个尚未访问的顶点作为新的源点重复上述过程，直至图中所有顶点均已被访问为止。",
+            "fragment_id": "定义_2",
+            "scratchTime": "2016-12-20 09:47:09.0",
+            "type": "leaf",
+            "flag": "text"
+        }]
+    }, {
+        "totalbranchlevel": 0,
+        "facet_name": "应用",
+        "totalbranchnum": 0,
+        "type": "branch",
+        "totalleafnum": 1,
+        "children": [{
+            "url": "https://zh.wikipedia.org/wiki/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2",
+            "content": "深度优先搜索是图论中的经典算法，利用深度优先搜索算法可以产生目标图的相应拓扑排序表，利用拓扑排序表可以方便的解决很多相关的图论问题，如最大路径问题等等。",
+            "fragment_id": "应用_1",
+            "scratchTime": "2016-12-20 09:47:09.0",
+            "type": "leaf",
+            "flag": "text"
+        }]
+    }, {
+        "totalbranchlevel": 0,
+        "facet_name": "基本思路",
+        "totalbranchnum": 0,
+        "type": "branch",
+        "totalleafnum": 2,
+        "children": [{
+            "url": "https://zh.wikipedia.org/wiki/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2",
+            "content": "深度优先遍历图的方法是，从图中某顶点v出发：（1）访问顶点v；（2）依次从v的未被访问的邻接点出发，对图进行深度优先遍历；直至图中和v有路径相通的顶点都被访问；（3）若此时图中尚有顶点未被访问，则从一个未被访问的顶点出发，重新进行深度优先遍历，直到图中所有顶点均被访问过为止。　当然，当人们刚刚掌握深度优先搜索的时候常常用它来走迷宫.事实上我们还有别的方法，那就是广度优先搜索(BFS).",
+            "fragment_id": "基本思路_1",
+            "scratchTime": "2016-12-20 09:47:09.0",
+            "type": "leaf",
+            "flag": "text"
+        },{
+            "url": "https://zh.wikipedia.org/wiki/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2",
+            "content": "设x是当前被访问顶点，在对x做过访问标记后，选择一条从x出发的未检测过的边(x，y)。若发现顶点y已访问过，则重新选择另一条从x出发的未检测过的边，否则沿边(x，y)到达未曾访问过的y，对y访问并将其标记为已访问过；然后从y开始搜索，直到搜索完从y出发的所有路径，即访问完所有从y出发可达的顶点之后，才回溯到顶点x，并且再选择一条从x出发的未检测过的边。上述过程直至从x出发的所有边都已检测过为止。此时，若x不是源点，则回溯到在x之前被访问过的顶点；否则图中所有和源点有路径相通的顶点(即从源点可达的所有顶点)都已被访问过，若图G是连通图，则遍历过程结束，否则继续选择一个尚未被访问的顶点作为新的顶点，继续遍历。",
+            "fragment_id": "基本思路_1",
+            "scratchTime": "2016-12-20 09:47:09.0",
+            "type": "leaf",
+            "flag": "text"
+        }]
+    }]
+}

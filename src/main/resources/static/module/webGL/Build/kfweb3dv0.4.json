@@ -1,0 +1,9 @@
+{
+"TOTAL_MEMORY": 536870912,
+"dataUrl": "http://yottavr-1252377804.cosbj.myqcloud.com/vr/kfweb3dv0.4.data.unityweb",
+"asmCodeUrl": "http://yottavr-1252377804.cosbj.myqcloud.com/vr/kfweb3dv0.4.asm.code.unityweb",
+"asmMemoryUrl": "http://yottavr-1252377804.cosbj.myqcloud.com/vr/kfweb3dv0.4.asm.memory.unityweb",
+"asmFrameworkUrl": "kfweb3dv0.4.asm.framework.unityweb",
+"splashScreenStyle": "Dark",
+"backgroundColor": "#222C36"
+}
