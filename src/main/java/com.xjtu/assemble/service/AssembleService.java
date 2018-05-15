@@ -321,6 +321,23 @@ public class AssembleService {
     }
 
     /**
+     * 根据碎片id从碎片表中查询碎片
+     * @param assembleId 碎片id
+     * @return
+     */
+    public Result findAssembleById(Long assembleId){
+        try {
+            Assemble assemble = assembleRepository.findOne(assembleId);
+            logger.info("碎片查询成功");
+            return  ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),assemble);
+        }
+        catch (Exception error){
+            logger.error("暂存碎片查询失败",error);
+            return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR_3.getCode(),ResultEnum.Assemble_SEARCH_ERROR_3.getMsg());
+        }
+    }
+
+    /**
      * 根据碎片Id，更新暂存表中的碎片内容
      * @param assembleId 碎片id
      * @param assembleContent 碎片内容

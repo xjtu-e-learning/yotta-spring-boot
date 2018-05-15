@@ -129,6 +129,19 @@ public class AssembleController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @GetMapping("/getAssembleById")
+    @ApiOperation(value = "根据碎片id从碎片表中查询碎片"
+            , notes = "根据碎片id从碎片表中查询碎片")
+    public ResponseEntity  getAssembleById(@RequestParam(name = "assembleId") Long assembleId){
+        Result result = assembleService.findAssembleById(assembleId);
+        if(!result.getCode().equals(ResultEnum.SUCCESS.getCode())){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
+
 
 
     @PostMapping("/updateTemporaryAssemble")

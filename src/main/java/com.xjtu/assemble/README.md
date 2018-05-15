@@ -14,6 +14,7 @@
 >9. updateFragment(原SpiderAPI，根据碎片Id，更新暂存表中的碎片内容) 新：updateTemporaryAssemble
 >10. deleteUnaddFragment(原SpiderAPI，根据碎片Id，从碎片暂存表中删除碎片) 新：deleteTemporaryAssemble
 >11. getFragmentByID(原SpiderAPI，根据碎片Id，从碎片暂存表中查询碎片) 新：getTemporaryAssembleById
+>12. getAssembleFragmentByID(原SpiderAPI，根据碎片id从碎片表中查询碎片) 新：getAssembleById
 
 
 
