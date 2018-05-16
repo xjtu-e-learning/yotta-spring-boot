@@ -1,6 +1,7 @@
 package com.xjtu.spider.spiders.stackoverflow;
 
 
+import com.xjtu.common.Config;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;

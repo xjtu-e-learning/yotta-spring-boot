@@ -1,6 +1,7 @@
 package com.xjtu.spider.spiders.zhihu;
 
 
+import com.xjtu.common.Config;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
@@ -21,10 +22,12 @@ public class ZhihuProcessor implements PageProcessor {
             .addHeader("User-Agent", Config.userAgent)
             .addHeader("Accept", "*/*");
 
+    @Override
     public Site getSite() {
         return site;
     }
 
+    @Override
     public void process(Page page){
         //爬取碎片
         List<String> fragments = page.getHtml().xpath("div[@class='RichContent-inner']/span[@class='RichText CopyrightRichText-richText']").all();

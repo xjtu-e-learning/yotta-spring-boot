@@ -1,6 +1,7 @@
 package com.xjtu.spider.spiders.csdn;
 
 
+import com.xjtu.common.Config;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
@@ -21,10 +22,12 @@ public class CSDNProcessor implements PageProcessor {
             .addHeader("User-Agent", Config.userAgent)
             .addHeader("Accept", "*/*");
 
+    @Override
     public Site getSite() {
         return site;
     }
 
+    @Override
     public void process(Page page) {
         List<String> fragments =  page.getHtml().xpath("div[@id='article_content']").all();
         List<String> fragmentsPureText =  page.getHtml().xpath("div[@id='article_content']/tidyText()").all();
