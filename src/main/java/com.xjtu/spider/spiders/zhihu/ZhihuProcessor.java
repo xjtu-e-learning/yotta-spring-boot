@@ -2,6 +2,11 @@ package com.xjtu.spider.spiders.zhihu;
 
 
 import com.xjtu.common.Config;
+import com.xjtu.spider.spiders.webmagic.bean.Assembles;
+import com.xjtu.spider.spiders.webmagic.pipeline.SqlPipeline;
+import com.xjtu.spider.spiders.webmagic.service.SQLService;
+import com.xjtu.spider.spiders.webmagic.spider.YangKuanSpider;
+import org.springframework.beans.factory.annotation.Autowired;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
@@ -13,6 +18,9 @@ import java.util.List;
 import java.util.Map;
 
 public class ZhihuProcessor implements PageProcessor {
+
+    @Autowired
+    SQLService sqlService;
 
     private Site site = Site.me()
             .setRetryTimes(Config.retryTimes)
@@ -30,10 +38,10 @@ public class ZhihuProcessor implements PageProcessor {
     @Override
     public void process(Page page){
         //爬取碎片
-        List<String> fragments = page.getHtml().xpath("div[@class='RichContent-inner']/span[@class='RichText CopyrightRichText-richText']").all();
-        List<String> fragmentsPureText = page.getHtml().xpath("div[@class='RichContent-inner']/span[@class='RichText CopyrightRichText-richText']/tidyText()").all();
-        FragmentContent fragmentContent = new FragmentContent(fragments, fragmentsPureText);
-        page.putField("fragmentContent", fragmentContent);
+        List<String> assembleContents = page.getHtml().xpath("div[@class='RichContent-inner']/span[@class='RichText CopyrightRichText-richText']").all();
+        List<String> assembleTexts = page.getHtml().xpath("div[@class='RichContent-inner']/span[@class='RichText CopyrightRichText-richText']/tidyText()").all();
+        Assembles assembles = new Assembles(assembleContents, assembleTexts);
+        page.putField("assembles", assembles);
 
         List<String> urls;
         //这里获取得到的大部分链接都是相对路径
@@ -52,21 +60,20 @@ public class ZhihuProcessor implements PageProcessor {
             page.addTargetRequest(request);
         }
     }
-    public void zhihuAnswerCrawl(String courseName){
-        //1.获取分面名
-        ProcessorSQL processorSQL = new ProcessorSQL();
-        List<Map<String, Object>> allFacetsInformation = processorSQL.getAllFacets(Config.FACET_TABLE,courseName);
+    public void zhihuAnswerCrawl(String domainName){
+        //1.获取分面信息
+        List<Map<String, Object>> facets = sqlService.getFacets(domainName);
         //2.添加连接请求
         List<Request> requests = new ArrayList<>();
-        for(Map<String, Object> facetInformation : allFacetsInformation){
+        for(Map<String, Object> facet : facets){
             Request request = new Request();
             String url = "https://www.zhihu.com/search?type=content&q="
-                    +facetInformation.get("ClassName")+" "
-                    +facetInformation.get("TermName")+" "
-                    +facetInformation.get("FacetName");
+                    +facet.get("domainName")+" "
+                    +facet.get("topicName")+" "
+                    +facet.get("facetName");
             //添加链接;设置额外信息
-            facetInformation.put("SourceName", "知乎");
-            requests.add(request.setUrl(url).setExtras(facetInformation));
+            facet.put("sourceName", "知乎");
+            requests.add(request.setUrl(url).setExtras(facet));
         }
         //3.创建ZhihuProcessor
         YangKuanSpider.create(new ZhihuProcessor())

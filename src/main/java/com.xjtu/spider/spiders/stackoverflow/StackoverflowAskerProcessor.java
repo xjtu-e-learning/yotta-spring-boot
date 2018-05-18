@@ -1,6 +1,7 @@
 package com.xjtu.spider.spiders.stackoverflow;
 
 import com.xjtu.common.Config;
+import com.xjtu.spider.spiders.webmagic.bean.FragmentContentAsker;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;

@@ -2,6 +2,11 @@ package com.xjtu.spider.spiders.csdn;
 
 
 import com.xjtu.common.Config;
+import com.xjtu.spider.spiders.webmagic.bean.Assembles;
+import com.xjtu.spider.spiders.webmagic.pipeline.SqlPipeline;
+import com.xjtu.spider.spiders.webmagic.service.SQLService;
+import com.xjtu.spider.spiders.webmagic.spider.YangKuanSpider;
+import org.springframework.beans.factory.annotation.Autowired;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
@@ -12,7 +17,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * CSDN爬虫
+ * @author yangkuan
+ * @date 2018/05/18
+ */
 public class CSDNProcessor implements PageProcessor {
+
+    @Autowired
+    SQLService sqlService;
 
     private Site site = Site.me()
             .setRetryTimes(Config.retryTimes)
@@ -29,10 +42,10 @@ public class CSDNProcessor implements PageProcessor {
 
     @Override
     public void process(Page page) {
-        List<String> fragments =  page.getHtml().xpath("div[@id='article_content']").all();
-        List<String> fragmentsPureText =  page.getHtml().xpath("div[@id='article_content']/tidyText()").all();
-        FragmentContent fragmentContent = new FragmentContent(fragments, fragmentsPureText);
-        page.putField("fragmentContent", fragmentContent);
+        List<String> assembleContents =  page.getHtml().xpath("div[@id='article_content']").all();
+        List<String> assembleTexts =  page.getHtml().xpath("div[@id='article_content']/tidyText()").all();
+        Assembles assembles = new Assembles(assembleContents,assembleTexts);
+        page.putField("assembles", assembles);
 
         //爬取碎片
         List<String> urls;
@@ -47,21 +60,20 @@ public class CSDNProcessor implements PageProcessor {
             page.addTargetRequest(request);
         }
     }
-    public void CSDNAnswerCrawl(String courseName){
-        //1.获取分面名
-        ProcessorSQL processorSQL = new ProcessorSQL();
-        List<Map<String, Object>> allFacetsInformation = processorSQL.getAllFacets(Config.FACET_TABLE,courseName);
+    public void CSDNAnswerCrawl(String domainName){
+        //1.获取分面信息
+        List<Map<String, Object>> facets = sqlService.getFacets(domainName);
         //2.添加连接请求
         List<Request> requests = new ArrayList<Request>();
-        for(Map<String, Object> facetInformation : allFacetsInformation){
+        for(Map<String, Object> facet : facets){
             Request request = new Request();
             String url = "http://so.csdn.net/so/search/s.do?q="
-                    + facetInformation.get("ClassName") + " "
-                    + facetInformation.get("TermName") + " "
-                    + facetInformation.get("FacetName");
+                    + facet.get("domainName") + " "
+                    + facet.get("topicName") + " "
+                    + facet.get("facetName");
             //添加链接;设置额外信息
-            facetInformation.put("SourceName", "csdn");
-            requests.add(request.setUrl(url).setExtras(facetInformation));
+            facet.put("sourceName", "csdn");
+            requests.add(request.setUrl(url).setExtras(facet));
         }
         YangKuanSpider.create(new CSDNProcessor())
                 .addRequests(requests)

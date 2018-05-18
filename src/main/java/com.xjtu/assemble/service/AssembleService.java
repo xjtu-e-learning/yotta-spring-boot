@@ -16,7 +16,6 @@ import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.repository.TopicRepository;
 import com.xjtu.utils.JsonUtil;
 import com.xjtu.utils.ResultUtil;
-import org.apache.regexp.RE;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

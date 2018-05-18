@@ -1,4 +1,4 @@
-package com.xjtu.spider.spiders.webmagic;
+package com.xjtu.spider.spiders.webmagic.service;
 
 import utils.mysqlUtils;
 
