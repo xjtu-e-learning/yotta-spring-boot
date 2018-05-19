@@ -1,6 +1,9 @@
 package com.xjtu.spider.spiders.webmagic.pipeline;
 
 
+import com.xjtu.spider.spiders.webmagic.bean.Asker;
+import com.xjtu.spider.spiders.webmagic.service.SQLService;
+import org.springframework.beans.factory.annotation.Autowired;
 import us.codecraft.webmagic.ResultItems;
 import us.codecraft.webmagic.Task;
 import us.codecraft.webmagic.pipeline.Pipeline;
@@ -15,48 +18,29 @@ import java.util.Map;
  * @date 2018/4/10 16:30
  */
 public class SqlAskerPipeline implements Pipeline {
+    @Autowired
+    SQLService sqlService;
 
     @Override
     public void process(ResultItems resultItems, Task task) {
-//        System.out.println(resultItems.getAll().size());
         for (Map.Entry<String, Object> entry : resultItems.getAll().entrySet()) {
-            mysqlUtils mysql = new mysqlUtils();
-            List<Object> params = new ArrayList<Object>();
-            // 定义插入语句参数
-            String addSql = "update " + Config.ASSEMBLE_FRAGMENT_QUESTION_TABLE +
-                    " set asker_name = ?," +
-                    " asker_reputation = ?," +
-                    " asker_answerCount = ?," +
-                    " asker_questionCount = ?," +
-                    " asker_viewCount = ? " +
-                    " where question_id = ?";
-
             // 问题信息
-            FragmentContentAsker fragmentContentAsker = (FragmentContentAsker) entry.getValue();
+            Asker asker = (Asker) entry.getValue();
             // 分面信息
             Map<String,Object> question = resultItems.getRequest().getExtras();
-
-            // asker_name 提问者姓名
-            params.add(fragmentContentAsker.getAsker_name());
-            // asker_reputation 提问者声望值
-            params.add(fragmentContentAsker.getAsker_reputation());
-            // asker_answerCount 提问者回答总数
-            params.add(fragmentContentAsker.getAsker_answerCount());
-            // asker_questionCount 提问者问题总数
-            params.add(fragmentContentAsker.getAsker_questionCount());
-            // asker_viewCount 提问者浏览总数
-            params.add(fragmentContentAsker.getAsker_viewCount());
-            // 需要更新的问题id
-            params.add(Integer.parseInt(question.get("question_id").toString()));
-
             try {
-                mysql.addDeleteModify(addSql, params);
-                System.out.println("assemble_fragment_question：update asker information success");
+                sqlService.updateQuestionByQuestionId(
+                        asker.getAskerName(),
+                        asker.getAskerReputation(),
+                        asker.getAskerAnswerCount(),
+                        asker.getAskerQuestionCount(),
+                        asker.getAskerViewCount(),
+                        Long.parseLong(question.get("questionId").toString())
+                );
+                System.out.println("update asker information success");
             }
-            catch (SQLException exception){
-                System.out.println("assemble_fragment_question：update asker information fail：" + exception.getMessage());
-            } finally {
-                mysql.closeconnection();
+            catch (Exception exception){
+                System.out.println("update asker information fail：\n" + exception.getMessage());
             }
         }
 

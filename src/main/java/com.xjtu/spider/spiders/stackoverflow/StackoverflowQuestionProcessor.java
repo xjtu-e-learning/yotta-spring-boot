@@ -2,6 +2,11 @@ package com.xjtu.spider.spiders.stackoverflow;
 
 
 import com.xjtu.common.Config;
+import com.xjtu.spider.spiders.webmagic.bean.FragmentContentQuestion;
+import com.xjtu.spider.spiders.webmagic.pipeline.SqlQuestionPipeline;
+import com.xjtu.spider.spiders.webmagic.service.SQLService;
+import com.xjtu.spider.spiders.webmagic.spider.YangKuanSpider;
+import org.springframework.beans.factory.annotation.Autowired;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
@@ -13,6 +18,9 @@ import java.util.List;
 import java.util.Map;
 
 public class StackoverflowQuestionProcessor implements PageProcessor {
+
+    @Autowired
+    SQLService sqlService;
 
     private Site site = Site.me()
             .setRetryTimes(Config.retryTimesSO)
@@ -100,17 +108,17 @@ public class StackoverflowQuestionProcessor implements PageProcessor {
                     question_best_answer_p = qas_p.get(1);
                 }
             }
-            List<String> fragments = new ArrayList<>();
-            List<String> fragmentsPureText = new ArrayList<>();
-            fragments.add(title + "\n" + question_body + "\n" + question_best_answer);
-            fragmentsPureText.add(title_p + "\n" + question_body_p + "\n" + question_best_answer_p);
+            List<String> assembleContents = new ArrayList<>();
+            List<String> assembleTexts = new ArrayList<>();
+            assembleContents.add(title + "\n" + question_body + "\n" + question_best_answer);
+            assembleTexts.add(title_p + "\n" + question_body_p + "\n" + question_best_answer_p);
 
             // 获取extras中的FragmentContentQuestion对象信息
             FragmentContentQuestion fragmentContentQuestion = new FragmentContentQuestion();
 
             // 保存问题文本信息
-            fragmentContentQuestion.setFragments(fragments);
-            fragmentContentQuestion.setFragmentsPureText(fragmentsPureText);
+            fragmentContentQuestion.setAssembleContents(assembleContents);
+            fragmentContentQuestion.setAssembleTexts(assembleTexts);
             fragmentContentQuestion.setPage_search_url("https://stackoverflow.com/search?q=");
             fragmentContentQuestion.setPage_website_logo("fa fa-stack-overflow");
             fragmentContentQuestion.setQuestion_url(question_url);
@@ -128,22 +136,21 @@ public class StackoverflowQuestionProcessor implements PageProcessor {
         }
     }
 
-    public void StackoverflowCrawl(String courseName) {
+    public void StackoverflowCrawl(String domainName) {
         //1.获取分面名
-        ProcessorSQL processorSQL = new ProcessorSQL();
-        List<Map<String, Object>> allFacetsInformation = processorSQL.getAllFacets(Config.FACET_TABLE, courseName);
+        List<Map<String, Object>> facets = sqlService.getFacets(domainName);
         //2.添加连接请求
         List<Request> requests = new ArrayList<>();
-        for (Map<String, Object> facetInformation : allFacetsInformation) {
+        for (Map<String, Object> facet : facets) {
             Request request = new Request();
             String url = "https://stackoverflow.com/search?q="
 //                    + facetInformation.get("ClassName") + " "
-                    + facetInformation.get("TermName") + " "
-                    + facetInformation.get("FacetName");
+                    + facet.get("topicName") + " "
+                    + facet.get("facetName");
             //添加链接，设置额外信息
-            facetInformation.put("page", 1);
-            facetInformation.put("SourceName", "Stackoverflow");
-            requests.add(request.setUrl(url).setExtras(facetInformation));
+            facet.put("page", 1);
+            facet.put("sourceName", "Stackoverflow");
+            requests.add(request.setUrl(url).setExtras(facet));
         }
 
         YangKuanSpider.create(new StackoverflowQuestionProcessor())

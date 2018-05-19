@@ -6,6 +6,8 @@ import com.xjtu.domain.domain.Domain;
 import com.xjtu.domain.repository.DomainRepository;
 import com.xjtu.facet.domain.Facet;
 import com.xjtu.facet.repository.FacetRepository;
+import com.xjtu.question.domain.Question;
+import com.xjtu.question.repository.QuestionRepository;
 import com.xjtu.source.repository.SourceRepository;
 import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.repository.TopicRepository;
@@ -40,6 +42,9 @@ public class SQLService {
     @Autowired
     AssembleRepository assembleRepository;
 
+    @Autowired
+    QuestionRepository questionRepository;
+
     public List<Map<String,Object>> getFacets(String domainName){
         Domain domain = domainRepository.findByDomainName(domainName);
         List<Topic> topics = topicRepository.findByDomainId(domain.getDomainId());
@@ -70,13 +75,47 @@ public class SQLService {
         Domain domain = domainRepository.findByDomainName(domainName);
         Topic topic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(),topicName);
         Facet facet = facetRepository.findByTopicIdAndFacetName(topic.getTopicId(),facetName);
+        facetMap = new HashMap<>(5);
+        facetMap.put("domainName",domainName);
+        facetMap.put("topicName",topicName);
+        facetMap.put("facetName",facetName);
         facetMap.put("sourceId",sourceId);
         facetMap.put("facetId",facet.getFacetId());
         return facetMap;
     }
 
+    /**
+     * 根据数据源和课程名，查询问题碎片
+     * @param sourceName
+     * @param domainName
+     * @return
+     */
+    public List<Question> getQuestions(String sourceName, String domainName){
+        List<Question> questionAssembles = questionRepository.findAllBySourceNameAndDomainName(sourceName,domainName);
+        return questionAssembles;
+    }
+
+    public Long findMaxAssembleId(){
+        return assembleRepository.findMaxId();
+    }
+
+    public void updateQuestionByQuestionId(String askerName
+            , String askerReputation
+            , String askerAnswerCount
+            , String askerQuestionCount
+            , String askerViewCount
+            , Long questionId){
+        questionRepository.updateByQuestionId(askerName,askerReputation
+                ,askerAnswerCount,askerQuestionCount
+                ,askerViewCount,questionId);
+    }
+
     public void saveAssembles(List<Assemble> assembles){
         assembleRepository.save(assembles);
+    }
+
+    public void insertQuestion(Question question){
+        questionRepository.save(question);
     }
 
 }

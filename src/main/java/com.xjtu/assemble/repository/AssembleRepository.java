@@ -28,6 +28,7 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>,JpaSpe
     void deleteByFacetIdIsIn(Collection<Long> facetIds);
 
 
+
     /**
      * 根据主题id，删除主题下的所有碎片
      * @param topicId
@@ -104,4 +105,12 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>,JpaSpe
             "f.facet_id = a.facet_id AND\n" +
             "t.domain_id = ?1\n",nativeQuery = true)
     Integer findAssembleNumberByDomainId(Long domainId);
+
+    /**
+     * 查询最大主键
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Query("select max(a.assembleId) from Assemble a")
+    Long findMaxId();
 }

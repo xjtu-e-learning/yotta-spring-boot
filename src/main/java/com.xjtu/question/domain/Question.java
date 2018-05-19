@@ -1,10 +1,12 @@
-package com.xjtu.questionquality.domain;
+package com.xjtu.question.domain;
 
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 问题碎片：包括问题和提问者信息
@@ -13,8 +15,8 @@ import javax.persistence.Table;
  */
 
 @Entity
-@Table(name = "question_assemble")
-public class QuestionAssemble {
+@Table(name = "question")
+public class Question {
 
     @Id
     @GeneratedValue
@@ -69,7 +71,45 @@ public class QuestionAssemble {
     /**
      * 问题对应在碎片表assemble的id，外键
      */
-    private int AssembleId;
+    private Long AssembleId;
+
+    public Question() {
+    }
+
+    public Question(String pageWebsiteLogo
+            , String pageSearchUrl, String pageColumnColor
+            , String questionUrl, String questionTitle
+            , String questionTitlePure, String questionBody
+            , String questionBodyPure, String questionBestAnswer
+            , String questionBestAnswerPure, String questionScore
+            , String questionAnswerCount, String questionViewCount
+            , String askerUrl, String askerName, String askerReputation
+            , String askerAnswerCount, String askerQuestionCount
+            , String askerViewCount, String askerBestAnswerRate
+            , String questionQualityLabel, Long assembleId) {
+        this.pageWebsiteLogo = pageWebsiteLogo;
+        this.pageSearchUrl = pageSearchUrl;
+        this.pageColumnColor = pageColumnColor;
+        this.questionUrl = questionUrl;
+        this.questionTitle = questionTitle;
+        this.questionTitlePure = questionTitlePure;
+        this.questionBody = questionBody;
+        this.questionBodyPure = questionBodyPure;
+        this.questionBestAnswer = questionBestAnswer;
+        this.questionBestAnswerPure = questionBestAnswerPure;
+        this.questionScore = questionScore;
+        this.questionAnswerCount = questionAnswerCount;
+        this.questionViewCount = questionViewCount;
+        this.askerUrl = askerUrl;
+        this.askerName = askerName;
+        this.askerReputation = askerReputation;
+        this.askerAnswerCount = askerAnswerCount;
+        this.askerQuestionCount = askerQuestionCount;
+        this.askerViewCount = askerViewCount;
+        this.askerBestAnswerRate = askerBestAnswerRate;
+        this.questionQualityLabel = questionQualityLabel;
+        AssembleId = assembleId;
+    }
 
     @Override
     public String toString() {
@@ -100,6 +140,33 @@ public class QuestionAssemble {
                 '}';
     }
 
+    public Map<String,Object> convertToMap(){
+        Map<String,Object> questionAssembleMap = new HashMap<>(23);
+        questionAssembleMap.put("questionId",this.questionId);
+        questionAssembleMap.put("pageWebsiteLogo",this.pageWebsiteLogo);
+        questionAssembleMap.put("pageSearchUrl",this.pageSearchUrl);
+        questionAssembleMap.put("pageColumnColor",this.pageColumnColor);
+        questionAssembleMap.put("questionUrl",this.questionUrl);
+        questionAssembleMap.put("questionTitle",this.questionTitle);
+        questionAssembleMap.put("questionTitlePure",this.questionTitlePure);
+        questionAssembleMap.put("questionBody",this.questionBody);
+        questionAssembleMap.put("questionBodyPure",this.questionBodyPure);
+        questionAssembleMap.put("questionBestAnswer",this.questionBestAnswer);
+        questionAssembleMap.put("questionBestAnswerPure",this.questionBestAnswerPure);
+        questionAssembleMap.put("questionScore",this.questionScore);
+        questionAssembleMap.put("questionAnswerCount",this.questionAnswerCount);
+        questionAssembleMap.put("questionViewCount",this.questionViewCount);
+        questionAssembleMap.put("askerUrl",this.askerUrl);
+        questionAssembleMap.put("askerName",this.askerName);
+        questionAssembleMap.put("askerReputation",this.askerReputation);
+        questionAssembleMap.put("askerAnswerCount",this.askerAnswerCount);
+        questionAssembleMap.put("askerQuestionCount",this.askerQuestionCount);
+        questionAssembleMap.put("askerViewCount",this.askerViewCount);
+        questionAssembleMap.put("askerBestAnswerRate",this.askerBestAnswerRate);
+        questionAssembleMap.put("questionQualityLabel",this.questionQualityLabel);
+        questionAssembleMap.put("AssembleId",this.AssembleId);
+        return questionAssembleMap;
+    }
     public int getQuestionId() {
         return questionId;
     }
@@ -276,11 +343,11 @@ public class QuestionAssemble {
         this.questionQualityLabel = questionQualityLabel;
     }
 
-    public int getAssembleId() {
+    public Long getAssembleId() {
         return AssembleId;
     }
 
-    public void setAssembleId(int assembleId) {
+    public void setAssembleId(Long assembleId) {
         AssembleId = assembleId;
     }
 }

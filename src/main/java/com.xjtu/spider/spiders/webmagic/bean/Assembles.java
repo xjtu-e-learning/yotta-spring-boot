@@ -24,6 +24,9 @@ public class Assembles {
         this.assembleTexts = assembleTexts;
     }
 
+    public Assembles() {
+    }
+
     @Override
     public String toString() {
         return "Assembles{" +

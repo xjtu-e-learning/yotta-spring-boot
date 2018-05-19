@@ -258,6 +258,17 @@ public class AssembleService {
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),"碎片添加成功");
     }
 
+    public Result insertAssemble(Assemble assemble){
+        try {
+            assembleRepository.save(assemble);
+        }
+        catch (Exception exception){
+            logger.error("碎片插入失败：插入语句执行失败");
+            return ResultUtil.error(ResultEnum.Assemble_INSERT_ERROR.getCode(), ResultEnum.Assemble_INSERT_ERROR.getMsg());
+        }
+        return  ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),"碎片添加成功");
+    }
+
     /**
      * 添加碎片到碎片暂存表（temporaryAssemble）中
      * @param assembleContent 碎片内容
