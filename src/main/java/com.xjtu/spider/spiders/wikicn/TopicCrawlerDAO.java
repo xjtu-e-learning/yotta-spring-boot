@@ -1,5 +1,8 @@
 package com.xjtu.spider.spiders.wikicn;
 
+import com.xjtu.utils.JsonUtil;
+import com.xjtu.utils.SpiderUtils;
+import org.apache.lucene.index.Term;
 import org.jsoup.nodes.Document;
 
 import java.util.*;
@@ -21,7 +24,7 @@ public class TopicCrawlerDAO {
 	 */
 	public static List<Term> topic(String url) throws Exception{
 		String html = SpiderUtils.seleniumWikiCN(url); // Selenium方式获取
-		Document doc = JsoupDao.parseHtmlText(html);
+		Document doc = JsonUtil.parseHtmlText(html);
 		List<Term> termList = TopicExtract.getTopic(doc); // 解析没有子分类的术语
 		return termList;
 	}

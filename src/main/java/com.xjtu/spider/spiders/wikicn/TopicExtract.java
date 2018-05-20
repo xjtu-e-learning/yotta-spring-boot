@@ -1,11 +1,18 @@
 package com.xjtu.spider.spiders.wikicn;
 
 import com.spreada.utils.chinese.ZHConverter;
+import com.xjtu.topic.domain.Topic;
+import com.xjtu.utils.JsonUtil;
+import com.xjtu.utils.SpiderUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.transaction.support.TransactionOperations;
 
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**  
  * 解析中文维基
@@ -16,36 +23,38 @@ import java.util.ArrayList;
  * @date 2016年11月26日
  */
 public class TopicExtract {
-	
+
+	private static final Logger logger = LoggerFactory.getLogger(TopicExtract.class);
 	private static ZHConverter converter = ZHConverter.getInstance(ZHConverter.SIMPLIFIED);// 转化为简体中文
 
 	public static void main(String[] args) throws Exception {
 		String url = "https://zh.wikipedia.org/wiki/Category:%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84";
 		String html = SpiderUtils.seleniumWikiCN(url);
-		Document doc = JsoupDao.parseHtmlText(html);
+		Document doc = JsonUtil.parseHtmlText(html);
 		getTopic(doc);
 //		getLayer(doc);
 	}
 	
 	/**
-	 * 解析得到Category中的页面术语
+	 * 解析得到Category中的页面主题
 	 * @param doc
 	 * @return 
 	 */
-	public static List<Term> getTopic(Document doc){
-		List<Term> termList = new ArrayList<>();
+	public static List<Topic> getTopic(Document doc){
+		List<Topic> topics = new ArrayList<>();
 		Elements mwPages = doc.select("#mw-pages").select("li");
 		int len = mwPages.size();
-		Log.log(len);
+		logger.info(""+len);
 		for (int i = 0; i < mwPages.size(); i++) {
-			String url = "https://zh.wikipedia.org" + mwPages.get(i).select("a").attr("href");
-			String topic = mwPages.get(i).text();
-			topic = converter.convert(topic);
-//			Log.log("topic is : " + topic + "  url is : " + url);
-			Term term = new Term(topic, url);
-			termList.add(term);
+			String topicUrl = "https://zh.wikipedia.org" + mwPages.get(i).select("a").attr("href");
+			String topicName = mwPages.get(i).text();
+			topicName = converter.convert(topicName);
+			Topic topic = new Topic();
+			topic.setTopicName(topicName);
+			topic.setTopicUrl(topicUrl);
+			topics.add(topic);
 		}
-		return termList;
+		return topics;
 	}
 	
 	/**
@@ -53,24 +62,25 @@ public class TopicExtract {
 	 * @param doc
 	 * @return 
 	 */
-	public static List<Term> getLayer(Document doc){
-		List<Term> termList = new ArrayList<Term>();
+	public static List<Topic> getLayer(Document doc){
+		List<Topic> topics = new ArrayList<Topic>();
 		if(doc.select("#mw-subcategories").size()==0){
-			Log.log("没有下一层子分类...");
+			logger.error("没有下一层子分类...");
 		} else {
 			Elements mwPages = doc.select("#mw-subcategories").select("li");
 			int len = mwPages.size();
-			Log.log(len);
+			logger.info(""+len);
 			for (int i = 0; i < mwPages.size(); i++) {
-				String url = "https://zh.wikipedia.org" + mwPages.get(i).select("a").attr("href");
-				String layer = mwPages.get(i).select("a").text();
-				layer = converter.convert(layer);
-//				Log.log("Layer is : " + layer + "  url is : " + url);
-				Term term = new Term(layer, url);
-				termList.add(term);
+				String topicUrl = "https://zh.wikipedia.org" + mwPages.get(i).select("a").attr("href");
+				String topicName = mwPages.get(i).select("a").text();
+				topicName = converter.convert(topicName);
+				Topic topic = new Topic();
+				topic.setTopicName(topicName);
+				topic.setTopicUrl(topicUrl);
+				topics.add(topic);
 			}
 		}
-		return termList;
+		return topics;
 	}
 
 }

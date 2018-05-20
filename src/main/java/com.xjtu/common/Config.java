@@ -36,6 +36,7 @@ public class Config {
      */
     public static String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36";
 
+    public static String IE_PATH = "";
     /**
      * Stack overflow网站爬虫参数配置：网站防扒做的比较好，爬虫条件苛刻
      */

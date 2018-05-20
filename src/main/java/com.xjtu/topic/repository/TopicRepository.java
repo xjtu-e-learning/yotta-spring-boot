@@ -19,12 +19,21 @@ import java.util.Map;
 public interface TopicRepository extends JpaRepository<Topic, Long>, JpaSpecificationExecutor<Topic>{
 
     /**
-     * 根据课程名，查询课程下的所有主题
+     * 根据课程id，查询课程下的所有主题
      * @param domainId 课程id
      * @return List<Topic>
      * */
     @Transactional(rollbackFor = Exception.class)
     List<Topic> findByDomainId(Long domainId);
+
+    /**
+     * 根据课程id和主题所在层，查询课程下的所有主题
+     * @param domainId
+     * @param topicLayer
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    List<Topic> findByDomainIdAndTopicLayer(Long domainId, Long topicLayer);
 
     /**
      * 根据课程名，查询课程下的主题数

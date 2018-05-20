@@ -2,6 +2,20 @@ package com.xjtu.spider.spiders.wikicn;
 
 
 
+import com.xjtu.assemble.domain.Assemble;
+import com.xjtu.assemble.repository.AssembleRepository;
+import com.xjtu.domain.domain.Domain;
+import com.xjtu.domain.repository.DomainRepository;
+import com.xjtu.facet.domain.Facet;
+import com.xjtu.facet.repository.FacetRepository;
+import com.xjtu.relation.domain.Relation;
+import com.xjtu.relation.repository.RelationRepository;
+import com.xjtu.topic.domain.Topic;
+import com.xjtu.topic.repository.TopicRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -27,6 +41,23 @@ import java.util.*;
  */
 public class MysqlReadWriteDAO {
 
+    private static final Logger logger = LoggerFactory.getLogger(MysqlReadWriteDAO.class);
+	@Autowired
+	static DomainRepository domainRepository;
+
+
+	@Autowired
+	static TopicRepository topicRepository;
+
+	@Autowired
+    static RelationRepository relationRepository;
+
+	@Autowired
+    static FacetRepository facetRepository;
+
+	@Autowired
+    static AssembleRepository assembleRepository;
+
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
@@ -36,54 +67,25 @@ public class MysqlReadWriteDAO {
 	 * 读取domain，得到所有领域名
 	 * @return
 	 */
-	public static List<Domain> getDomain() throws Exception {
-		List<Domain> domainList = new ArrayList<Domain>();
-		mysqlUtils mysql = new mysqlUtils();
-		String sql = "select * from " + Config.DOMAIN_TABLE;
-		List<Object> params = new ArrayList<Object>();
-		try {
-			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
-			for (int i = 0; i < results.size(); i++) {
-				Map<String, Object> result = results.get(i);
-				int domainID = Integer.parseInt(result.get("ClassID").toString());
-				String domainName = result.get("ClassName").toString();
-				Domain domain = new Domain(domainID, domainName);
-				domainList.add(domain);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			mysql.closeconnection();
-		}
-		return domainList;
+	public static List<Domain> getDomain() {
+		List<Domain> domains = domainRepository.findAll();
+		return domains;
 	}
 
 	/**
-	 * 读取domain_layer，得到所有术语（按照课程）
+	 * 根据课程名和主题所在层，查询所有主题
+	 * @param domainName
+	 * @param topicLayer
 	 * @return
 	 */
-	public static List<Term> getDomainLayer(String domain, int layer) throws Exception {
-		List<Term> termList = new ArrayList<Term>();
-		mysqlUtils mysql = new mysqlUtils();
-		String sql = "select * from " + Config.DOMAIN_LAYER_TABLE + " where ClassName=? and TermLayer=?";
-		List<Object> params = new ArrayList<Object>();
-		params.add(domain);
-		params.add(layer);
-		try {
-			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
-			for (int i = 0; i < results.size(); i++) {
-				Map<String, Object> result = results.get(i);
-				String termName = result.get("TermName").toString();
-				String termUrl = result.get("TermUrl").toString();
-				Term termLayer = new Term(termName, termUrl);
-				termList.add(termLayer);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			mysql.closeconnection();
-		}
-		return termList;
+	public static List<Topic> getTopics(String domainName, Long topicLayer){
+	    Domain domain = domainRepository.findByDomainName(domainName);
+	    if(domain==null){
+            logger.info("主题查询失败：课程不存在");
+            return null;
+        }
+		List<Topic> topics = topicRepository.findByDomainIdAndTopicLayer(domain.getDomainId(),topicLayer);
+	    return topics;
 	}
 
 	/**
@@ -115,90 +117,64 @@ public class MysqlReadWriteDAO {
 		return termList;
 	}
 
-	/**
-	 * 读取domain_layer_relation，得到所有术语上下位关系（按照课程）
-	 * @return
-	 */
-	public static List<LayerRelation> getDomainLayerRelation(String domain) throws Exception {
-		List<LayerRelation> layerRelationList = new ArrayList<LayerRelation>();
-		mysqlUtils mysql = new mysqlUtils();
-		String sql = "select * from " + Config.DOMAIN_LAYER_RELATION_TABLE + " where ClassName=?";
-		List<Object> params = new ArrayList<Object>();
-		params.add(domain);
-		try {
-			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
-			for (int i = 0; i < results.size(); i++) {
-				Map<String, Object> result = results.get(i);
-				String parentName = result.get("Parent").toString();
-				int parentLayer = Integer.parseInt(result.get("ParentLayer").toString());
-				String childName = result.get("Child").toString();
-				int childLayer = Integer.parseInt(result.get("ChildLayer").toString());
-				LayerRelation layerRelation = new LayerRelation(parentName, parentLayer, childName, childLayer, domain);
-				layerRelationList.add(layerRelation);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			mysql.closeconnection();
-		}
-		return layerRelationList;
+
+    /**
+     * 根据课程名，查询主题上下位关系
+     * @param domainName
+     * @return
+     */
+	public static List<Relation> getRelations(String domainName){
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if(domain==null){
+            logger.info("上下位关系查询失败：课程不存在");
+            return null;
+        }
+        List<Relation> relations = relationRepository.findByDomainId(domain.getDomainId());
+		return relations;
 	}
 
-	/**
-	 * 读取domain_topic，得到所有主题（按照课程）
-	 * @return
-	 */
-	public static List<Topic> getDomainTopic(String domain) throws Exception {
-		List<Topic> topicList = new ArrayList<Topic>();
-		mysqlUtils mysql = new mysqlUtils();
-		String sql = "select * from " + Config.DOMAIN_TOPIC_TABLE + " where ClassName=?";
-		List<Object> params = new ArrayList<Object>();
-		params.add(domain);
-		try {
-			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
-			for (int i = 0; i < results.size(); i++) {
-				Map<String, Object> result = results.get(i);
-				int topicID = Integer.parseInt(result.get("TermID").toString());
-				String topicName = result.get("TermName").toString();
-				String topicUrl = result.get("TermUrl").toString();
-				Topic topic = new Topic(topicID, topicName, topicUrl);
-				topicList.add(topic);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			mysql.closeconnection();
-		}
-		return topicList;
+    /**
+     * 根据课程名查询主题
+     * @param domainName
+     * @return
+     */
+	public static List<Topic> getTopics(String domainName){
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if(domain==null){
+            logger.info("主题查询失败：课程不存在");
+            return null;
+        }
+        List<Topic> topics = topicRepository.findByDomainId(domain.getDomainId());
+		return topics;
 	}
 
 	/**
 	 * 存储domain，保存领域名信息
 	 * @param domainList
 	 */
-	public static void storeDomain(List<Domain> domainList){
-		mysqlUtils mysql = new mysqlUtils();
-		String sql = "insert into " + Config.DOMAIN_TABLE + " (ClassName, SubjectName) VALUES(?, ?);";
-		for (int i = 0; i < domainList.size(); i++) {
-			Domain domain = domainList.get(i);
-			List<Object> params = new ArrayList<Object>();
-			params.add(domain.getClassName());
-			params.add(domain.getSubjectName());
-			try {
-				mysql.addDeleteModify(sql, params);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		mysql.closeconnection();
+    /**
+     * 保存课程（domain）
+     * @param domains
+     */
+	public static void savaDomains(List<Domain> domains){
+	    domainRepository.save(domains);
 	}
 
+
+    /**
+     * 保存主题
+     * @param topics
+     */
+	public static void saveTopics(List<Topic> topics){
+	    topicRepository.save(topics);
+    }
 	/**
 	 * 存储domain_layer，存储第n层领域术语到数据库 domain_layer 表格（List）
 	 * @param termList
 	 * @param domain
 	 * @param layer
 	 */
+
 	public static void storeDomainLayer(List<Term> termList, String domain, int layer){
 		mysqlUtils mysql = new mysqlUtils();
 		String sql = "insert into " + Config.DOMAIN_LAYER_TABLE + " (TermName, TermUrl, TermLayer, ClassName)"
@@ -246,29 +222,14 @@ public class MysqlReadWriteDAO {
 		mysql.closeconnection();
 	}
 
+
+
 	/**
-	 * 存储domain_topic_relation
-	 * @param layerRelationSet
+	 * 存储主题上下位关系
+	 * @param relations
 	 */
-	public static void storeDomainTopicRelation(Set<LayerRelation> layerRelationSet){
-		mysqlUtils mysql = new mysqlUtils();
-		String sql = "insert into " + Config.DOMAIN_TOPIC_RELATION_TABLE + " (Parent, Child, ClassName)"
-				+ " VALUES(?, ?, ?);";
-		for (LayerRelation layerRelation : layerRelationSet) {
-			List<Object> params = new ArrayList<Object>();
-			if (layerRelation.getChildName().equals(layerRelation.getDomain())) {
-				continue;
-			}
-			params.add(layerRelation.getParentName());
-			params.add(layerRelation.getChildName());
-			params.add(layerRelation.getDomain());
-			try {
-				mysql.addDeleteModify(sql, params);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		mysql.closeconnection();
+	public static void saveRelations(List<Relation> relations){
+	    relationRepository.save(relations);
 	}
 
 	/**
@@ -347,37 +308,13 @@ public class MysqlReadWriteDAO {
 		mysql.closeconnection();
 	}
 
-	/**
-	 * 存储facet，按照领域进行存储
-	 * @return
-	 */
-	public static void storeFacet(String domain, int topicID, String topicName, List<FacetSimple> facetSimpleList)
-			throws Exception {
-
-		for (int i = 0; i < facetSimpleList.size(); i++) {
-			mysqlUtils mysql = new mysqlUtils();
-			String sql = "insert into " + Config.FACET_TABLE + "(TermID, TermName, FacetName, FacetLayer, ClassName) "
-					+ "values(?, ?, ?, ?, ?)";
-			FacetSimple facetSimple = facetSimpleList.get(i);
-			String facetName = facetSimple.getFacetName();
-			int facetLayer = facetSimple.getFacetLayer();
-			List<Object> params = new ArrayList<Object>();
-			params.add(topicID);
-			params.add(topicName);
-			params.add(facetName);
-			params.add(facetLayer);
-			params.add(domain);
-			try {
-				mysql.addDeleteModify(sql, params);
-			} catch (Exception e) {
-				e.printStackTrace();
-			} finally {
-				mysql.closeconnection();
-			}
-		}
-
-	}
-
+    /**
+     * 保存分面
+     * @param facets
+     */
+	public static void saveFacets(List<Facet> facets){
+        facetRepository.save(facets);
+    }
 	/**
 	 * 存储facet_Relation，按照领域进行存储
 	 * @return
@@ -414,6 +351,13 @@ public class MysqlReadWriteDAO {
 
 	}
 
+    /**
+     * 保存碎片
+     * @param assembles
+     */
+	public static void saveAssembles(List<Assemble> assembles){
+        assembleRepository.save(assembles);
+    }
 
 	/**
 	 * 存储assemble_fragment
@@ -458,6 +402,18 @@ public class MysqlReadWriteDAO {
 
 	}
 
+    /**
+     * 判断某门课程的数据是否已经在这个数据表中存在
+     * @param domainName
+     * @return
+     */
+	public static boolean isExist(String domainName){
+	    Domain domain = domainRepository.findByDomainName(domainName);
+	    if(domain==null){
+	        return false;
+        }
+        return true;
+    }
 	/**
 	 * 判断表格，判断某门课程的数据是否已经在这个数据表中存在
 	 * 适用表格：domain_layer，domain_topic，dependency
@@ -484,6 +440,23 @@ public class MysqlReadWriteDAO {
 		return exist;
 	}
 
+    /**
+     * 判断指定课程、主题的数据是否已经在这个数据表中存在
+     * @param domainName
+     * @param topicName
+     * @return
+     */
+	public static boolean isExist(String domainName, String topicName){
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if(domain==null){
+            return false;
+        }
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(),topicName);
+        if(topic==null){
+            return false;
+        }
+        return true;
+    }
 	/**
 	 * 判断表格，判断某门课程下某个主题的数据是否已经在这个数据表中存在
 	 * 适用表格：facet，spider_text，assemble_text
@@ -540,6 +513,9 @@ public class MysqlReadWriteDAO {
 		return exist;
 	}
 
+	public static boolean isExistRelation(){
+
+    }
 	/**
 	 * 判断表格，判断某一级分面在分面关系表的"父分面"中是否存在
 	 * 适用表格：facet_relation
