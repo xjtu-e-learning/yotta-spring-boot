@@ -56,8 +56,8 @@ public interface QuestionRepository extends JpaRepository<Question,Long>,JpaSpec
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    @Query("select qa " +
-            "from QuestionAssemble qa, " +
+    @Query("select q " +
+            "from Question q, " +
             "Assemble a, " +
             "Facet f, " +
             "Topic t, " +
@@ -65,11 +65,11 @@ public interface QuestionRepository extends JpaRepository<Question,Long>,JpaSpec
             "Source s " +
             "where s.sourceName = ?1 and " +
             "d.domainName = ?2 and " +
-            "qa.assembleId = a.assembleId and " +
+            "q.assembleId = a.assembleId and " +
             "a.facetId = f.facetId and " +
             "f.topicId = t.topicId and " +
             "t.domainId = d.domainId")
-    List<Question> findAllBySourceNameAndDomainName(String sourceName, String domainName);
+    List<Question> findBySourceNameAndDomainName(String sourceName, String domainName);
 
 
 }

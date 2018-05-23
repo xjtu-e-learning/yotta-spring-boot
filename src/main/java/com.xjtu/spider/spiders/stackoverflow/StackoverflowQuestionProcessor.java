@@ -2,9 +2,9 @@ package com.xjtu.spider.spiders.stackoverflow;
 
 
 import com.xjtu.common.Config;
+import com.xjtu.spider.service.SpiderService;
 import com.xjtu.spider.spiders.webmagic.bean.FragmentContentQuestion;
 import com.xjtu.spider.spiders.webmagic.pipeline.SqlQuestionPipeline;
-import com.xjtu.spider.spiders.webmagic.service.SQLService;
 import com.xjtu.spider.spiders.webmagic.spider.YangKuanSpider;
 import org.springframework.beans.factory.annotation.Autowired;
 import us.codecraft.webmagic.Page;
@@ -20,7 +20,7 @@ import java.util.Map;
 public class StackoverflowQuestionProcessor implements PageProcessor {
 
     @Autowired
-    SQLService sqlService;
+    SpiderService spiderService;
 
     private Site site = Site.me()
             .setRetryTimes(Config.retryTimesSO)
@@ -138,7 +138,10 @@ public class StackoverflowQuestionProcessor implements PageProcessor {
 
     public void StackoverflowCrawl(String domainName) {
         //1.获取分面名
-        List<Map<String, Object>> facets = sqlService.getFacets(domainName);
+        List<Map<String, Object>> facets = spiderService.getFacets(domainName);
+        if(facets==null||facets.size()==0){
+            return;
+        }
         //2.添加连接请求
         List<Request> requests = new ArrayList<>();
         for (Map<String, Object> facet : facets) {

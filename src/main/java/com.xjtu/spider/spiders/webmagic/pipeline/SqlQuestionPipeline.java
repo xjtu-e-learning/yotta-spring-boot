@@ -4,19 +4,16 @@ package com.xjtu.spider.spiders.webmagic.pipeline;
 import com.xjtu.assemble.domain.Assemble;
 import com.xjtu.assemble.service.AssembleService;
 import com.xjtu.question.domain.Question;
+import com.xjtu.spider.service.SpiderService;
 import com.xjtu.spider.spiders.webmagic.bean.FragmentContentQuestion;
-import com.xjtu.spider.spiders.webmagic.service.SQLService;
 import org.springframework.beans.factory.annotation.Autowired;
-import sun.rmi.server.LoaderHandler;
 import us.codecraft.webmagic.ResultItems;
 import us.codecraft.webmagic.Task;
 import us.codecraft.webmagic.pipeline.Pipeline;
 
-import java.sql.SQLException;
+
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,7 +23,7 @@ import java.util.Map;
 public class SqlQuestionPipeline implements Pipeline {
 
     @Autowired
-    SQLService sqlService;
+    SpiderService spiderService;
 
     @Autowired
     AssembleService assembleService;
@@ -39,9 +36,9 @@ public class SqlQuestionPipeline implements Pipeline {
             FragmentContentQuestion fragmentContentQuestion = (FragmentContentQuestion) entry.getValue();
             // 分面信息
             Map<String,Object> facetMap = resultItems.getRequest().getExtras();
-            facetMap = sqlService.getFacet(facetMap);
+            facetMap = spiderService.getFacet(facetMap);
             // 获取在assemble自增的主键
-            Long assembleId = sqlService.findMaxAssembleId();
+            Long assembleId = spiderService.findMaxAssembleId();
 
             // 碎片爬取时间
             //设置日期格式
@@ -80,7 +77,7 @@ public class SqlQuestionPipeline implements Pipeline {
             question.setQuestionViewCount(fragmentContentQuestion.getQuestion_viewCount());
             question.setAskerUrl(fragmentContentQuestion.getAsker_url());
             question.setAssembleId(assembleId);
-            sqlService.insertQuestion(question);
+            spiderService.insertQuestion(question);
         }
 
     }

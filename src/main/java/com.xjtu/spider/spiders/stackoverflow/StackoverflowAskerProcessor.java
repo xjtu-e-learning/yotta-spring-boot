@@ -2,9 +2,9 @@ package com.xjtu.spider.spiders.stackoverflow;
 
 import com.xjtu.common.Config;
 import com.xjtu.question.domain.Question;
+import com.xjtu.spider.service.SpiderService;
 import com.xjtu.spider.spiders.webmagic.bean.Asker;
 import com.xjtu.spider.spiders.webmagic.pipeline.SqlAskerPipeline;
-import com.xjtu.spider.spiders.webmagic.service.SQLService;
 import com.xjtu.spider.spiders.webmagic.spider.YangKuanSpider;
 import org.springframework.beans.factory.annotation.Autowired;
 import us.codecraft.webmagic.Page;
@@ -23,7 +23,7 @@ import java.util.Map;
 public class StackoverflowAskerProcessor implements PageProcessor {
 
     @Autowired
-    SQLService sqlService;
+    SpiderService spiderService;
 
     private Site site = Site.me()
             .setRetryTimes(Config.retryTimesSO)
@@ -74,7 +74,7 @@ public class StackoverflowAskerProcessor implements PageProcessor {
 
     public void StackoverflowCrawl(String domainName) {
         // 获取问题信息
-        List<Question> questions = sqlService.getQuestions("Stackoverflow",domainName);
+        List<Question> questions = spiderService.getQuestions("Stackoverflow",domainName);
         // 添加连接请求
         List<Request> requests = new ArrayList<>();
         for (Question question : questions) {

@@ -71,7 +71,7 @@ public class Question {
     /**
      * 问题对应在碎片表assemble的id，外键
      */
-    private Long AssembleId;
+    private Long assembleId;
 
     public Question() {
     }
@@ -108,7 +108,7 @@ public class Question {
         this.askerViewCount = askerViewCount;
         this.askerBestAnswerRate = askerBestAnswerRate;
         this.questionQualityLabel = questionQualityLabel;
-        AssembleId = assembleId;
+        this.assembleId = assembleId;
     }
 
     @Override
@@ -136,7 +136,7 @@ public class Question {
                 ", askerViewCount='" + askerViewCount + '\'' +
                 ", askerBestAnswerRate='" + askerBestAnswerRate + '\'' +
                 ", questionQualityLabel='" + questionQualityLabel + '\'' +
-                ", AssembleId=" + AssembleId +
+                ", assembleId=" + assembleId +
                 '}';
     }
 
@@ -164,7 +164,7 @@ public class Question {
         questionAssembleMap.put("askerViewCount",this.askerViewCount);
         questionAssembleMap.put("askerBestAnswerRate",this.askerBestAnswerRate);
         questionAssembleMap.put("questionQualityLabel",this.questionQualityLabel);
-        questionAssembleMap.put("AssembleId",this.AssembleId);
+        questionAssembleMap.put("assembleId",this.assembleId);
         return questionAssembleMap;
     }
     public int getQuestionId() {
@@ -344,10 +344,10 @@ public class Question {
     }
 
     public Long getAssembleId() {
-        return AssembleId;
+        return assembleId;
     }
 
     public void setAssembleId(Long assembleId) {
-        AssembleId = assembleId;
+        assembleId = assembleId;
     }
 }

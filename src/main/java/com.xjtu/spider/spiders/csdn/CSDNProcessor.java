@@ -2,9 +2,9 @@ package com.xjtu.spider.spiders.csdn;
 
 
 import com.xjtu.common.Config;
+import com.xjtu.spider.service.SpiderService;
 import com.xjtu.spider.spiders.webmagic.bean.Assembles;
 import com.xjtu.spider.spiders.webmagic.pipeline.SqlPipeline;
-import com.xjtu.spider.spiders.webmagic.service.SQLService;
 import com.xjtu.spider.spiders.webmagic.spider.YangKuanSpider;
 import org.springframework.beans.factory.annotation.Autowired;
 import us.codecraft.webmagic.Page;
@@ -25,7 +25,7 @@ import java.util.Map;
 public class CSDNProcessor implements PageProcessor {
 
     @Autowired
-    SQLService sqlService;
+    SpiderService spiderService;
 
     private Site site = Site.me()
             .setRetryTimes(Config.retryTimes)
@@ -62,7 +62,10 @@ public class CSDNProcessor implements PageProcessor {
     }
     public void CSDNAnswerCrawl(String domainName){
         //1.获取分面信息
-        List<Map<String, Object>> facets = sqlService.getFacets(domainName);
+        List<Map<String, Object>> facets = spiderService.getFacets(domainName);
+        if(facets==null||facets.size()==0){
+            return;
+        }
         //2.添加连接请求
         List<Request> requests = new ArrayList<Request>();
         for(Map<String, Object> facet : facets){

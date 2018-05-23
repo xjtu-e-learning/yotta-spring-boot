@@ -1,16 +1,14 @@
 package com.xjtu.spider.spiders.webmagic.pipeline;
 
 
+import com.xjtu.spider.service.SpiderService;
 import com.xjtu.spider.spiders.webmagic.bean.Asker;
-import com.xjtu.spider.spiders.webmagic.service.SQLService;
 import org.springframework.beans.factory.annotation.Autowired;
 import us.codecraft.webmagic.ResultItems;
 import us.codecraft.webmagic.Task;
 import us.codecraft.webmagic.pipeline.Pipeline;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+
 import java.util.Map;
 
 /**
@@ -19,7 +17,7 @@ import java.util.Map;
  */
 public class SqlAskerPipeline implements Pipeline {
     @Autowired
-    SQLService sqlService;
+    SpiderService spiderService;
 
     @Override
     public void process(ResultItems resultItems, Task task) {
@@ -29,7 +27,7 @@ public class SqlAskerPipeline implements Pipeline {
             // 分面信息
             Map<String,Object> question = resultItems.getRequest().getExtras();
             try {
-                sqlService.updateQuestionByQuestionId(
+                spiderService.updateQuestionByQuestionId(
                         asker.getAskerName(),
                         asker.getAskerReputation(),
                         asker.getAskerAnswerCount(),
