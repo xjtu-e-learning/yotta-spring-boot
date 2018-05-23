@@ -22,12 +22,14 @@ import java.util.Map;
  * 百度知道碎片爬虫
  * @author yangkuan
  */
-@Component
+
 public class BaiduZhidaoProcessor implements PageProcessor {
 
-    @Autowired
-    SpiderService spiderService;
+    public BaiduZhidaoProcessor(SpiderService spiderService) {
+        this.spiderService = spiderService;
+    }
 
+    SpiderService spiderService;
 
     private Site site = Site.me()
             .setRetryTimes(Config.retryTimes)
@@ -80,10 +82,10 @@ public class BaiduZhidaoProcessor implements PageProcessor {
             facet.put("sourceName", "百度知道");
             requests.add(request.setUrl(url).setExtras(facet));
         }
-        YangKuanSpider.create(new BaiduZhidaoProcessor())
+        YangKuanSpider.create(new BaiduZhidaoProcessor(this.spiderService))
                 .addRequests(requests)
                 .thread(Config.THREAD)
-                .addPipeline(new SqlPipeline())
+                .addPipeline(new SqlPipeline(this.spiderService))
                 .addPipeline(new ConsolePipeline())
                 .runAsync();
     }

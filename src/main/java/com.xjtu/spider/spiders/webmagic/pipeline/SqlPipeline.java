@@ -20,8 +20,12 @@ import java.util.Map;
  * @date 2018/05/17 22:42
  */
 public class SqlPipeline implements Pipeline {
-    @Autowired
+
     SpiderService spiderService;
+
+    public SqlPipeline(SpiderService spiderService) {
+        this.spiderService = spiderService;
+    }
 
     @Override
     public void process(ResultItems resultItems, Task task) {

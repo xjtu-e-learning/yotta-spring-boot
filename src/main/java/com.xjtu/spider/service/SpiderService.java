@@ -10,6 +10,7 @@ import com.xjtu.facet.domain.Facet;
 import com.xjtu.facet.repository.FacetRepository;
 import com.xjtu.question.domain.Question;
 import com.xjtu.question.repository.QuestionRepository;
+import com.xjtu.source.domain.Source;
 import com.xjtu.source.repository.SourceRepository;
 import com.xjtu.spider.controller.SpiderController;
 import com.xjtu.spider.spiders.baiduzhidao.BaiduZhidaoProcessor;
@@ -27,6 +28,7 @@ import com.xjtu.utils.ResultUtil;
 import jxl.Sheet;
 import jxl.Workbook;
 import jxl.read.biff.BiffException;
+import org.apache.lucene.queryparser.surround.query.SrndTermQuery;
 import org.apache.regexp.RE;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,37 +84,37 @@ public class SpiderService {
             logger.info("碎片开始爬取课程："+domainName);
 
             logger.info("百度知道碎片开始爬取 当前课程："+domainName);
-            BaiduZhidaoProcessor baiduZhidaoProcessor = new BaiduZhidaoProcessor();
+            BaiduZhidaoProcessor baiduZhidaoProcessor = new BaiduZhidaoProcessor(this);
             baiduZhidaoProcessor.baiduAnswerCrawl(domainName);
             logger.info("百度知道碎片爬取完成");
 
             logger.info("CSDN碎片开始爬取 当前课程："+domainName);
-            CSDNProcessor csdnProcessor = new CSDNProcessor();
+            CSDNProcessor csdnProcessor = new CSDNProcessor(this);
             csdnProcessor.CSDNAnswerCrawl(domainName);
             logger.info("CSDN碎片爬取完成");
 
             logger.info("stack overflow 提问者碎片开始爬取 当前课程："+domainName);
-            StackoverflowAskerProcessor stackoverflowAskerProcessor = new StackoverflowAskerProcessor();
+            StackoverflowAskerProcessor stackoverflowAskerProcessor = new StackoverflowAskerProcessor(this);
             stackoverflowAskerProcessor.StackoverflowCrawl(domainName);
             logger.info("stack overflow 提问者碎片爬取完成");
 
             logger.info("stack overflow 问题碎片开始爬取 当前课程："+domainName);
-            StackoverflowQuestionProcessor stackoverflowQuestionProcessor = new StackoverflowQuestionProcessor();
+            StackoverflowQuestionProcessor stackoverflowQuestionProcessor = new StackoverflowQuestionProcessor(this);
             stackoverflowQuestionProcessor.StackoverflowCrawl(domainName);
             logger.info("stack overflow 问题碎片爬取完成");
 
             logger.info("Yahoo 提问者碎片开始爬取 当前课程："+domainName);
-            YahooAskerProcessor yahooAskerProcessor = new YahooAskerProcessor();
+            YahooAskerProcessor yahooAskerProcessor = new YahooAskerProcessor(this);
             yahooAskerProcessor.YahooCrawl(domainName);
             logger.info("Yahoo 提问者碎片爬取完成");
 
             logger.info("Yahoo 碎片开始爬取 当前课程："+domainName);
-            YahooProcessor yahooProcessor = new YahooProcessor();
+            YahooProcessor yahooProcessor = new YahooProcessor(this);
             yahooProcessor.YahooCrawl(domainName);
             logger.info("Yahoo 碎片爬取完成");
 
             logger.info("知乎碎片开始爬取 当前课程："+domainName);
-            ZhihuProcessor zhihuProcessor = new ZhihuProcessor();
+            ZhihuProcessor zhihuProcessor = new ZhihuProcessor(this);
             zhihuProcessor.zhihuAnswerCrawl(domainName);
             logger.info("知乎碎片爬取完成");
         }
@@ -176,7 +178,12 @@ public class SpiderService {
      * @return
      */
     public Map<String,Object> getFacet(Map<String,Object> facetMap){
-        Long sourceId = sourceRepository.findBySourceName((String) facetMap.get("sourceName")).getSourceId();
+        String sourceName = (String) facetMap.get("sourceName");
+        Source source =  sourceRepository.findBySourceName(sourceName);
+        if(source==null){
+            logger.error("数据源不存在："+sourceName);
+        }
+        Long sourceId = source.getSourceId();
         String domainName = (String) facetMap.get("domainName");
         String topicName = (String) facetMap.get("topicName");
         String facetName = (String) facetMap.get("facetName");

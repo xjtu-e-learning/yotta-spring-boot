@@ -22,8 +22,12 @@ import java.util.Map;
  */
 public class StackoverflowAskerProcessor implements PageProcessor {
 
-    @Autowired
+
     SpiderService spiderService;
+
+    public StackoverflowAskerProcessor(SpiderService spiderService) {
+        this.spiderService = spiderService;
+    }
 
     private Site site = Site.me()
             .setRetryTimes(Config.retryTimesSO)
@@ -88,17 +92,17 @@ public class StackoverflowAskerProcessor implements PageProcessor {
             }
         }
 
-        YangKuanSpider.create(new StackoverflowAskerProcessor())
+        YangKuanSpider.create(new StackoverflowAskerProcessor(this.spiderService))
                 .addRequests(requests)
                 .thread(Config.threadSO)
-                .addPipeline(new SqlAskerPipeline())
+                .addPipeline(new SqlAskerPipeline(this.spiderService))
 //                .addPipeline(new ConsolePipeline())
                 .runAsync();
 
     }
 
     public static void main(String[] args) {
-        new StackoverflowAskerProcessor().StackoverflowCrawl("R-tree");
+
     }
 
 }

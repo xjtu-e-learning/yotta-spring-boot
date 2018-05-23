@@ -23,8 +23,12 @@ import java.util.Map;
  * @author yangkuan
  */
 public class YahooProcessor implements PageProcessor {
-    @Autowired
+
     SpiderService spiderService;
+
+    public YahooProcessor(SpiderService spiderService) {
+        this.spiderService = spiderService;
+    }
 
     private Site site = Site.me()
             .setRetryTimes(Config.retryTimes)
@@ -168,17 +172,18 @@ public class YahooProcessor implements PageProcessor {
             requests.add(request.setUrl(url).setExtras(facet));
         }
 
-        YangKuanSpider.create(new YahooProcessor())
+        YangKuanSpider.create(new YahooProcessor(this.spiderService))
                 .addRequests(requests)
                 .thread(Config.THREAD)
-                .addPipeline(new SqlQuestionPipeline())
+                .addPipeline(new SqlQuestionPipeline(this.spiderService))
 //                .addPipeline(new ConsolePipeline())
                 .runAsync();
 
     }
 
     public static void main(String[] args) {
-        new YahooProcessor().YahooCrawl("test");
+
+
     }
 
 }

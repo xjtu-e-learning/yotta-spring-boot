@@ -25,8 +25,12 @@ import java.util.Map;
  */
 public class YahooAskerProcessor implements PageProcessor {
 
-    @Autowired
+
     SpiderService spiderService;
+
+    public YahooAskerProcessor(SpiderService spiderService) {
+        this.spiderService = spiderService;
+    }
 
     private Site site = Site.me()
             .setRetryTimes(Config.retryTimes)
@@ -88,17 +92,18 @@ public class YahooAskerProcessor implements PageProcessor {
             }
         }
 
-        YangKuanSpider.create(new YahooAskerProcessor())
+        YangKuanSpider.create(new YahooAskerProcessor(this.spiderService))
                 .addRequests(requests)
                 .thread(Config.THREAD)
-                .addPipeline(new SqlAskerPipeline())
+                .addPipeline(new SqlAskerPipeline(this.spiderService))
 //                .addPipeline(new ConsolePipeline())
                 .runAsync();
 
     }
 
     public static void main(String[] args) {
-        new YahooAskerProcessor().YahooCrawl("R-tree");
+
+
     }
 
 }

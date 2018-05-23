@@ -22,8 +22,11 @@ import java.util.Map;
  */
 public class SqlQuestionPipeline implements Pipeline {
 
-    @Autowired
     SpiderService spiderService;
+
+    public SqlQuestionPipeline(SpiderService spiderService) {
+        this.spiderService = spiderService;
+    }
 
     @Autowired
     AssembleService assembleService;

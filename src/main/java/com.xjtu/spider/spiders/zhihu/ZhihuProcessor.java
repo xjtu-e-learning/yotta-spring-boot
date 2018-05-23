@@ -23,8 +23,12 @@ import java.util.Map;
  */
 public class ZhihuProcessor implements PageProcessor {
 
-    @Autowired
+
     SpiderService spiderService;
+
+    public ZhihuProcessor(SpiderService spiderService) {
+        this.spiderService = spiderService;
+    }
 
     private Site site = Site.me()
             .setRetryTimes(Config.retryTimes)
@@ -83,10 +87,10 @@ public class ZhihuProcessor implements PageProcessor {
             requests.add(request.setUrl(url).setExtras(facet));
         }
         //3.创建ZhihuProcessor
-        YangKuanSpider.create(new ZhihuProcessor())
+        YangKuanSpider.create(new ZhihuProcessor(this.spiderService))
                 .addRequests(requests)
                 .thread(Config.THREAD)
-                .addPipeline(new SqlPipeline())
+                .addPipeline(new SqlPipeline(this.spiderService))
                 .addPipeline(new ConsolePipeline())
                 .runAsync();
     }

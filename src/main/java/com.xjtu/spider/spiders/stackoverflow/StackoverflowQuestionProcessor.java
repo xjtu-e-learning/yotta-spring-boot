@@ -19,8 +19,11 @@ import java.util.Map;
 
 public class StackoverflowQuestionProcessor implements PageProcessor {
 
-    @Autowired
     SpiderService spiderService;
+
+    public StackoverflowQuestionProcessor(SpiderService spiderService) {
+        this.spiderService = spiderService;
+    }
 
     private Site site = Site.me()
             .setRetryTimes(Config.retryTimesSO)
@@ -156,10 +159,10 @@ public class StackoverflowQuestionProcessor implements PageProcessor {
             requests.add(request.setUrl(url).setExtras(facet));
         }
 
-        YangKuanSpider.create(new StackoverflowQuestionProcessor())
+        YangKuanSpider.create(new StackoverflowQuestionProcessor(this.spiderService))
                 .addRequests(requests)
                 .thread(Config.threadSO)
-                .addPipeline(new SqlQuestionPipeline())
+                .addPipeline(new SqlQuestionPipeline(this.spiderService))
 //                .addPipeline(new ConsolePipeline())
                 .runAsync();
 
@@ -170,7 +173,6 @@ public class StackoverflowQuestionProcessor implements PageProcessor {
 //        new YahooProcessor().YahooCrawl(domainName);
 //        new YahooAskerProcessor().YahooCrawl(domainName);
 //        new StackoverflowQuestionProcessor().StackoverflowCrawl(domainName);
-        new StackoverflowAskerProcessor().StackoverflowCrawl(domainName);
     }
 
 }

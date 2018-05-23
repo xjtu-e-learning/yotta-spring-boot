@@ -16,8 +16,12 @@ import java.util.Map;
  * @date 2018/4/10 16:30
  */
 public class SqlAskerPipeline implements Pipeline {
-    @Autowired
+
     SpiderService spiderService;
+
+    public SqlAskerPipeline(SpiderService spiderService) {
+        this.spiderService = spiderService;
+    }
 
     @Override
     public void process(ResultItems resultItems, Task task) {

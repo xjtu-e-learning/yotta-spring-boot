@@ -24,8 +24,12 @@ import java.util.Map;
  */
 public class CSDNProcessor implements PageProcessor {
 
-    @Autowired
+
     SpiderService spiderService;
+
+    public CSDNProcessor(SpiderService spiderService) {
+        this.spiderService = spiderService;
+    }
 
     private Site site = Site.me()
             .setRetryTimes(Config.retryTimes)
@@ -78,10 +82,10 @@ public class CSDNProcessor implements PageProcessor {
             facet.put("sourceName", "csdn");
             requests.add(request.setUrl(url).setExtras(facet));
         }
-        YangKuanSpider.create(new CSDNProcessor())
+        YangKuanSpider.create(new CSDNProcessor(this.spiderService))
                 .addRequests(requests)
                 .thread(Config.THREAD)
-                .addPipeline(new SqlPipeline())
+                .addPipeline(new SqlPipeline(this.spiderService))
                 .addPipeline(new ConsolePipeline())
                 .runAsync();
     }
