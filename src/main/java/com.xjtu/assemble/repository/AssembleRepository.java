@@ -70,6 +70,8 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>,JpaSpe
             "f.facetId = a.facetId")
     List<Assemble> findAllAssemblesByTopicId(Long topicId);
 
+
+
     /**
      * 查询课程下的所有碎片
      * @param domainId 课程id
@@ -87,6 +89,27 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>,JpaSpe
             "f.facetId = a.facetId AND\n" +
             "t.domainId = ?1\n")
     List<Assemble> findAllAssemblesByDomainId(Long domainId);
+
+
+    /**
+     * 查询课程和主题下的所有碎片
+     * @param domainId 课程id
+     * @param topicName 主题名
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Query("SELECT\n" +
+            "a \n" +
+            "FROM\n" +
+            "Assemble AS a ,\n" +
+            "Facet AS f ,\n" +
+            "Topic AS t\n" +
+            "WHERE\n" +
+            "t.topicId = f.topicId AND \n" +
+            "f.facetId = a.facetId AND \n" +
+            "t.topicName = ?2 AND \n" +
+            "t.domainId = ?1\n")
+    List<Assemble> findAllAssemblesByDomainIdAndTopicName(Long domainId,String topicName);
 
     /**
      * 查询课程下的碎片数量

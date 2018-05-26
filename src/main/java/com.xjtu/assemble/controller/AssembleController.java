@@ -62,6 +62,20 @@ public class AssembleController {
     }
 
 
+    @GetMapping("/getAssemblesByDomainNameAndTopicNames")
+    @ApiOperation(value = "指定课程名、主题名列表，查询其下碎片"
+            , notes = "指定课程名、主题名列表，查询其下碎片")
+    public ResponseEntity getAssemblesByDomainNameAndTopicNames(@RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "topicNames") String topicNames){
+        Result result = assembleService.findAssemblesByDomainNameAndTopicNames(domainName, topicNames);
+        if(!result.getCode().equals(ResultEnum.SUCCESS.getCode())){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
+
     @GetMapping("/getAssemblesInThirdLayerFacet")
     @ApiOperation(value = "指定课程名、主题名和三级分面名，查询三级分面下的碎片"
             , notes = "指定课程名、主题名和三级分面名，查询三级分面下的碎片")

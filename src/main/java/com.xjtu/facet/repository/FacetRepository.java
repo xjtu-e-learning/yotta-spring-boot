@@ -97,6 +97,23 @@ public interface FacetRepository extends JpaRepository<Facet, Long>, JpaSpecific
             "t.topicId = f .topicId")
     List<Facet> findAllFacetsByDomainId(Long domainId);
 
+    /**
+     * 查询一门课程主题下的所有分面，连表查询
+     * @param domainId 课程Id
+     * @param topicName 主题名
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Query("SELECT \n" +
+            "f \n" +
+            "FROM \n" +
+            "Topic t,\n" +
+            "Facet f \n" +
+            "WHERE \n" +
+            "t.domainId = ?1 AND \n" +
+            "t.topicId = f .topicId and \n" +
+            "t.topicName = ?2")
+    List<Facet> findAllFacetsByDomainIdAndTopicName(Long domainId, String topicName);
 
     /**
      * 查询一门课程下的所有分面的数量，连表查询

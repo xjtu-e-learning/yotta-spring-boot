@@ -45,12 +45,21 @@ public interface TopicRepository extends JpaRepository<Topic, Long>, JpaSpecific
     Integer findTopicNumberByDomainId(Long domainId);
 
     /**
-     *根据课程名，查询课程下的第一个主题
+     *根据课程id，查询课程下的第一个主题
      * @param domainId
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
     Topic findFirstByDomainId(Long domainId);
+
+    /**
+     * 根据课程名，查询课程下的第一个主题
+     * @param domainName
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Query("select t from Topic t,Domain d where d.domainName=?1 and d.domainId=t.domainId")
+    List<Topic> findByDomainName(String domainName);
 
     /**
      * 根据主题名，查询课程下的所有主题

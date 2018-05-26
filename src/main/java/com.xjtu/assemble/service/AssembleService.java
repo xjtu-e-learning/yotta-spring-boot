@@ -22,9 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * 处理assemble碎片数据
@@ -126,6 +124,54 @@ public class AssembleService {
         }
 
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),assembles);
+    }
+
+    /**
+     * 指定课程名、主题名列表，查询其下碎片
+     * @param domainName
+     * @param topicNames
+     * @return
+     */
+    public Result findAssemblesByDomainNameAndTopicNames(String domainName, String topicNames){
+        List<String> topicNameList = Arrays.asList(topicNames.split(","));
+        //查询数据源
+        List<Source> sources = sourceRepository.findAll();
+        Map<Long,String> sourceMap = new HashMap<>();
+        for (Source source:sources){
+            sourceMap.put(source.getSourceId(),source.getSourceName());
+        }
+        //查询课程
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if(domain==null){
+            logger.error("碎片查询失败：对应课程不存在");
+            return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR.getCode(), ResultEnum.Assemble_SEARCH_ERROR.getMsg());
+        }
+        Long domainId = domain.getDomainId();
+        Map<String,Object> resultMap = new HashMap<>();
+        for(String topicName:topicNameList){
+            List<Map<String,Object>> result = new ArrayList<>();
+            List<Facet> facets = facetRepository.findAllFacetsByDomainIdAndTopicName(domainId,topicName);
+            List<Assemble> assembles = assembleRepository.findAllAssemblesByDomainIdAndTopicName(domainId,topicName);
+            for(Assemble assemble:assembles){
+                Map<String,Object> assembleMap = new HashMap<>();
+                assembleMap.put("assembleId",assemble.getAssembleId());
+                assembleMap.put("assembleContent",assemble.getAssembleContent());
+                assembleMap.put("assembleText",assemble.getAssembleText());
+                assembleMap.put("assembleScratchTime",assemble.getAssembleScratchTime());
+                assembleMap.put("topicName",topicName);
+                assembleMap.put("sourceName",sourceMap.get(assemble.getSourceId()));
+                for(Facet facet:facets){
+                    if(facet.getFacetId().equals(assemble.getFacetId())){
+                        assembleMap.put("facetName",facet.getFacetName());
+                        break;
+                    }
+                }
+                result.add(assembleMap);
+            }
+            resultMap.put(topicName,result);
+        }
+        logger.info("课程主题下的碎片查询成功");
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),resultMap);
     }
 
     /**

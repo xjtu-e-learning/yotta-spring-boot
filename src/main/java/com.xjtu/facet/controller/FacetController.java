@@ -212,6 +212,19 @@ public class FacetController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+
+    @ApiOperation(value = "根据课程名及主题，查询推荐主题列表下所有分面(网院示范应用)", notes = "根据课程名及主题，查询推荐主题列表下所有分面(网院示范应用)")
+    @GetMapping("/getFacetsByDomainNameAndTopicNames")
+    public ResponseEntity getFacetsByDomainNameAndTopicNames(@RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "topicNames") String topicNames){
+        Result result = facetService.findFacetsByDomainNameAndTopicNames(domainName, topicNames);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
     @ApiOperation(value = "指定课程、主题，获得所有一级分面下的二级分面信息", notes = "指定课程、主题，获得所有一级分面下的二级分面信息")
     @GetMapping("/getSecondLayerFacetGroupByFirstLayerFacet")
     public ResponseEntity getSecondLayerFacetGroupByFirstLayerFacet(@RequestParam(name = "domainName") String domainName

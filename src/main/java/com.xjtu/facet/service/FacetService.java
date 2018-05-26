@@ -380,6 +380,80 @@ public class FacetService {
             return ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR.getCode(), ResultEnum.FACET_SEARCH_ERROR.getMsg());
         }
     }
+
+    /**
+     *根据课程名及主题，查询推荐主题列表下所有分面(网院示范应用)
+     * @param domainName
+     * @param topicNames
+     * @return
+     */
+    public Result findFacetsByDomainNameAndTopicNames(String domainName,String topicNames){
+        List<String> topicNameList = Arrays.asList(topicNames.split(","));
+        //查询主题
+        List<Topic> topics = topicRepository.findByDomainName(domainName);
+        if(topics==null){
+            logger.error("分面更新失败：对应主题不存在");
+            return ResultUtil.error(ResultEnum.FACET_UPDATE_ERROR_2.getCode(), ResultEnum.FACET_UPDATE_ERROR_2.getMsg());
+        }
+
+        Map<String,Object> result = new HashMap<>();
+        for(Topic topic:topics){
+            if(topicNameList.contains(topic.getTopicName())){
+                //查询分面
+                List<Facet> facets = facetRepository.findByTopicId(topic.getTopicId());
+                List<Facet> firstLayerFacets = new ArrayList<>();
+                List<Facet> secondLayerFacets = new ArrayList<>();
+                List<Facet> thirdLayerFacets = new ArrayList<>();
+                for(Facet facet:facets){
+                    //一级分面
+                    if(facet.getFacetLayer()==1){
+                        firstLayerFacets.add(facet);
+                    }
+                    //二级分面
+                    else if(facet.getFacetLayer()==2){
+                        secondLayerFacets.add(facet);
+                    }
+                    else {
+                        thirdLayerFacets.add(facet);
+                    }
+                }
+                List<Map<String,Object>> firstLayerFacetNameContainChildrens = new ArrayList<>();
+                //一级分面
+                for(Facet firstLayerFacet:firstLayerFacets){
+                    Map<String,Object> firstLayerFacetNameContainChildren = new HashMap<>();
+                    firstLayerFacetNameContainChildren.put("firstLayerFacetName",firstLayerFacet.getFacetName());
+                    firstLayerFacetNameContainChildren.put("topicName",topic.getTopicName());
+                    List<Map<String,Object>> secondLayerFacetNameContainChildrens = new ArrayList<>();
+                    //二级分面
+                    for(Facet secondLayerFacet:secondLayerFacets){
+                        if(secondLayerFacet.getParentFacetId()!=null&&secondLayerFacet.getParentFacetId().equals(firstLayerFacet.getFacetId())){
+                            Map<String,Object> secondLayerFacetNameContainChildren = new LinkedHashMap<>();
+                            secondLayerFacetNameContainChildren.put("secondLayerFacetName", secondLayerFacet.getFacetName());
+                            secondLayerFacetNameContainChildren.put("topicName",topic.getTopicName());
+                            //三级分面循环
+                            List<Map<String,Object>> thirdLayerFacetNames = new ArrayList<>();
+                            for(Facet thirdLayerFacet:thirdLayerFacets){
+                                if(thirdLayerFacet.getParentFacetId()!=null&&thirdLayerFacet.getParentFacetId().equals(secondLayerFacet.getFacetId())){
+                                    Map<String,Object> thirdLayerFacetName  = new LinkedHashMap<>();
+                                    thirdLayerFacetName.put("thirdLayerFacetName",thirdLayerFacet.getFacetName());
+                                    thirdLayerFacetName.put("topicName",topic.getTopicName());
+                                    thirdLayerFacetNames.add(thirdLayerFacetName);
+                                }
+                            }
+                            secondLayerFacetNameContainChildren.put("thirdLayerFacets",thirdLayerFacetNames);
+                            secondLayerFacetNameContainChildrens.add(secondLayerFacetNameContainChildren);
+                        }
+                    }
+                    firstLayerFacetNameContainChildren.put("secondLayerFacets",secondLayerFacetNameContainChildrens);
+                    firstLayerFacetNameContainChildrens.add(firstLayerFacetNameContainChildren);
+                }
+                result.put(topic.getTopicName(),firstLayerFacetNameContainChildrens);
+            }
+        }
+        logger.info("课程主题下的分面查询成功");
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),result);
+    }
+
     /**
      * 指定课程名和主题名，查询所有分面信息
      * @param domainName 课程名
