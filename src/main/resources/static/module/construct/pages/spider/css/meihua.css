@@ -1,0 +1,65 @@
+body,html{
+    margin:0px;
+}
+div.mokuai{
+/*    border:1px solid black;*/
+}
+div.img{
+    position:relative;
+    margin:6px;
+    border:2px solid #428bca;
+    height:auto;
+    width:auto;
+    float:left;
+}
+div.img img{
+    height:80px;
+    width:80px;
+}
+div.img a:hover img{
+    border:1px solid #0000ff;
+}
+div.img a:hover .picinfo{
+    display:block;
+    font-size:12px;
+    padding:10px 0;
+    background:#111;
+    filter:alpha(opacity=60);
+    opacity:.60;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=60)";
+    color:#fff;
+    position:absolute;
+    z-index: 999;
+    top:0px;
+    padding: 10px;
+    margin: 0;
+    width: 80px;
+    height:80px;
+    border-top: 1px solid #999;
+}
+div.img a .picinfo{
+    display:none;
+}
+div.wenbensuipian .box-body{
+/*    background:#428bca;*/
+    height:150px;
+    overflow-y: hidden;
+    overflow-x: hidden;
+}
+div.wenbensuipian .box:hover{
+    background:#428bca;
+
+}
+div#tongji .box{
+    width:300px;
+}
+
+ul.pagination{
+    margin:3px;
+    position:absolute;
+    left:10px;
+}
+button#return{
+    margin:3px;
+    float:right;
+}

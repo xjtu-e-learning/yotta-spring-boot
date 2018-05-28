@@ -1,0 +1,165 @@
+﻿{
+    "totalbranchlevel": 2,
+    "branchnum": 5,
+    "term_id": 77,
+    "name": "Alpha-beta剪枝",
+    "children": [
+        {
+            "totalbranchlevel": 0,
+            "facet_name": "摘要",
+            "totalbranchnum": 0,
+            "type": "branch",
+            "totalleafnum": 1,
+            "children": [
+                {
+                    "url": "https://zh.wikipedia.org/wiki/Alpha-beta%E5%89%AA%E6%9E%9D",
+                    "content": "Alpha-beta剪枝是一种搜索算法，用以减少最小-最大算法搜索树的节点数。这是一种对抗性搜索算法，主要应用于机器游玩的二人游戏（如井字棋、象棋、围棋）。当算法评估出某策略的后续走法比之前策略的还差时，就会停止计算该策略的后续发展。该算法和最小-最大算法所得结论相同，但剪去了不影响最终决定的分枝[1]。",
+                    "fragment_id": "摘要_1",
+                    "scratchTime": "2016-12-20 09:50:24.0",
+                    "type": "leaf",
+                    "flag": "text"
+                }
+            ]
+        },
+        {
+            "totalbranchlevel": 0,
+            "facet_name": "定义",
+            "totalbranchnum": 0,
+            "type": "branch",
+            "totalleafnum": 1,
+            "children": [
+                {
+                    "url": "https://zh.wikipedia.org/wiki/Alpha-beta%E5%89%AA%E6%9E%9D",
+                    "content": "Alpha-beta剪枝是一种对抗性搜索算法，主要应用于机器游玩的二人游戏（如井字棋、象棋、围棋）。当算法评估出某策略的后续走法比之前策略的还差时，就会停止计算该策略的后续发展。该算法和最小-最大算法所得结论相同，但剪去了不影响最终决定的分枝[1]。",
+                    "fragment_id": "摘要_1",
+                    "scratchTime": "2016-12-20 09:50:24.0",
+                    "type": "leaf",
+                    "flag": "text"
+                }
+            ]
+        },
+        {
+            "totalbranchlevel": 0,
+            "facet_name": "历史",
+            "totalbranchnum": 0,
+            "type": "branch",
+            "totalleafnum": 1,
+            "children": [
+                {
+                    "url": "https://zh.wikipedia.org/wiki/Alpha-beta%E5%89%AA%E6%9E%9D",
+                    "content": "Allen Newell和Herbert A. Simon在1958年，使用了John McCarthy所谓的“近似”alpha-beta算法[2]，此算法当时“应已重新改造过多次”[3]。Arthur Samuel有一个早期版本，同时Richards、Hart、Levine和/或Edwards在美国分别独立发现了alpha-beta[4]。McCarthy在1956年达特默思会议上提出了相似理念，并在1961年建议给他的一群学生，其中包括MIT的Alan Kotok[5]。Alexander Brudno独立发现了alpha-beta算法，并在1963年发布成果[6]。Donald Knuth和Ronald W. Moore在1975年优化了算法[7][8]，Judea Pearl在1982年证明了其最优性[9]。",
+                    "fragment_id": "历史_1",
+                    "scratchTime": "2016-12-20 09:50:24.0",
+                    "type": "leaf",
+                    "flag": "text"
+                }
+            ]
+        },
+        {
+            "totalbranchlevel": 0,
+            "facet_name": "对原版最小-最大算法的改进",
+            "totalbranchnum": 0,
+            "type": "branch",
+            "totalleafnum": 4,
+            "children": [
+                {
+                    "url": "https://zh.wikipedia.org/wiki/Alpha-beta%E5%89%AA%E6%9E%9D",
+                    "content": "Alpha-beta的优点是减少搜索树的分枝，将搜索时间用在“更有希望”的子树上，继而提升搜索深度。该算法和最小-最大算法一样，都是分支限界类算法。若节点搜索顺序达到最佳优化或近似最佳优化（将最佳选择排在各节点首位），则同样时间内搜索深度可达最小-最大算法的两倍多。",
+                    "fragment_id": "对原版最小-最大算法的改进_1",
+                    "scratchTime": "2016-12-20 09:50:24.0",
+                    "type": "leaf",
+                    "flag": "text"
+                },
+                {
+                    "url": "https://zh.wikipedia.org/wiki/Alpha-beta%E5%89%AA%E6%9E%9D",
+                    "content": "在（平均或恒定）分枝因子为b，搜索深度为d层的情况下，要评估的最大（即招法排序最差时）叶节点数目为O(b*b*...*b) = O(bd)——即和简单最小-最大搜索一样。若招法排序最优（即始终优先搜索最佳招法），则需要评估的最大叶节点数目按层数奇偶性，分别约为O(b*1*b*1*...*b)和O(b*1*b*1*...*1)（或O(bd/2) = O(√bd)）。其中层数为偶数时，搜索因子相当于减少了其平方根，等于能以同深度搜索两次[10]。b*1*b*1*...意义为，对第一名玩家必须搜索全部招法找到最佳招式，但对于它们，只用将第二名玩家的最佳招法截断——alpha-beta确保无需考虑第二名玩家的其他招法。但因节点生成顺序随机，实际需要评估的节点平均约为O(b3d/4)[2]。",
+                    "fragment_id": "对原版最小-最大算法的改进_2",
+                    "scratchTime": "2016-12-20 09:50:24.0",
+                    "type": "leaf",
+                    "flag": "text"
+                },
+                {
+                    "url": "https://zh.wikipedia.org/wiki/Alpha-beta%E5%89%AA%E6%9E%9D",
+                    "content": "一般在alpha-beta中，子树会由先手方优势或后手方优势暂时占据主导。若招式排序错误，这一优势会多次切换，每次让效率下降。随着层数深入，局面数量会呈指数性增长，因此排序早期招式价值很大。尽管改善任意深度的排序，都以能指数性减少总搜索局面，但排序临近根节点深度的全部局面相对经济。在实践中，招法排序常由早期、小型搜索决定，如通过迭代加深。",
+                    "fragment_id": "对原版最小-最大算法的改进_3",
+                    "scratchTime": "2016-12-20 09:50:24.0",
+                    "type": "leaf",
+                    "flag": "text"
+                },
+                {
+                    "url": "https://zh.wikipedia.org/wiki/Alpha-beta%E5%89%AA%E6%9E%9D",
+                    "content": "算法使用两个值alpha和beta，分别代表大分玩家放心的最高分，以及小分玩家放心的最低分。alpha和beta的初始值分别为正负无穷大，即双玩家都以可能的最低分开始游戏。在选择某节点的特定分枝后，可能发生小分玩家放心的最小分小于大分玩家放心的最大分（beta <= alpha）。这种情况下，父节点不应选择这个节点，否则父节点分数会降低，因此该分枝的其他节点没有必要继续探索。",
+                    "fragment_id": "对原版最小-最大算法的改进_4",
+                    "scratchTime": "2016-12-20 09:50:24.0",
+                    "type": "leaf",
+                    "flag": "text"
+                }
+            ]
+        },
+        {
+            "totalbranchlevel": 0,
+            "facet_name": "伪代码",
+            "totalbranchnum": 0,
+            "type": "branch",
+            "totalleafnum": 7,
+            "children": [
+                {
+                    "url": "https://zh.wikipedia.org/wiki/Alpha-beta%E5%89%AA%E6%9E%9D",
+                    "content": "下面为一故障弱化版Alpha-beta剪枝的伪代码[10]：",
+                    "fragment_id": "伪代码_1",
+                    "scratchTime": "2016-12-20 09:50:24.0",
+                    "type": "leaf",
+                    "flag": "text"
+                },
+                {
+                    "url": "https://zh.wikipedia.org/wiki/Alpha-beta%E5%89%AA%E6%9E%9D",
+                    "content": "01 function alphabeta(node, depth, α, β, maximizingPlayer) // node = 节点，depth = 深度，maximizingPlayer = 大分玩家\n02      if depth = 0 or node是终端节点\n03          return 节点的启发值\n04      if maximizingPlayer\n05          v := -∞\n06          for 每个子节点\n07              v := max(v, alphabeta(child, depth - 1, α, β, FALSE)) // child = 子节点\n08              α := max(α, v)\n09              if β ≤ α\n10                  break // β裁剪\n11          return v\n12      else\n13          v := ∞\n14          for each 每个子节点\n15              v := min(v, alphabeta(child, depth - 1, α, β, TRUE))\n16              β := min(β, v)\n17              if β ≤ α\n18                  break // α裁剪\n19          return v",
+                    "fragment_id": "伪代码_2",
+                    "scratchTime": "2016-12-20 09:50:24.0",
+                    "type": "leaf",
+                    "flag": "text"
+                },
+                {
+                    "url": "https://zh.wikipedia.org/wiki/Alpha-beta%E5%89%AA%E6%9E%9D",
+                    "content": "(* 初始调用 *)\nalphabeta(origin, depth, -∞, +∞, TRUE) // origin = 初始节点",
+                    "fragment_id": "伪代码_3",
+                    "scratchTime": "2016-12-20 09:50:24.0",
+                    "type": "leaf",
+                    "flag": "text"
+                },
+                {
+                    "url": "https://zh.wikipedia.org/wiki/Alpha-beta%E5%89%AA%E6%9E%9D",
+                    "content": "在这个故障弱化的alpha-beta中，当v超出调用参数α和β构成的集合时（v < α或v > β），alphabeta函数返回值v。而与此相对，故障强化的alpha-beta限制函数返回在α与β包括范围中的值。",
+                    "fragment_id": "伪代码_4",
+                    "scratchTime": "2016-12-20 09:50:24.0",
+                    "type": "leaf",
+                    "flag": "text"
+                },
+                {
+                    "url": "https://zh.wikipedia.org/wiki/Alpha-beta%E5%89%AA%E6%9E%9D",
+                    "content": "George T. Heineman, Gary Pollice, and Stanley Selkow. Chapter 7: Path Finding in AI. Algorithms in a Nutshell. Oreilly Media. 2008: 217–223. ISBN 978-0-596-51624-6.  Judea Pearl, Heuristics, Addison-Wesley, 1984 John P. Fishburn. Appendix A: Some Optimizations of α-β Search. Analysis of Speedup in Distributed Algorithms (revision of 1981 PhD thesis). UMI Research Press. 1984: 107–111. ISBN 0-8357-1527-2. ",
+                    "fragment_id": "伪代码_5",
+                    "scratchTime": "2016-12-20 09:50:24.0",
+                    "type": "leaf",
+                    "flag": "text"
+                },
+                {
+                    "url": "https://zh.wikipedia.org/wiki/Alpha-beta%E5%89%AA%E6%9E%9D",
+                    "content": "^ Russell, Stuart J.; Norvig, Peter. Artificial Intelligence: A Modern Approach 3rd. Upper Saddle River, New Jersey: Pearson Education, Inc. 2010: 167. ISBN 0-13-604259-7  ^ 2.0 2.1 McCarthy, John. Human Level AI Is Harder Than It Seemed in 1955. LaTeX2HTML 27 November 2006 [2006-12-20].  请检查|date=中的日期值 (帮助) ^ Newell, Allen and Herbert A. Simon. Computer Science as Empirical Inquiry: Symbols and Search (PDF). Communications of the ACM. March 1976, 19 (3) [2006-12-21]. doi:10.1145/360018.360022.  ^ Edwards, D.J. and Hart, T.P. The Alpha–beta Heuristic (AIM-030). Massachusetts Institute of Technology. 4 December 1961 to 28 October 1963 [2006-12-21].  请检查|date=中的日期值 (帮助) ^ Kotok, Alan. MIT Artificial Intelligence Memo 41. XHTML 3 December 2004 [2006-07-01].  请检查|date=中的日期值 (帮助) ^ Marsland, T.A.. Computer Chess Methods (PDF) from Encyclopedia of Artificial Intelligence. S. Shapiro (editor) (PDF). J. Wiley & Sons: 159–171. May 1987 [2006-12-21].  ^ * Knuth, D. E., and Moore, R. W. An Analysis of Alpha–Beta Pruning (PDF). Artificial Intelligence. 1975, 6 (4): 293–326. doi:10.1016/0004-3702(75)90019-3.  Reprinted as Chapter 9 in Knuth, Donald E. Selected Papers on Analysis of Algorithms. Stanford, California: Center for the Study of Language and Information - CSLI Lecture Notes, no. 102. 2000. ISBN 1-57586-212-3. OCLC 222512366.  ^ Abramson, Bruce. Control Strategies for Two-Player Games (PDF). ACM Computing Surveys. June 1989, 21 (2): 137 [2008-08-20]. doi:10.1145/66443.66444. [失效链接] ^ Pearl, Judea. The Solution for the Branching Factor of the Alpha–beta Pruning Algorithm and its Optimality. Communications of the ACM. August 1982, 25 (8): 559–564. doi:10.1145/358589.358616.  ^ 10.0 10.1 Russell, Stuart J.; Norvig, Peter, Artificial Intelligence: A Modern Approach 2nd, Upper Saddle River, New Jersey: Prentice Hall, 2003, ISBN 0-13-790395-2 ",
+                    "fragment_id": "伪代码_6",
+                    "scratchTime": "2016-12-20 09:50:24.0",
+                    "type": "leaf",
+                    "flag": "text"
+                },
+                {
+                    "url": "https://zh.wikipedia.org/wiki/Alpha-beta%E5%89%AA%E6%9E%9D",
+                    "content": "http://www.emunix.emich.edu/~evett/AI/AlphaBeta_movie/sld001.htm http://sern.ucalgary.ca/courses/CPSC/533/W99/presentations/L1_5B_McCullough_Melnyk/ http://sern.ucalgary.ca/courses/CPSC/533/W99/presentations/L2_5B_Lima_Neitz/search.html http://www.maths.nott.ac.uk/personal/anw/G13GAM/alphabet.html http://chess.verhelst.org/search.html http://www.frayn.net/beowulf/index.html http://hal.inria.fr/docs/00/12/15/16/PDF/RR-6062.pdf Minimax (with or without alpha–beta pruning) algorithm visualization - game tree solving (Java Applet), for balance or off-balance trees Demonstration/animation of minimax game search algorithm with alpha–beta pruning (using html5, canvas, javascript, css) Java implementation used in a Checkers Game",
+                    "fragment_id": "伪代码_7",
+                    "scratchTime": "2016-12-20 09:50:24.0",
+                    "type": "leaf",
+                    "flag": "text"
+                }
+            ]
+        }
+    ]
+}

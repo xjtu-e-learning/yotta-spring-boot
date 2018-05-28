@@ -1,0 +1,126 @@
+﻿{
+    "totalbranchlevel": 2,
+    "branchnum": 5,
+    "term_id": 69,
+    "name": "树旋转",
+    "children": [{
+        "totalbranchlevel": 0,
+        "facet_name": "摘要",
+        "totalbranchnum": 0,
+        "type": "branch",
+        "totalleafnum": 1,
+        "children": [{
+            "url": "https://zh.wikipedia.org/wiki/%E6%A0%91%E6%97%8B%E8%BD%AC",
+            "content": "在离散数学中，树旋转（英语：Tree rotation）是在二叉树中的一种子树调整操作, 每一次旋转并不影响对该二叉树进行中序遍历的结果. 树旋转通常应用于需要调整树的局部平衡性的场合。",
+            "fragment_id": "摘要_2",
+            "scratchTime": "2016-12-20 09:48:55.0",
+            "type": "leaf",
+            "flag": "text"
+        }]
+    }, {
+        "totalbranchlevel": 0,
+        "facet_name": "图示",
+        "totalbranchnum": 0,
+        "type": "branch",
+        "totalleafnum": 3,
+        "children": [{
+            "url": "https://zh.wikipedia.org/wiki/%E6%A0%91%E6%97%8B%E8%BD%AC",
+            "content": "树旋转包括两个不同的方式，分别是左旋转（以P为转轴）和右旋转（以Q为转轴）。两种旋转呈镜像，而且互为逆操作。",
+            "fragment_id": "图示_1",
+            "scratchTime": "2016-12-20 09:48:55.0",
+            "type": "leaf",
+            "flag": "text"
+        }, {
+            "url": "https://zh.wikipedia.org/wiki/%E6%A0%91%E6%97%8B%E8%BD%AC",
+            "content": "+---+                          +---+\n        | Q |                          | P |\n        +---+                          +---+\n       /     \\     right rotation     /     \\\n    +---+   +---+  ------------->  +---+   +---+\n    | P |   | Z |                  | X |   | Q |\n    +---+   +---+  <-------------  +---+   +---+\n   /     \\          left rotation         /     \\\n+---+   +---+                          +---+   +---+\n| X |   | Y |                          | Y |   | Z |\n+---+   +---+                          +---+   +---+",
+            "fragment_id": "图示_3",
+            "scratchTime": "2016-12-20 09:48:55.0",
+            "type": "leaf",
+            "flag": "text"
+        }, {
+            "url": "https://zh.wikipedia.org/wiki/%E6%A0%91%E6%97%8B%E8%BD%AC",
+            "content": "__\n                                                                 /  \\\n                                     +---+                      /  +---+\n                                     | Q |                     /   | Q |\n                           +---+     +---+              +---+ /    +---+\n        +---+              | P |    /     \\      R1     | P |/    /     \\              +---+\n        | Q |     R0       +---+   /     +---+ ----->   +---+    /     +---+   R2      | P |\n        +---+   ----->    /     \\ /      | Z |         /        /      | Z | ----->    +---+\n       /     \\         +---+   +---+     +---+      +---+    +---+     +---+          /     \\\n    +---+   +---+      | X |   | Y |                | X |    | Y |                 +---+   +---+\n    | P |   | Z |      +---+   +---+                +---+    +---+                 | X |   | Q |\n    +---+   +---+              __                                                  +---+   +---+\n   /     \\                    /  \\                                                        /     \\\n+---+   +---+     L2       +---+  \\                       +---+                L0      +---+   +---+\n| X |   | Y |   <-----     | P |   \\                      | P |              <-----    | Y |   | Z |\n+---+   +---+              +---+    \\ +---+      L1       +---+     +---+              +---+   +---+\n                          /     \\    \\| Q |    <-----    /     \\    | Q |\n                       +---+     \\    +---+           +---+     \\   +---+\n                       | X |      \\        \\          | X |      \\ /     \\\n                       +---+     +---+    +---+       +---+     +---+   +---+\n                                 | Y |    | Z |                 | Y |   | Z |\n                                 +---+    +---+                 +---+   +---+",
+            "fragment_id": "图示_5",
+            "scratchTime": "2016-12-20 09:48:55.0",
+            "type": "leaf",
+            "flag": "text"
+        }]
+    }, {
+        "totalbranchlevel": 0,
+        "facet_name": "实现",
+        "totalbranchnum": 0,
+        "type": "branch",
+        "totalleafnum": 5,
+        "children": [{
+            "url": "https://zh.wikipedia.org/wiki/%E6%A0%91%E6%97%8B%E8%BD%AC",
+            "content": "在接下来的实现中, 假设从树中任一节点 N 能够借由 N.left 访问其左子节点, N.right 访问其右子节点, N.parent 访问其父节点. 此外, 称旋转后变为父亲的节点为转轴 pivot, 称 pivot 在旋转前的父节点为 parent, 而 parent 在旋转前的父节点为 root. 则右旋转过程可用伪代码表示",
+            "fragment_id": "实现_2",
+            "scratchTime": "2016-12-20 09:48:55.0",
+            "type": "leaf",
+            "flag": "text"
+        }, {
+            "url": "https://zh.wikipedia.org/wiki/%E6%A0%91%E6%97%8B%E8%BD%AC",
+            "content": "func rotate_right(pivot):\n  let parent = pivot.parent\n  let root = parent.parent\n  // R0\n  parent.left = pivot.right\n  if pivot.right != nil: pivot.right.parent = parent\n  // R1\n  pivot.parent = root\n  if parent == root.left:\n    root.left = pivot\n  else:\n    root.right = pivot\n  pivot.right = parent\n  parent.parent = pivot",
+            "fragment_id": "实现_3",
+            "scratchTime": "2016-12-20 09:48:55.0",
+            "type": "leaf",
+            "flag": "text"
+        }, {
+            "url": "https://zh.wikipedia.org/wiki/%E6%A0%91%E6%97%8B%E8%BD%AC",
+            "content": "func rotate_left(pivot):\n  let parent = pivot.parent\n  let root = parent.parent\n  // L0\n  parent.right = pivot.left\n  if pivot.left != nil: pivot.left.parent = parent\n  // L1\n  pivot.parent = root\n  if parent == root.left:\n    root.left = pivot\n  else:\n    root.right = pivot\n  pivot.left = parent\n  parent.parent = pivot",
+            "fragment_id": "实现_4",
+            "scratchTime": "2016-12-20 09:48:55.0",
+            "type": "leaf",
+            "flag": "text"
+        }, {
+            "url": "https://zh.wikipedia.org/wiki/%E6%A0%91%E6%97%8B%E8%BD%AC",
+            "content": "func rotate_right(root, parent):\n  assert root.left == parent || root.right == parent\n  let pivot = parent.left\n  // R0\n  parent.left = pivot.right\n  // R1\n  if parent == root.left:\n    root.left = pivot\n  else:\n    root.right = pivot\n  pivot.right = parent",
+            "fragment_id": "实现_7",
+            "scratchTime": "2016-12-20 09:48:55.0",
+            "type": "leaf",
+            "flag": "text"
+        }, {
+            "url": "https://zh.wikipedia.org/wiki/%E6%A0%91%E6%97%8B%E8%BD%AC",
+            "content": "func rotate_left(root, parent):\n  assert root.left == parent || root.right == parent\n  let pivot = parent.right\n  // L0\n  parent.right = pivot.left\n  // L1\n  if parent == root.left:\n    root.left = pivot\n  else:\n    root.right = pivot\n  pivot.left = parent",
+            "fragment_id": "实现_8",
+            "scratchTime": "2016-12-20 09:48:55.0",
+            "type": "leaf",
+            "flag": "text"
+        }]
+    }, {
+        "totalbranchlevel": 0,
+        "facet_name": "旋转距离",
+        "totalbranchnum": 0,
+        "type": "branch",
+        "totalleafnum": 1,
+        "children": [{
+            "url": "https://zh.wikipedia.org/wiki/%E6%A0%91%E6%97%8B%E8%BD%AC",
+            "content": "两棵二叉树之间的旋转距离指的是, 其中一棵树通过尽可能少的树旋转变换到另一棵树, 此过程中所使用的旋转次数. 对于一个包含相同个数节点的二叉树集合, 它们两两之间的距离可以构成一个度量空间. 是否存在一个算法, 能在多项式时间内计算两个二叉树之间的旋转距离, 目前还是一个未决问题.",
+            "fragment_id": "旋转距离_1",
+            "scratchTime": "2016-12-20 09:48:55.0",
+            "type": "leaf",
+            "flag": "text"
+        }]
+    }, {
+        "totalbranchlevel": 0,
+        "facet_name": "特征",
+        "totalbranchnum": 0,
+        "type": "branch",
+        "totalleafnum": 2,
+        "children": [{
+            "url": "https://zh.wikipedia.org/wiki/%E6%A0%91%E6%97%8B%E8%BD%AC",
+            "content": "当 parent 节点本身就是树的根节点的情况. 这种情况下, 需要以其它方式重设树的根节点为 pivot. 一种无需在根节点的某一子节点为转轴时进行特殊处理的替代方案是让树的实际的根节点是一个特殊入口节点, 而逻辑上的根节点作为该入口节点的某个子节点存在, 并避免任何以逻辑根节点为转轴的旋转.",
+            "fragment_id": "旋转距离_1",
+            "scratchTime": "2016-12-20 09:48:55.0",
+            "type": "leaf",
+            "flag": "text"
+        },{
+            "url": "https://zh.wikipedia.org/wiki/%E6%A0%91%E6%97%8B%E8%BD%AC",
+            "content": "如果从节点出发, 只能访问其两个子节点, 而无法访问其父节点, 那么上述方法也不适用. 这种情况下, root 节点亦是旋转的必要参数之一. 旋转过程的伪代码表示如下",
+            "fragment_id": "旋转距离_1",
+            "scratchTime": "2016-12-20 09:48:55.0",
+            "type": "leaf",
+            "flag": "text"
+        }]
+    }]
+}

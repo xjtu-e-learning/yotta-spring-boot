@@ -1,0 +1,199 @@
+﻿{
+    "totalbranchlevel": 2,
+    "branchnum": 6,
+    "term_id": 68,
+    "name": "笛卡尔树",
+    "children": [
+        {
+            "totalbranchlevel": 0,
+            "facet_name": "摘要",
+            "totalbranchnum": 0,
+            "type": "branch",
+            "totalleafnum": 2,
+            "children": [
+                {
+                    "url": "https://zh.wikipedia.org/wiki/%E7%AC%9B%E5%8D%A1%E5%B0%94%E6%A0%91",
+                    "content": "笛卡尔树是一种特定的二叉树数据结构，可由数列构造，在范围最值查询、范围top k查询（range top k queries）等问题上有广泛应用。它具有堆的有序性，中序遍历可以输出原数列。笛卡尔树结构由Vuillmin(1980)[1]在解决范围搜索的几何数据结构问题时提出。从数列中构造一棵笛卡尔树可以线性时间完成，需要采用基于栈的算法来找到在该数列中的所有最近小数。",
+                    "fragment_id": "摘要_1",
+                    "scratchTime": "2016-12-20 09:48:45.0",
+                    "type": "leaf",
+                    "flag": "text"
+                },
+                {
+                    "url": "https://zh.wikipedia.org/wiki/%E7%AC%9B%E5%8D%A1%E5%B0%94%E6%A0%91",
+                    "content": "笛卡尔树结构由Vuillmin在解决范围搜索的几何数据结构问题时提出的，从数列中构造一棵笛卡尔树可以线性时间完成，需要采用基于栈的算法来找到在该数列中的所有最近小数。由此可知，笛卡尔树是一种特定的二叉树数据结构，可由数列构造，在范围最值查询、范围top k查询（range top k queries）等问题上有广泛应用。它具有堆的有序性，中序遍历可以输出原数列。",
+                    "fragment_id": "摘要_2",
+                    "scratchTime": "2016-12-20 09:48:45.0",
+                    "type": "leaf",
+                    "flag": "text"
+                }
+            ]
+        },
+        {
+            "totalbranchlevel": 0,
+            "facet_name": "定义",
+            "totalbranchnum": 0,
+            "type": "branch",
+            "totalleafnum": 4,
+            "children": [
+                {
+                    "url": "https://zh.wikipedia.org/wiki/%E7%AC%9B%E5%8D%A1%E5%B0%94%E6%A0%91",
+                    "content": "笛卡尔树是一种特定的二叉树数据结构，可由数列构造，在范围最值查询、范围top k查询（range top k queries）等问题上有广泛应用。它具有堆的有序性，中序遍历可以输出原数列。笛卡尔树结构由Vuillmin(1980)[1]在解决范围搜索的几何数据结构问题时提出。从数列中构造一棵笛卡尔树可以线性时间完成，需要采用基于栈的算法来找到在该数列中的所有最近小数。",
+                    "fragment_id": "摘要_1",
+                    "scratchTime": "2016-12-20 09:48:45.0",
+                    "type": "leaf",
+                    "flag": "text"
+                },
+                {
+                    "url": "https://zh.wikipedia.org/wiki/%E7%AC%9B%E5%8D%A1%E5%B0%94%E6%A0%91",
+                    "content": "笛卡尔树是一棵二叉树，树的每个节点有两个值，一个为key，一个为value。光看key的话，笛卡尔树是一棵二叉搜索树，每个节点的左子树的key都比它小，右子树都比它大；光看value的话，笛卡尔树有点类似堆，根节点的value是最小（或者最大）的，每个节点的value都比它的子树要小（或者大）。",
+                    "fragment_id": "定义_1",
+                    "scratchTime": "2016-12-20 09:48:45.0",
+                    "type": "leaf",
+                    "flag": "text"
+                },
+                {
+                    "url": "https://zh.wikipedia.org/wiki/%E7%AC%9B%E5%8D%A1%E5%B0%94%E6%A0%91",
+                    "content": "结点一一对应于数列元素。即数列中的每个元素都对应于树中某个唯一结点，树结点也对应于数列中的某个唯一元素 中序遍历（in-order traverse）笛卡尔树即可得到原数列。即任意树结点的左子树结点所对应的数列元素下标比该结点所对应元素的下标小，右子树结点所对应数列元素下标比该结点所对应元素下标大。 树结构存在堆序性质，即任意树结点所对应数值大／小于其左、右子树内任意结点对应数值",
+                    "fragment_id": "定义_2",
+                    "scratchTime": "2016-12-20 09:48:45.0",
+                    "type": "leaf",
+                    "flag": "text"
+                },
+                {
+                    "url": "https://zh.wikipedia.org/wiki/%E7%AC%9B%E5%8D%A1%E5%B0%94%E6%A0%91",
+                    "content": "根据堆序性质，笛卡尔树根结点为数列中的最大／小值，树本身也可以通过这一性质递归地定义：根结点为序列的最大／小值，左、右子树则对应于左右两个子序列，其结点同样为两个子序列的最大/小值。因此，上述三条性质唯一地定义了笛卡尔树。若数列中存在重复值，则可用其它排序原则为数列中相同元素排定序列，例如以下标较小的数为较小，便能为含重复值的数列构造笛卡尔树。",
+                    "fragment_id": "定义_3",
+                    "scratchTime": "2016-12-20 09:48:45.0",
+                    "type": "leaf",
+                    "flag": "text"
+                }
+            ]
+        },
+        {
+            "totalbranchlevel": 1,
+            "facet_name": "笛卡尔树应用",
+            "totalbranchnum": 1,
+            "type": "branch",
+            "totalleafnum": 1,
+            "children": [
+                {
+                    "totalbranchlevel": 0,
+                    "facet_name": "范围最值查询与最低公共祖先",
+                    "totalbranchnum": 0,
+                    "type": "branch",
+                    "totalleafnum": 4,
+                    "children": [
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E7%AC%9B%E5%8D%A1%E5%B0%94%E6%A0%91",
+                            "content": "笛卡尔树可以有效地处理范围最值查询（range minimum queries），通过将定义在数列上的RMQ问题转化为定义在树结构上的最低公共祖先（lowest common ancestor）问题。数列以线性时间构造出笛卡尔树，笛卡尔树则能以常数时间处理最低公共祖先查询，因此在线性时间的预处理后，范围最值查询能以常数时间完成。",
+                            "fragment_id": "范围最值查询与最低公共祖先_1",
+                            "scratchTime": "2016-12-20 09:48:45.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E7%AC%9B%E5%8D%A1%E5%B0%94%E6%A0%91",
+                            "content": "Bender & Farach-Colton (2000)[2]则提出了RMQ与LCA问题的新联系，他们通过不基于树的算法处理RMQ问题从而有效地解决LCA问题。其使用欧拉路径的技巧将树结构转化为数列，此数列具有特定性质（相邻数值代表树中的相邻顶点，即在树中高度差为1的顶点），利用这一性质RMQ问题可以很高效地得到解决。通常的数列则不具备此性质，为了将一般的数列转化为具有上述性质的数列，需要应用到笛卡尔树，具体过程为在普通数列上构造笛卡尔树，在笛卡尔树上使用欧拉路径转化的方法将树转化为具有上述性质的新数列。",
+                            "fragment_id": "范围最值查询与最低公共祖先_2",
+                            "scratchTime": "2016-12-20 09:48:45.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E7%AC%9B%E5%8D%A1%E5%B0%94%E6%A0%91",
+                            "content": "范围最值查询问题也可以解释为二维范围查询问题，或者三边范围查询问题（three sided range queries），笛卡尔平面上的有限点集可以用来构造笛卡尔树，首先将这些点按照x取值排序，然后将y值作为数列中元素的值，以此数列建立笛卡尔树。若 S 为有限点集中满足 L ≤ x ≤ R {\\displaystyle L\\leq x\\leq R} 条件的点集，设 p 是 S 中x值最小的点，q 是 S 中 x 值最大的点，则笛卡尔树中 p 与 q的最低公共祖先即为该点集中处于该x值范围内y值最高／低的点 b。三边范围查询问题，即给定条件 L ≤ x ≤ R , y ≤ T {\\displaystyle L\\leq x\\leq R,y\\leq T} ，取出所有满足条件的点。其解决是以笛卡尔树找到b 点，若b点的y 值满足条件，则递归地在 p, b 所约束的子树以及b, q 所约束的子树内重复这一过程，这一查询可以使每个被报告的点都在常数时间内找到，总体的时间复杂度为 O ( k ) {\\displaystyle O(k)} ，k即为满足条件的点数。",
+                            "fragment_id": "范围最值查询与最低公共祖先_3",
+                            "scratchTime": "2016-12-20 09:48:45.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E7%AC%9B%E5%8D%A1%E5%B0%94%E6%A0%91",
+                            "content": "笛卡尔树同样可以应用于以常数时间查询超度量空间内点对的距离。超度量空间内距离的定义与最宽路径问题中的权重相同。从最小生成树上可以构造一个笛卡尔树，根结点表示最小生成树中的权值最大的边，撤去此边会将最小生成树分割为两个子树，笛卡尔树递归地从这两棵子树上构造。笛卡尔树的叶结点表示度量空间内的点，两个叶结点的最低公共祖先则是这两个点在最小生成树中最重的边，代表这两点间的距离。获得了最小生成树及将边按照权值排序后，笛卡尔树即可在线性时间内构造出来。",
+                            "fragment_id": "范围最值查询与最低公共祖先_4",
+                            "scratchTime": "2016-12-20 09:48:45.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "totalbranchlevel": 0,
+            "facet_name": "实现",
+            "totalbranchnum": 0,
+            "type": "branch",
+            "totalleafnum": 2,
+            "children": [
+                {
+                    "url": "https://zh.wikipedia.org/wiki/%E7%AC%9B%E5%8D%A1%E5%B0%94%E6%A0%91",
+                    "content": "O(N^2)算法实现:①排序之后直接构造笛卡尔树的方法：首先将节点序列按照key从小到大排序，然后按照顺序插入节点，注意到排序之后，插入的节点的key值一定是树中最大的，所以只需查找最右端的路径，找到一个节点A[i]的value大于待插入节点的value,同时A[i]->right的value小于待插入节点的value。找到之后，只需将A[i]的right指向待插入的节点，A[i]的right原来指向的节点赋值给待插入节点的left指针。注意到查找最右路径的方向，如果从下到上查找，复杂度比较容易分析O(N)（因为查找过的节点必然会旋转到某个节点的左子节点，因此每个查找过的节点只会被查找一次），如果从上倒下，比较复杂（和最右端的最终的路径长度有关吧），会超过N，甚至更高，可能为O(N^2)。②利用排序加左旋的方法：就是一样先排序，然后使用treap插入节点，可以发现，所有的旋转都为左旋。这种方法也TLE了，这种方法有一个很重要的意义，就是分析了上个方法中从上到下扫描的复杂度。因为这两种方法的效率是等价的，都TLE。",
+                    "fragment_id": "treap_1",
+                    "scratchTime": "2016-12-20 09:48:45.0",
+                    "type": "leaf",
+                    "flag": "text"
+                },
+                {
+                    "url": "https://zh.wikipedia.org/wiki/%E7%AC%9B%E5%8D%A1%E5%B0%94%E6%A0%91",
+                    "content": "O(N)算法实现:我们将要将A的元素依次插入笛卡尔树C。每次插入都可能使树的形态发生变化。为了在O(N)的时间内完成整个插入过程，考虑C的右链，即根结点、根结点的右儿子、根结点的右儿子的右儿子……组成的链。注意这些元素的下标和值都是递增的。下标最大，即将要插入的元素A[i]一定是新树右链的最后一个元素。原来的右链中，值比A[i]大的元素在新树中不再属于右链，这些元素组成的链成为A[i]的左子树的右链；原来右链中的其它元素加上A[i]组成了新的右链。初看起来，寻找分界点的最佳方法是O(logN)时间的二分查找；但是对于整个过程来说，O(NlogN)的时间复杂度不是最优的。关键在于一旦一个元素比A[i]大，它就从右链中被永久地移除了。如果按照从后到前的顺序判断一个元素是否大于A[i]，则每次插入的时间复杂度为O(k+1)，k为本次插入中移除的右链元素个数。因为每个元素最多进出右链各一次，所以整个过程的时间复杂度为O(N)。",
+                    "fragment_id": "treap_2",
+                    "scratchTime": "2016-12-20 09:48:45.0",
+                    "type": "leaf",
+                    "flag": "text"
+                }
+            ]
+        },
+        {
+            "totalbranchlevel": 0,
+            "facet_name": "c++代码",
+            "totalbranchnum": 0,
+            "type": "branch",
+            "totalleafnum": 1,
+            "children": [
+                {
+                    "url": "https://zh.wikipedia.org/wiki/%E7%AC%9B%E5%8D%A1%E5%B0%94%E6%A0%91",
+                    "content": "void computeTree(int A[MAXN], int N, int T[MAXN]){int st[MAXN], i, k, top = -1;for (i = 0; i < N; i++){k = top;while (k >= 0 && A[st[k]] > A[i]) k--;if (k != -1) T[i] = st[k];if (k < top) T[st[k + 1]] = i;st[++k] = i;top = k;}T[st[0]] = -1;}",
+                    "fragment_id": "c++代码_1",
+                    "scratchTime": "2016-12-20 09:48:45.0",
+                    "type": "leaf",
+                    "flag": "text"
+                }
+            ]
+        },
+        {
+            "totalbranchlevel": 0,
+            "facet_name": "性质",
+            "totalbranchnum": 0,
+            "type": "branch",
+            "totalleafnum": 1,
+            "children": [
+                {
+                    "url": "https://zh.wikipedia.org/wiki/%E7%AC%9B%E5%8D%A1%E5%B0%94%E6%A0%91",
+                    "content": "结点一一对应于数列元素。即数列中的每个元素都对应于树中某个唯一结点，树结点也对应于数列中的某个唯一元素",
+                    "fragment_id": "c++代码_1",
+                    "scratchTime": "2016-12-20 09:48:45.0",
+                    "type": "leaf",
+                    "flag": "text"
+                },
+                {
+                    "url": "https://zh.wikipedia.org/wiki/%E7%AC%9B%E5%8D%A1%E5%B0%94%E6%A0%91",
+                    "content": "中序遍历（in-order traverse）笛卡尔树即可得到原数列。即任意树结点的左子树结点所对应的数列元素下标比该结点所对应元素的下标小，右子树结点所对应数列元素下标比该结点所对应元素下标大。",
+                    "fragment_id": "c++代码_1",
+                    "scratchTime": "2016-12-20 09:48:45.0",
+                    "type": "leaf",
+                    "flag": "text"
+                },
+                {
+                    "url": "https://zh.wikipedia.org/wiki/%E7%AC%9B%E5%8D%A1%E5%B0%94%E6%A0%91",
+                    "content": "树结构存在堆序性质，即任意树结点所对应数值大(或小)于其左、右子树内任意结点对应数值(即根节点为其子树的最值)",
+                    "fragment_id": "c++代码_1",
+                    "scratchTime": "2016-12-20 09:48:45.0",
+                    "type": "leaf",
+                    "flag": "text"
+                }
+            ]
+        }
+    ]
+}
