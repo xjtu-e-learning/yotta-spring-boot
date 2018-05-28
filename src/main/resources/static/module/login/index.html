@@ -1,0 +1,81 @@
+﻿<!DOCTYPE html>
+<html class="login-alone">
+    <head>
+        <title>统一认证登录</title>
+		<meta name="keywords" content="统一认证登录" />
+		<meta name="description" content="统一认证登录" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <link href="res/ui/css/screen.css?v=3.9" media="screen, projection" rel="stylesheet" type="text/css" >
+        <link rel="stylesheet" type="text/css" href="res/ui/css/base.css?v=3.9">
+        <link rel="stylesheet" type="text/css" href="res/passport/css/login.css?v=3.9">
+        <script src="http://cdn.bootcss.com/jquery/2.0.3/jquery.js"></script>
+        <script type="text/javascript" src="myjs/login.js"></script>
+        <script type="text/javascript" src="../../config/ipconfig.js"></script>
+    </head>
+    <body>
+<!-- ip记录 -->
+<script type="text/javascript" src="http://pv.sohu.com/cityjson?ie=utf-8" charset="utf-8"></script>
+<script type="text/javascript">
+    var IPData=returnCitySN;
+    var cip=IPData['cip']; 
+    var cname=IPData['cname']; 
+</script>
+        <div class="logina-logo" style="height: 55px">
+                <div>
+                    <h1 style="font-size: 40px">统一认证登录</h1>
+                </div>
+        </div>
+        <div class="logina-main main clearfix">
+            <div class="tab-con">
+                <form id="form-login" >
+                    <div id='login-error' class="error-tip"></div>
+                    <table border="0" cellspacing="0" cellpadding="0">
+                        <tbody>
+                            <tr>
+                                <th>账户</th>
+                                <td width="245">
+                                    <input id="u" type="text" name="email" placeholder="请输入用户名" autocomplete="off" value=""></td>
+                                <td>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>密码</th>
+                                <td width="245">
+                                    <input id="p" type="password" name="password" placeholder="请输入密码" autocomplete="off">
+                                </td>
+                                <td>
+                                </td>
+                            </tr>
+                             <tr class="find">
+                                <th></th>
+                                <td>
+                                    <div>
+                                        <label id="tishi" style="color:red;font-size: 20px" class="checkbox" for="chk11"></label>
+                                        
+                                    </div>
+                                </td>
+                                <td></td>
+                            </tr>
+                           
+                            <tr>
+                                <th></th>
+                                <td width="245"><input class="confirm" id="login" type="button" value="登  录"></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <input type="hidden" name="refer" value="site/">
+                </form>
+            </div>
+            <div class="reg">
+                <p>欢迎登录<br>数据管理系统</p>
+                
+            </div>
+        </div>
+        <div id="footer">
+            <div class="copyright">
+                <p>2017 © XJTU All rights reserved | 智能网络与网络安全教育部重点实验室, <a href="http://www.xjtu.edu.cn/" target="_blank">  西安交通大学</a></p>
+            </div>
+        </div>  
+    </body>
+</html>

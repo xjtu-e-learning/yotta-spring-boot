@@ -1,0 +1,103 @@
+
+
+
+
+/* div{
+	word-wrap:break-word;
+	width:200px;
+} */
+.table-bordered > thead > tr > th, 
+.table-bordered > tbody > tr > th, 
+.table-bordered > tfoot > tr > th, .table-bordered > thead > tr > td,
+.table-bordered > tbody > tr > td, .table-bordered > tfoot > tr > td {
+    border: 1px solid #ddd;
+}
+.box.box-success {
+		border-top-color: #00a65a;
+}
+.box {
+    position: relative;
+    border-radius: 3px;
+    background: #ffffff;
+    border-top: 3px solid #d2d6de;
+    margin-bottom: 5px;
+    width: 100%;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+}
+.box-header.with-border {
+	border-bottom: 1px solid #f4f4f4;
+	word-wrap:break-word;
+	width:100%;
+	overflow:hidden;
+    height:85%;
+}
+.box-header {
+	color: #444;
+	display: block;
+	padding: 5px;
+	position: relative;
+}
+.box-body {
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 3px;
+	border-bottom-left-radius: 3px;
+	padding: 1px;
+}
+
+/*文本碎片栏*/
+div#textFragmentDiv{
+	border:1px solid #ddd;
+	/*border:1px solid #f4f4f4;*/
+	/*margin-top:10px; */
+	margin-bottom:10px; 
+	/*height:410px;*/
+	overflow:hidden;
+	/*box-shadow: 1px 1px 1px 1px #888888;*/
+	box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+	background-color: #FFFFFF;
+}
+
+/*图片碎片栏*/
+div#pictureFragmentDiv{
+	border:1px solid #ddd;
+	/*border:1px solid #f4f4f4;*/
+	/*height:410px;*/
+	overflow:hidden;
+	/*box-shadow: 1px 1px 1px 1px #888888;*/
+	box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+	background-color: #FFFFFF;
+}
+div#facetedTreeDiv{
+	/*box-shadow: 1px 1px 1px 1px #FFFFFF;*/
+	box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+	background-color: #FFFFFF;
+}
+div.pictureBox{
+	height:95%;
+	box-shadow: 1px 1px 1px 1px #808080;
+}
+div.pictureBox img:hover {
+}
+
+.modal-content{
+	border-top:3px solid #3c8dbc;
+	border-radius:3px;
+}
+
+ input.facetCheckbox{
+	vertical-align:middle;
+	margin-top:0;
+	margin-right: 4px;
+}
+
+input.subjectRadio{
+	vertical-align:middle;
+	margin-top:0;
+	margin-right: 4px;
+} 
+.leafMessage{
+	/*width:150%;*/
+	height:250px;
+	overflow:scroll;
+} 

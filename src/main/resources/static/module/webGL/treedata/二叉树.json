@@ -1,0 +1,893 @@
+﻿{
+    "totalbranchlevel": 2,
+    "branchnum": 6,
+    "term_id": 42,
+    "name": "二叉树",
+    "children": [
+        {
+            "totalbranchlevel": 0,
+            "facet_name": "摘要",
+            "totalbranchnum": 0,
+            "type": "branch",
+            "totalleafnum": 5,
+            "children": [
+                {
+                    "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                    "content": "在计算机科学中，二叉树（英语：Binary tree）是每个节点最多有两个子树的树结构。通常子树被称作“左子树”（left subtree）和“右子树”（right subtree）。二叉树常被用于实现二叉查找树和二元堆积。",
+                    "fragment_id": "摘要_3",
+                    "scratchTime": "2016-12-20 09:44:10.0",
+                    "type": "leaf",
+                    "flag": "text"
+                },
+                {
+                    "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                    "content": "二叉树的每个节点至多只有二棵子树(不存在度大于2的节点)，二叉树的子树有左右之分，次a序不能颠倒。二叉树的第i层至多有 2 i − 1 {\\displaystyle 2^{i-1}} 个节点；深度为k的二叉树至多共有 2 k + 1 − 1 {\\displaystyle 2^{\\begin{aligned}k+1\\end{aligned}}-1} 个节点；对任何一棵二叉树T，如果其终端节点数为 n 0 {\\displaystyle n_{0}} ，度为2的节点数为 n 2 {\\displaystyle n_{2}} ，则 n 0 = n 2 + 1 {\\displaystyle n_{0}=n_{2}+1} 。",
+                    "fragment_id": "摘要_4",
+                    "scratchTime": "2016-12-20 09:44:10.0",
+                    "type": "leaf",
+                    "flag": "text"
+                },
+                {
+                    "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                    "content": "一棵深度为k，且有 2 k + 1 − 1 {\\displaystyle 2^{\\begin{aligned}k+1\\end{aligned}}-1} 个节点称之为满二叉树；深度为k，有n个节点的二叉树，当且仅当其每一个节点都与深度为k的满二叉树中，序号为1至n的节点对应时，称之为完全二叉树。",
+                    "fragment_id": "摘要_5",
+                    "scratchTime": "2016-12-20 09:44:10.0",
+                    "type": "leaf",
+                    "flag": "text"
+                },
+                {
+                    "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                    "content": "与树不同，树的节点个数至少为1，而二叉树的节点个数可以为0；树中节点的最大度数没有限制，而二叉树节点的最大度数为2；树的节点无左、右之分，而二叉树的节点有左、右之分。",
+                    "fragment_id": "摘要_6",
+                    "scratchTime": "2016-12-20 09:44:10.0",
+                    "type": "leaf",
+                    "flag": "text"
+                },
+                {
+                    "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                    "content": "//upload.wikimedia.org/wikipedia/commons/thumb/d/df/Binary_tree.png/220px-Binary_tree.png",
+                    "fragment_id": "摘要_1",
+                    "scratchTime": "2016-12-20 09:44:29.0",
+                    "type": "leaf",
+                    "flag": "image"
+                }
+            ]
+        },
+        {
+            "totalbranchlevel": 0,
+            "facet_name": "定义",
+            "totalbranchnum": 0,
+            "type": "branch",
+            "totalleafnum": 1,
+            "children": [
+                {
+                    "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                    "content": "二叉树是一个连通的无环图，并且每一个顶点的度不大于3。有根二叉树还要满足根节点的度不大于2。有了根节点之后，每个顶点定义了唯一的父节点，和最多2个子节点。然而，没有足够的信息来区分左节点和右节点。如果不考虑连通性，允许图中有多个连通分量，这样的结构叫做森林。",
+                    "fragment_id": "定义_1",
+                    "scratchTime": "2016-12-20 09:44:10.0",
+                    "type": "leaf",
+                    "flag": "text"
+                }
+            ]
+        },
+        {
+            "totalbranchlevel": 0,
+            "facet_name": "类型",
+            "totalbranchnum": 0,
+            "type": "branch",
+            "totalleafnum": 3,
+            "children": [
+                {
+                    "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                    "content": "二叉树是一个有根树，并且每个节点最多有2个子节点。非空的二叉树，若树叶总数为 n0，分支度为2的总数为 n2，则 n0 = n2 + 1。",
+                    "fragment_id": "类型_1",
+                    "scratchTime": "2016-12-20 09:44:10.0",
+                    "type": "leaf",
+                    "flag": "text"
+                },
+                {
+                    "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                    "content": "一棵深度为k，且有 2 k + 1 − 1 {\\displaystyle 2^{\\begin{aligned}k+1\\end{aligned}}-1} 个节点的二叉树，称为满二叉树（Full Binary Tree）。这种树的特点是每一层上的节点数都是最大节点数。而在一棵二叉树中，除最后一层外，若其余层都是满的，并且最后一层或者是满的，或者是在右边缺少连续若干节点，则此二叉树为完全二叉树（Complete Binary Tree）。具有n个节点的完全二叉树的深度为 l o g 2 n + 1 {\\displaystyle log_{2}n+1} 。深度为k的完全二叉树，至少有 2 k {\\displaystyle 2^{\\begin{aligned}k\\end{aligned}}} 个节点，至多有 2 k + 1 − 1 {\\displaystyle 2^{\\begin{aligned}k+1\\end{aligned}}-1} 个节点。",
+                    "fragment_id": "类型_2",
+                    "scratchTime": "2016-12-20 09:44:10.0",
+                    "type": "leaf",
+                    "flag": "text"
+                },
+                {
+                    "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                    "content": "完全二叉树 满二叉树 总节点k 2 h − 1 {\\displaystyle 2^{h-1}} <= k <= 2 h − 1 {\\displaystyle 2^{h}-1} k = 2 h − 1 {\\displaystyle 2^{h}-1} 树高h h = l o g 2 k + 1 {\\displaystyle log_{2}k+1} h = l o g 2 ( k + 1 ) {\\displaystyle log_{2}(k+1)}",
+                    "fragment_id": "类型_3",
+                    "scratchTime": "2016-12-20 09:44:10.0",
+                    "type": "leaf",
+                    "flag": "text"
+                }
+            ]
+        },
+        {
+            "totalbranchlevel": 1,
+            "facet_name": "存储方法",
+            "totalbranchnum": 3,
+            "type": "branch",
+            "totalleafnum": 3,
+            "children": [
+                {
+                    "totalbranchlevel": 0,
+                    "facet_name": "顺序存储表示",
+                    "totalbranchnum": 0,
+                    "type": "branch",
+                    "totalleafnum": 2,
+                    "children": [
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "  二叉树的顺序存储，就是用一组连续的存储单元存放二叉树中的结点。因此，必须把二叉树的所有结点安排成为一个恰当的序列，结点在这个序列中的相互位置能反映出结点之间的逻辑关系，用编号的方法从树根起，自上层至下层，每层自左至右地给所有结点编号,缺点是有可能对存储空间造成极大的浪费，在最坏的情况下，一个深度为k且只有k个结点的右单支树需要2k-1个结点存储空间。依据二叉树的性质，完全二叉树和满二叉树采用顺序存储比较合适，树中结点的序号可以唯一地反映出结点之间的逻辑关系，这样既能够最大可能地节省存储空间，又可以利用数组元素的下标值确定结点在二叉树中的位置，以及结点之间的关系。",
+                            "fragment_id": "类型_1",
+                            "scratchTime": "2016-12-20 09:44:10.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "对于一般的二叉树，如果仍按从上至下和从左到右的顺序将树中的结点顺序存储在一维数组中，则数组元素下标之间的关系不能够反映二叉树中结点之间的逻辑关系，只有增添一些并不存在的空结点，使之成为一棵完全二叉树的形式，然后再用一维数组顺序存储。如图5-6给出了一棵一般二叉树改造后的完全二叉树形态和其顺序存储状态示意图。显然，这种存储对于需增加许多空结点才能将一棵二叉树改造成为一棵完全二叉树的存储时，会造成空间的大量浪费，不宜用顺序存储结构。最坏的情况是右单支树，如图5-7 所示，一棵深度为k的右单支树，只有k个结点，却需分配2k－1个存储单元。",
+                            "fragment_id": "类型_1",
+                            "scratchTime": "2016-12-20 09:44:10.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        }
+                    ]
+                },
+                {
+                    "totalbranchlevel": 0,
+                    "facet_name": "二叉链表存储表示",
+                    "totalbranchnum": 0,
+                    "type": "branch",
+                    "totalleafnum": 2,
+                    "children": [
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "  二叉树的链式存储结构是指，用链表来表示一棵二叉树，即用链来指示元素的逻辑关系。通常的方法是链表中每个结点由三个域组成，数据域和左右指针域，左右指针分别用来给出该结点左孩子和右孩子所在的链结点的存储地址。",
+                            "fragment_id": "类型_1",
+                            "scratchTime": "2016-12-20 09:44:10.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": " 其中，data域存放某结点的数据信息；lchild与rchild分别存放指向左孩子和右孩子的指针，当左孩子或右孩子不存在时，相应指针域值为空（用符号∧或NULL表示）。利用这样的结点结构表示的二叉树的链式存储结构被称为二叉链表.",
+                            "fragment_id": "类型_1",
+                            "scratchTime": "2016-12-20 09:44:10.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        }
+                    ]
+                },
+                {
+                    "totalbranchlevel": 0,
+                    "facet_name": "三叉链表存储表示",
+                    "totalbranchnum": 0,
+                    "type": "branch",
+                    "totalleafnum": 2,
+                    "children": [
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": " 为了方便访问某结点的双亲，还可以给链表结点增加一个双亲字段parent,用来指向其双亲结点。每个结点由四个域组成, 这种存储结构既便于查找孩子结点，又便于查找双亲结点；但是，相对于二叉链表存储结构而言，它增加了空间开销。利用这样的结点结构表示的二叉树的链式存储结构被称为三叉链表。",
+                            "fragment_id": "类型_1",
+                            "scratchTime": "2016-12-20 09:44:10.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "//img.blog.csdn.net/20140524125259390?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvY2hkamo=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center",
+                            "fragment_id": "类型_1",
+                            "scratchTime": "2016-12-20 09:44:10.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "totalbranchlevel": 1,
+            "facet_name": "访问方法",
+            "totalbranchnum": 3,
+            "type": "branch",
+            "totalleafnum": 3,
+            "children": [
+                {
+                    "totalbranchlevel": 0,
+                    "facet_name": "前(先)序、中序、后序遍历",
+                    "totalbranchnum": 0,
+                    "type": "branch",
+                    "totalleafnum": 4,
+                    "children": [
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "/* [[二元树]]的顺序存储表示 */\n #define MAX_TREE_SIZE 100 /* [[二元树]]的最大节点数 */\n typedef TElemType SqBiTree[MAX_TREE_SIZE]; /* 0号单元存储根节点 */\n\n typedef struct\n {\n   int level,order; /* 节点的层，本层序号(按[[满二元树]]计算) */\n }position;",
+                            "fragment_id": "前(先)序、中序、后序遍历_1",
+                            "scratchTime": "2016-12-20 09:44:10.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "基于C/C++的实现算法显示▼  /* [[二元树]]的顺序存储的基本操作(23个)*/\n #define ClearBiTree InitBiTree /* 在顺序存储结构中，两函数完全一样 */\\arccos{}\n #define DestroyBiTree InitBiTree /* 在顺序存储结构中，两函数完全一样 */\n void InitBiTree(SqBiTree T) －－－（SqBiTree & T）\n { /* 构造[[空二元树]]T。因为T是阵列名称，故不需要& */\n   int i;\n   for(i=0;i<MAX_TREE_SIZE;i++)\n     T[i]=Nil; /* 初值为空(Nil在主程中定义) */\n }\n  void CreateBiTree(SqBiTree T)\n { /* 按层序次序输入二叉树中结点的值(字元型或整型), 构造顺序存储的二叉树T */\n   int i=0;\n #if CHAR /* 结点类型为字元 */\n   int l;\n   char s[MAX_TREE_SIZE];\n   InitBiTree(T); /* 构造[空二元树]T */\n   printf(\"请按层序输入结点的值(字元)，空格表示空结点，节点数≦%d:\\n\",MAX_TREE_SIZE);\n   gets(s); /* 输入字串 */\n   l=strlen(s); /* 求字串的长度 */\n   for(;i<l;i++) /* 将字串赋值给T */\n     T[i]=s[i];\n #else  /* 节点类型为整型 */\n   InitBiTree(T); /* 构造[空二元树]T */\n   printf(\"请按层序输入节点的值(整型)，0表示空节点，输999结束。节点数≦%d:\\n\",MAX_TREE_SIZE);\n   while(1)\n   {\n     scanf(\"%d\",&T[i]);\n     if(T[i]==999)\n     {\n       T[i]=Nil;\n       break;\n     }\n     i++;\n   }\n #endif\n   for(i=1;i<MAX_TREE_SIZE;i++)\n     if(T[(i+1)/2-1]==Nil&&T[i]!=Nil) /* 此非根节点(不空)无双亲 */\n     {\n       printf(\"出现无双亲的非根节点\"form\"\\n\",T[i]);\n       exit(ERROR);\n     }\n }\n  int BiTreeDepth(SqBiTree T)\n { /* 初始条件：[二元树]T存在。操作结果：返回T的深度 */\n   int i,j=-1;\n   for(i=MAX_TREE_SIZE-1;i>=0;i--) /* 找到最后一个节点 */\n     if(T[i]!=Nil)\n       break;\n   i++; /* 为了便于计算 */\n   do\n     j++;\n   while(i>=pow(2,j));   /*pow是原型为double pow( double x, double y ),计算x的y次方,h = log<sub>2</sub>k + 1来计算[二元树]的深度*/\n   return j;\n }\n  Status Root(SqBiTree T,TElemType *e)\n { /* 初始条件：[二元树]T存在。操作结果：当T不空，用e返回T的根，返回OK；否则返回ERROR，e无定义 */\n   if(BiTreeEmpty(T)) /* T空 */\n     return ERROR;\n   else\n   {\n     *e=T[0];\n     return OK;\n   }\n }\n  TElemType Value(SqBiTree T,position e)\n { /* 初始条件：[二元树]T存在，e是T中某个结点(的位置) */\n   /* 操作结果：返回处于位置e(层,本层序号)的结点的值 */\n   return T[(int)pow(2,e.level-1)+e.order-2];\n }\n  Status Assign(SqBiTree T,position e,TElemType value)\n { /* 初始条件：二叉树T存在，e是T中某个结点(的位置) */\n   /* 操作结果：给处于位置e(层,本层序号)的结点赋新值value */\n   int i=(int)pow(2,e.level-1)+e.order-2; /* 将层、本层序号转为矩阵的序号 */\n   if(value!=Nil&&T[(i+1)/2-1]==Nil) /* 给叶子赋非空值但双亲为空 */\n     return ERROR;\n   else if(value==Nil&&(T[i*2+1]!=Nil||T[i*2+2]!=Nil)) /*  给双亲赋空值但有叶子(不空) */\n     return ERROR;\n   T[i]=value;\n   return OK;\n }\n  TElemType Parent(SqBiTree T,TElemType e)\n { /* 初始条件：二叉树T存在，e是T中某个结点 */\n   /* 操作结果：若e是T的非根结点，则返回它的双亲，否则返回＂空＂ */\n   int i;\n   if(T[0]==Nil) /* 空树 */\n     return Nil;\n   for(i=1;i<=MAX_TREE_SIZE-1;i++)\n     if(T[i]==e) /* 找到e */\n       return T[(i+1)/2-1];\n   return Nil; /* 没找到e */\n }\n  TElemType LeftChild(SqBiTree T,TElemType e)\n { /* 初始条件：二叉树T存在，e是T中某个结点。操作结果：返回e的左孩子。若e无左孩子,则返回\"空\" */\n   int i;\n   if(T[0]==Nil) /* 空树 */\n     return Nil;\n   for(i=0;i<=MAX_TREE_SIZE-1;i++)\n     if(T[i]==e) /* 找到e */\n       return T[i*2+1];\n   return Nil; /* 没找到e */\n }\n  TElemType RightChild(SqBiTree T,TElemType e)\n { /* 初始条件：二叉树T存在，e是T中某个结点。操作结果：返回e的右孩子。若e无右孩子,则返回\"空\" */\n   int i;\n   if(T[0]==Nil) /* 空树 */\n     return Nil;\n   for(i=0;i<=MAX_TREE_SIZE-1;i++)\n     if(T[i]==e) /* 找到e */\n       return T[i*2+2];\n   return Nil; /* 没找到e */\n }\n  TElemType LeftSibling(SqBiTree T,TElemType e)\n { /* 初始条件：二叉树T存在，e是T中某个结点 */\n   /* 操作结果：返回e的左兄弟。若e是T的左孩子或无左兄弟，则返回＂空＂ */\n   int i;\n   if(T[0]==Nil) /* 空树 */\n     return Nil;\n   for(i=1;i<=MAX_TREE_SIZE-1;i++)\n     if(T[i]==e&&i%2==0) /* 找到e且其序号为偶数(是右孩子) */\n       return T[i-1];\n   return Nil; /* 没找到e */\n }\n  TElemType RightSibling(SqBiTree T,TElemType e)\n { /* 初始条件：二叉树T存在，e是T中某个结点 */\n   /* 操作结果：返回e的右兄弟。若e是T的右孩子或无右兄弟，则返回＂空＂ */\n   int i;\n   if(T[0]==Nil) /* 空树 */\n     return Nil;\n   for(i=1;i<=MAX_TREE_SIZE-1;i++)\n     if(T[i]==e&&i%2) /* 找到e且其序号为奇数(是左孩子) */\n       return T[i+1];\n   return Nil; /* 没找到e */\n }\n  void Move(SqBiTree q,int j,SqBiTree T,int i) /* InsertChild()用到。加 */\n { /* 把从q的j结点开始的子树移为从T的i结点开始的子树 */\n   if(q[2*j+1]!=Nil) /* q的左子树不空 */\n     Move(q,(2*j+1),T,(2*i+1)); /* 把q的j结点的左子树移为T的i结点的左子树 */\n   if(q[2*j+2]!=Nil) /* q的右子树不空 */\n     Move(q,(2*j+2),T,(2*i+2)); /* 把q的j结点的右子树移为T的i结点的右子树 */\n   T[i]=q[j]; /* 把q的j结点移为T的i结点 */\n   q[j]=Nil; /* 把q的j结点置空 */\n }\n  void InsertChild(SqBiTree T,TElemType p,int LR,SqBiTree c)\n { /* 初始条件：二叉树T存在，p是T中某个结点的值，LR为0或1，非空二叉树c与T不相交且右子树为空 */\n   /* 操作结果: 根据LR为0或1,插入c为T中p结点的左或右子树。p结点的原有左或右子树则成为c的右子树 */\n   int j,k,i=0;\n   for(j=0;j<(int)pow(2,BiTreeDepth(T))-1;j++) /* 查找p的序号 */\n     if(T[j]==p) /* j为p的序号 */\n       break;\n   k=2*j+1+LR; /* k为p的左或右孩子的序号 */\n   if(T[k]!=Nil) /* p原来的左或右孩子不空 */\n     Move(T,k,T,2*k+2); /* 把从T的k结点开始的子树移为从k结点的右子树开始的子树 */\n   Move(c,i,T,k); /* 把从c的i结点开始的子树移为从T的k结点开始的子树 */\n }\n  typedef int QElemType; /* 设伫列元素类型为整型(序号) */\n #include \"c3-2.h\" /* 链伫列 */\n #include \"bo3-2.c\" /* 链伫列的基本操作 */\n Status DeleteChild(SqBiTree T,position p,int LR)\n { /* 初始条件：二叉树T存在，p指向T中某个结点，LR为1或0 */\n   /* 操作结果：根据LR为1或0，删除T中p所指结点的左或右子树 */\n   int i;\n   Status k=OK; /* 伫列不空的标志 */\n   LinkQueue q;\n   InitQueue(&q); /* 初始化伫列，用于存放待删除的结点 */\n   i=(int)pow(2,p.level-1)+p.order-2; /* 将层、本层序号转为矩阵的序号 */\n   if(T[i]==Nil) /* 此结点空 */\n     return ERROR;\n   i=i*2+1+LR; /* 待删除子树的根结点在矩阵中的序号 */\n   while(k)\n   {\n     if(T[2*i+1]!=Nil) /* 左结点不空 */\n       EnQueue(&q,2*i+1); /* 入队左结点的序号 */\n     if(T[2*i+2]!=Nil) /* 右结点不空 */\n       EnQueue(&q,2*i+2); /* 入队右结点的序号 */\n     T[i]=Nil; /* 删除此结点 */\n     k=DeQueue(&q,&i); /* 伫列不空 */\n   }\n   return OK;\n }\n  void(*VisitFunc)(TElemType); /* 函数变数 */\n void PreTraverse(SqBiTree T,int e)\n { /* PreOrderTraverse()调用 */\n   VisitFunc(T[e]);\n   if(T[2*e+1]!=Nil) /* 左子树不空 */\n     PreTraverse(T,2*e+1);\n   if(T[2*e+2]!=Nil) /* 右子树不空 */\n     PreTraverse(T,2*e+2);\n }\n  void PreOrderTraverse(SqBiTree T,void(*Visit)(TElemType))\n { /* 初始条件：二叉树存在，Visit是对结点操作的应用函数 */\n   /* 操作结果：先序遍历T，对每个结点调用函数Visit一次且仅一次 */\n   VisitFunc=Visit;\n   if(!BiTreeEmpty(T)) /* 树不空 */\n     PreTraverse(T,0);\n   printf(\"\\n\");\n }\n  void InTraverse(SqBiTree T,int e)\n { /* InOrderTraverse()调用 */\n   if(T[2*e+1]!=Nil) /* 左子树不空 */\n     InTraverse(T,2*e+1);\n   VisitFunc(T[e]);\n   if(T[2*e+2]!=Nil) /* 右子树不空 */\n     InTraverse(T,2*e+2);\n }\n  void InOrderTraverse(SqBiTree T,void(*Visit)(TElemType))\n { /* 初始条件：二叉树存在，Visit是对结点操作的应用函数 */\n   /* 操作结果：中序遍历T，对每个结点调用函数Visit一次且仅一次 */\n   VisitFunc=Visit;\n   if(!BiTreeEmpty(T)) /* 树不空 */\n     InTraverse(T,0);\n   printf(\"\\n\");\n }\n  void PostTraverse(SqBiTree T,int e)\n { /* PostOrderTraverse()调用 */\n   if(T[2*e+1]!=Nil) /* 左子树不空 */\n     PostTraverse(T,2*e+1);\n   if(T[2*e+2]!=Nil) /* 右子树不空 */\n     PostTraverse(T,2*e+2);\n   VisitFunc(T[e]);\n }\n  void PostOrderTraverse(SqBiTree T,void(*Visit)(TElemType))\n { /* 初始条件：二叉树T存在，Visit是对结点操作的应用函数 */\n   /* 操作结果：后序遍历T，对每个结点调用函数Visit一次且仅一次 */\n   VisitFunc=Visit;\n   if(!BiTreeEmpty(T)) /* 树不空 */\n     PostTraverse(T,0);\n   printf(\"\\n\");\n }\n  void LevelOrderTraverse(SqBiTree T,void(*Visit)(TElemType))\n { /* 层序遍历二叉树 */\n   int i=MAX_TREE_SIZE-1,j;\n   while(T[i]==Nil)\n     i--; /* 找到最后一个非空结点的序号 */\n   for(j=0;j<=i;j++) /* 从根结点起，按层序遍历二叉树 */\n     if(T[j]!=Nil)\n       Visit(T[j]); /* 只遍历非空的结点 */\n   printf(\"\\n\");\n }\n  void Print(SqBiTree T)\n { /* 逐层、按本层序号输出二叉树 */\n   int j,k;\n   position p;\n   TElemType e;\n   for(j=1;j<=BiTreeDepth(T);j++)\n   {\n     printf(\"第%d层: \",j);\n     for(k=1;k<=pow(2,j-1);k++)\n     {\n       p.level=j;\n       p.order=k;\n       e=Value(T,p);\n       if(e!=Nil)\n\t printf(\"%d:\"form\" \",k,e);\n     }\n     printf(\"\\n\");\n   }\n }",
+                            "fragment_id": "前(先)序、中序、后序遍历_2",
+                            "scratchTime": "2016-12-20 09:44:11.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "在使用记录或存储器地址指针的程序设计语言中，二叉树通常用树结点结构来存储。有时也包含指向唯一的父节点的指针。如果一个结点的子结点个数小于2，一些子结点指针可能为空值，或者为特殊的哨兵结点。 使用链表能避免顺序存储浪费空间的问题，算法和结构相对简单，但使用二叉链表，由于缺乏父链的指引，在找回父节点时需要重新扫描树得知父节点的节点地址。",
+                            "fragment_id": "前(先)序、中序、后序遍历_3",
+                            "scratchTime": "2016-12-20 09:44:11.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "//upload.wikimedia.org/wikipedia/commons/8/82/Eclb.jpg",
+                            "fragment_id": "前(先)序、中序、后序遍历_1",
+                            "scratchTime": "2016-12-20 09:44:29.0",
+                            "type": "leaf",
+                            "flag": "image"
+                        }
+                    ]
+                },
+                {
+                    "totalbranchlevel": 0,
+                    "facet_name": "深度优先遍历",
+                    "totalbranchnum": 0,
+                    "type": "branch",
+                    "totalleafnum": 4,
+                    "children": [
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "/* 二叉树的二叉链表存储表示 */\n typedef struct BiTNode\n {\n   TElemType data;\n   struct BiTNode *lchild,*rchild; /* 左右孩子指针 */\n }BiTNode,*BiTree;",
+                            "fragment_id": "深度优先遍历_1",
+                            "scratchTime": "2016-12-20 09:44:11.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "基于C/C++的实现算法显示▼  /* 二叉树的二叉链表存储的基本操作(22个) */\n #define ClearBiTree DestroyBiTree /* 清空二叉树和销毁二叉树的操作一样 */\n #include\"func6-3.c\"\n /* 包括InitBiTree()、DestroyBiTree()、PreOrderTraverse()和InOrderTraverse()4函数 */\n  void CreateBiTree(BiTree *T)\n { /* 演算法6.4：按先序次序输入二叉树中结点的值(可为字元型或整型，在主程中定义)，*/\n   /* 构造二叉链表表示的二叉树T。变数Nil表示空(子)树。有改动 */\n   TElemType ch;\n   scanf(form,&ch);\n   if(ch==Nil) /* 空 */\n     *T=NULL;\n   else\n   {\n     *T=(BiTree)malloc(sizeof(BiTNode)); /* 生成根结点 */\n     if(!*T)\n       exit(OVERFLOW);\n     (*T)->data=ch;\n     CreateBiTree(&(*T)->lchild); /* 构造左子树 */\n     CreateBiTree(&(*T)->rchild); /* 构造右子树 */\n   }\n }\n  Status BiTreeEmpty(BiTree T)\n { /* 初始条件：二叉树T存在。操作结果：若T为空二叉树，则返回TRUE，否则FALSE */\n   if(T)\n     return FALSE;\n   else\n     return TRUE;\n }\n  int BiTreeDepth(BiTree T)\n { /* 初始条件：二叉树T存在。操作结果：返回T的深度 */\n   int i,j;\n   if(T==NULL)  /*如果T=NULL,这样写便于理解，当然也可以写成if（!T）*/; \n     return 0; /* 空树深度为0 */\n   if(T->lchild)\n     i=BiTreeDepth(T->lchild); /* i为左子树的深度 */\n   else\n     i=0;\n   if(T->rchild)\n     j=BiTreeDepth(T->rchild); /* j为右子树的深度 */\n   else\n     j=0;\n   return i>j?i+1:j+1; /* T的深度为其左右子树的深度中的大者+1 */\n }\n  TElemType Root(BiTree T)\n { /* 初始条件：二叉树T存在。操作结果：返回T的根 */\n   if(BiTreeEmpty(T))\n     return Nil;\n   else\n     return T->data;\n }\n  TElemType Value(BiTree p)\n { /* 初始条件：二叉树T存在，p指向T中某个结点。操作结果：返回p所指结点的值 */\n   return p->data;\n }\n  void Assign(BiTree p,TElemType value)\n { /* 给p所指结点赋值为value */\n   p->data=value;\n }\n  typedef BiTree QElemType; /* 设伫列元素为二叉树的指针类型 */\n #include\"c3-2.h\" /* 链伫列 */\n #include\"bo3-2.c\" /* 链伫列的基本操作 */\n TElemType Parent(BiTree T,TElemType e)\n { /* 初始条件：二叉树T存在，e是T中某个结点 */\n   /* 操作结果：若e是T的非根结点，则返回它的双亲，否则返回＂空＂*/\n   LinkQueue q;\n   QElemType a;\n   if(T) /* 非空树 */\n   {\n     InitQueue(&q); /* 初始化伫列 */\n     EnQueue(&q,T); /* 树根指针入队 */\n     while(!QueueEmpty(q)) /* 队不空 */\n     {\n       DeQueue(&q,&a); /* 出队，伫列元素赋给a */\n       if(a->lchild&&a->lchild->data==e||a->rchild&&a->rchild->data==e)\n       /* 找到e(是其左或右孩子) */\n         return a->data; /* 返回e的双亲的值 */\n       else /* 没找到e，则入队其左右孩子指针(如果非空) */\n       {\n         if(a->lchild)\n           EnQueue(&q,a->lchild);\n         if(a->rchild)\n           EnQueue(&q,a->rchild);\n       }\n     }\n   }\n   return Nil; /* 树空或没找到e */\n }\n  BiTree Point(BiTree T,TElemType s)\n { /* 返回二叉树T中指向元素值为s的结点的指标。另加 */\n   LinkQueue q;\n   QElemType a;\n   if(T) /* 非空树 */\n   {\n     InitQueue(&q); /* 初始化伫列 */\n     EnQueue(&q,T); /* 根指针入队 */\n     while(!QueueEmpty(q)) /* 队不空 */\n     {\n       DeQueue(&q,&a); /* 出队，伫列元素赋给a */\n       if(a->data==s)\n         return a;\n       if(a->lchild) /* 有左孩子 */\n         EnQueue(&q,a->lchild); /* 入队左孩子 */\n       if(a->rchild) /* 有右孩子 */\n         EnQueue(&q,a->rchild); /* 入队右孩子 */\n     }\n   }\n   return NULL;\n }\n  TElemType LeftChild(BiTree T,TElemType e)\n { /* 初始条件：二叉树T存在，e是T中某个结点。操作结果：返回e的左孩子。若e无左孩子,则返回\"空\" */\n   BiTree a;\n   if(T) /* 非空树 */\n   {\n     a=Point(T,e); /* a是结点e的指针 */\n     if(a&&a->lchild) /* T中存在结点e且e存在左孩子 */\n       return a->lchild->data; /* 返回e的左孩子的值 */\n   }\n   return Nil; /* 其余情况返回空 */\n }\n  TElemType RightChild(BiTree T,TElemType e)\n { /* 初始条件：二叉树T存在，e是T中某个结点。操作结果：返回e的右孩子。若e无右孩子,则返回\"空\" */\n   BiTree a;\n   if(T) /* 非空树 */\n   {\n     a=Point(T,e); /* a是结点e的指针 */\n     if(a&&a->rchild) /* T中存在结点e且e存在右孩子 */\n       return a->rchild->data; /* 返回e的右孩子的值 */\n   }\n   return Nil; /* 其余情况返回空 */\n }\n  TElemType LeftSibling(BiTree T,TElemType e)\n { /* 初始条件：二叉树T存在，e是T中某个结点 */\n   /* 操作结果：返回e的左兄弟。若e是T的左孩子或无左兄弟，则返回＂空＂*/\n   TElemType a;\n   BiTree p;\n   if(T) /* 非空树 */\n   {\n     a=Parent(T,e); /* a为e的双亲 */\n     if(a!=Nil) /* 找到e的双亲 */\n     {\n       p=Point(T,a); /* p为指向结点a的指标 */\n       if(p->lchild&&p->rchild&&p->rchild->data==e) /* p存在左右孩子且右孩子是e */\n         return p->lchild->data; /* 返回p的左孩子(e的左兄弟) */\n     }\n   }\n   return Nil; /* 其余情况返回空 */\n }\n  TElemType RightSibling(BiTree T,TElemType e)\n { /* 初始条件：二叉树T存在，e是T中某个结点 */\n   /* 操作结果：返回e的右兄弟。若e是T的右孩子或无右兄弟，则返回＂空＂*/\n   TElemType a;\n   BiTree p;\n   if(T) /* 非空树 */\n   {\n     a=Parent(T,e); /* a为e的双亲 */\n     if(a!=Nil) /* 找到e的双亲 */\n     {\n       p=Point(T,a); /* p为指向结点a的指标 */\n       if(p->lchild&&p->rchild&&p->lchild->data==e) /* p存在左右孩子且左孩子是e */\n         return p->rchild->data; /* 返回p的右孩子(e的右兄弟) */\n     }\n   }\n   return Nil; /* 其余情况返回空 */\n }\n  Status InsertChild(BiTree p,int LR,BiTree c) /* 形参T无用 */\n { /* 初始条件：二叉树T存在，p指向T中某个结点，LR为0或1，非空二叉树c与T不相交且右子树为空 */\n   /* 操作结果：根据LR为0或1，插入c为T中p所指结点的左或右子树。p所指结点的 */\n   /*           原有左或右子树则成为c的右子树 */\n   if(p) /* p不空 */\n   {\n     if(LR==0)\n     {\n       c->rchild=p->lchild;\n       p->lchild=c;\n     }\n     else /* LR==1 */\n     {\n       c->rchild=p->rchild;\n       p->rchild=c;\n     }\n     return OK;\n   }\n   return ERROR; /* p空 */\n }\n  Status DeleteChild(BiTree p,int LR) /* 形参T无用 */\n { /* 初始条件：二叉树T存在，p指向T中某个结点，LR为0或1 */\n   /* 操作结果：根据LR为0或1，删除T中p所指结点的左或右子树 */\n   if(p) /* p不空 */\n   {\n     if(LR==0) /* 删除左子树 */\n       ClearBiTree(&p->lchild);\n     else /* 删除右子树 */\n       ClearBiTree(&p->rchild);\n     return OK;\n   }\n   return ERROR; /* p空 */\n }\n  typedef BiTree SElemType; /* 设栈元素为二叉树的指针类型 */\n #include\"c3-1.h\" /* 顺序栈 */\n #include\"bo3-1.c\" /* 顺序栈的基本操作 */\n void InOrderTraverse1(BiTree T,void(*Visit)(TElemType))\n { /* 采用二叉链表存储结构，Visit是对资料元素操作的应用函数。演算法6.3，有改动 */\n   /* 中序遍历二叉树T的非递回演算法(利用栈)，对每个资料元素调用函数Visit */\n   SqStack S;\n   InitStack(&S);\n   while(T||!StackEmpty(S))\n   {\n     if(T)\n     { /* 根指针进栈，遍历左子树 */\n       Push(&S,T);\n       T=T->lchild;\n     }\n     else\n     { /* 根指针退栈，访问根结点，遍历右子树 */\n       Pop(&S,&T);\n       Visit(T->data);\n       T=T->rchild;\n     }\n   }\n   printf(\"\\n\");\n }\n  void InOrderTraverse2(BiTree T,void(*Visit)(TElemType))\n { /* 采用二叉链表存储结构，Visit是对资料元素操作的应用函数。演算法6.2，有改动 */\n   /* 中序遍历二叉树T的非递回演算法(利用栈)，对每个资料元素调用函数Visit */\n   SqStack S;\n   BiTree p;\n   InitStack(&S);\n   Push(&S,T); /* 根指针进栈 */\n   while(!StackEmpty(S))\n   {\n     while(GetTop(S,&p)&&p)\n       Push(&S,p->lchild); /* 向左走到尽头 */\n     Pop(&S,&p); /* 空指针退栈 */\n     if(!StackEmpty(S))\n     { /* 访问结点，向右一步 */\n       Pop(&S,&p);\n       Visit(p->data);\n       Push(&S,p->rchild);\n     }\n   }\n   printf(\"\\n\");\n }\n  void PostOrderTraverse(BiTree T,void(*Visit)(TElemType))\n { /* 初始条件：二叉树T存在，Visit是对结点操作的应用函数 */\n   /* 操作结果：后序递回遍历T，对每个结点调用函数Visit一次且仅一次 */\n   if(T) /* T不空 */\n   {\n     PostOrderTraverse(T->lchild,Visit); /* 先后序遍历左子树 */\n     PostOrderTraverse(T->rchild,Visit); /* 再后序遍历右子树 */\n     Visit(T->data); /* 最后访问根结点 */\n   }\n }\n  void LevelOrderTraverse(BiTree T,void(*Visit)(TElemType))\n { /* 初始条件：二叉树T存在，Visit是对结点操作的应用函数 */\n   /* 操作结果：层序递回遍历T(利用伫列)，对每个结点调用函数Visit一次且仅一次 */\n   LinkQueue q;\n   QElemType a;\n   if(T)\n   {\n     InitQueue(&q); /* 初始化伫列q */\n     EnQueue(&q,T); /* 根指针入队 */\n     while(!QueueEmpty(q)) /* 伫列不空 */\n     {\n       DeQueue(&q,&a); /* 出队元素(指标),赋给a */\n       Visit(a->data); /* 访问a所指结点 */\n       if(a->lchild!=NULL) /* a有左孩子 */\n         EnQueue(&q,a->lchild); /* 入队a的左孩子 */\n       if(a->rchild!=NULL) /* a有右孩子 */\n         EnQueue(&q,a->rchild); /* 入队a的右孩子 */\n     }\n     printf(\"\\n\");\n   }\n }",
+                            "fragment_id": "深度优先遍历_2",
+                            "scratchTime": "2016-12-20 09:44:11.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "改进于二叉链表，增加父节点的指引，能更好地实现节点间的访问，不过算法相对复杂。 当二叉树用三叉链表表示时，有N个结点，就会有N+2个空指针。",
+                            "fragment_id": "深度优先遍历_3",
+                            "scratchTime": "2016-12-20 09:44:11.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "//upload.wikimedia.org/wikipedia/commons/6/60/3clb.jpg",
+                            "fragment_id": "深度优先遍历_1",
+                            "scratchTime": "2016-12-20 09:44:29.0",
+                            "type": "leaf",
+                            "flag": "image"
+                        }
+                    ]
+                },
+                {
+                    "totalbranchlevel": 0,
+                    "facet_name": "广度优先遍历",
+                    "totalbranchnum": 0,
+                    "type": "branch",
+                    "totalleafnum": 34,
+                    "children": [
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "/* 二叉树的三叉链表存储表示 */\n typedef struct BiTPNode\n {\n   TElemType data;\n   struct BiTPNode *parent,*lchild,*rchild; /* 父、左右孩子指针 */\n }BiTPNode,*BiPTree;",
+                            "fragment_id": "广度优先遍历_1",
+                            "scratchTime": "2016-12-20 09:44:11.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "基于C/C++的实现算法显示▼  /* 二叉树的三叉链表存储的基本操作(21个) */\n #define ClearBiTree DestroyBiTree /* 清空二叉树和销毁二叉树的操作一样 */\n void InitBiTree(BiPTree *T)\n { /* 操作结果：构造空二叉树T */\n   *T=NULL;\n }\n  void DestroyBiTree(BiPTree *T)\n { /* 初始条件：二叉树T存在。操作结果：销毁二叉树T */\n   if(*T) /* 非空树 */\n   {\n     if((*T)->lchild) /* 有左孩子 */\n       DestroyBiTree(&(*T)->lchild); /* 销毁左孩子子树 */\n     if((*T)->rchild) /* 有右孩子 */\n       DestroyBiTree(&(*T)->rchild); /* 销毁右孩子子树 */\n     free(*T); /* 释放根结点 */\n     *T=NULL; /* 空指针赋0 */\n   }\n }\n  void CreateBiTree(BiPTree *T)\n { /* 按先序次序输入二叉树中结点的值(可为字元型或整型，在主程中定义)，*/\n   /* 构造三叉链表表示的二叉树T */\n   TElemType ch;\n   scanf(form,&ch);\n   if(ch==Nil) /* 空 */\n     *T=NULL;\n   else\n   {\n     *T=(BiPTree)malloc(sizeof(BiTPNode)); /* 动态生成根结点 */\n     if(!*T)\n       exit(OVERFLOW);\n     (*T)->data=ch; /* 给根结点赋值 */\n     (*T)->parent=NULL; /* 根结点无双亲 */\n     CreateBiTree(&(*T)->lchild); /* 构造左子树 */\n     if((*T)->lchild) /* 有左孩子 */\n       (*T)->lchild->parent=*T; /* 给左孩子的双亲域赋值 */\n     CreateBiTree(&(*T)->rchild); /* 构造右子树 */\n     if((*T)->rchild) /* 有右孩子 */\n       (*T)->rchild->parent=*T; /* 给右孩子的双亲域赋值 */\n   }\n }\n  Status BiTreeEmpty(BiPTree T)\n { /* 初始条件：二叉树T存在。操作结果：若T为空二叉树，则返回TRUE，否则FALSE */\n   if(T)\n     return FALSE;\n   else\n     return TRUE;\n }\n  int BiTreeDepth(BiPTree T)\n { /* 初始条件：二叉树T存在。操作结果：返回T的深度 */\n   int i,j;\n   if(!T)\n     return 0; /* 空树深度为0 */\n   if(T->lchild)\n     i=BiTreeDepth(T->lchild); /* i为左子树的深度 */\n   else\n     i=0;\n   if(T->rchild)\n     j=BiTreeDepth(T->rchild); /* j为右子树的深度 */\n   else\n     j=0;\n   return i>j?i+1:j+1; /* T的深度为其左右子树的深度中的大者+1 */\n }\n  TElemType Root(BiPTree T)\n { /* 初始条件：二叉树T存在。操作结果：返回T的根 */\n   if(T)\n     return T->data;\n   else\n     return Nil;\n }\n  TElemType Value(BiPTree p)\n { /* 初始条件：二叉树T存在，p指向T中某个结点。操作结果：返回p所指结点的值 */\n   return p->data;\n }\n  void Assign(BiPTree p,TElemType value)\n { /* 给p所指结点赋值为value */\n   p->data=value;\n }\n  typedef BiPTree QElemType; /* 设伫列元素为二叉树的指针类型 */\n #include\"c3-2.h\" /* 链伫列 */\n #include\"bo3-2.c\" /* 链伫列的基本操作 */\n  BiPTree Point(BiPTree T,TElemType e)\n { /* 返回二叉树T中指向元素值为e的结点的指标。加 */\n   LinkQueue q;\n   QElemType a;\n   if(T) /* 非空树 */\n   {\n     InitQueue(&q); /* 初始化伫列 */\n     EnQueue(&q,T); /* 根结点入队 */\n     while(!QueueEmpty(q)) /* 队不空 */\n     {\n       DeQueue(&q,&a); /* 出队，伫列元素赋给a */\n       if(a->data==e)\n         return a;\n       if(a->lchild) /* 有左孩子 */\n         EnQueue(&q,a->lchild); /* 入队左孩子 */\n       if(a->rchild) /* 有右孩子 */\n         EnQueue(&q,a->rchild); /* 入队右孩子 */\n     }\n   }\n   return NULL;\n }\n  TElemType Parent(BiPTree T,TElemType e)\n { /* 初始条件：二叉树T存在，e是T中某个结点 */\n   /* 操作结果：若e是T的非根结点，则返回它的双亲，否则返回＂空＂*/\n   BiPTree a;\n   if(T) /* 非空树 */\n   {\n     a=Point(T,e); /* a是结点e的指针 */\n     if(a&&a!=T) /* T中存在结点e且e是非根结点 */\n       return a->parent->data; /* 返回e的双亲的值 */\n   }\n   return Nil; /* 其余情况返回空 */\n }\n  TElemType LeftChild(BiPTree T,TElemType e)\n { /* 初始条件：二叉树T存在，e是T中某个结点。操作结果：返回e的左孩子。若e无左孩子,则返回\"空\" */\n   BiPTree a;\n   if(T) /* 非空树 */\n   {\n     a=Point(T,e); /* a是结点e的指针 */\n     if(a&&a->lchild) /* T中存在结点e且e存在左孩子 */\n       return a->lchild->data; /* 返回e的左孩子的值 */\n   }\n   return Nil; /* 其余情况返回空 */\n }\n  TElemType RightChild(BiPTree T,TElemType e)\n { /* 初始条件：二叉树T存在，e是T中某个结点。操作结果：返回e的右孩子。若e无右孩子,则返回\"空\" */\n   BiPTree a;\n   if(T) /* 非空树 */\n   {\n     a=Point(T,e); /* a是结点e的指针 */\n     if(a&&a->rchild) /* T中存在结点e且e存在右孩子 */\n       return a->rchild->data; /* 返回e的右孩子的值 */\n   }\n   return Nil; /* 其余情况返回空 */\n }\n  TElemType LeftSibling(BiPTree T,TElemType e)\n { /* 初始条件：二叉树T存在，e是T中某个结点 */\n   /* 操作结果：返回e的左兄弟。若e是T的左孩子或无左兄弟，则返回＂空＂*/\n   BiPTree a;\n   if(T) /* 非空树 */\n   {\n     a=Point(T,e); /* a是结点e的指针 */\n     if(a&&a!=T&&a->parent->lchild&&a->parent->lchild!=a) /* T中存在结点e且e存在左兄弟 */\n       return a->parent->lchild->data; /* 返回e的左兄弟的值 */\n   }\n   return Nil; /* 其余情况返回空 */\n }\n  TElemType RightSibling(BiPTree T,TElemType e)\n { /* 初始条件：二叉树T存在，e是T中某个结点 */\n   /* 操作结果：返回e的右兄弟。若e是T的右孩子或无右兄弟，则返回＂空＂*/\n   BiPTree a;\n   if(T) /* 非空树 */\n   {\n     a=Point(T,e); /* a是结点e的指针 */\n     if(a&&a!=T&&a->parent->rchild&&a->parent->rchild!=a) /* T中存在结点e且e存在右兄弟 */\n       return a->parent->rchild->data; /* 返回e的右兄弟的值 */\n   }\n   return Nil; /* 其余情况返回空 */\n }\n  Status InsertChild(BiPTree p,int LR,BiPTree c) /* 形参T无用 */\n { /* 初始条件：二叉树T存在，p指向T中某个结点，LR为0或1，非空二叉树c与T不相交且右子树为空 */\n   /* 操作结果：根据LR为0或1，插入c为T中p所指结点的左或右子树。p所指结点 */\n   /*           的原有左或右子树则成为c的右子树 */\n   if(p) /* p不空 */\n   {\n     if(LR==0)\n     {\n       c->rchild=p->lchild;\n       if(c->rchild) /* c有右孩子(p原有左孩子) */\n         c->rchild->parent=c;\n       p->lchild=c;\n       c->parent=p;\n     }\n     else /* LR==1 */\n     {\n       c->rchild=p->rchild;\n       if(c->rchild) /* c有右孩子(p原有右孩子) */\n         c->rchild->parent=c;\n       p->rchild=c;\n       c->parent=p;\n     }\n     return OK;\n   }\n   return ERROR; /* p空 */\n }\n  Status DeleteChild(BiPTree p,int LR) /* 形参T无用 */\n { /* 初始条件：二叉树T存在，p指向T中某个结点，LR为0或1 */\n   /* 操作结果：根据LR为0或1，删除T中p所指结点的左或右子树 */\n   if(p) /* p不空 */\n   {\n     if(LR==0) /* 删除左子树 */\n       ClearBiTree(&p->lchild);\n     else /* 删除右子树 */\n       ClearBiTree(&p->rchild);\n     return OK;\n   }\n   return ERROR; /* p空 */\n }\n  void PreOrderTraverse(BiPTree T,void(*Visit)(BiPTree))\n { /* 先序递回遍历二叉树T */\n   if(T)\n   {\n     Visit(T); /* 先访问根结点 */\n     PreOrderTraverse(T->lchild,Visit); /* 再先序遍历左子树 */\n     PreOrderTraverse(T->rchild,Visit); /* 最后先序遍历右子树 */\n   }\n }\n  void InOrderTraverse(BiPTree T,void(*Visit)(BiPTree))\n { /* 中序递回遍历二叉树T */\n   if(T)\n   {\n     InOrderTraverse(T->lchild,Visit); /* 中序遍历左子树 */\n     Visit(T); /* 再访问根结点 */\n     InOrderTraverse(T->rchild,Visit); /* 最后中序遍历右子树 */\n   }\n }\n  void PostOrderTraverse(BiPTree T,void(*Visit)(BiPTree))\n { /* 后序递回遍历二叉树T */\n   if(T)\n   {\n     PostOrderTraverse(T->lchild,Visit); /* 后序遍历左子树 */\n     PostOrderTraverse(T->rchild,Visit); /* 后序遍历右子树 */\n     Visit(T); /* 最后访问根结点 */\n   }\n }\n  void LevelOrderTraverse(BiPTree T,void(*Visit)(BiPTree))\n { /* 层序遍历二叉树T(利用伫列) */\n   LinkQueue q;\n   QElemType a;\n   if(T)\n   {\n     InitQueue(&q);\n     EnQueue(&q,T);\n     while(!QueueEmpty(q))\n     {\n       DeQueue(&q,&a);\n       Visit(a);\n       if(a->lchild!=NULL)\n         EnQueue(&q,a->lchild);\n       if(a->rchild!=NULL)\n         EnQueue(&q,a->rchild);\n     }\n   }\n }",
+                            "fragment_id": "广度优先遍历_2",
+                            "scratchTime": "2016-12-20 09:44:11.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "我们经常希望访问树中的每一个结点并且查看它的值。有很多常见的顺序来访问所有的结点，而且每一种都有有用的性质。",
+                            "fragment_id": "广度优先遍历_3",
+                            "scratchTime": "2016-12-20 09:44:11.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "遍历二叉树：L、D、R分别表示遍历左子树、访问根结点和遍历右子树，则先(根)序遍历二叉树的顺序是DLR，中(根)序遍历二叉树的顺序是LDR，后(根)序遍历二叉树的顺序是LRD。还有按层遍历二叉树。这些方法的时间复杂度都是O(n)，n为结点个数。",
+                            "fragment_id": "广度优先遍历_4",
+                            "scratchTime": "2016-12-20 09:44:11.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "如果T2是由有序树T转换而来的二叉树，那么T中结点的前序就是T2中结点的前序，T中结点的后序就是T2中结点的中序。任何一棵二叉树的叶结点在先序、中序和后序遍历中的相对次序不发改变。设n,m为一棵二叉树上的两个结点，在中序遍历时，n在m前的条件是n在m的左方。前序序列和中序序列相同的二叉树为空树或任一结点均无左孩子的非空二叉树；中序序列和后序序列相同的二叉树为空树或任一结点均无右孩子的非空二叉树；前序序列和后序序列相同的二叉树为空树或仅有一个结点的二叉树。",
+                            "fragment_id": "广度优先遍历_5",
+                            "scratchTime": "2016-12-20 09:44:11.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "假设我们有一个包含值的value和指向两个子结点的left和right的树结点结构。我们可以写出这样的过程：",
+                            "fragment_id": "广度优先遍历_6",
+                            "scratchTime": "2016-12-20 09:44:11.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "visit(node)\n    print node.value\n    if node.left  != null then visit(node.left)\n    if node.right != null then visit(node.right)",
+                            "fragment_id": "广度优先遍历_7",
+                            "scratchTime": "2016-12-20 09:44:11.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "这样会用前序打印出树中的值。在前序，每个结点在访问它的子结点之前访问。类似地，如果打印语句在最后，每个结点在访问他的子节点之后访问，树中的值会用后序来打印。在这两种情况中，左子树中的值比右子树中得值先打印。",
+                            "fragment_id": "广度优先遍历_8",
+                            "scratchTime": "2016-12-20 09:44:11.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "visit(node)\n    if node.left  != null then visit(node.left)\n    print node.value\n    if node.right != null then visit(node.right)",
+                            "fragment_id": "广度优先遍历_9",
+                            "scratchTime": "2016-12-20 09:44:11.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "最后，上面的中序遍历，每个结点在访问左子树和右子树之间访问。这在遍历二叉搜索树时很常用，因为它能用递增的顺序来遍历所有的值。",
+                            "fragment_id": "广度优先遍历_10",
+                            "scratchTime": "2016-12-20 09:44:11.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "为什么呢？如果n是二叉搜索树的结点，那么n的左子树的所有结点的值都比n的值要小，而且n的右子树的所有节点的值都比n的值要大。因此，如果我们顺序遍历左子树，然后访问n，然后顺序遍历右子树。我们就已经循序访问了整个树。",
+                            "fragment_id": "广度优先遍历_11",
+                            "scratchTime": "2016-12-20 09:44:11.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "在这个二叉树中， 前序遍历的结果：2, 7, 2, 6, 5, 11, 5, 9, 4 后序遍历的结果：2, 5, 11, 6, 7, 4, 9, 5, 2 中序遍历的结果：2, 7, 5, 6, 11, 2, 5, 4, 9",
+                            "fragment_id": "广度优先遍历_12",
+                            "scratchTime": "2016-12-20 09:44:11.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "以上的递归算法使用与树的高度成比例的栈空间。如果我们在每个结点中存储指向父结点的指针，那样可以使用反复运算算法，只使用常数空间实现所有这些遍历。然而，指向父结点的指针占用更多的空间。这只在需要指向父节点的指针或栈空间有限时才使用。例如， 这是一个中序遍历的反复运算算法：",
+                            "fragment_id": "广度优先遍历_13",
+                            "scratchTime": "2016-12-20 09:44:11.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "visit(root)\n    prev    := null\n    current := root\n    next    := null\n    \n    while current != null\n        if prev == current.parent\n            prev := current\n            next := current.left\n        if next == null or prev == current.left\n            print current.value\n            prev := current\n            next := current.right\n        if next == null or prev == current.right\n            prev := current\n            next := current.parent\n        current := next",
+                            "fragment_id": "广度优先遍历_14",
+                            "scratchTime": "2016-12-20 09:44:11.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "用二叉树表示下述表达式：a+b*(c-d)-e/f 先序遍历的序列是：-+a*b-cd/ef 中序遍历的序列是：a+b*c-d-e/f 后序遍历的序列是：abcd-*+ef/-",
+                            "fragment_id": "广度优先遍历_15",
+                            "scratchTime": "2016-12-20 09:44:11.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "在深度优先级中，我们希望从根结点访问最远的结点。和图的深度优先搜索不同的是，不需记住访问过的每一个结点，因为树中不会有环。前序，中序和后序遍历都是深度优先遍历的特例。参见深度优先搜索。",
+                            "fragment_id": "广度优先遍历_16",
+                            "scratchTime": "2016-12-20 09:44:11.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "和深度优先遍历不同，广度优先遍历会先访问离根节点最近的节点。参见广度优先搜索。 二叉树的广度优先遍历又称按层次遍历。算法借助队列实现。",
+                            "fragment_id": "广度优先遍历_17",
+                            "scratchTime": "2016-12-20 09:44:11.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "一般有序树和二叉树之间有一一映射关系，能进行相互转换。",
+                            "fragment_id": "广度优先遍历_18",
+                            "scratchTime": "2016-12-20 09:44:11.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "n叉树转换为二叉树的方法：二叉树中结点x的左子结点为n叉树中结点x的左子结点；二叉树中结点x的右子结点为n叉树中结点x的第一个右边的同级结点y。",
+                            "fragment_id": "广度优先遍历_19",
+                            "scratchTime": "2016-12-20 09:44:11.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "例如，在左边的树中，A有6个子结点{B,C,D,E,F,G}。它能被转换成右边的二叉树。",
+                            "fragment_id": "广度优先遍历_20",
+                            "scratchTime": "2016-12-20 09:44:11.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "在兄弟之间加一连接； 对每个结点，除了其左孩子外，去除其与其余孩子之间的联系； 以树的根结点为轴心，将整树顺时针转45度。",
+                            "fragment_id": "广度优先遍历_21",
+                            "scratchTime": "2016-12-20 09:44:11.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "树的二叉链表标记法（孩子兄弟标记法）是树和二叉树转换的媒介。",
+                            "fragment_id": "广度优先遍历_22",
+                            "scratchTime": "2016-12-20 09:44:11.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "/* 树的二叉链表(孩子—兄弟)存储表示 */\n typedef struct CSNode\n {\n   TElemType data;\n   struct CSNode *firstchild,*nextsibling;\n }CSNode,*CSTree;",
+                            "fragment_id": "广度优先遍历_23",
+                            "scratchTime": "2016-12-20 09:44:12.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "树的二叉链表存储的基本操作[编辑]",
+                            "fragment_id": "广度优先遍历_24",
+                            "scratchTime": "2016-12-20 09:44:12.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "基于C/C++的算法实现显示▼  /* 树的二叉链表(孩子—兄弟)存储的基本操作(17个) */\n #define ClearTree DestroyTree /* 二者操作相同 */\n #include\"func6-2.c\" /* 包括PreOrderTraverse() */\n void InitTree(CSTree *T)\n { /* 操作结果：构造空树T */\n   *T=NULL;\n }\n  void DestroyTree(CSTree *T)\n { /* 初始条件：树T存在。操作结果：销毁树T */\n   if(*T)\n   {\n     if((*T)->firstchild) /* T有长子 */\n       DestroyTree(&(*T)->firstchild); /* 销毁T的长子为根结点的子树 */\n     if((*T)->nextsibling) /* T有下一个兄弟 */\n       DestroyTree(&(*T)->nextsibling); /* 销毁T的下一个兄弟为根结点的子树 */\n     free(*T); /* 释放根结点 */\n     *T=NULL;\n   }\n }\n  typedef CSTree QElemType; /* 定义伫列元素类型 */\n #include\"c3-2.h\" /* 定义LinkQueue类型(链伫列) */\n #include\"bo3-2.c\" /* LinkQueue类型的基本操作 */\n void CreateTree(CSTree *T)\n { /* 构造树T */\n   char c[20]; /* 临时存放孩子结点(设不超过20个)的值 */\n   CSTree p,p1;\n   LinkQueue q;\n   int i,l;\n   InitQueue(&q);\n   printf(\"请输入根结点(字元型,空格为空): \");\n   scanf(\"%c%*c\",&c[0]);\n   if(c[0]!=Nil) /* 非空树 */\n   {\n     *T=(CSTree)malloc(sizeof(CSNode)); /* 建立根结点 */\n     (*T)->data=c[0];\n     (*T)->nextsibling=NULL;\n     EnQueue(&q,*T); /* 入队根结点的指针 */\n     while(!QueueEmpty(q)) /* 队不空 */\n     {\n       DeQueue(&q,&p); /* 出队一个结点的指标 */\n       printf(\"请按长幼顺序输入结点%c的所有孩子: \",p->data);\n       gets(c);\n       l=strlen(c);\n       if(l>0) /* 有孩子 */\n       {\n         p1=p->firstchild=(CSTree)malloc(sizeof(CSNode)); /* 建立长子结点 */\n         p1->data=c[0];\n         for(i=1;i<l;i++)\n         {\n           p1->nextsibling=(CSTree)malloc(sizeof(CSNode)); /* 建立下一个兄弟结点 */\n           EnQueue(&q,p1); /* 入队上一个结点 */\n           p1=p1->nextsibling;\n           p1->data=c[i];\n         }\n         p1->nextsibling=NULL;\n         EnQueue(&q,p1); /* 入队最后一个结点 */\n       }\n       else\n         p->firstchild=NULL; /* 长子指针为空 */\n     }\n   }\n   else\n     *T=NULL; /* 空树 */\n }\n  Status TreeEmpty(CSTree T)\n { /* 初始条件：树T存在。操作结果：若T为空树，则返回TURE，否则返回FALSE */\n   if(T) /* T不空 */\n     return FALSE;\n   else\n     return TRUE;\n }\n  int TreeDepth(CSTree T)\n { /* 初始条件：树T存在。操作结果：返回T的深度 */\n   CSTree p;\n   int depth,max=0;\n   if(!T) /* 树空 */\n     return 0;\n   if(!T->firstchild) /* 树无长子 */\n     return 1;\n   for(p=T->firstchild;p;p=p->nextsibling)\n   { /* 求子树深度的最大值 */\n     depth=TreeDepth(p);\n     if(depth>max)\n       max=depth;\n   }\n   return max+1; /* 树的深度=子树深度最大值+1 */\n }\n  TElemType Value(CSTree p)\n { /* 返回p所指结点的值 */\n   return p->data;\n }\n  TElemType Root(CSTree T)\n { /* 初始条件：树T存在。操作结果：返回T的根 */\n   if(T)\n     return Value(T);\n   else\n     return Nil;\n }\n  CSTree Point(CSTree T,TElemType s)\n { /* 返回二叉链表(孩子—兄弟)树T中指向元素值为s的结点的指标。另加 */\n   LinkQueue q;\n   QElemType a;\n   if(T) /* 非空树 */\n   {\n     InitQueue(&q); /* 初始化伫列 */\n     EnQueue(&q,T); /* 根结点入队 */\n     while(!QueueEmpty(q)) /* 队不空 */\n     {\n       DeQueue(&q,&a); /* 出队,伫列元素赋给a */\n       if(a->data==s)\n\t return a;\n       if(a->firstchild) /* 有长子 */\n         EnQueue(&q,a->firstchild); /* 入队长子 */\n       if(a->nextsibling) /* 有下一个兄弟 */\n         EnQueue(&q,a->nextsibling); /* 入队下一个兄弟 */\n     }\n   }\n   return NULL;\n }\n  Status Assign(CSTree *T,TElemType cur_e,TElemType value)\n { /* 初始条件：树T存在，cur_e是树T中结点的值。操作结果：改cur_e为value */\n   CSTree p;\n   if(*T) /* 非空树 */\n   {\n     p=Point(*T,cur_e); /* p为cur_e的指针 */\n     if(p) /* 找到cur_e */\n     {\n       p->data=value; /* 赋新值 */\n       return OK;\n     }\n   }\n   return ERROR; /* 树空或没找到 */\n }\n  TElemType Parent(CSTree T,TElemType cur_e)\n { /* 初始条件：树T存在，cur_e是T中某个结点 */\n   /* 操作结果：若cur_e是T的非根结点，则返回它的双亲，否则函数值为＂空＂*/\n   CSTree p,t;\n   LinkQueue q;\n   InitQueue(&q);\n   if(T) /* 树非空 */\n   {\n     if(Value(T)==cur_e) /* 根结点值为cur_e */\n       return Nil;\n     EnQueue(&q,T); /* 根结点入队 */\n     while(!QueueEmpty(q))\n     {\n       DeQueue(&q,&p);\n       if(p->firstchild) /* p有长子 */\n       {\n         if(p->firstchild->data==cur_e) /* 长子为cur_e */\n           return Value(p); /* 返回双亲 */\n         t=p; /* 双亲指针赋给t */\n         p=p->firstchild; /* p指向长子 */\n         EnQueue(&q,p); /* 入队长子 */\n         while(p->nextsibling) /* 有下一个兄弟 */\n         {\n           p=p->nextsibling; /* p指向下一个兄弟 */\n\t if(Value(p)==cur_e) /* 下一个兄弟为cur_e */\n\t return Value(t); /* 返回双亲 */\n\t EnQueue(&q,p); /* 入队下一个兄弟 */\n\t }\n       }\n     }\n   }\n   return Nil; /* 树空或没找到cur_e */\n }\n  TElemType LeftChild(CSTree T,TElemType cur_e)\n { /* 初始条件：树T存在，cur_e是T中某个结点 */\n   /* 操作结果：若cur_e是T的非叶子结点，则返回它的最左孩子，否则返回＂空＂*/\n   CSTree f;\n   f=Point(T,cur_e); /* f指向结点cur_e */\n   if(f&&f->firstchild) /* 找到结点cur_e且结点cur_e有长子 */\n     return f->firstchild->data;\n   else\n     return Nil;\n }\n  TElemType RightSibling(CSTree T,TElemType cur_e)\n { /* 初始条件：树T存在，cur_e是T中某个结点 */\n   /* 操作结果：若cur_e有右兄弟，则返回它的右兄弟，否则返回＂空＂*/\n   CSTree f;\n   f=Point(T,cur_e); /* f指向结点cur_e */\n   if(f&&f->nextsibling) /* 找到结点cur_e且结点cur_e有右兄弟 */\n     return f->nextsibling->data;\n   else\n     return Nil; /* 树空 */\n }\n  Status InsertChild(CSTree *T,CSTree p,int i,CSTree c)\n { /* 初始条件：树T存在，p指向T中某个结点，1≦i≦p所指结点的度+1，非空树c与T不相交 */\n   /* 操作结果：插入c为T中p结点的第i棵子树 */\n   /* 因为p所指结点的位址不会改变，故p不需是参考类型 */\n   int j;\n   if(*T) /* T不空 */\n   {\n     if(i==1) /* 插入c为p的长子 */\n     {\n       c->nextsibling=p->firstchild; /* p的原长子现是c的下一个兄弟(c本无兄弟) */\n       p->firstchild=c;\n     }\n     else /* 找插入点 */\n     {\n       p=p->firstchild; /* 指向p的长子 */\n       j=2;\n       while(p&&i>j)\n       {\n         p=p->nextsibling;\n         j++;\n       }\n       if(j==i) /* 找到插入位置 */\n       {\n         c->nextsibling=p->nextsibling;\n         p->nextsibling=c;\n       }\n       else /* p原有孩子数小于i-1 */\n         return ERROR;\n     }\n     return OK;\n   }\n   else /* T空 */\n     return ERROR;\n }\n  Status DeleteChild(CSTree *T,CSTree p,int i)\n { /* 初始条件：树T存在，p指向T中某个结点，1≦i≦p所指结点的度 */\n   /* 操作结果：删除T中p所指结点的第i棵子树 */\n   /* 因为p所指结点的位址不会改变，故p不需是参考类型 */\n   CSTree b;\n   int j;\n   if(*T) /* T不空 */\n   {\n     if(i==1) /* 删除长子 */\n     {\n       b=p->firstchild;\n       p->firstchild=b->nextsibling; /* p的原次子现是长子 */\n       b->nextsibling=NULL;\n       DestroyTree(&b);\n     }\n     else /* 删除非长子 */\n     {\n       p=p->firstchild; /* p指向长子 */\n       j=2;\n       while(p&&i>j)\n       {\n         p=p->nextsibling;\n         j++;\n       }\n       if(j==i) /* 找到第i棵子树 */\n       {\n         b=p->nextsibling;\n         p->nextsibling=b->nextsibling;\n         b->nextsibling=NULL;\n         DestroyTree(&b);\n       }\n       else /* p原有孩子数小于i */\n         return ERROR;\n     }\n     return OK;\n   }\n   else\n     return ERROR;\n }\n  void PostOrderTraverse(CSTree T,void(*Visit)(TElemType))\n { /* 后根遍历孩子—兄弟二叉链表结构的树T */\n   CSTree p;\n   if(T)\n   {\n     if(T->firstchild) /* 有长子 */\n     {\n       PostOrderTraverse(T->firstchild,Visit); /* 后根遍历长子子树 */\n       p=T->firstchild->nextsibling; /* p指向长子的下一个兄弟 */\n       while(p)\n       {\n         PostOrderTraverse(p,Visit); /* 后根遍历下一个兄弟子树 */\n         p=p->nextsibling; /* p指向再下一个兄弟 */\n       }\n     }\n     Visit(Value(T)); /* 最后访问根结点 */\n   }\n }\n  void LevelOrderTraverse(CSTree T,void(*Visit)(TElemType))\n { /* 层序遍历孩子—兄弟二叉链表结构的树T */\n   CSTree p;\n   LinkQueue q;\n   InitQueue(&q);\n   if(T)\n   {\n     Visit(Value(T)); /* 先访问根结点 */\n     EnQueue(&q,T); /* 入队根结点的指针 */\n     while(!QueueEmpty(q)) /* 队不空 */\n     {\n       DeQueue(&q,&p); /* 出队一个结点的指标 */\n       if(p->firstchild) /* 有长子 */\n       {\n         p=p->firstchild;\n         Visit(Value(p)); /* 访问长子结点 */\n         EnQueue(&q,p); /* 入队长子结点的指针 */\n         while(p->nextsibling) /* 有下一个兄弟 */\n         {\n           p=p->nextsibling;\n           Visit(Value(p)); /* 访问下一个兄弟 */\n           EnQueue(&q,p); /* 入队兄弟结点的指针 */\n         }\n       }\n     }\n   }\n }",
+                            "fragment_id": "广度优先遍历_25",
+                            "scratchTime": "2016-12-20 09:44:12.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "线索二叉树 (threaded binary tree)[编辑]",
+                            "fragment_id": "广度优先遍历_26",
+                            "scratchTime": "2016-12-20 09:44:12.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "线索二叉树(保留遍历时结点在任一序列的前驱和后继的信息)：若结点有左子树，则其lchild域指示其左孩子，否则令lchild域指示其前驱；若结点有右子树，则其rchild域指示其右孩子，否则令rchild指示其后继。还需在结点结构中增加两个标志域LTag和RTag。LTag=0时，lchild域指示结点的左孩子，LTag=1时，lchild域指示结点的前驱；RTag=0时，rchild域指示结点的右孩子，RTag=1时，rchild域指示结点的后继。以这种结点结构构成的二叉链表作为二叉树的存储结构，叫做线索链表，其中指向结点前驱和后继的指针叫做线索，加上线索的二叉树称为线索二叉树。对二叉树以某种次序遍历使其变为线索二叉树的过程叫做线索化。若对二叉树进行中序遍历，则所得的线索二叉树称为中序线索二叉树，线索链表称为为中序线索链表。线索二叉树是一种物理结构。",
+                            "fragment_id": "广度优先遍历_27",
+                            "scratchTime": "2016-12-20 09:44:12.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "在中序线索树找结点后继的规律是：若其右标志为1，则右链为线索，指示其后继，否则遍历其右子树时访问的第一个结点（右子树最左下的结点）为其后继；找结点前驱的规律是：若其左标志为1，则左链为线索，指示其前驱，否则遍历左子树时最后访问的一个结点（左子树中最右下的结点）为其前驱。 在后序线索树中找到结点的后继分三种情况：",
+                            "fragment_id": "广度优先遍历_28",
+                            "scratchTime": "2016-12-20 09:44:12.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "若结点是二叉树的根，则其后继为空； 若结点是其双亲的右孩子，或是其双亲的左孩子且其双亲没有右子树，则其后继即为双亲结点； 若结点是其双亲的左孩子，且其双亲有右子树，则其后继为双亲右子树上按后序遍历列出的第一个结点。",
+                            "fragment_id": "广度优先遍历_29",
+                            "scratchTime": "2016-12-20 09:44:12.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "//upload.wikimedia.org/wikipedia/commons/thumb/d/df/Binary_tree.png/350px-Binary_tree.png",
+                            "fragment_id": "广度优先遍历_1",
+                            "scratchTime": "2016-12-20 09:44:29.0",
+                            "type": "leaf",
+                            "flag": "image"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "//upload.wikimedia.org/wikipedia/commons/f/fe/Bitree.JPG",
+                            "fragment_id": "广度优先遍历_2",
+                            "scratchTime": "2016-12-20 09:44:29.0",
+                            "type": "leaf",
+                            "flag": "image"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "//upload.wikimedia.org/wikipedia/commons/0/02/Nary_to_binary_tree_conversion.png",
+                            "fragment_id": "广度优先遍历_3",
+                            "scratchTime": "2016-12-20 09:44:29.0",
+                            "type": "leaf",
+                            "flag": "image"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "//upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Hzxd.jpg/300px-Hzxd.jpg",
+                            "fragment_id": "广度优先遍历_4",
+                            "scratchTime": "2016-12-20 09:44:30.0",
+                            "type": "leaf",
+                            "flag": "image"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "//upload.wikimedia.org/wikipedia/commons/d/db/Tbt1.jpg",
+                            "fragment_id": "广度优先遍历_5",
+                            "scratchTime": "2016-12-20 09:44:30.0",
+                            "type": "leaf",
+                            "flag": "image"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "totalbranchlevel": 1,
+            "facet_name": "转换",
+            "totalbranchnum": 1,
+            "type": "branch",
+            "totalleafnum": 1,
+            "children": [
+                {
+                    "totalbranchlevel": 0,
+                    "facet_name": "存储结构与基本操作",
+                    "totalbranchnum": 0,
+                    "type": "branch",
+                    "totalleafnum": 39,
+                    "children": [
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "基于C/C++的实现算法显示▼  /* 二叉树的二叉链表存储的基本操作(22个) */\n #define ClearBiTree DestroyBiTree /* 清空二叉树和销毁二叉树的操作一样 */\n #include\"func6-3.c\"\n /* 包括InitBiTree()、DestroyBiTree()、PreOrderTraverse()和InOrderTraverse()4函数 */\n  void CreateBiTree(BiTree *T)\n { /* 演算法6.4：按先序次序输入二叉树中结点的值(可为字元型或整型，在主程中定义)，*/\n   /* 构造二叉链表表示的二叉树T。变数Nil表示空(子)树。有改动 */\n   TElemType ch;\n   scanf(form,&ch);\n   if(ch==Nil) /* 空 */\n     *T=NULL;\n   else\n   {\n     *T=(BiTree)malloc(sizeof(BiTNode)); /* 生成根结点 */\n     if(!*T)\n       exit(OVERFLOW);\n     (*T)->data=ch;\n     CreateBiTree(&(*T)->lchild); /* 构造左子树 */\n     CreateBiTree(&(*T)->rchild); /* 构造右子树 */\n   }\n }\n  Status BiTreeEmpty(BiTree T)\n { /* 初始条件：二叉树T存在。操作结果：若T为空二叉树，则返回TRUE，否则FALSE */\n   if(T)\n     return FALSE;\n   else\n     return TRUE;\n }\n  int BiTreeDepth(BiTree T)\n { /* 初始条件：二叉树T存在。操作结果：返回T的深度 */\n   int i,j;\n   if(T==NULL)  /*如果T=NULL,这样写便于理解，当然也可以写成if（!T）*/; \n     return 0; /* 空树深度为0 */\n   if(T->lchild)\n     i=BiTreeDepth(T->lchild); /* i为左子树的深度 */\n   else\n     i=0;\n   if(T->rchild)\n     j=BiTreeDepth(T->rchild); /* j为右子树的深度 */\n   else\n     j=0;\n   return i>j?i+1:j+1; /* T的深度为其左右子树的深度中的大者+1 */\n }\n  TElemType Root(BiTree T)\n { /* 初始条件：二叉树T存在。操作结果：返回T的根 */\n   if(BiTreeEmpty(T))\n     return Nil;\n   else\n     return T->data;\n }\n  TElemType Value(BiTree p)\n { /* 初始条件：二叉树T存在，p指向T中某个结点。操作结果：返回p所指结点的值 */\n   return p->data;\n }\n  void Assign(BiTree p,TElemType value)\n { /* 给p所指结点赋值为value */\n   p->data=value;\n }\n  typedef BiTree QElemType; /* 设伫列元素为二叉树的指针类型 */\n #include\"c3-2.h\" /* 链伫列 */\n #include\"bo3-2.c\" /* 链伫列的基本操作 */\n TElemType Parent(BiTree T,TElemType e)\n { /* 初始条件：二叉树T存在，e是T中某个结点 */\n   /* 操作结果：若e是T的非根结点，则返回它的双亲，否则返回＂空＂*/\n   LinkQueue q;\n   QElemType a;\n   if(T) /* 非空树 */\n   {\n     InitQueue(&q); /* 初始化伫列 */\n     EnQueue(&q,T); /* 树根指针入队 */\n     while(!QueueEmpty(q)) /* 队不空 */\n     {\n       DeQueue(&q,&a); /* 出队，伫列元素赋给a */\n       if(a->lchild&&a->lchild->data==e||a->rchild&&a->rchild->data==e)\n       /* 找到e(是其左或右孩子) */\n         return a->data; /* 返回e的双亲的值 */\n       else /* 没找到e，则入队其左右孩子指针(如果非空) */\n       {\n         if(a->lchild)\n           EnQueue(&q,a->lchild);\n         if(a->rchild)\n           EnQueue(&q,a->rchild);\n       }\n     }\n   }\n   return Nil; /* 树空或没找到e */\n }\n  BiTree Point(BiTree T,TElemType s)\n { /* 返回二叉树T中指向元素值为s的结点的指标。另加 */\n   LinkQueue q;\n   QElemType a;\n   if(T) /* 非空树 */\n   {\n     InitQueue(&q); /* 初始化伫列 */\n     EnQueue(&q,T); /* 根指针入队 */\n     while(!QueueEmpty(q)) /* 队不空 */\n     {\n       DeQueue(&q,&a); /* 出队，伫列元素赋给a */\n       if(a->data==s)\n         return a;\n       if(a->lchild) /* 有左孩子 */\n         EnQueue(&q,a->lchild); /* 入队左孩子 */\n       if(a->rchild) /* 有右孩子 */\n         EnQueue(&q,a->rchild); /* 入队右孩子 */\n     }\n   }\n   return NULL;\n }\n  TElemType LeftChild(BiTree T,TElemType e)\n { /* 初始条件：二叉树T存在，e是T中某个结点。操作结果：返回e的左孩子。若e无左孩子,则返回\"空\" */\n   BiTree a;\n   if(T) /* 非空树 */\n   {\n     a=Point(T,e); /* a是结点e的指针 */\n     if(a&&a->lchild) /* T中存在结点e且e存在左孩子 */\n       return a->lchild->data; /* 返回e的左孩子的值 */\n   }\n   return Nil; /* 其余情况返回空 */\n }\n  TElemType RightChild(BiTree T,TElemType e)\n { /* 初始条件：二叉树T存在，e是T中某个结点。操作结果：返回e的右孩子。若e无右孩子,则返回\"空\" */\n   BiTree a;\n   if(T) /* 非空树 */\n   {\n     a=Point(T,e); /* a是结点e的指针 */\n     if(a&&a->rchild) /* T中存在结点e且e存在右孩子 */\n       return a->rchild->data; /* 返回e的右孩子的值 */\n   }\n   return Nil; /* 其余情况返回空 */\n }\n  TElemType LeftSibling(BiTree T,TElemType e)\n { /* 初始条件：二叉树T存在，e是T中某个结点 */\n   /* 操作结果：返回e的左兄弟。若e是T的左孩子或无左兄弟，则返回＂空＂*/\n   TElemType a;\n   BiTree p;\n   if(T) /* 非空树 */\n   {\n     a=Parent(T,e); /* a为e的双亲 */\n     if(a!=Nil) /* 找到e的双亲 */\n     {\n       p=Point(T,a); /* p为指向结点a的指标 */\n       if(p->lchild&&p->rchild&&p->rchild->data==e) /* p存在左右孩子且右孩子是e */\n         return p->lchild->data; /* 返回p的左孩子(e的左兄弟) */\n     }\n   }\n   return Nil; /* 其余情况返回空 */\n }\n  TElemType RightSibling(BiTree T,TElemType e)\n { /* 初始条件：二叉树T存在，e是T中某个结点 */\n   /* 操作结果：返回e的右兄弟。若e是T的右孩子或无右兄弟，则返回＂空＂*/\n   TElemType a;\n   BiTree p;\n   if(T) /* 非空树 */\n   {\n     a=Parent(T,e); /* a为e的双亲 */\n     if(a!=Nil) /* 找到e的双亲 */\n     {\n       p=Point(T,a); /* p为指向结点a的指标 */\n       if(p->lchild&&p->rchild&&p->lchild->data==e) /* p存在左右孩子且左孩子是e */\n         return p->rchild->data; /* 返回p的右孩子(e的右兄弟) */\n     }\n   }\n   return Nil; /* 其余情况返回空 */\n }\n  Status InsertChild(BiTree p,int LR,BiTree c) /* 形参T无用 */\n { /* 初始条件：二叉树T存在，p指向T中某个结点，LR为0或1，非空二叉树c与T不相交且右子树为空 */\n   /* 操作结果：根据LR为0或1，插入c为T中p所指结点的左或右子树。p所指结点的 */\n   /*           原有左或右子树则成为c的右子树 */\n   if(p) /* p不空 */\n   {\n     if(LR==0)\n     {\n       c->rchild=p->lchild;\n       p->lchild=c;\n     }\n     else /* LR==1 */\n     {\n       c->rchild=p->rchild;\n       p->rchild=c;\n     }\n     return OK;\n   }\n   return ERROR; /* p空 */\n }\n  Status DeleteChild(BiTree p,int LR) /* 形参T无用 */\n { /* 初始条件：二叉树T存在，p指向T中某个结点，LR为0或1 */\n   /* 操作结果：根据LR为0或1，删除T中p所指结点的左或右子树 */\n   if(p) /* p不空 */\n   {\n     if(LR==0) /* 删除左子树 */\n       ClearBiTree(&p->lchild);\n     else /* 删除右子树 */\n       ClearBiTree(&p->rchild);\n     return OK;\n   }\n   return ERROR; /* p空 */\n }\n  typedef BiTree SElemType; /* 设栈元素为二叉树的指针类型 */\n #include\"c3-1.h\" /* 顺序栈 */\n #include\"bo3-1.c\" /* 顺序栈的基本操作 */\n void InOrderTraverse1(BiTree T,void(*Visit)(TElemType))\n { /* 采用二叉链表存储结构，Visit是对资料元素操作的应用函数。演算法6.3，有改动 */\n   /* 中序遍历二叉树T的非递回演算法(利用栈)，对每个资料元素调用函数Visit */\n   SqStack S;\n   InitStack(&S);\n   while(T||!StackEmpty(S))\n   {\n     if(T)\n     { /* 根指针进栈，遍历左子树 */\n       Push(&S,T);\n       T=T->lchild;\n     }\n     else\n     { /* 根指针退栈，访问根结点，遍历右子树 */\n       Pop(&S,&T);\n       Visit(T->data);\n       T=T->rchild;\n     }\n   }\n   printf(\"\\n\");\n }\n  void InOrderTraverse2(BiTree T,void(*Visit)(TElemType))\n { /* 采用二叉链表存储结构，Visit是对资料元素操作的应用函数。演算法6.2，有改动 */\n   /* 中序遍历二叉树T的非递回演算法(利用栈)，对每个资料元素调用函数Visit */\n   SqStack S;\n   BiTree p;\n   InitStack(&S);\n   Push(&S,T); /* 根指针进栈 */\n   while(!StackEmpty(S))\n   {\n     while(GetTop(S,&p)&&p)\n       Push(&S,p->lchild); /* 向左走到尽头 */\n     Pop(&S,&p); /* 空指针退栈 */\n     if(!StackEmpty(S))\n     { /* 访问结点，向右一步 */\n       Pop(&S,&p);\n       Visit(p->data);\n       Push(&S,p->rchild);\n     }\n   }\n   printf(\"\\n\");\n }\n  void PostOrderTraverse(BiTree T,void(*Visit)(TElemType))\n { /* 初始条件：二叉树T存在，Visit是对结点操作的应用函数 */\n   /* 操作结果：后序递回遍历T，对每个结点调用函数Visit一次且仅一次 */\n   if(T) /* T不空 */\n   {\n     PostOrderTraverse(T->lchild,Visit); /* 先后序遍历左子树 */\n     PostOrderTraverse(T->rchild,Visit); /* 再后序遍历右子树 */\n     Visit(T->data); /* 最后访问根结点 */\n   }\n }\n  void LevelOrderTraverse(BiTree T,void(*Visit)(TElemType))\n { /* 初始条件：二叉树T存在，Visit是对结点操作的应用函数 */\n   /* 操作结果：层序递回遍历T(利用伫列)，对每个结点调用函数Visit一次且仅一次 */\n   LinkQueue q;\n   QElemType a;\n   if(T)\n   {\n     InitQueue(&q); /* 初始化伫列q */\n     EnQueue(&q,T); /* 根指针入队 */\n     while(!QueueEmpty(q)) /* 伫列不空 */\n     {\n       DeQueue(&q,&a); /* 出队元素(指标),赋给a */\n       Visit(a->data); /* 访问a所指结点 */\n       if(a->lchild!=NULL) /* a有左孩子 */\n         EnQueue(&q,a->lchild); /* 入队a的左孩子 */\n       if(a->rchild!=NULL) /* a有右孩子 */\n         EnQueue(&q,a->rchild); /* 入队a的右孩子 */\n     }\n     printf(\"\\n\");\n   }\n }",
+                            "fragment_id": "树的二叉链表存储表示_1",
+                            "scratchTime": "2016-12-20 09:44:19.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "改进于二叉链表，增加父节点的指引，能更好地实现节点间的访问，不过算法相对复杂。 当二叉树用三叉链表表示时，有N个结点，就会有N+2个空指针。",
+                            "fragment_id": "树的二叉链表存储表示_2",
+                            "scratchTime": "2016-12-20 09:44:19.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "/* 二叉树的三叉链表存储表示 */\n typedef struct BiTPNode\n {\n   TElemType data;\n   struct BiTPNode *parent,*lchild,*rchild; /* 父、左右孩子指针 */\n }BiTPNode,*BiPTree;",
+                            "fragment_id": "树的二叉链表存储表示_3",
+                            "scratchTime": "2016-12-20 09:44:19.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "//upload.wikimedia.org/wikipedia/commons/6/60/3clb.jpg",
+                            "fragment_id": "树的二叉链表存储表示_1",
+                            "scratchTime": "2016-12-20 09:44:31.0",
+                            "type": "leaf",
+                            "flag": "image"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "基于C/C++的实现算法显示▼  /* 二叉树的三叉链表存储的基本操作(21个) */\n #define ClearBiTree DestroyBiTree /* 清空二叉树和销毁二叉树的操作一样 */\n void InitBiTree(BiPTree *T)\n { /* 操作结果：构造空二叉树T */\n   *T=NULL;\n }\n  void DestroyBiTree(BiPTree *T)\n { /* 初始条件：二叉树T存在。操作结果：销毁二叉树T */\n   if(*T) /* 非空树 */\n   {\n     if((*T)->lchild) /* 有左孩子 */\n       DestroyBiTree(&(*T)->lchild); /* 销毁左孩子子树 */\n     if((*T)->rchild) /* 有右孩子 */\n       DestroyBiTree(&(*T)->rchild); /* 销毁右孩子子树 */\n     free(*T); /* 释放根结点 */\n     *T=NULL; /* 空指针赋0 */\n   }\n }\n  void CreateBiTree(BiPTree *T)\n { /* 按先序次序输入二叉树中结点的值(可为字元型或整型，在主程中定义)，*/\n   /* 构造三叉链表表示的二叉树T */\n   TElemType ch;\n   scanf(form,&ch);\n   if(ch==Nil) /* 空 */\n     *T=NULL;\n   else\n   {\n     *T=(BiPTree)malloc(sizeof(BiTPNode)); /* 动态生成根结点 */\n     if(!*T)\n       exit(OVERFLOW);\n     (*T)->data=ch; /* 给根结点赋值 */\n     (*T)->parent=NULL; /* 根结点无双亲 */\n     CreateBiTree(&(*T)->lchild); /* 构造左子树 */\n     if((*T)->lchild) /* 有左孩子 */\n       (*T)->lchild->parent=*T; /* 给左孩子的双亲域赋值 */\n     CreateBiTree(&(*T)->rchild); /* 构造右子树 */\n     if((*T)->rchild) /* 有右孩子 */\n       (*T)->rchild->parent=*T; /* 给右孩子的双亲域赋值 */\n   }\n }\n  Status BiTreeEmpty(BiPTree T)\n { /* 初始条件：二叉树T存在。操作结果：若T为空二叉树，则返回TRUE，否则FALSE */\n   if(T)\n     return FALSE;\n   else\n     return TRUE;\n }\n  int BiTreeDepth(BiPTree T)\n { /* 初始条件：二叉树T存在。操作结果：返回T的深度 */\n   int i,j;\n   if(!T)\n     return 0; /* 空树深度为0 */\n   if(T->lchild)\n     i=BiTreeDepth(T->lchild); /* i为左子树的深度 */\n   else\n     i=0;\n   if(T->rchild)\n     j=BiTreeDepth(T->rchild); /* j为右子树的深度 */\n   else\n     j=0;\n   return i>j?i+1:j+1; /* T的深度为其左右子树的深度中的大者+1 */\n }\n  TElemType Root(BiPTree T)\n { /* 初始条件：二叉树T存在。操作结果：返回T的根 */\n   if(T)\n     return T->data;\n   else\n     return Nil;\n }\n  TElemType Value(BiPTree p)\n { /* 初始条件：二叉树T存在，p指向T中某个结点。操作结果：返回p所指结点的值 */\n   return p->data;\n }\n  void Assign(BiPTree p,TElemType value)\n { /* 给p所指结点赋值为value */\n   p->data=value;\n }\n  typedef BiPTree QElemType; /* 设伫列元素为二叉树的指针类型 */\n #include\"c3-2.h\" /* 链伫列 */\n #include\"bo3-2.c\" /* 链伫列的基本操作 */\n  BiPTree Point(BiPTree T,TElemType e)\n { /* 返回二叉树T中指向元素值为e的结点的指标。加 */\n   LinkQueue q;\n   QElemType a;\n   if(T) /* 非空树 */\n   {\n     InitQueue(&q); /* 初始化伫列 */\n     EnQueue(&q,T); /* 根结点入队 */\n     while(!QueueEmpty(q)) /* 队不空 */\n     {\n       DeQueue(&q,&a); /* 出队，伫列元素赋给a */\n       if(a->data==e)\n         return a;\n       if(a->lchild) /* 有左孩子 */\n         EnQueue(&q,a->lchild); /* 入队左孩子 */\n       if(a->rchild) /* 有右孩子 */\n         EnQueue(&q,a->rchild); /* 入队右孩子 */\n     }\n   }\n   return NULL;\n }\n  TElemType Parent(BiPTree T,TElemType e)\n { /* 初始条件：二叉树T存在，e是T中某个结点 */\n   /* 操作结果：若e是T的非根结点，则返回它的双亲，否则返回＂空＂*/\n   BiPTree a;\n   if(T) /* 非空树 */\n   {\n     a=Point(T,e); /* a是结点e的指针 */\n     if(a&&a!=T) /* T中存在结点e且e是非根结点 */\n       return a->parent->data; /* 返回e的双亲的值 */\n   }\n   return Nil; /* 其余情况返回空 */\n }\n  TElemType LeftChild(BiPTree T,TElemType e)\n { /* 初始条件：二叉树T存在，e是T中某个结点。操作结果：返回e的左孩子。若e无左孩子,则返回\"空\" */\n   BiPTree a;\n   if(T) /* 非空树 */\n   {\n     a=Point(T,e); /* a是结点e的指针 */\n     if(a&&a->lchild) /* T中存在结点e且e存在左孩子 */\n       return a->lchild->data; /* 返回e的左孩子的值 */\n   }\n   return Nil; /* 其余情况返回空 */\n }\n  TElemType RightChild(BiPTree T,TElemType e)\n { /* 初始条件：二叉树T存在，e是T中某个结点。操作结果：返回e的右孩子。若e无右孩子,则返回\"空\" */\n   BiPTree a;\n   if(T) /* 非空树 */\n   {\n     a=Point(T,e); /* a是结点e的指针 */\n     if(a&&a->rchild) /* T中存在结点e且e存在右孩子 */\n       return a->rchild->data; /* 返回e的右孩子的值 */\n   }\n   return Nil; /* 其余情况返回空 */\n }\n  TElemType LeftSibling(BiPTree T,TElemType e)\n { /* 初始条件：二叉树T存在，e是T中某个结点 */\n   /* 操作结果：返回e的左兄弟。若e是T的左孩子或无左兄弟，则返回＂空＂*/\n   BiPTree a;\n   if(T) /* 非空树 */\n   {\n     a=Point(T,e); /* a是结点e的指针 */\n     if(a&&a!=T&&a->parent->lchild&&a->parent->lchild!=a) /* T中存在结点e且e存在左兄弟 */\n       return a->parent->lchild->data; /* 返回e的左兄弟的值 */\n   }\n   return Nil; /* 其余情况返回空 */\n }\n  TElemType RightSibling(BiPTree T,TElemType e)\n { /* 初始条件：二叉树T存在，e是T中某个结点 */\n   /* 操作结果：返回e的右兄弟。若e是T的右孩子或无右兄弟，则返回＂空＂*/\n   BiPTree a;\n   if(T) /* 非空树 */\n   {\n     a=Point(T,e); /* a是结点e的指针 */\n     if(a&&a!=T&&a->parent->rchild&&a->parent->rchild!=a) /* T中存在结点e且e存在右兄弟 */\n       return a->parent->rchild->data; /* 返回e的右兄弟的值 */\n   }\n   return Nil; /* 其余情况返回空 */\n }\n  Status InsertChild(BiPTree p,int LR,BiPTree c) /* 形参T无用 */\n { /* 初始条件：二叉树T存在，p指向T中某个结点，LR为0或1，非空二叉树c与T不相交且右子树为空 */\n   /* 操作结果：根据LR为0或1，插入c为T中p所指结点的左或右子树。p所指结点 */\n   /*           的原有左或右子树则成为c的右子树 */\n   if(p) /* p不空 */\n   {\n     if(LR==0)\n     {\n       c->rchild=p->lchild;\n       if(c->rchild) /* c有右孩子(p原有左孩子) */\n         c->rchild->parent=c;\n       p->lchild=c;\n       c->parent=p;\n     }\n     else /* LR==1 */\n     {\n       c->rchild=p->rchild;\n       if(c->rchild) /* c有右孩子(p原有右孩子) */\n         c->rchild->parent=c;\n       p->rchild=c;\n       c->parent=p;\n     }\n     return OK;\n   }\n   return ERROR; /* p空 */\n }\n  Status DeleteChild(BiPTree p,int LR) /* 形参T无用 */\n { /* 初始条件：二叉树T存在，p指向T中某个结点，LR为0或1 */\n   /* 操作结果：根据LR为0或1，删除T中p所指结点的左或右子树 */\n   if(p) /* p不空 */\n   {\n     if(LR==0) /* 删除左子树 */\n       ClearBiTree(&p->lchild);\n     else /* 删除右子树 */\n       ClearBiTree(&p->rchild);\n     return OK;\n   }\n   return ERROR; /* p空 */\n }\n  void PreOrderTraverse(BiPTree T,void(*Visit)(BiPTree))\n { /* 先序递回遍历二叉树T */\n   if(T)\n   {\n     Visit(T); /* 先访问根结点 */\n     PreOrderTraverse(T->lchild,Visit); /* 再先序遍历左子树 */\n     PreOrderTraverse(T->rchild,Visit); /* 最后先序遍历右子树 */\n   }\n }\n  void InOrderTraverse(BiPTree T,void(*Visit)(BiPTree))\n { /* 中序递回遍历二叉树T */\n   if(T)\n   {\n     InOrderTraverse(T->lchild,Visit); /* 中序遍历左子树 */\n     Visit(T); /* 再访问根结点 */\n     InOrderTraverse(T->rchild,Visit); /* 最后中序遍历右子树 */\n   }\n }\n  void PostOrderTraverse(BiPTree T,void(*Visit)(BiPTree))\n { /* 后序递回遍历二叉树T */\n   if(T)\n   {\n     PostOrderTraverse(T->lchild,Visit); /* 后序遍历左子树 */\n     PostOrderTraverse(T->rchild,Visit); /* 后序遍历右子树 */\n     Visit(T); /* 最后访问根结点 */\n   }\n }\n  void LevelOrderTraverse(BiPTree T,void(*Visit)(BiPTree))\n { /* 层序遍历二叉树T(利用伫列) */\n   LinkQueue q;\n   QElemType a;\n   if(T)\n   {\n     InitQueue(&q);\n     EnQueue(&q,T);\n     while(!QueueEmpty(q))\n     {\n       DeQueue(&q,&a);\n       Visit(a);\n       if(a->lchild!=NULL)\n         EnQueue(&q,a->lchild);\n       if(a->rchild!=NULL)\n         EnQueue(&q,a->rchild);\n     }\n   }\n }",
+                            "fragment_id": "树的二叉链表存储的基本操作_1",
+                            "scratchTime": "2016-12-20 09:44:19.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "我们经常希望访问树中的每一个结点并且查看它的值。有很多常见的顺序来访问所有的结点，而且每一种都有有用的性质。",
+                            "fragment_id": "树的二叉链表存储的基本操作_2",
+                            "scratchTime": "2016-12-20 09:44:19.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "遍历二叉树：L、D、R分别表示遍历左子树、访问根结点和遍历右子树，则先(根)序遍历二叉树的顺序是DLR，中(根)序遍历二叉树的顺序是LDR，后(根)序遍历二叉树的顺序是LRD。还有按层遍历二叉树。这些方法的时间复杂度都是O(n)，n为结点个数。",
+                            "fragment_id": "树的二叉链表存储的基本操作_3",
+                            "scratchTime": "2016-12-20 09:44:19.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "如果T2是由有序树T转换而来的二叉树，那么T中结点的前序就是T2中结点的前序，T中结点的后序就是T2中结点的中序。任何一棵二叉树的叶结点在先序、中序和后序遍历中的相对次序不发改变。设n,m为一棵二叉树上的两个结点，在中序遍历时，n在m前的条件是n在m的左方。前序序列和中序序列相同的二叉树为空树或任一结点均无左孩子的非空二叉树；中序序列和后序序列相同的二叉树为空树或任一结点均无右孩子的非空二叉树；前序序列和后序序列相同的二叉树为空树或仅有一个结点的二叉树。",
+                            "fragment_id": "树的二叉链表存储的基本操作_4",
+                            "scratchTime": "2016-12-20 09:44:19.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "假设我们有一个包含值的value和指向两个子结点的left和right的树结点结构。我们可以写出这样的过程：",
+                            "fragment_id": "树的二叉链表存储的基本操作_5",
+                            "scratchTime": "2016-12-20 09:44:19.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "visit(node)\n    print node.value\n    if node.left  != null then visit(node.left)\n    if node.right != null then visit(node.right)",
+                            "fragment_id": "树的二叉链表存储的基本操作_6",
+                            "scratchTime": "2016-12-20 09:44:19.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "这样会用前序打印出树中的值。在前序，每个结点在访问它的子结点之前访问。类似地，如果打印语句在最后，每个结点在访问他的子节点之后访问，树中的值会用后序来打印。在这两种情况中，左子树中的值比右子树中得值先打印。",
+                            "fragment_id": "树的二叉链表存储的基本操作_7",
+                            "scratchTime": "2016-12-20 09:44:19.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "visit(node)\n    if node.left  != null then visit(node.left)\n    print node.value\n    if node.right != null then visit(node.right)",
+                            "fragment_id": "树的二叉链表存储的基本操作_8",
+                            "scratchTime": "2016-12-20 09:44:19.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "最后，上面的中序遍历，每个结点在访问左子树和右子树之间访问。这在遍历二叉搜索树时很常用，因为它能用递增的顺序来遍历所有的值。",
+                            "fragment_id": "树的二叉链表存储的基本操作_9",
+                            "scratchTime": "2016-12-20 09:44:19.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "为什么呢？如果n是二叉搜索树的结点，那么n的左子树的所有结点的值都比n的值要小，而且n的右子树的所有节点的值都比n的值要大。因此，如果我们顺序遍历左子树，然后访问n，然后顺序遍历右子树。我们就已经循序访问了整个树。",
+                            "fragment_id": "树的二叉链表存储的基本操作_10",
+                            "scratchTime": "2016-12-20 09:44:19.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "在这个二叉树中， 前序遍历的结果：2, 7, 2, 6, 5, 11, 5, 9, 4 后序遍历的结果：2, 5, 11, 6, 7, 4, 9, 5, 2 中序遍历的结果：2, 7, 5, 6, 11, 2, 5, 4, 9",
+                            "fragment_id": "树的二叉链表存储的基本操作_11",
+                            "scratchTime": "2016-12-20 09:44:19.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "以上的递归算法使用与树的高度成比例的栈空间。如果我们在每个结点中存储指向父结点的指针，那样可以使用反复运算算法，只使用常数空间实现所有这些遍历。然而，指向父结点的指针占用更多的空间。这只在需要指向父节点的指针或栈空间有限时才使用。例如， 这是一个中序遍历的反复运算算法：",
+                            "fragment_id": "树的二叉链表存储的基本操作_12",
+                            "scratchTime": "2016-12-20 09:44:19.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "visit(root)\n    prev    := null\n    current := root\n    next    := null\n    \n    while current != null\n        if prev == current.parent\n            prev := current\n            next := current.left\n        if next == null or prev == current.left\n            print current.value\n            prev := current\n            next := current.right\n        if next == null or prev == current.right\n            prev := current\n            next := current.parent\n        current := next",
+                            "fragment_id": "树的二叉链表存储的基本操作_13",
+                            "scratchTime": "2016-12-20 09:44:19.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "用二叉树表示下述表达式：a+b*(c-d)-e/f 先序遍历的序列是：-+a*b-cd/ef 中序遍历的序列是：a+b*c-d-e/f 后序遍历的序列是：abcd-*+ef/-",
+                            "fragment_id": "树的二叉链表存储的基本操作_14",
+                            "scratchTime": "2016-12-20 09:44:19.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "在深度优先级中，我们希望从根结点访问最远的结点。和图的深度优先搜索不同的是，不需记住访问过的每一个结点，因为树中不会有环。前序，中序和后序遍历都是深度优先遍历的特例。参见深度优先搜索。",
+                            "fragment_id": "树的二叉链表存储的基本操作_15",
+                            "scratchTime": "2016-12-20 09:44:19.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "和深度优先遍历不同，广度优先遍历会先访问离根节点最近的节点。参见广度优先搜索。 二叉树的广度优先遍历又称按层次遍历。算法借助队列实现。",
+                            "fragment_id": "树的二叉链表存储的基本操作_16",
+                            "scratchTime": "2016-12-20 09:44:19.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "一般有序树和二叉树之间有一一映射关系，能进行相互转换。",
+                            "fragment_id": "树的二叉链表存储的基本操作_17",
+                            "scratchTime": "2016-12-20 09:44:19.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "n叉树转换为二叉树的方法：二叉树中结点x的左子结点为n叉树中结点x的左子结点；二叉树中结点x的右子结点为n叉树中结点x的第一个右边的同级结点y。",
+                            "fragment_id": "树的二叉链表存储的基本操作_18",
+                            "scratchTime": "2016-12-20 09:44:19.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "例如，在左边的树中，A有6个子结点{B,C,D,E,F,G}。它能被转换成右边的二叉树。",
+                            "fragment_id": "树的二叉链表存储的基本操作_19",
+                            "scratchTime": "2016-12-20 09:44:20.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "在兄弟之间加一连接； 对每个结点，除了其左孩子外，去除其与其余孩子之间的联系； 以树的根结点为轴心，将整树顺时针转45度。",
+                            "fragment_id": "树的二叉链表存储的基本操作_20",
+                            "scratchTime": "2016-12-20 09:44:20.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "树的二叉链表标记法（孩子兄弟标记法）是树和二叉树转换的媒介。",
+                            "fragment_id": "树的二叉链表存储的基本操作_21",
+                            "scratchTime": "2016-12-20 09:44:20.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "/* 树的二叉链表(孩子—兄弟)存储表示 */\n typedef struct CSNode\n {\n   TElemType data;\n   struct CSNode *firstchild,*nextsibling;\n }CSNode,*CSTree;",
+                            "fragment_id": "树的二叉链表存储的基本操作_22",
+                            "scratchTime": "2016-12-20 09:44:20.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "树的二叉链表存储的基本操作[编辑]",
+                            "fragment_id": "树的二叉链表存储的基本操作_23",
+                            "scratchTime": "2016-12-20 09:44:20.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "基于C/C++的算法实现显示▼  /* 树的二叉链表(孩子—兄弟)存储的基本操作(17个) */\n #define ClearTree DestroyTree /* 二者操作相同 */\n #include\"func6-2.c\" /* 包括PreOrderTraverse() */\n void InitTree(CSTree *T)\n { /* 操作结果：构造空树T */\n   *T=NULL;\n }\n  void DestroyTree(CSTree *T)\n { /* 初始条件：树T存在。操作结果：销毁树T */\n   if(*T)\n   {\n     if((*T)->firstchild) /* T有长子 */\n       DestroyTree(&(*T)->firstchild); /* 销毁T的长子为根结点的子树 */\n     if((*T)->nextsibling) /* T有下一个兄弟 */\n       DestroyTree(&(*T)->nextsibling); /* 销毁T的下一个兄弟为根结点的子树 */\n     free(*T); /* 释放根结点 */\n     *T=NULL;\n   }\n }\n  typedef CSTree QElemType; /* 定义伫列元素类型 */\n #include\"c3-2.h\" /* 定义LinkQueue类型(链伫列) */\n #include\"bo3-2.c\" /* LinkQueue类型的基本操作 */\n void CreateTree(CSTree *T)\n { /* 构造树T */\n   char c[20]; /* 临时存放孩子结点(设不超过20个)的值 */\n   CSTree p,p1;\n   LinkQueue q;\n   int i,l;\n   InitQueue(&q);\n   printf(\"请输入根结点(字元型,空格为空): \");\n   scanf(\"%c%*c\",&c[0]);\n   if(c[0]!=Nil) /* 非空树 */\n   {\n     *T=(CSTree)malloc(sizeof(CSNode)); /* 建立根结点 */\n     (*T)->data=c[0];\n     (*T)->nextsibling=NULL;\n     EnQueue(&q,*T); /* 入队根结点的指针 */\n     while(!QueueEmpty(q)) /* 队不空 */\n     {\n       DeQueue(&q,&p); /* 出队一个结点的指标 */\n       printf(\"请按长幼顺序输入结点%c的所有孩子: \",p->data);\n       gets(c);\n       l=strlen(c);\n       if(l>0) /* 有孩子 */\n       {\n         p1=p->firstchild=(CSTree)malloc(sizeof(CSNode)); /* 建立长子结点 */\n         p1->data=c[0];\n         for(i=1;i<l;i++)\n         {\n           p1->nextsibling=(CSTree)malloc(sizeof(CSNode)); /* 建立下一个兄弟结点 */\n           EnQueue(&q,p1); /* 入队上一个结点 */\n           p1=p1->nextsibling;\n           p1->data=c[i];\n         }\n         p1->nextsibling=NULL;\n         EnQueue(&q,p1); /* 入队最后一个结点 */\n       }\n       else\n         p->firstchild=NULL; /* 长子指针为空 */\n     }\n   }\n   else\n     *T=NULL; /* 空树 */\n }\n  Status TreeEmpty(CSTree T)\n { /* 初始条件：树T存在。操作结果：若T为空树，则返回TURE，否则返回FALSE */\n   if(T) /* T不空 */\n     return FALSE;\n   else\n     return TRUE;\n }\n  int TreeDepth(CSTree T)\n { /* 初始条件：树T存在。操作结果：返回T的深度 */\n   CSTree p;\n   int depth,max=0;\n   if(!T) /* 树空 */\n     return 0;\n   if(!T->firstchild) /* 树无长子 */\n     return 1;\n   for(p=T->firstchild;p;p=p->nextsibling)\n   { /* 求子树深度的最大值 */\n     depth=TreeDepth(p);\n     if(depth>max)\n       max=depth;\n   }\n   return max+1; /* 树的深度=子树深度最大值+1 */\n }\n  TElemType Value(CSTree p)\n { /* 返回p所指结点的值 */\n   return p->data;\n }\n  TElemType Root(CSTree T)\n { /* 初始条件：树T存在。操作结果：返回T的根 */\n   if(T)\n     return Value(T);\n   else\n     return Nil;\n }\n  CSTree Point(CSTree T,TElemType s)\n { /* 返回二叉链表(孩子—兄弟)树T中指向元素值为s的结点的指标。另加 */\n   LinkQueue q;\n   QElemType a;\n   if(T) /* 非空树 */\n   {\n     InitQueue(&q); /* 初始化伫列 */\n     EnQueue(&q,T); /* 根结点入队 */\n     while(!QueueEmpty(q)) /* 队不空 */\n     {\n       DeQueue(&q,&a); /* 出队,伫列元素赋给a */\n       if(a->data==s)\n\t return a;\n       if(a->firstchild) /* 有长子 */\n         EnQueue(&q,a->firstchild); /* 入队长子 */\n       if(a->nextsibling) /* 有下一个兄弟 */\n         EnQueue(&q,a->nextsibling); /* 入队下一个兄弟 */\n     }\n   }\n   return NULL;\n }\n  Status Assign(CSTree *T,TElemType cur_e,TElemType value)\n { /* 初始条件：树T存在，cur_e是树T中结点的值。操作结果：改cur_e为value */\n   CSTree p;\n   if(*T) /* 非空树 */\n   {\n     p=Point(*T,cur_e); /* p为cur_e的指针 */\n     if(p) /* 找到cur_e */\n     {\n       p->data=value; /* 赋新值 */\n       return OK;\n     }\n   }\n   return ERROR; /* 树空或没找到 */\n }\n  TElemType Parent(CSTree T,TElemType cur_e)\n { /* 初始条件：树T存在，cur_e是T中某个结点 */\n   /* 操作结果：若cur_e是T的非根结点，则返回它的双亲，否则函数值为＂空＂*/\n   CSTree p,t;\n   LinkQueue q;\n   InitQueue(&q);\n   if(T) /* 树非空 */\n   {\n     if(Value(T)==cur_e) /* 根结点值为cur_e */\n       return Nil;\n     EnQueue(&q,T); /* 根结点入队 */\n     while(!QueueEmpty(q))\n     {\n       DeQueue(&q,&p);\n       if(p->firstchild) /* p有长子 */\n       {\n         if(p->firstchild->data==cur_e) /* 长子为cur_e */\n           return Value(p); /* 返回双亲 */\n         t=p; /* 双亲指针赋给t */\n         p=p->firstchild; /* p指向长子 */\n         EnQueue(&q,p); /* 入队长子 */\n         while(p->nextsibling) /* 有下一个兄弟 */\n         {\n           p=p->nextsibling; /* p指向下一个兄弟 */\n\t if(Value(p)==cur_e) /* 下一个兄弟为cur_e */\n\t return Value(t); /* 返回双亲 */\n\t EnQueue(&q,p); /* 入队下一个兄弟 */\n\t }\n       }\n     }\n   }\n   return Nil; /* 树空或没找到cur_e */\n }\n  TElemType LeftChild(CSTree T,TElemType cur_e)\n { /* 初始条件：树T存在，cur_e是T中某个结点 */\n   /* 操作结果：若cur_e是T的非叶子结点，则返回它的最左孩子，否则返回＂空＂*/\n   CSTree f;\n   f=Point(T,cur_e); /* f指向结点cur_e */\n   if(f&&f->firstchild) /* 找到结点cur_e且结点cur_e有长子 */\n     return f->firstchild->data;\n   else\n     return Nil;\n }\n  TElemType RightSibling(CSTree T,TElemType cur_e)\n { /* 初始条件：树T存在，cur_e是T中某个结点 */\n   /* 操作结果：若cur_e有右兄弟，则返回它的右兄弟，否则返回＂空＂*/\n   CSTree f;\n   f=Point(T,cur_e); /* f指向结点cur_e */\n   if(f&&f->nextsibling) /* 找到结点cur_e且结点cur_e有右兄弟 */\n     return f->nextsibling->data;\n   else\n     return Nil; /* 树空 */\n }\n  Status InsertChild(CSTree *T,CSTree p,int i,CSTree c)\n { /* 初始条件：树T存在，p指向T中某个结点，1≦i≦p所指结点的度+1，非空树c与T不相交 */\n   /* 操作结果：插入c为T中p结点的第i棵子树 */\n   /* 因为p所指结点的位址不会改变，故p不需是参考类型 */\n   int j;\n   if(*T) /* T不空 */\n   {\n     if(i==1) /* 插入c为p的长子 */\n     {\n       c->nextsibling=p->firstchild; /* p的原长子现是c的下一个兄弟(c本无兄弟) */\n       p->firstchild=c;\n     }\n     else /* 找插入点 */\n     {\n       p=p->firstchild; /* 指向p的长子 */\n       j=2;\n       while(p&&i>j)\n       {\n         p=p->nextsibling;\n         j++;\n       }\n       if(j==i) /* 找到插入位置 */\n       {\n         c->nextsibling=p->nextsibling;\n         p->nextsibling=c;\n       }\n       else /* p原有孩子数小于i-1 */\n         return ERROR;\n     }\n     return OK;\n   }\n   else /* T空 */\n     return ERROR;\n }\n  Status DeleteChild(CSTree *T,CSTree p,int i)\n { /* 初始条件：树T存在，p指向T中某个结点，1≦i≦p所指结点的度 */\n   /* 操作结果：删除T中p所指结点的第i棵子树 */\n   /* 因为p所指结点的位址不会改变，故p不需是参考类型 */\n   CSTree b;\n   int j;\n   if(*T) /* T不空 */\n   {\n     if(i==1) /* 删除长子 */\n     {\n       b=p->firstchild;\n       p->firstchild=b->nextsibling; /* p的原次子现是长子 */\n       b->nextsibling=NULL;\n       DestroyTree(&b);\n     }\n     else /* 删除非长子 */\n     {\n       p=p->firstchild; /* p指向长子 */\n       j=2;\n       while(p&&i>j)\n       {\n         p=p->nextsibling;\n         j++;\n       }\n       if(j==i) /* 找到第i棵子树 */\n       {\n         b=p->nextsibling;\n         p->nextsibling=b->nextsibling;\n         b->nextsibling=NULL;\n         DestroyTree(&b);\n       }\n       else /* p原有孩子数小于i */\n         return ERROR;\n     }\n     return OK;\n   }\n   else\n     return ERROR;\n }\n  void PostOrderTraverse(CSTree T,void(*Visit)(TElemType))\n { /* 后根遍历孩子—兄弟二叉链表结构的树T */\n   CSTree p;\n   if(T)\n   {\n     if(T->firstchild) /* 有长子 */\n     {\n       PostOrderTraverse(T->firstchild,Visit); /* 后根遍历长子子树 */\n       p=T->firstchild->nextsibling; /* p指向长子的下一个兄弟 */\n       while(p)\n       {\n         PostOrderTraverse(p,Visit); /* 后根遍历下一个兄弟子树 */\n         p=p->nextsibling; /* p指向再下一个兄弟 */\n       }\n     }\n     Visit(Value(T)); /* 最后访问根结点 */\n   }\n }\n  void LevelOrderTraverse(CSTree T,void(*Visit)(TElemType))\n { /* 层序遍历孩子—兄弟二叉链表结构的树T */\n   CSTree p;\n   LinkQueue q;\n   InitQueue(&q);\n   if(T)\n   {\n     Visit(Value(T)); /* 先访问根结点 */\n     EnQueue(&q,T); /* 入队根结点的指针 */\n     while(!QueueEmpty(q)) /* 队不空 */\n     {\n       DeQueue(&q,&p); /* 出队一个结点的指标 */\n       if(p->firstchild) /* 有长子 */\n       {\n         p=p->firstchild;\n         Visit(Value(p)); /* 访问长子结点 */\n         EnQueue(&q,p); /* 入队长子结点的指针 */\n         while(p->nextsibling) /* 有下一个兄弟 */\n         {\n           p=p->nextsibling;\n           Visit(Value(p)); /* 访问下一个兄弟 */\n           EnQueue(&q,p); /* 入队兄弟结点的指针 */\n         }\n       }\n     }\n   }\n }",
+                            "fragment_id": "树的二叉链表存储的基本操作_24",
+                            "scratchTime": "2016-12-20 09:44:20.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "线索二叉树 (threaded binary tree)[编辑]",
+                            "fragment_id": "树的二叉链表存储的基本操作_25",
+                            "scratchTime": "2016-12-20 09:44:20.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "线索二叉树(保留遍历时结点在任一序列的前驱和后继的信息)：若结点有左子树，则其lchild域指示其左孩子，否则令lchild域指示其前驱；若结点有右子树，则其rchild域指示其右孩子，否则令rchild指示其后继。还需在结点结构中增加两个标志域LTag和RTag。LTag=0时，lchild域指示结点的左孩子，LTag=1时，lchild域指示结点的前驱；RTag=0时，rchild域指示结点的右孩子，RTag=1时，rchild域指示结点的后继。以这种结点结构构成的二叉链表作为二叉树的存储结构，叫做线索链表，其中指向结点前驱和后继的指针叫做线索，加上线索的二叉树称为线索二叉树。对二叉树以某种次序遍历使其变为线索二叉树的过程叫做线索化。若对二叉树进行中序遍历，则所得的线索二叉树称为中序线索二叉树，线索链表称为为中序线索链表。线索二叉树是一种物理结构。",
+                            "fragment_id": "树的二叉链表存储的基本操作_26",
+                            "scratchTime": "2016-12-20 09:44:20.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "在中序线索树找结点后继的规律是：若其右标志为1，则右链为线索，指示其后继，否则遍历其右子树时访问的第一个结点（右子树最左下的结点）为其后继；找结点前驱的规律是：若其左标志为1，则左链为线索，指示其前驱，否则遍历左子树时最后访问的一个结点（左子树中最右下的结点）为其前驱。 在后序线索树中找到结点的后继分三种情况：",
+                            "fragment_id": "树的二叉链表存储的基本操作_27",
+                            "scratchTime": "2016-12-20 09:44:20.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "若结点是二叉树的根，则其后继为空； 若结点是其双亲的右孩子，或是其双亲的左孩子且其双亲没有右子树，则其后继即为双亲结点； 若结点是其双亲的左孩子，且其双亲有右子树，则其后继为双亲右子树上按后序遍历列出的第一个结点。",
+                            "fragment_id": "树的二叉链表存储的基本操作_28",
+                            "scratchTime": "2016-12-20 09:44:20.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "二叉树的二叉线索存储表示：在线索链表上添加一个头结点，并令其lchild域的指针指向二叉树的根结点，其rchild域的指针指向中序遍历时访问的最后一个结点。令二叉树中序序列中的第一个结点的lchild域指针和最后一个结点的rchild域的指针均指向头结点，这样就创建了一个双向线索链表。二叉树常采用二叉链表方式存储。",
+                            "fragment_id": "树的二叉链表存储的基本操作_29",
+                            "scratchTime": "2016-12-20 09:44:20.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "/* 二叉树的二叉线索存储表示 */\n typedef enum{Link,Thread}PointerTag; /* Link(0)：指针，Thread(1)：线索 */\n typedef struct BiThrNode\n {\n   TElemType data;\n   struct BiThrNode *lchild,*rchild; /* 左右孩子指针 */\n   PointerTag LTag,RTag; /* 左右标志 */\n }BiThrNode,*BiThrTree;",
+                            "fragment_id": "树的二叉链表存储的基本操作_30",
+                            "scratchTime": "2016-12-20 09:44:20.0",
+                            "type": "leaf",
+                            "flag": "text"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "//upload.wikimedia.org/wikipedia/commons/thumb/d/df/Binary_tree.png/350px-Binary_tree.png",
+                            "fragment_id": "树的二叉链表存储的基本操作_1",
+                            "scratchTime": "2016-12-20 09:44:31.0",
+                            "type": "leaf",
+                            "flag": "image"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "//upload.wikimedia.org/wikipedia/commons/f/fe/Bitree.JPG",
+                            "fragment_id": "树的二叉链表存储的基本操作_2",
+                            "scratchTime": "2016-12-20 09:44:31.0",
+                            "type": "leaf",
+                            "flag": "image"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "//upload.wikimedia.org/wikipedia/commons/0/02/Nary_to_binary_tree_conversion.png",
+                            "fragment_id": "树的二叉链表存储的基本操作_3",
+                            "scratchTime": "2016-12-20 09:44:31.0",
+                            "type": "leaf",
+                            "flag": "image"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "//upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Hzxd.jpg/300px-Hzxd.jpg",
+                            "fragment_id": "树的二叉链表存储的基本操作_4",
+                            "scratchTime": "2016-12-20 09:44:31.0",
+                            "type": "leaf",
+                            "flag": "image"
+                        },
+                        {
+                            "url": "https://zh.wikipedia.org/wiki/%E4%BA%8C%E5%8F%89%E6%A0%91",
+                            "content": "//upload.wikimedia.org/wikipedia/commons/d/db/Tbt1.jpg",
+                            "fragment_id": "树的二叉链表存储的基本操作_5",
+                            "scratchTime": "2016-12-20 09:44:31.0",
+                            "type": "leaf",
+                            "flag": "image"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

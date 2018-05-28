@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" >
+  <title>New Yotta</title>
+   <script type="text/javascript" src="../../../../config/ipconfig.js"></script>
+  <script type="text/javascript">
+      if(getCookie('userinfo')=='')   window.location.href='../../../login/index.html';
+  </script>
+  <!-- Tell the browser to be responsive to screen width -->
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+  <!-- Bootstrap 3.3.6 -->
+  <link rel="stylesheet" href="../../bootstrap/css/bootstrap.min.css">
+  <!-- Font Awesome -->
+  <link href="http://cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <!-- Ionicons -->
+  <link href="http://cdn.bootcss.com/ionicons/2.0.0/css/ionicons.min.css" rel="stylesheet">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="../../dist/css/AdminLTE.css">
+  <!-- AdminLTE Skins. Choose a skin from the css/skins
+       folder instead of downloading all of them to reduce the load. -->
+  <link rel="stylesheet" href="../../dist/css/skins/_all-skins.min.css">
+<!-- <script type="text/javascript">ip = ffsfdsf；</script> -->
+
+  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+  <style>
+  .queryResult {
+    cursor: pointer;
+  }
+  .queryResult:hover{
+    color:blue;
+
+  }
+    
+  </style>
+
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+<div class="wrapper">
+
+  <header class="main-header">
+    <!-- Logo -->
+    <a href="../home/index.html" class="logo">
+    <!-- <a href="../../index.html" class="logo">   -->
+      <!-- mini logo for sidebar mini 50x50 pixels -->
+      <span class="logo-mini" style="font-size: 12px">数据管理</span>
+      <!-- logo for regular state and mobile devices -->
+      <span class="logo-lg">数据管理</span>
+    </a>
+    <!-- Header Navbar: style can be found in header.less -->
+    <nav class="navbar navbar-static-top">
+      <!-- Sidebar toggle button-->
+      <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+        <span class="sr-only">Toggle navigation</span>
+      </a>
+      <div class="collapse navbar-collapse pull-right" id="navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="../../../../index.html" ><i class="fa fa-home" style="font-size: 19px"></i><strong> New Yotta</strong></a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+  <!-- Left side column. contains the logo and sidebar -->
+  <aside class="main-sidebar">
+    <!-- sidebar: style can be found in sidebar.less -->
+    <section class="sidebar">
+      <!-- Sidebar user panel -->
+
+      <!-- /.search form -->
+      <!-- sidebar menu: : style can be found in sidebar.less -->
+      <ul class="sidebar-menu">
+        <li class="header">主要功能</li>
+        <li>
+          <a href="../home/index.html">
+            <i class="fa fa-houzz"></i> <span>HOME</span>  
+          </a>
+        </li>
+
+        <li>
+          <a href="../topic/index.html">
+            <i class="fa fa-asterisk"></i> <span>主题数据</span>
+          </a>
+        </li>
+        <li>
+          <a href="../facet/index.html">
+            <i class="fa  fa-download"></i> <span>分面数据</span>
+          </a>
+        </li>
+
+        <li>
+          <a href="../fragment/index.html">
+            <i class="fa fa-hourglass-half"></i> <span>碎片数据</span>
+          </a>
+        </li>
+  
+        <li>
+          <a href="../relation/index.html">
+            <i class="fa fa-object-ungroup"></i> <span>认知关系数据</span>
+          </a>
+        </li>
+        <li>
+          <a href="../statistics/index.html">
+            <i class="fa fa-object-ungroup"></i> <span>数据统计</span>
+          </a>
+        </li>
+      </ul>
+
+    </section>
+    <!-- /.sidebar -->
+  </aside>
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <ol class="breadcrumb">
+        <li><a href="../home/index.html"><i class="fa fa-dashboard"></i> 导航</a></li>
+        <!-- <li><a href="../../index.html"><i class="fa fa-dashboard"></i> 导航</a></li> -->
+        <li class="active">HOME</li>
+      </ol>
+    </section>
+    <section class="content">
+      <div ng-app="myApp" ng-controller="myCon">
+        <div class="row" style="margin-bottom: 10px">
+          <div class="col-md-4"></div>
+          <div class="col-md-4">
+          <div id="classNumDiv" style="width:100%;background-color:#3c8dbc;border-radius: 30px;text-align: center;color:white;">
+            <p style="padding-top:20px;font-size: 20px" id="ClassNum"></p>
+          </div>
+          </div>
+          <div class="col-md-4"></div>
+        </div>
+        <div class="row" >
+          <div class="col-md-8">
+            <div class="box box-primary box-solid">
+            <div class="box-header with-border">
+              <h3 class="box-title">课程数据</h3>
+              <!-- /.box-tools -->
+            </div>
+            <!-- /.box-header -->
+            <div id="classInfoDiv" class="box-body" style="display: block;overflow-y: auto">
+              <div ng-repeat="kecheng in kechengs">
+                <table border="1" width="95%" style="margin-left: 10px;margin-top: 5px">
+                  <tr>
+                    <th style="width:15%;text-align: center">ClassName</th>
+                    <th style="width:15%;text-align: center;color:#3c8dbc;cursor:pointer" ng-click="openModal(kecheng.domainName)" data-toggle="modal" data-target="#nameModal">{{kecheng.domainName}}</th>
+
+                    <div class="modal fade" id="nameModal" tabindex="-1" role="dialog" aria-labelledby="nameModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                &times;
+                              </button>
+                              <h4 class="modal-title" id="nameModalLabel">
+                                修改
+                              </h4>
+                            </div>
+                            <div class="modal-body">
+                              <form action="" style="margin-left: 40%" >
+                              课程名：<input type="text" name="NewClassName" id="NewClassName">
+                              </form>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                              <button type="button" class="btn btn-default" ng-click="updataClassName()" data-dismiss="modal">确认修改</button>
+                            </div>
+                          </div><!-- /.modal-content -->
+                        </div><!-- /.modal -->
+                      </div>
+
+                    <th style="width:60%;padding-left: 20px" >
+                      <div class="row" style="margin-bottom: -10px">   
+<!--                          <div class="progress-group" style="width: 95%;margin:0px">
+ -->           
+                      <div class="progress-group" style="width: 95%;">
+                        <span class="progress-text">现有主题数</span>
+                         <span class="progress-number"><b>{{kecheng.topicNumber}}</b></span>
+                         <div class="progress sm">
+                            <div class="progress-bar progress-bar-aqua" ng-style="styleFuc(kecheng.topicNumber)"></div>
+                         </div>
+                         </div>
+                      </div>
+                      <div class="row" style="margin-bottom: -10px">
+                        <div class="progress-group" style="width: 95%;">
+                         <span class="progress-text">现有分面数</span>
+                         <span class="progress-number"><b>{{kecheng.facetNumber}}</b></span>
+                         <div class="progress sm">
+                            <div class="progress-bar progress-bar-red" ng-style="styleFuc(kecheng.facetNumber)"></div>
+                         </div>
+                         </div>
+                      </div>
+                      <div class="row" style="margin-bottom: -10px">
+                        <div class="progress-group" style="width: 95%">
+                         <span class="progress-text">现有碎片数</span>
+                         <span class="progress-number"><b>{{kecheng.assembleNumber}}</b></span>
+                         <div class="progress sm">
+                            <div class="progress-bar progress-bar-green" ng-style="styleFuc(kecheng.assembleNumber)"></div>
+                         </div>
+                         </div>
+                      </div>
+                      <div class="row" style="margin-bottom: -10px">
+                        <div class="progress-group" style="width: 95%">
+                         <span class="progress-text">现有认知关系数</span>
+                         <span class="progress-number"><b>{{kecheng.dependencyNumber}}</b></span>
+                         <div class="progress sm">
+                            <div class="progress-bar progress-bar-yellow" ng-style="styleFuc(kecheng.dependencyNumber)"></div>
+                         </div>
+                         </div>
+                      </div>
+                    </th>
+                    <th style="width:30%;text-align: center">
+                      <button style="width:90%;" data-toggle="modal" ng-click="getDetailInfo(kecheng.domainName)" id={{kecheng.domainName}}count>详细统计信息</button>
+
+                      <div class="modal fade" id={{kecheng.domainName}}modal tabindex="-1" role="dialog" aria-labelledby={{kecheng.domainName}}modalTitle aria-hidden="true">
+                        <div class="modal-dialog">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                &times;
+                              </button>
+                              <h4 class="modal-title" id={{kecheng.domainName}}modalTitle>
+                               {{kecheng.domainName}}课程信息统计结果
+                              </h4>
+                            </div>
+                            <div class="modal-body">
+                              <div id={{kecheng.domainName}}FacetInfo style="height:300px;width:300px"></div>
+                              <!--div id={{kecheng.ClassName}}FragmentInfo style="height:300px;width:300px"></div-->
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                    </th>
+                  </tr>
+                </table>
+              </div>
+            </div>
+            <!-- /.box-body -->
+          </div>
+          </div>
+          <div class="col-md-4">
+            <div class="row">
+              <div class="box box-primary box-solid">
+            <div class="box-header with-border">
+              <h3 class="box-title">添加课程</h3>
+            </div>
+            <div id="classAddDiv" class="box-body" style="display: block;">
+              <form action="" style="padding-top: 5%;padding-left: 10%;" >
+                课程名：<input type="text" name="ClassName" id="newclass">
+              <input type="button" value="确定" ng-click="tianjiaClass()">
+              </form>
+            </div>
+            <!-- /.box-body -->
+          </div>
+            </div>
+            <div class="row">
+              <div class="box box-primary box-solid">
+            <div class="box-header with-border">
+              <h3 class="box-title">查询</h3>
+              <!-- /.box-tools -->
+            </div>
+            <!-- /.box-header -->
+            <div id="classQueryDiv" class="box-body" style="display: block;">
+              <div class="row">
+                <form action="" style="padding-top: 5%;padding-left: 10%;" >
+                关键词：<input type="text" name="KeyWord">
+              <input type="button" value="确定" ng-click="queryByKeyword()">
+              </form>
+              </div>
+              <div class="row">
+                <div id="Select_result" style="margin-left: 10%;margin-top: 5%;border:1px solid gray;width:80%;overflow-y: auto">
+              <div ng-repeat="querysubject in querysubjects" class="queryResult" ng-click="jumpClass(querysubject.name)"><span>></span>{{querysubject.name}}</div>
+              <div ng-repeat="querytopic in querytopics" class="queryResult" ng-click="jumpTopic(querytopic.domainName,querytopic.name)">
+                <span>></span>
+                <span>{{querytopic.domainName}}</span>
+                <span>></span>
+                {{querytopic.name}}
+              </div>
+              <div ng-repeat="queryfacet in queryfacets" class="queryResult" ng-click="jumpFacet(queryfacet.domainName,queryfacet.topicName,queryfacet.name,queryfacet.layer)">
+                <span>></span>
+                <span>{{queryfacet.domainName}}</span>
+                <span>></span>
+                <span>{{queryfacet.topicName}}</span>
+                <span>></span>
+                {{queryfacet.name}}
+              </div>
+                </div>
+                
+              </div>
+            </div>
+            <!-- /.box-body -->
+          </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Main content -->
+
+
+
+    
+
+    <!-- /.content -->
+
+
+
+
+  </div>
+  <!-- /.content-wrapper -->
+  <footer class="main-footer">
+    <div class="pull-right hidden-xs">
+      <b>Version</b> 1.0.1
+    </div>
+    <strong>Copyright &copy; 2017 智能网络与网络安全教育部重点实验室.</strong> All rights
+    reserved.
+  </footer>
+
+
+  <!-- /.control-sidebar -->
+  <!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+  <div class="control-sidebar-bg"></div>
+</div>
+<!-- ./wrapper -->
+
+<!-- jQuery 2.2.3 -->
+<script src="../../plugins/jQuery/jquery-2.2.3.min.js"></script>
+
+<!-- Bootstrap 3.3.6 -->
+<script src="../../bootstrap/js/bootstrap.min.js"></script>
+
+<!-- AdminLTE App -->
+<script src="../../dist/js/app.min.js"></script>
+
+
+<!-- 分面树构建页面样式 -->
+
+
+<script src="../../plugins/angularjs/angular.min.js"></script>
+<script src="../../plugins/jQuery/jquery.qtip.min.js"></script>
+<script src="../../plugins/jQuery/jquery-ui.js"></script>
+
+<script src="../../plugins/echartjs/echarts.js"></script>
+<script src="../../plugins/d3js/d3.min.js"></script>
+<script src="../../plugins/datguijs/dat.gui.min.js"></script>
+<script src="../../plugins/slimScroll/jquery.slimscroll.min.js"></script>
+
+<script type="text/javascript" src="js/home.js"></script>
+<script type="text/javascript" src="js/function.js"></script>
+
+</body>
+</html>
