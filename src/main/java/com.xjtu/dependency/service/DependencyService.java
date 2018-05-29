@@ -12,7 +12,6 @@ import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.repository.TopicRepository;
 import com.xjtu.utils.ResultUtil;
 import org.apache.commons.io.FileUtils;
-import org.apache.regexp.RE;
 import org.gephi.appearance.api.*;
 import org.gephi.appearance.plugin.PartitionElementColorTransformer;
 import org.gephi.appearance.plugin.RankingElementColorTransformer;
@@ -51,7 +50,6 @@ import org.openide.util.Lookup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
@@ -67,9 +65,10 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * 处理主题依赖关系数据
+ *
  * @author yangkuan
  * @date 2018/03/21 12:46
- * */
+ */
 @Service
 public class DependencyService {
 
@@ -87,81 +86,83 @@ public class DependencyService {
 
     /**
      * 通过主课程名，在课程下的插入、添加主题依赖关系
-     * @param domainName 课程名
+     *
+     * @param domainName     课程名
      * @param startTopicName 起始主题名
-     * @param endTopicName 终止主题名
+     * @param endTopicName   终止主题名
      * @return
      */
-    public Result insertDependency(String domainName, String startTopicName,String endTopicName){
+    public Result insertDependency(String domainName, String startTopicName, String endTopicName) {
         Domain domain = domainRepository.findByDomainName(domainName);
         //查询课程错误
-        if(domain==null){
+        if (domain == null) {
             logger.error("主题依赖关系查询失败：没有课程信息记录");
-            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR.getCode(),ResultEnum.DEPENDENCY_SEARCH_ERROR.getMsg());
+            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR.getCode(), ResultEnum.DEPENDENCY_SEARCH_ERROR.getMsg());
         }
         //查找主题id
-        Topic startTopic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(),startTopicName);
-        Topic endTopic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(),endTopicName);
-        if(startTopic==null || endTopic==null){
+        Topic startTopic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(), startTopicName);
+        Topic endTopic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(), endTopicName);
+        if (startTopic == null || endTopic == null) {
             logger.error("主题依赖关系查询失败:起始或终止主题不存在");
-            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR_3.getCode(),ResultEnum.DEPENDENCY_SEARCH_ERROR_3.getMsg());
+            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR_3.getCode(), ResultEnum.DEPENDENCY_SEARCH_ERROR_3.getMsg());
 
         }
         //插入依赖关系
-        Dependency dependency = new Dependency(startTopic.getTopicId(),endTopic.getTopicId(),0,domain.getDomainId());
+        Dependency dependency = new Dependency(startTopic.getTopicId(), endTopic.getTopicId(), 0, domain.getDomainId());
         try {
             dependencyRepository.save(dependency);
             logger.info("主题依赖关系插入成功");
-            return ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),"主题依赖关系插入成功");
-        }
-        catch (Exception exception){
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "主题依赖关系插入成功");
+        } catch (Exception exception) {
             logger.error("主题依赖关系插入失败:插入语句执行失败");
-            return ResultUtil.error(ResultEnum.DEPENDENCY_INSERT_ERROR.getCode(),ResultEnum.DEPENDENCY_INSERT_ERROR.getMsg());
+            return ResultUtil.error(ResultEnum.DEPENDENCY_INSERT_ERROR.getCode(), ResultEnum.DEPENDENCY_INSERT_ERROR.getMsg());
         }
     }
 
     /**
      * 通过主课程名，起始、终止主题id删除依赖关系
-     * @param domainName 课程名
+     *
+     * @param domainName   课程名
      * @param startTopicId 起始主题id
-     * @param endTopicId 终止主题id
+     * @param endTopicId   终止主题id
      * @return
      */
-    public Result deleteDependency(String domainName,Long startTopicId,Long endTopicId){
+    public Result deleteDependency(String domainName, Long startTopicId, Long endTopicId) {
         Domain domain = domainRepository.findByDomainName(domainName);
         //查询课程错误
-        if(domain==null){
+        if (domain == null) {
             logger.error("主题依赖关系删除失败：没有课程信息记录");
-            return ResultUtil.error(ResultEnum.DEPENDENCY_DELETE_ERROR.getCode(),ResultEnum.DEPENDENCY_DELETE_ERROR.getMsg());
+            return ResultUtil.error(ResultEnum.DEPENDENCY_DELETE_ERROR.getCode(), ResultEnum.DEPENDENCY_DELETE_ERROR.getMsg());
         }
         try {
-            dependencyRepository.deleteByDomainIdAndStartTopicIdAndEndTopicId(domain.getDomainId(),startTopicId,endTopicId);
+            dependencyRepository.deleteByDomainIdAndStartTopicIdAndEndTopicId(domain.getDomainId(), startTopicId, endTopicId);
             logger.info("主题依赖关系删除成功");
-            return ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),"主题依赖关系删除成功");
-        }
-        catch (Exception exception){
-            logger.error("主题依赖关系删除失败：删除语句执行失败",exception);
-            return ResultUtil.error(ResultEnum.DEPENDENCY_DELETE_ERROR_1.getCode(),ResultEnum.DEPENDENCY_DELETE_ERROR_1.getMsg());
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "主题依赖关系删除成功");
+        } catch (Exception exception) {
+            logger.error("主题依赖关系删除失败：删除语句执行失败", exception);
+            return ResultUtil.error(ResultEnum.DEPENDENCY_DELETE_ERROR_1.getCode(), ResultEnum.DEPENDENCY_DELETE_ERROR_1.getMsg());
         }
 
     }
+
     /**
      * 通过课程名和关键词，获取该课程下的主题依赖关系
+     *
      * @param domainName
      * @param keyword
      * @return
      */
-    public Result findDependenciesByKeyword(String domainName , String keyword){
+    public Result findDependenciesByKeyword(String domainName, String keyword) {
         Domain domain = domainRepository.findByDomainName(domainName);
         //查询课程错误
-        if(domain==null){
+        if (domain == null) {
             logger.error("主题依赖关系查询失败：没有课程信息记录");
-            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR.getCode(),ResultEnum.DEPENDENCY_SEARCH_ERROR.getMsg());
+            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR.getCode(), ResultEnum.DEPENDENCY_SEARCH_ERROR.getMsg());
         }
         try {
-            List<Dependency> dependencies = dependencyRepository.findDependenciesByDomainIdAndKeyword(domain.getDomainId(),keyword);
+            List<Dependency> dependencies = dependencyRepository.findDependenciesByDomainIdAndKeyword(domain.getDomainId(), keyword);
             List<DependencyContainName> dependencyContainNames = new ArrayList<>();
-            for(Dependency dependency:dependencies){
+            for (Dependency dependency : dependencies) {
                 DependencyContainName dependencyContainName = new DependencyContainName(dependency);
                 //获取主题名
                 String startTopicName = topicRepository.findOne(dependency.getStartTopicId()).getTopicName();
@@ -172,30 +173,30 @@ public class DependencyService {
                 dependencyContainNames.add(dependencyContainName);
             }
             logger.info("主题依赖关系查询成功");
-            return ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),dependencyContainNames);
-        }
-        catch (Exception exception){
-            logger.error("主题依赖关系查询失败：查询语句执行失败",exception);
-            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR_4.getCode(),ResultEnum.DEPENDENCY_SEARCH_ERROR_4.getMsg());
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), dependencyContainNames);
+        } catch (Exception exception) {
+            logger.error("主题依赖关系查询失败：查询语句执行失败", exception);
+            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR_4.getCode(), ResultEnum.DEPENDENCY_SEARCH_ERROR_4.getMsg());
         }
     }
 
     /**
      * 通过主课程名，获取该课程下的主题依赖关系
+     *
      * @param domainName
      * @return
-     * */
-    public Result findDependenciesByDomainName(String domainName){
+     */
+    public Result findDependenciesByDomainName(String domainName) {
         Domain domain = domainRepository.findByDomainName(domainName);
         //查询错误
-        if(domain==null){
+        if (domain == null) {
             logger.error("主题依赖关系查询失败：没有课程信息记录");
-            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR.getCode(),ResultEnum.DEPENDENCY_SEARCH_ERROR.getMsg());
+            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR.getCode(), ResultEnum.DEPENDENCY_SEARCH_ERROR.getMsg());
         }
         Long domainId = domain.getDomainId();
         List<Dependency> dependencies = dependencyRepository.findByDomainId(domainId);
         List<DependencyContainName> dependencyContainNames = new ArrayList<>();
-        for(Dependency dependency:dependencies){
+        for (Dependency dependency : dependencies) {
             DependencyContainName dependencyContainName = new DependencyContainName(dependency);
             //获取主题名
             String startTopicName = topicRepository.findOne(dependency.getStartTopicId()).getTopicName();
@@ -209,27 +210,27 @@ public class DependencyService {
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), dependencyContainNames);
     }
 
-    public Result findDependenciesByDomainNameSaveAsGexf(String domainName){
+    public Result findDependenciesByDomainNameSaveAsGexf(String domainName) {
 
         Domain domain = domainRepository.findByDomainName(domainName);
         //查询错误
-        if(domain==null){
+        if (domain == null) {
             logger.error("主题依赖关系查询失败：没有课程信息记录");
-            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR.getCode(),ResultEnum.DEPENDENCY_SEARCH_ERROR.getMsg());
+            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR.getCode(), ResultEnum.DEPENDENCY_SEARCH_ERROR.getMsg());
         }
         Long domainId = domain.getDomainId();
 
         new File(Config.GEXFPATH).mkdir();
         File gexfFile = new File(Config.GEXFPATH + "\\" + domainName + ".gexf");
-        if(gexfFile.exists()){
+        if (gexfFile.exists()) {
             // 如果存在，就直接调用本地gexf文件的内容，返回给前台
             // 第二次之后直接调用本地gexf文件的内容，返回给前台
             try {
                 String gexfContent = FileUtils.readFileToString(gexfFile, "UTF-8");
-                return ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),gexfContent);
+                return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), gexfContent);
             } catch (IOException error) {
-                logger.error("主题依赖关系生成失败：gexf文件生成失败 "+error);
-                return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR_2.getCode(),ResultEnum.DEPENDENCY_SEARCH_ERROR_2.getMsg(),error);
+                logger.error("主题依赖关系生成失败：gexf文件生成失败 " + error);
+                return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR_2.getCode(), ResultEnum.DEPENDENCY_SEARCH_ERROR_2.getMsg(), error);
             }
         }
 
@@ -289,8 +290,8 @@ public class DependencyService {
         DirectedGraph graph = graphModel.getDirectedGraph();
         if (graph.getNodeCount() == 0 || graph.getEdgeCount() == 0) {
             String error = "节点数量为：" + graph.getNodeCount() + "，边数量为：" + graph.getEdgeCount();
-            logger.error("主题依赖关系生成失败：gexf文件生成失败 "+error);
-            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR_2.getCode(),ResultEnum.DEPENDENCY_SEARCH_ERROR_2.getMsg(),error);
+            logger.error("主题依赖关系生成失败：gexf文件生成失败 " + error);
+            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR_2.getCode(), ResultEnum.DEPENDENCY_SEARCH_ERROR_2.getMsg(), error);
         }
 
         //Filter：对节点进行过滤操作
@@ -392,25 +393,26 @@ public class DependencyService {
             ec.exportFile(new File(Config.GEXFPATH + "\\" + domainName + ".gexf"));
             ec.exportFile(new File(Config.GEXFPATH + "\\" + domainName + ".pdf"));
         } catch (IOException error) {
-            logger.error("主题依赖关系生成失败：gexf文件生成失败 "+error);
-            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR_2.getCode(),ResultEnum.DEPENDENCY_SEARCH_ERROR_2.getMsg(),error);
+            logger.error("主题依赖关系生成失败：gexf文件生成失败 " + error);
+            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR_2.getCode(), ResultEnum.DEPENDENCY_SEARCH_ERROR_2.getMsg(), error);
         }
 
         // 导出成字符串
         Exporter exporter = ec.getExporter("gexf");
-        CharacterExporter characterExporter = (CharacterExporter)exporter;
+        CharacterExporter characterExporter = (CharacterExporter) exporter;
         StringWriter stringWriter = new StringWriter();
         ec.exportWriter(stringWriter, characterExporter);
         String result = stringWriter.toString();
 
         if (result == null || result.equals("")) {
             logger.error("主题依赖关系生成失败：gexf文件生成失败 ");
-            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR_2.getCode(),ResultEnum.DEPENDENCY_SEARCH_ERROR_2.getMsg());
+            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR_2.getCode(), ResultEnum.DEPENDENCY_SEARCH_ERROR_2.getMsg());
         }
 
-        return ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),result);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), result);
     }
-    private Properties getProperties(){
+
+    private Properties getProperties() {
         Resource resource = new ClassPathResource("/application.properties");
         Properties properties = null;
         try {
@@ -420,19 +422,20 @@ public class DependencyService {
         }
         return properties;
     }
-    private Map<String,Object> getDBInformation(Properties properties){
+
+    private Map<String, Object> getDBInformation(Properties properties) {
         String url = properties.getProperty("spring.datasource.url");
         int firstSlashIndex = url.indexOf("//");
         int lastSlashIndex = url.lastIndexOf("/");
-        String hostAndPort = url.substring(firstSlashIndex + 2,lastSlashIndex);
+        String hostAndPort = url.substring(firstSlashIndex + 2, lastSlashIndex);
         String[] hostAndPorts = hostAndPort.split(":");
         //获取主机名
         String host = hostAndPorts[0];
         //获取端口号
         Integer port = Integer.valueOf(hostAndPorts[1]);
-        int  questionMarkIndex = url.indexOf("?");
+        int questionMarkIndex = url.indexOf("?");
         //获取数据库名
-        String dbName = url.substring(lastSlashIndex + 1,questionMarkIndex);
+        String dbName = url.substring(lastSlashIndex + 1, questionMarkIndex);
         //获取用户名
         String username = properties.getProperty("spring.datasource.username");
         //获取密码
@@ -446,6 +449,7 @@ public class DependencyService {
         dbInformation.put("password", password);
         return dbInformation;
     }
+
     public static void main(String[] args) {
         DependencyService dependencyService = new DependencyService();
         dependencyService.findDependenciesByDomainNameSaveAsGexf("数据结构");
