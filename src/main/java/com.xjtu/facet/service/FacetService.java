@@ -11,7 +11,6 @@ import com.xjtu.facet.repository.FacetRepository;
 import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.repository.TopicRepository;
 import com.xjtu.utils.ResultUtil;
-import io.swagger.models.auth.In;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -422,21 +421,27 @@ public class FacetService {
                 for(Facet firstLayerFacet:firstLayerFacets){
                     Map<String,Object> firstLayerFacetNameContainChildren = new HashMap<>();
                     firstLayerFacetNameContainChildren.put("firstLayerFacetName",firstLayerFacet.getFacetName());
+                    firstLayerFacetNameContainChildren.put("firstLayerFacetId", firstLayerFacet.getFacetId());
                     firstLayerFacetNameContainChildren.put("topicName",topic.getTopicName());
+                    firstLayerFacetNameContainChildren.put("topicId", topic.getTopicId());
                     List<Map<String,Object>> secondLayerFacetNameContainChildrens = new ArrayList<>();
                     //二级分面
                     for(Facet secondLayerFacet:secondLayerFacets){
                         if(secondLayerFacet.getParentFacetId()!=null&&secondLayerFacet.getParentFacetId().equals(firstLayerFacet.getFacetId())){
                             Map<String,Object> secondLayerFacetNameContainChildren = new LinkedHashMap<>();
                             secondLayerFacetNameContainChildren.put("secondLayerFacetName", secondLayerFacet.getFacetName());
+                            secondLayerFacetNameContainChildren.put("secondLayerFacetId", secondLayerFacet.getFacetId());
                             secondLayerFacetNameContainChildren.put("topicName",topic.getTopicName());
+                            secondLayerFacetNameContainChildren.put("topicId", topic.getTopicId());
                             //三级分面循环
                             List<Map<String,Object>> thirdLayerFacetNames = new ArrayList<>();
                             for(Facet thirdLayerFacet:thirdLayerFacets){
                                 if(thirdLayerFacet.getParentFacetId()!=null&&thirdLayerFacet.getParentFacetId().equals(secondLayerFacet.getFacetId())){
                                     Map<String,Object> thirdLayerFacetName  = new LinkedHashMap<>();
                                     thirdLayerFacetName.put("thirdLayerFacetName",thirdLayerFacet.getFacetName());
+                                    thirdLayerFacetName.put("thirdLayerFacetId", thirdLayerFacet.getFacetId());
                                     thirdLayerFacetName.put("topicName",topic.getTopicName());
+                                    thirdLayerFacetName.put("topicId", topic.getTopicId());
                                     thirdLayerFacetNames.add(thirdLayerFacetName);
                                 }
                             }
