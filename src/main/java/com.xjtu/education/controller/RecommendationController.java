@@ -2,7 +2,7 @@ package com.xjtu.education.controller;
 
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
-import com.xjtu.education.service.StateService;
+import com.xjtu.education.service.RecommendationService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,48 +13,46 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 主题状态接口
+ * 主题推荐接口
  *
  * @author yangkuan
  */
 @RestController
-@RequestMapping("/state")
-public class StateController {
+@RequestMapping("/recommendation")
+public class RecommendationController {
 
     @Autowired
-    StateService stateService;
+    RecommendationService recommendationService;
 
-    @GetMapping("/saveStateByDomainIdAndUserId")
-    @ApiOperation(value = "保存主题状态", notes = "保存主题状态")
+    @GetMapping("/saveRecommendationByDomainIdAndUserId")
+    @ApiOperation(value = "保存推荐主题", notes = "保存推荐主题")
     public ResponseEntity saveState(@RequestParam(name = "domainId") Long domainId
-            , @RequestParam(name = "states") String states
+            , @RequestParam(name = "recommendationTopics") String recommendationTopics
             , @RequestParam(name = "userId") Long userId) {
-        Result result = stateService.saveState(domainId, states, userId);
+        Result result = recommendationService.saveRecommendation(domainId, recommendationTopics, userId);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
-
     }
 
-    @GetMapping("/saveStateByDomainNameAndUserId")
-    @ApiOperation(value = "保存主题状态", notes = "保存主题状态")
+    @GetMapping("/saveRecommendationByDomainNameAndUserId")
+    @ApiOperation(value = "保存推荐主题", notes = "保存推荐主题")
     public ResponseEntity saveState(@RequestParam(name = "domainName") String domainName
-            , @RequestParam(name = "states") String states
+            , @RequestParam(name = "recommendationTopics") String recommendationTopics
             , @RequestParam(name = "userId") Long userId) {
-        Result result = stateService.saveState(domainName, states, userId);
+        Result result = recommendationService.saveRecommendation(domainName, recommendationTopics, userId);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
-
     }
 
     @GetMapping("/getByDomainIdAndUserId")
-    @ApiOperation(value = "查询主题状态", notes = "查询主题状态")
+    @ApiOperation(value = "查询推荐主题", notes = "查询推荐主题")
     public ResponseEntity getByDomainIdAndUserId(@RequestParam(name = "domainId") Long domainId
             , @RequestParam(name = "userId") Long userId) {
-        Result result = stateService.findByDomainIdAndUserId(domainId, userId);
+        Result result = recommendationService.findByDomainIdAndUserId(domainId, userId);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }

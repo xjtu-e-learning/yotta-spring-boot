@@ -3,7 +3,6 @@ package com.xjtu.topic.service;
 import com.xjtu.assemble.domain.Assemble;
 import com.xjtu.assemble.domain.AssembleContainType;
 import com.xjtu.assemble.repository.AssembleRepository;
-import com.xjtu.common.Config;
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
 import com.xjtu.dependency.repository.DependencyRepository;
@@ -21,6 +20,7 @@ import com.xjtu.utils.ResultUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -58,6 +58,9 @@ public class TopicService {
 
     @Autowired
     private DependencyRepository dependencyRepository;
+
+    @Value("${gexfpath}")
+    private String gexfPath;
 
     /**
      * 插入主题信息
@@ -174,7 +177,7 @@ public class TopicService {
             }
             //删除依赖关系
             dependencyRepository.deleteByStartTopicIdOrEndTopicId(topicId, topicId);
-            File gexfFile = new File(Config.GEXFPATH + "\\" + domainName + ".gexf");
+            File gexfFile = new File(gexfPath + "\\" + domainName + ".gexf");
             gexfFile.delete();
             logger.info("主题删除成功");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "主题删除成功");

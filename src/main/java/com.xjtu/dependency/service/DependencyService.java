@@ -1,6 +1,6 @@
 package com.xjtu.dependency.service;
 
-import com.xjtu.common.Config;
+
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
 import com.xjtu.dependency.domain.Dependency;
@@ -50,6 +50,7 @@ import org.openide.util.Lookup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
@@ -82,6 +83,9 @@ public class DependencyService {
 
     @Autowired
     private DomainRepository domainRepository;
+
+    @Value("${gexfpath}")
+    private String gexfPath;
 
 
     /**
@@ -220,8 +224,8 @@ public class DependencyService {
         }
         Long domainId = domain.getDomainId();
 
-        new File(Config.GEXFPATH).mkdir();
-        File gexfFile = new File(Config.GEXFPATH + "\\" + domainName + ".gexf");
+        new File(gexfPath).mkdir();
+        File gexfFile = new File(gexfPath + "\\" + domainName + ".gexf");
         if (gexfFile.exists()) {
             // 如果存在，就直接调用本地gexf文件的内容，返回给前台
             // 第二次之后直接调用本地gexf文件的内容，返回给前台
@@ -390,8 +394,8 @@ public class DependencyService {
         ExportController ec = Lookup.getDefault().lookup(ExportController.class);
         // 导出成文件
         try {
-            ec.exportFile(new File(Config.GEXFPATH + "\\" + domainName + ".gexf"));
-            ec.exportFile(new File(Config.GEXFPATH + "\\" + domainName + ".pdf"));
+            ec.exportFile(new File(gexfPath + "\\" + domainName + ".gexf"));
+            ec.exportFile(new File(gexfPath + "\\" + domainName + ".pdf"));
         } catch (IOException error) {
             logger.error("主题依赖关系生成失败：gexf文件生成失败 " + error);
             return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR_2.getCode(), ResultEnum.DEPENDENCY_SEARCH_ERROR_2.getMsg(), error);

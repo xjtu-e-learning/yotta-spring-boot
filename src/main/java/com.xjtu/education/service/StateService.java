@@ -37,7 +37,7 @@ public class StateService {
      * @param userId
      * @return
      */
-    public Result saveRecommendation(Long domainId, String states
+    public Result saveState(Long domainId, String states
             , Long userId) {
         State state = stateRepository
                 .findByDomainIdAndUserId(domainId, userId);
@@ -66,14 +66,14 @@ public class StateService {
      * @param userId
      * @return
      */
-    public Result saveRecommendation(String domainName, String states
+    public Result saveState(String domainName, String states
             , Long userId) {
         Domain domain = domainRepository.findByDomainName(domainName);
         if (domain == null) {
             logger.info("保存失败:课程不存在");
-            return ResultUtil.error(ResultEnum.RECOMMENDATION_INSERT_ERROR.getCode(), ResultEnum.RECOMMENDATION_INSERT_ERROR.getMsg());
+            return ResultUtil.error(ResultEnum.STATE_INSERT_ERROR.getCode(), ResultEnum.STATE_INSERT_ERROR.getMsg());
         }
-        return saveRecommendation(domain.getDomainId()
+        return saveState(domain.getDomainId()
                 , states
                 , userId);
     }
@@ -88,7 +88,7 @@ public class StateService {
     public Result findByDomainIdAndUserId(Long domainId, Long userId) {
         State state = stateRepository
                 .findByDomainIdAndUserId(domainId, userId);
-        logger.info("推荐主题查询成功");
+        logger.info("主题状态查询成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), state);
     }
 }

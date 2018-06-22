@@ -700,6 +700,86 @@ public class FacetService {
     }
 
     /**
+     * 查询分面分布
+     *
+     * @param domainName
+     * @return
+     */
+    public Result findFacetDistribution(String domainName) {
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("分面查询失败：对应课程不存在");
+            return ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR_3.getCode(), ResultEnum.FACET_SEARCH_ERROR_3.getMsg());
+        }
+        List<Topic> topics = topicRepository.findByDomainId(domain.getDomainId());
+        List<Integer> firstLayerFacetNumbers = new ArrayList<>();
+        for (Topic topic : topics) {
+            firstLayerFacetNumbers.add(facetRepository.countByTopicIdAndFacetLayer(topic.getTopicId(), 1));
+        }
+        Map<Integer, Integer> firstLayerFacetNumberMap = new LinkedHashMap<>();
+        //查找主题下的最大分分面数量
+        Integer maxNumber = 0;
+        for (Integer firstLayerFacetNumber : firstLayerFacetNumbers) {
+            if (maxNumber < firstLayerFacetNumber) {
+                maxNumber = firstLayerFacetNumber;
+            }
+        }
+        for (int i = 0; i <= maxNumber; i++) {
+            firstLayerFacetNumberMap.put(i, 0);
+        }
+        for (Integer firstLayerFacetNumber : firstLayerFacetNumbers) {
+            firstLayerFacetNumberMap.put(firstLayerFacetNumber, firstLayerFacetNumberMap.get(firstLayerFacetNumber) + 1);
+        }
+        //查找所有一级分面下的二级分面数
+        List<Facet> allFirstLayerFacets = facetRepository.findFacetsByDomainIdAndFacetLayer(domain.getDomainId(), 1);
+        List<Integer> secondLayerFacetNumbers = new ArrayList<>();
+        for (Facet facet : allFirstLayerFacets) {
+            secondLayerFacetNumbers.add(facetRepository.countByTopicIdAndFacetLayer(facet.getFacetId(), 2));
+        }
+        //查找最大二级分面数
+        Integer maxSecondLayerFacetNumber = 0;
+        for (Integer secondLayerFacetNumber : secondLayerFacetNumbers) {
+            if (maxSecondLayerFacetNumber < secondLayerFacetNumber) {
+                maxSecondLayerFacetNumber = secondLayerFacetNumber;
+            }
+        }
+        Map<Integer, Integer> secondLayerFacetNumberMap = new LinkedHashMap<>();
+        for (int i = 0; i <= maxSecondLayerFacetNumber; i++) {
+            secondLayerFacetNumberMap.put(i, 0);
+        }
+        for (Integer secondLayerFacetNumber : secondLayerFacetNumbers) {
+            secondLayerFacetNumberMap.put(secondLayerFacetNumber, secondLayerFacetNumberMap.get(secondLayerFacetNumber) + 1);
+        }
+        /*List<Long> allFirstLayerFacetIds = new ArrayList<>();
+        for(Facet facet:allFirstLayerFacets){
+            allFirstLayerFacetIds.add(facet.getFacetId());
+        }
+        List<Long> secondLayerFacetNumbers = facetRepository
+                .countAllFacetsByParentFacetIdAndFacetLayer(allFirstLayerFacetIds,2);
+        logger.info(secondLayerFacetNumbers.toString());
+        //查找最大二级分面数
+        Long maxSecondLayerFacetNumber = new Long(0);
+        for(Long secondLayerFacetNumber:secondLayerFacetNumbers){
+            if(maxSecondLayerFacetNumber<secondLayerFacetNumber){
+                maxSecondLayerFacetNumber = secondLayerFacetNumber;
+            }
+        }
+        Map<Long,Long> secondLayerFacetNumberMap = new LinkedHashMap<>();
+        for(Long i=new Long(0);i<=maxNumber;i++){
+            secondLayerFacetNumberMap.put(i,new Long(0));
+        }
+        for(Long secondLayerFacetNumber:secondLayerFacetNumbers){
+            secondLayerFacetNumberMap.put(secondLayerFacetNumber,secondLayerFacetNumberMap.get(secondLayerFacetNumber)+1);
+        }*/
+        Map<String, Object> result = new HashMap<>();
+        result.put("firstLayerFacet", firstLayerFacetNumberMap);
+        result.put("secondLayerFacet", secondLayerFacetNumberMap);
+        logger.info("分面统计成功");
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg()
+                , result);
+    }
+
+    /**
      * 根据分页查询的结果，返回不同的状态。
      * 1. totalElements为 0：说明没有查到数据，查询失败
      * 2. number大于totalPages：说明查询的页数大于最大页数，返回失败
