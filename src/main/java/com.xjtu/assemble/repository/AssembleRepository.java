@@ -92,9 +92,10 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>,JpaSpe
 
 
     /**
-     * 查询课程和主题下的所有碎片
+     * 查询课程和主题下的某层分面下的所有碎片
      * @param domainId 课程id
      * @param topicName 主题名
+     * @param facetLayer 分面所在层
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
@@ -107,9 +108,10 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>,JpaSpe
             "WHERE\n" +
             "t.topicId = f.topicId AND \n" +
             "f.facetId = a.facetId AND \n" +
+            "f.facetLayer = ?3 AND " +
             "t.topicName = ?2 AND \n" +
             "t.domainId = ?1\n")
-    List<Assemble> findAllAssemblesByDomainIdAndTopicName(Long domainId,String topicName);
+    List<Assemble> findAllAssemblesByDomainIdAndTopicNameAndFacetLayer(Long domainId, String topicName, Integer facetLayer);
 
     /**
      * 查询课程下的碎片数量

@@ -148,28 +148,52 @@ public class AssembleService {
         }
         Long domainId = domain.getDomainId();
         Map<String,Object> resultMap = new HashMap<>();
-        for(String topicName:topicNameList){
+        topicNameList.parallelStream().forEach(topicName -> {
+            logger.debug("正在查找主题：" + topicName);
+            Topic topic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
+            Long topicId = topic.getTopicId();
             List<Map<String,Object>> result = new ArrayList<>();
             List<Facet> facets = facetRepository.findAllFacetsByDomainIdAndTopicName(domainId,topicName);
-            List<Assemble> assembles = assembleRepository.findAllAssemblesByDomainIdAndTopicName(domainId,topicName);
+            Map<Long, Facet> facetMap = new HashMap<>(facets.size());
+            for (Facet facet : facets) {
+                facetMap.put(facet.getFacetId(), facet);
+            }
+            List<Assemble> assembles = assembleRepository.findAllAssemblesByDomainIdAndTopicNameAndFacetLayer(domainId, topicName, 2);
             for(Assemble assemble:assembles){
-                Map<String,Object> assembleMap = new HashMap<>();
+                Map<String, Object> assembleMap = new HashMap<>(10);
                 assembleMap.put("assembleId",assemble.getAssembleId());
                 assembleMap.put("assembleContent",assemble.getAssembleContent());
                 assembleMap.put("assembleText",assemble.getAssembleText());
-                assembleMap.put("assembleScratchTime",assemble.getAssembleScratchTime());
+                assembleMap.put("topicId", topicId);
                 assembleMap.put("topicName",topicName);
                 assembleMap.put("sourceName",sourceMap.get(assemble.getSourceId()));
-                for(Facet facet:facets){
-                    if(facet.getFacetId().equals(assemble.getFacetId())){
-                        assembleMap.put("facetName",facet.getFacetName());
-                        break;
-                    }
-                }
+                Facet secondLayerFacet = facetMap.get(assemble.getFacetId());
+                Facet firstLayerFacet = facetMap.get(secondLayerFacet.getParentFacetId());
+                assembleMap.put("secondLayerFacetId", secondLayerFacet.getFacetId());
+                assembleMap.put("secondLayerFacetName", secondLayerFacet.getFacetName());
+                assembleMap.put("firstLayerFacetId", firstLayerFacet.getFacetId());
+                assembleMap.put("firstLayerFacetName", firstLayerFacet.getFacetName());
+                result.add(assembleMap);
+            }
+
+            List<Assemble> firstLayerAssembles = assembleRepository.findAllAssemblesByDomainIdAndTopicNameAndFacetLayer(domainId, topicName, 1);
+            for (Assemble firstLayerAssemble : firstLayerAssembles) {
+                Map<String, Object> assembleMap = new HashMap<>(10);
+                assembleMap.put("assembleId", firstLayerAssemble.getAssembleId());
+                assembleMap.put("assembleContent", firstLayerAssemble.getAssembleContent());
+                assembleMap.put("assembleText", firstLayerAssemble.getAssembleText());
+                assembleMap.put("topicId", topicId);
+                assembleMap.put("topicName", topicName);
+                assembleMap.put("sourceName", sourceMap.get(firstLayerAssemble.getSourceId()));
+                Facet firstLayerFacet = facetMap.get(firstLayerAssemble.getFacetId());
+                assembleMap.put("secondLayerFacetId", null);
+                assembleMap.put("secondLayerFacetName", null);
+                assembleMap.put("firstLayerFacetId", firstLayerFacet.getFacetId());
+                assembleMap.put("firstLayerFacetName", firstLayerFacet.getFacetName());
                 result.add(assembleMap);
             }
             resultMap.put(topicName,result);
-        }
+        });
         logger.info("课程主题下的碎片查询成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),resultMap);
     }

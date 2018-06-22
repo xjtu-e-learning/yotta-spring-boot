@@ -59,6 +59,31 @@ public interface FacetRepository extends JpaRepository<Facet, Long>, JpaSpecific
     List<Facet> findByParentFacetIdAndFacetLayer(Long parentFacetId, Integer facetLayer);
 
     /**
+     * 统计分面数量
+     *
+     * @param parentFacetId
+     * @param facetLayer
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    Integer countByParentFacetIdAndFacetLayer(Long parentFacetId, Integer facetLayer);
+
+    /**
+     * 统计分面数量
+     *
+     * @param parentFacetIds
+     * @param facetLayer
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "select count(facet_id) " +
+            "from Facet " +
+            "where parentFacetId in (?1) and " +
+            "facetLayer = ?2 " +
+            "group by parentFacetId")
+    List<Long> countAllFacetsByParentFacetIdAndFacetLayer(List<Long> parentFacetIds, Integer facetLayer);
+
+    /**
      * 指定分面名、主题Id以及分面所在层，查找分面
      * @param topicId 主题Id
      * @param facetName 分面名
@@ -67,6 +92,8 @@ public interface FacetRepository extends JpaRepository<Facet, Long>, JpaSpecific
      */
     @Transactional(rollbackFor = Exception.class)
     Facet findByTopicIdAndFacetNameAndFacetLayer(Long topicId, String facetName, Integer facetLayer);
+
+
 
     /**
      * 指定分面所在层以及主题Id，查找分面
@@ -77,6 +104,15 @@ public interface FacetRepository extends JpaRepository<Facet, Long>, JpaSpecific
     @Transactional(rollbackFor = Exception.class)
     List<Facet> findByTopicIdAndFacetLayer(Long topicId, Integer facetLayer);
 
+    /**
+     * 统计分面数量
+     *
+     * @param topicId
+     * @param facetLayer
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    Integer countByTopicIdAndFacetLayer(Long topicId, Integer facetLayer);
     /**
      * 查询一门课程下的所有分面，连表查询
      * @param domainId 课程Id
@@ -139,11 +175,7 @@ public interface FacetRepository extends JpaRepository<Facet, Long>, JpaSpecific
      */
     @Transactional(rollbackFor = Exception.class)
     @Query("SELECT \n" +
-            "f.facetId,\n" +
-            "f.facetName,\n" +
-            "f.facetLayer,\n" +
-            "f.parentFacetId,\n" +
-            "f.topicId \n" +
+            "f \n" +
             "FROM \n" +
             "Topic t,\n" +
             "Facet f \n" +

@@ -15,11 +15,6 @@ public class Config {
      */
     public final static int CONTENTLENGTH = 30;
 
-    /**
-     * 主题认知、依赖关系保存路径
-     */
-    public static String GEXFPATH = "E:\\gexfpath";
-
 
     /**
      * 爬虫配置

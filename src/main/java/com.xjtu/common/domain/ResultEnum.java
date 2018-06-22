@@ -114,7 +114,16 @@ public enum ResultEnum {
     DEPENDENCY_DELETE_ERROR_1(180, "主题依赖关系删除失败：删除语句执行失败"),
 
     //课程数据统计
-    STATISTICS_SEARCH_ERROR(158, "词频查询失败：中文分词失败")
+    STATISTICS_SEARCH_ERROR(158, "词频查询失败：中文分词失败"),
+
+    //主题状态
+    STATE_INSERT_ERROR(184, "主题状态保存失败：课程不存在"),
+    //推荐主题
+    RECOMMENDATION_INSERT_ERROR(181, "推荐主题保存失败：课程不存在"),
+
+    //网院课程
+    COURSEWANGYUAN_SEARCH_ERROR(182, "网院课程查询失败：不存在该门网院课程"),
+    COURSEWANGYUAN_SEARCH_ERROR_1(183, "网院课程查询失败：不存在对应网院课程的维基课程"),
     ;
 
     private Integer code;
