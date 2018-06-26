@@ -387,6 +387,7 @@ public class FacetService {
      * @return
      */
     public Result findFacetsByDomainNameAndTopicNames(String domainName,String topicNames){
+
         List<String> topicNameList = Arrays.asList(topicNames.split(","));
         //查询主题
         List<Topic> topics = topicRepository.findByDomainName(domainName);
