@@ -12,12 +12,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.List;
 
@@ -103,8 +101,7 @@ public class SourceService {
     public Result getSource() {
         List<Source> sources = sourceRepository.findAll();
         if (sources.size() > 0) {
-            logger.info("查询成功");
-            sources.forEach(source -> logger.info("查询结果为：" + source.toString()));
+            logger.info("数据源查询成功");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), sources);
         } else {
             logger.error("数据源查询失败：没有数据源记录");
@@ -141,7 +138,8 @@ public class SourceService {
         if (!ascOrder) {
             direction = Sort.Direction.DESC;
         }
-        Pageable pageable = new PageRequest(page, size, direction, "sourceId");  // 分页和排序条件，默认按照id排序
+        // 分页和排序条件，默认按照id排序
+        Pageable pageable = new PageRequest(page, size, direction, "sourceId");
         Page<Source> sourcePage = sourceRepository.findAll(pageable);
         return sourcePageJudge(sourcePage);
     }
