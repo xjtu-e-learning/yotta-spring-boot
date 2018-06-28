@@ -621,6 +621,19 @@ public class FacetService {
     }
 
     /**
+     * 根据课程名，查询分面
+     *
+     * @param domainName
+     * @return
+     */
+    public Result findByDomainName(String domainName) {
+        List<Facet> facets = facetRepository.findByDomainName(domainName);
+        logger.info("分面查询成功");
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(),
+                ResultEnum.SUCCESS.getMsg(), facets);
+    }
+
+    /**
      * 指定课程名、主题名和二级分面名，查询所有三级分面数量
      * @param domainName 课程名
      * @param topicName 主题名

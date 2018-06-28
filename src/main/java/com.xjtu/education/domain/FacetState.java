@@ -7,13 +7,14 @@ import javax.persistence.Table;
 import java.util.Date;
 
 /**
- * 推荐主题
+ * 分面学习状态
  *
  * @author yangkuan
+ * @date 2018/06/28 21:21
  */
 @Entity
 @Table
-public class State {
+public class FacetState {
     /**
      * 主键
      */
@@ -30,7 +31,7 @@ public class State {
      */
     private Long userId;
     /**
-     * 推荐的主题列表（以，分割开的）
+     * 分面状态列表（以，分割开的）
      */
     private String states;
 
@@ -44,6 +45,25 @@ public class State {
      */
     private Date modifiedTime;
 
+    @Override
+    public String toString() {
+        return "FacetState{" +
+                "stateId=" + stateId +
+                ", domainId=" + domainId +
+                ", userId=" + userId +
+                ", states='" + states + '\'' +
+                ", createdTime=" + createdTime +
+                ", modifiedTime=" + modifiedTime +
+                '}';
+    }
+
+    public Long getStateId() {
+        return stateId;
+    }
+
+    public void setStateId(Long stateId) {
+        this.stateId = stateId;
+    }
 
     public Long getDomainId() {
         return domainId;
@@ -59,14 +79,6 @@ public class State {
 
     public void setUserId(Long userId) {
         this.userId = userId;
-    }
-
-    public Long getStateId() {
-        return stateId;
-    }
-
-    public void setStateId(Long stateId) {
-        this.stateId = stateId;
     }
 
     public String getStates() {

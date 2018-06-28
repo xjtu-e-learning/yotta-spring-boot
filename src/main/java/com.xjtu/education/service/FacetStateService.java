@@ -4,8 +4,8 @@ import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
 import com.xjtu.domain.domain.Domain;
 import com.xjtu.domain.repository.DomainRepository;
-import com.xjtu.education.domain.State;
-import com.xjtu.education.repository.StateRepository;
+import com.xjtu.education.domain.FacetState;
+import com.xjtu.education.repository.FacetStateRepository;
 import com.xjtu.utils.ResultUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,22 +15,20 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 
 /**
- * 推荐方式服务层
- *
  * @author yangkuan
  */
 @Service
-public class StateService {
+public class FacetStateService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    StateRepository stateRepository;
+    FacetStateRepository facetStateRepository;
 
     @Autowired
     DomainRepository domainRepository;
 
     /**
-     * 保存主题状态
+     * 保存分面状态
      *
      * @param domainId
      * @param states
@@ -39,18 +37,17 @@ public class StateService {
      */
     public Result saveState(Long domainId, String states
             , Long userId) {
-        State state = stateRepository
-                .findByDomainIdAndUserId(domainId, userId);
-        if (state == null) {
-            state = new State();
-            state.setDomainId(domainId);
-            state.setStates(states);
-            state.setUserId(userId);
-            state.setCreatedTime(new Date());
-            state.setModifiedTime(new Date());
-            stateRepository.save(state);
+        FacetState facetState = facetStateRepository.findByDomainIdAndUserId(domainId, userId);
+        if (facetState == null) {
+            facetState = new FacetState();
+            facetState.setDomainId(domainId);
+            facetState.setStates(states);
+            facetState.setUserId(userId);
+            facetState.setCreatedTime(new Date());
+            facetState.setModifiedTime(new Date());
+            facetStateRepository.save(facetState);
         } else {
-            stateRepository.updateByDomainIdAndUserId(domainId
+            facetStateRepository.updateByDomainIdAndUserId(domainId
                     , userId
                     , states
                     , new Date());
@@ -79,16 +76,16 @@ public class StateService {
     }
 
     /**
-     * 查询主题状态
+     * 查询分面状态
      *
      * @param domainId
      * @param userId
      * @return
      */
     public Result findByDomainIdAndUserId(Long domainId, Long userId) {
-        State state = stateRepository
-                .findByDomainIdAndUserId(domainId, userId);
+        FacetState facetState = facetStateRepository.findByDomainIdAndUserId(domainId, userId);
         logger.info("主题状态查询成功");
-        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), state);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), facetState);
     }
+
 }
