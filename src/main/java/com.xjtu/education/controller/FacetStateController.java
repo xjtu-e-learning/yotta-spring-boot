@@ -2,7 +2,7 @@ package com.xjtu.education.controller;
 
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
-import com.xjtu.education.service.RecommendationService;
+import com.xjtu.education.service.FacetStateService;
 import com.xjtu.utils.HttpUtil;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
@@ -18,41 +18,38 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * 主题推荐接口
- *
  * @author yangkuan
  */
 @RestController
-@RequestMapping("/recommendation")
-public class RecommendationController {
-
+@RequestMapping("/facetState")
+public class FacetStateController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     @Autowired
-    RecommendationService recommendationService;
+    FacetStateService facetStateService;
 
-    @GetMapping("/saveRecommendationByDomainIdAndUserId")
-    @ApiOperation(value = "保存推荐主题", notes = "保存推荐主题")
+    @GetMapping("/saveStateByDomainIdAndUserId")
+    @ApiOperation(value = "保存分面状态", notes = "保存分面状态")
     public ResponseEntity saveState(@RequestParam(name = "domainId") Long domainId
-            , @RequestParam(name = "recommendationTopics") String recommendationTopics
+            , @RequestParam(name = "states") String states
             , @RequestParam(name = "userId") Long userId
             , HttpServletRequest request) {
         logger.info(HttpUtil.getHeaders(request));
-        Result result = recommendationService.saveRecommendation(domainId, recommendationTopics, userId);
+        Result result = facetStateService.saveState(domainId, states, userId);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
+
     }
 
-    @GetMapping("/saveRecommendationByDomainNameAndUserId")
-    @ApiOperation(value = "保存推荐主题", notes = "保存推荐主题")
+    @GetMapping("/saveStateByDomainNameAndUserId")
+    @ApiOperation(value = "保存分面状态", notes = "保存分面状态")
     public ResponseEntity saveState(@RequestParam(name = "domainName") String domainName
-            , @RequestParam(name = "recommendationTopics") String recommendationTopics
+            , @RequestParam(name = "states") String states
             , @RequestParam(name = "userId") Long userId
             , HttpServletRequest request) {
         logger.info(HttpUtil.getHeaders(request));
-        Result result = recommendationService.saveRecommendation(domainName, recommendationTopics, userId);
+        Result result = facetStateService.saveState(domainName, states, userId);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
@@ -60,12 +57,12 @@ public class RecommendationController {
     }
 
     @GetMapping("/getByDomainIdAndUserId")
-    @ApiOperation(value = "查询推荐主题", notes = "查询推荐主题")
+    @ApiOperation(value = "查询分面状态", notes = "查询分面状态")
     public ResponseEntity getByDomainIdAndUserId(@RequestParam(name = "domainId") Long domainId
             , @RequestParam(name = "userId") Long userId
             , HttpServletRequest request) {
         logger.info(HttpUtil.getHeaders(request));
-        Result result = recommendationService.findByDomainIdAndUserId(domainId, userId);
+        Result result = facetStateService.findByDomainIdAndUserId(domainId, userId);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }

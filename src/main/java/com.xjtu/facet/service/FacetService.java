@@ -387,6 +387,7 @@ public class FacetService {
      * @return
      */
     public Result findFacetsByDomainNameAndTopicNames(String domainName,String topicNames){
+
         List<String> topicNameList = Arrays.asList(topicNames.split(","));
         //查询主题
         List<Topic> topics = topicRepository.findByDomainName(domainName);
@@ -617,6 +618,19 @@ public class FacetService {
     public Result findSecondLayerFacetNumber(String domainName, String topicName, String firstLayerFacetName){
         Result result = findChildLayerFacetNumber(domainName, topicName, firstLayerFacetName, 1);
         return result;
+    }
+
+    /**
+     * 根据课程名，查询分面
+     *
+     * @param domainName
+     * @return
+     */
+    public Result findByDomainName(String domainName) {
+        List<Facet> facets = facetRepository.findByDomainName(domainName);
+        logger.info("分面查询成功");
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(),
+                ResultEnum.SUCCESS.getMsg(), facets);
     }
 
     /**

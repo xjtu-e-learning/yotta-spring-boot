@@ -4,11 +4,16 @@ import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
 import com.xjtu.subject.domain.Subject;
 import com.xjtu.subject.service.SubjectService;
+import com.xjtu.utils.HttpUtil;
 import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  *api:处理subject学科数据
@@ -20,12 +25,15 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(value = "/subject")
 public class SubjectController {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Autowired
     private SubjectService subjectService;
 
     @GetMapping(value = "/getSubjects")
     @ApiOperation(value = "获得所有学科信息", notes = "获得所有学科信息")
-    public ResponseEntity getSubjects(){
+    public ResponseEntity getSubjects(HttpServletRequest request) {
+        logger.info(HttpUtil.getHeaders(request));
         Result result = subjectService.findSubjects();
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
@@ -35,8 +43,10 @@ public class SubjectController {
 
     @PostMapping(value = "/insertSubject")
     @ApiOperation(value = "插入一条学科信息", notes = "插入一条学科信息")
-    public ResponseEntity insertSubject(@RequestParam("subjectName") String subjectName,
-                                        @RequestParam("note") String note){
+    public ResponseEntity insertSubject(@RequestParam("subjectName") String subjectName
+            , @RequestParam("note") String note
+            , HttpServletRequest request) {
+        logger.info(HttpUtil.getHeaders(request));
         Subject subject = new Subject(subjectName, note);
         Result result = subjectService.insertSubject(subject);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
@@ -50,7 +60,8 @@ public class SubjectController {
     * */
     @GetMapping(value = "/getSubjectTree")
     @ApiOperation(value = "获得所有学科、课程和主题信息", notes = "获得学科、课程和主题信息")
-    public ResponseEntity getSubjectTree(){
+    public ResponseEntity getSubjectTree(HttpServletRequest request) {
+        logger.info(HttpUtil.getHeaders(request));
         Result result = subjectService.findSubjectTree();
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
