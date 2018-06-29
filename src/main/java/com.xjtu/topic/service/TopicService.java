@@ -233,7 +233,6 @@ public class TopicService {
         List<Topic> topics = topicRepository.findByDomainId(domain.getDomainId());
         try {
             logger.info("主题查询成功");
-            topics.forEach(topic -> logger.info("查询结果为：" + topic.toString()));
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topics);
         } catch (Exception error) {
             logger.error("主题查询失败：" + error);

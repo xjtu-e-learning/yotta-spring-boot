@@ -81,6 +81,7 @@ public class AssembleService {
             //查询碎片
             assembles.addAll(assembleRepository.findByFacetId(facet.getFacetId()));
         }
+        logger.info("碎片查询成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),assembles);
     }
 
@@ -149,7 +150,6 @@ public class AssembleService {
         Long domainId = domain.getDomainId();
         Map<String,Object> resultMap = new HashMap<>();
         topicNameList.parallelStream().forEach(topicName -> {
-            logger.debug("正在查找主题：" + topicName);
             Topic topic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
             Long topicId = topic.getTopicId();
             List<Map<String,Object>> result = new ArrayList<>();
