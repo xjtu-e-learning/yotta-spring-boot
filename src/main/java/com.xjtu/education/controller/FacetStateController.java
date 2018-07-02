@@ -27,14 +27,15 @@ public class FacetStateController {
     @Autowired
     FacetStateService facetStateService;
 
-    @GetMapping("/saveStateByDomainIdAndUserId")
+    @GetMapping("/saveStateByDomainIdAndTopicIdAndUserId")
     @ApiOperation(value = "保存分面状态", notes = "保存分面状态")
     public ResponseEntity saveState(@RequestParam(name = "domainId") Long domainId
+            , @RequestParam(name = "topicId") Long topicId
             , @RequestParam(name = "states") String states
             , @RequestParam(name = "userId") Long userId
             , HttpServletRequest request) {
         logger.info(HttpUtil.getHeaders(request));
-        Result result = facetStateService.saveState(domainId, states, userId);
+        Result result = facetStateService.saveState(domainId, topicId, states, userId);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
@@ -42,27 +43,29 @@ public class FacetStateController {
 
     }
 
-    @GetMapping("/saveStateByDomainNameAndUserId")
+    @GetMapping("/saveStateByDomainNameAndTopicNameAndUserId")
     @ApiOperation(value = "保存分面状态", notes = "保存分面状态")
     public ResponseEntity saveState(@RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "topicName") String topicName
             , @RequestParam(name = "states") String states
             , @RequestParam(name = "userId") Long userId
             , HttpServletRequest request) {
         logger.info(HttpUtil.getHeaders(request));
-        Result result = facetStateService.saveState(domainName, states, userId);
+        Result result = facetStateService.saveState(domainName, topicName, states, userId);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-    @GetMapping("/getByDomainIdAndUserId")
+    @GetMapping("/getByDomainIdAndTopicIdAndUserId")
     @ApiOperation(value = "查询分面状态", notes = "查询分面状态")
-    public ResponseEntity getByDomainIdAndUserId(@RequestParam(name = "domainId") Long domainId
+    public ResponseEntity getByDomainIdAndTopicIdAndUserId(@RequestParam(name = "domainId") Long domainId
+            , @RequestParam(name = "topicId") Long topicId
             , @RequestParam(name = "userId") Long userId
             , HttpServletRequest request) {
         logger.info(HttpUtil.getHeaders(request));
-        Result result = facetStateService.findByDomainIdAndUserId(domainId, userId);
+        Result result = facetStateService.findByDomainIdAndTopicIdAndUserId(domainId, topicId, userId);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }

@@ -25,7 +25,10 @@ public class FacetState {
      * 课程id
      */
     private Long domainId;
-
+    /**
+     * 主题id
+     */
+    private Long topicId;
     /**
      * 用户id
      */
@@ -55,6 +58,14 @@ public class FacetState {
                 ", createdTime=" + createdTime +
                 ", modifiedTime=" + modifiedTime +
                 '}';
+    }
+
+    public Long getTopicId() {
+        return topicId;
+    }
+
+    public void setTopicId(Long topicId) {
+        this.topicId = topicId;
     }
 
     public Long getStateId() {
