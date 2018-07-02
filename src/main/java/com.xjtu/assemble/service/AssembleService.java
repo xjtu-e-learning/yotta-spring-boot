@@ -63,14 +63,14 @@ public class AssembleService {
         //查询课程
         Domain domain = domainRepository.findByDomainName(domainName);
         if(domain==null){
-            logger.error("碎片查询失败：对应课程不存在");
+            logger.error("Assembles Search Failed: Corresponding Domain Not Exist");
             return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR.getCode(), ResultEnum.Assemble_SEARCH_ERROR.getMsg());
         }
         Long domainId = domain.getDomainId();
         //查询主题
         Topic topic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
         if(topic==null){
-            logger.error("碎片查询失败：对应主题不存在");
+            logger.error("Assembles Search Failed: Corresponding Topic Not Exist");
             return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR_1.getCode(), ResultEnum.Assemble_SEARCH_ERROR_1.getMsg());
         }
         Long topicId = topic.getTopicId();
@@ -81,7 +81,7 @@ public class AssembleService {
             //查询碎片
             assembles.addAll(assembleRepository.findByFacetId(facet.getFacetId()));
         }
-        logger.info("碎片查询成功");
+        logger.info("Assembles Search Successful");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),assembles);
     }
 
@@ -96,21 +96,21 @@ public class AssembleService {
         //查询课程
         Domain domain = domainRepository.findByDomainName(domainName);
         if(domain==null){
-            logger.error("碎片查询失败：对应课程不存在");
+            logger.error("Assembles Search Failed: Corresponding Domain Not Exist");
             return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR.getCode(), ResultEnum.Assemble_SEARCH_ERROR.getMsg());
         }
         Long domainId = domain.getDomainId();
         //查询主题
         Topic topic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
         if(topic==null){
-            logger.error("碎片查询失败：对应主题不存在");
+            logger.error("Assembles Search Failed: Corresponding Topic Not Exist");
             return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR_1.getCode(), ResultEnum.Assemble_SEARCH_ERROR_1.getMsg());
         }
         Long topicId = topic.getTopicId();
         //查询一级分面
         Facet facet = facetRepository.findByTopicIdAndFacetNameAndFacetLayer(topicId,firstLayerFacetName,1);
         if(facet == null){
-            logger.error("碎片查询失败：对应分面不存在");
+            logger.error("Assembles Search Failed: Corresponding Facet Not Exist");
             return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR_2.getCode(), ResultEnum.Assemble_SEARCH_ERROR_2.getMsg());
         }
         //查询一级分面下的碎片
@@ -123,7 +123,7 @@ public class AssembleService {
             assembles.addAll(assembleRepository.findByFacetId(secondLayerFacet.getFacetId()));
             //此处未考虑三级分面
         }
-
+        logger.info("Assembles Search Successful");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),assembles);
     }
 
@@ -144,7 +144,7 @@ public class AssembleService {
         //查询课程
         Domain domain = domainRepository.findByDomainName(domainName);
         if(domain==null){
-            logger.error("碎片查询失败：对应课程不存在");
+            logger.error("Assembles Search Failed: Corresponding Domain Not Exist");
             return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR.getCode(), ResultEnum.Assemble_SEARCH_ERROR.getMsg());
         }
         Long domainId = domain.getDomainId();
@@ -194,7 +194,7 @@ public class AssembleService {
             }
             resultMap.put(topicName,result);
         });
-        logger.info("课程主题下的碎片查询成功");
+        logger.info("Assembles Search Successful");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),resultMap);
     }
 
@@ -209,26 +209,27 @@ public class AssembleService {
         //查询课程
         Domain domain = domainRepository.findByDomainName(domainName);
         if(domain==null){
-            logger.error("碎片查询失败：对应课程不存在");
+            logger.error("Assembles Search Failed: Corresponding Domain Not Exist");
             return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR.getCode(), ResultEnum.Assemble_SEARCH_ERROR.getMsg());
         }
         Long domainId = domain.getDomainId();
         //查询主题
         Topic topic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
         if(topic==null){
-            logger.error("碎片查询失败：对应主题不存在");
+            logger.error("Assembles Search Failed: Corresponding Topic Not Exist");
             return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR_1.getCode(), ResultEnum.Assemble_SEARCH_ERROR_1.getMsg());
         }
         Long topicId = topic.getTopicId();
         //查询二级分面
         Facet facet = facetRepository.findByTopicIdAndFacetNameAndFacetLayer(topicId,secondLayerFacetName,2);
         if(facet==null){
-            logger.error("碎片查询失败：对应分面不存在");
+            logger.error("Assembles Search Failed: Corresponding Facet Not Exist");
             return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR_2.getCode(), ResultEnum.Assemble_SEARCH_ERROR_2.getMsg());
         }
         //此处未考虑三级分面
         //查询碎片
         List<Assemble> assembles = assembleRepository.findByFacetId(facet.getFacetId());
+        logger.info("Assembles Search Successful");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),assembles);
     }
 
@@ -243,25 +244,26 @@ public class AssembleService {
         //查询课程
         Domain domain = domainRepository.findByDomainName(domainName);
         if(domain==null){
-            logger.error("碎片查询失败：对应课程不存在");
+            logger.error("Assembles Search Failed: Corresponding Domain Not Exist");
             return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR.getCode(), ResultEnum.Assemble_SEARCH_ERROR.getMsg());
         }
         Long domainId = domain.getDomainId();
         //查询主题
         Topic topic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
         if(topic==null){
-            logger.error("碎片查询失败：对应主题不存在");
+            logger.error("Assembles Search Failed: Corresponding Topic Not Exist");
             return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR_1.getCode(), ResultEnum.Assemble_SEARCH_ERROR_1.getMsg());
         }
         Long topicId = topic.getTopicId();
         //查询三级分面
         Facet facet = facetRepository.findByTopicIdAndFacetNameAndFacetLayer(topicId,thirdLayerFacetName,3);
         if(facet==null){
-            logger.error("碎片查询失败：对应分面不存在");
+            logger.error("Assembles Search Failed: Corresponding Facet Not Exist");
             return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR_2.getCode(), ResultEnum.Assemble_SEARCH_ERROR_2.getMsg());
         }
         //查询碎片
         List<Assemble> assembles = assembleRepository.findByFacetId(facet.getFacetId());
+        logger.info("Assembles Search Successful");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),assembles);
     }
 
@@ -285,34 +287,34 @@ public class AssembleService {
         //查询数据源
         Source source = sourceRepository.findBySourceName(sourceName);
         if(source==null){
-            logger.error("碎片插入失败：对应数据源不存在");
+            logger.error("Assembles Insert Failed: Corresponding Source Not Exist");
             return ResultUtil.error(ResultEnum.Assemble_INSERT_ERROR_6.getCode(), ResultEnum.Assemble_INSERT_ERROR_6.getMsg());
         }
         //查询课程
         Domain domain = domainRepository.findByDomainName(domainName);
         if(domain==null){
-            logger.error("碎片插入失败：对应课程不存在");
+            logger.error("Assembles Insert Failed: Corresponding Domain Not Exist");
             return ResultUtil.error(ResultEnum.Assemble_INSERT_ERROR_2.getCode(), ResultEnum.Assemble_INSERT_ERROR_2.getMsg());
         }
         Long domainId = domain.getDomainId();
         //查询主题
         Topic topic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
         if(topic==null){
-            logger.error("碎片插入失败：对应主题不存在");
+            logger.error("Assembles Insert Failed: Corresponding Topic Not Exist");
             return ResultUtil.error(ResultEnum.Assemble_INSERT_ERROR_3.getCode(), ResultEnum.Assemble_INSERT_ERROR_3.getMsg());
         }
         Long topicId = topic.getTopicId();
         //查询分面
         Facet facet = facetRepository.findByTopicIdAndFacetNameAndFacetLayer(topicId, facetName,facetLayer);
         if(facet==null){
-            logger.error("碎片插入失败：对应分面不存在");
+            logger.error("Assembles Insert Failed: Corresponding Facet Not Exist");
             return ResultUtil.error(ResultEnum.Assemble_INSERT_ERROR_4.getCode(), ResultEnum.Assemble_INSERT_ERROR_4.getMsg());
         }
 
         //查询碎片暂存表
         TemporaryAssemble temporaryAssemble = temporaryAssembleRepository.findOne(temporaryAssembleId);
         if(temporaryAssemble==null){
-            logger.error("碎片插入失败：碎片暂存表不存在该碎片");
+            logger.error("Assembles Insert Failed: No Assemble In Temporary Assemble Table");
             return ResultUtil.error(ResultEnum.Assemble_INSERT_ERROR_5.getCode(), ResultEnum.Assemble_INSERT_ERROR_5.getMsg());
         }
         //从暂存表删除该碎片
@@ -324,7 +326,7 @@ public class AssembleService {
                 , facet.getFacetId()
                 , source.getSourceId());
         assembleRepository.save(assemble);
-        logger.info("碎片添加成功");
+        logger.info("Assembles Insert Successful");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),"碎片添加成功");
     }
 
@@ -333,7 +335,7 @@ public class AssembleService {
             assembleRepository.save(assemble);
         }
         catch (Exception exception){
-            logger.error("碎片插入失败：插入语句执行失败");
+            logger.error("Assembles Insert Failed: Insert Statement Execute Failed");
             return ResultUtil.error(ResultEnum.Assemble_INSERT_ERROR.getCode(), ResultEnum.Assemble_INSERT_ERROR.getMsg());
         }
         return  ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),"碎片添加成功");
@@ -347,7 +349,7 @@ public class AssembleService {
      */
     public Result insertTemporaryAssemble(String assembleContent, String userName){
         if(assembleContent==null||assembleContent.equals("")||assembleContent.length()==0){
-            logger.error("暂存碎片添加失败：碎片内容为空");
+            logger.error("Temporary Assemble Insert Failed: The Content Is Empty");
             ResultUtil.error(ResultEnum.Assemble_INSERT_ERROR_1.getCode(),ResultEnum.Assemble_INSERT_ERROR_1.getMsg());
         }
         //获取系统当前时间
@@ -357,11 +359,11 @@ public class AssembleService {
         try {
             TemporaryAssemble temporaryAssemble = new TemporaryAssemble(assembleContent,assembleScratchTime,userName);
             temporaryAssembleRepository.save(temporaryAssemble);
-            logger.info("暂存碎片添加成功");
+            logger.info("Temporary Assemble Insert Successful");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),"碎片添加成功");
         }
         catch (Exception error){
-            logger.error("暂存碎片添加失败：",error);
+            logger.error("Temporary Assemble Insert Failed: ", error);
             return ResultUtil.error(ResultEnum.Assemble_INSERT_ERROR.getCode(),ResultEnum.Assemble_INSERT_ERROR.getMsg());
         }
     }
@@ -374,11 +376,11 @@ public class AssembleService {
     public Result findTemporaryAssemblesByUserName(String userName){
         try {
             List<TemporaryAssemble> temporaryAssembles = temporaryAssembleRepository.findByUserName(userName);
-            logger.info("暂存碎片查询成功");
+            logger.info("Temporary Assemble Search Successful");
             return  ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),temporaryAssembles);
         }
         catch (Exception error){
-            logger.error("暂存碎片查询失败",error);
+            logger.error("Temporary Assemble Search Failed: ", error);
             return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR_3.getCode(),ResultEnum.Assemble_SEARCH_ERROR_3.getMsg());
         }
     }
@@ -391,11 +393,11 @@ public class AssembleService {
     public Result findTemporaryAssembleById(Long assembleId){
         try {
             TemporaryAssemble temporaryAssemble = temporaryAssembleRepository.findOne(assembleId);
-            logger.info("暂存碎片查询成功");
+            logger.info("Temporary Assemble Search Successful");
             return  ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),temporaryAssemble);
         }
         catch (Exception error){
-            logger.error("暂存碎片查询失败",error);
+            logger.error("Temporary Assemble Search Failed: ", error);
             return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR_3.getCode(),ResultEnum.Assemble_SEARCH_ERROR_3.getMsg());
         }
     }
@@ -408,11 +410,11 @@ public class AssembleService {
     public Result findAssembleById(Long assembleId){
         try {
             Assemble assemble = assembleRepository.findOne(assembleId);
-            logger.info("碎片查询成功");
+            logger.info("Assemble Search Successful");
             return  ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),assemble);
         }
         catch (Exception error){
-            logger.error("暂存碎片查询失败",error);
+            logger.error("Assemble Search Failed: ", error);
             return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR_3.getCode(),ResultEnum.Assemble_SEARCH_ERROR_3.getMsg());
         }
     }
@@ -425,16 +427,16 @@ public class AssembleService {
      */
     public Result updateTemporaryAssemble(Long assembleId, String assembleContent){
         if(assembleId==null){
-            logger.error("碎片更新失败：碎片id不存在");
+            logger.error("Assemble Update Failed: Assemble Id Not Exist");
             return ResultUtil.error(ResultEnum.Assemble_UPDATE_ERROR.getCode(),ResultEnum.Assemble_UPDATE_ERROR.getMsg());
         }
         try {
             temporaryAssembleRepository.updateTemporaryAssemble(assembleId,assembleContent);
-            logger.info("碎片更新成功");
+            logger.info("Assemble Update Successful");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(),"碎片更新成功");
         }
         catch (Exception error){
-            logger.error("碎片更新失败：更新语句执行失败",error);
+            logger.error("Assembles Update Failed: Update Statement Execute Failed", error);
             return ResultUtil.error(ResultEnum.Assemble_UPDATE_ERROR_1.getCode(),ResultEnum.Assemble_UPDATE_ERROR_1.getMsg());
         }
     }
@@ -447,11 +449,10 @@ public class AssembleService {
     public Result deleteTemporaryAssemble(Long assembleId){
         try {
             temporaryAssembleRepository.delete(assembleId);
-            logger.info("碎片删除成功");
+            logger.info("Assemble Delete Successful");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(),"碎片删除成功");
-        }
-        catch (Exception ex){
-            logger.error("碎片删除失败：删除语句执行失败");
+        } catch (Exception e) {
+            logger.error("Assembles Delete Failed: Delete Statement Execute Failed" + e);
             return ResultUtil.error(ResultEnum.Assemble_DELETE_ERROR.getCode(),ResultEnum.Assemble_DELETE_ERROR.getMsg());
         }
     }
@@ -464,11 +465,11 @@ public class AssembleService {
     public Result deleteAssemble(Long assembleId){
         try {
             assembleRepository.delete(assembleId);
-            logger.info("碎片删除成功");
+            logger.info("Assemble Delete Successful");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(),"碎片删除成功");
         }
         catch (Exception ex){
-            logger.error("碎片删除失败：删除语句执行失败",ex);
+            logger.error("Assembles Delete Failed: Delete Statement Execute Failed", ex);
             return ResultUtil.error(ResultEnum.Assemble_DELETE_ERROR.getCode(),ResultEnum.Assemble_DELETE_ERROR.getMsg(),ex);
         }
     }
@@ -486,11 +487,11 @@ public class AssembleService {
         }
         try {
             assembleRepository.deleteByFacetIdIsIn(facetIds);
-            logger.info("碎片删除成功");
+            logger.info("Assemble Delete Successful");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(),"碎片删除成功");
         }
         catch (Exception exception){
-            logger.error("碎片删除失败：删除语句执行失败",exception);
+            logger.error("Assembles Delete Failed: Delete Statement Execute Failed", exception);
             return ResultUtil.error(ResultEnum.Assemble_DELETE_ERROR.getCode(),ResultEnum.Assemble_DELETE_ERROR.getMsg());
         }
     }

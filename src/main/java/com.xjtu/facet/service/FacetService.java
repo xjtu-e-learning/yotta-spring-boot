@@ -634,6 +634,42 @@ public class FacetService {
     }
 
     /**
+     * 根据课程名和主题名，查询一级分面
+     *
+     * @param domainName
+     * @param topicName
+     * @return
+     */
+    public Result findFirstLayerFacetsByDomainNameAndTopicName(String domainName, String topicName) {
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("分面查询失败：对应课程不存在");
+            logger.error("public Result findFirstLayerFacetsByDomainNameAndTopicName(String domainName, String topicName)");
+            return ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR_3.getCode(), ResultEnum.FACET_SEARCH_ERROR_3.getMsg());
+        }
+        Long domainId = domain.getDomainId();
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
+        if (topic == null) {
+            logger.error("分面查询失败：对应主题不存在");
+            logger.error("public Result findFirstLayerFacetsByDomainNameAndTopicName(String domainName, String topicName)");
+            return ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR_4.getCode(), ResultEnum.FACET_SEARCH_ERROR_4.getMsg());
+        }
+        return findFirstLayerFacetsByTopicId(topic.getTopicId());
+    }
+
+    /**
+     * 根据主题id，查询一级分面
+     *
+     * @param topicId
+     * @return
+     */
+    public Result findFirstLayerFacetsByTopicId(Long topicId) {
+        List<Facet> firstLayerFacets = facetRepository.findByTopicIdAndFacetLayer(topicId, 1);
+        logger.info("public Result findFirstLayerFacetsByDomainIdAndTopicId(Long topicId)");
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), firstLayerFacets);
+    }
+
+    /**
      * 指定课程名、主题名和二级分面名，查询所有三级分面数量
      * @param domainName 课程名
      * @param topicName 主题名

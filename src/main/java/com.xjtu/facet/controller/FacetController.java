@@ -314,5 +314,31 @@ public class FacetController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @ApiOperation(value = "根据课程名和主题名，查询一级分面", notes = "根据课程名和主题名，查询一级分面")
+    @GetMapping("/getFirstLayerFacetsByDomainNameAndTopicName")
+    public ResponseEntity getFirstLayerFacetsByDomainNameAndTopicName
+            (@RequestParam(name = "domainName") String domainName,
+             @RequestParam(name = "topicName") String topicName,
+             HttpServletRequest request) {
+        logger.info(HttpUtil.getHeaders(request));
+        Result result = facetService.findFirstLayerFacetsByDomainNameAndTopicName(domainName, topicName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @ApiOperation(value = "根据主题id，查询一级分面", notes = "根据主题id，查询一级分面")
+    @GetMapping("/getFirstLayerFacetsByTopicId")
+    public ResponseEntity getFirstLayerFacetsByTopicId(@RequestParam(name = "topicId") Long topicId,
+                                                       HttpServletRequest request) {
+        logger.info(HttpUtil.getHeaders(request));
+        Result result = facetService.findFirstLayerFacetsByTopicId(topicId);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
 
 }

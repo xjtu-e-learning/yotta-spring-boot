@@ -116,8 +116,9 @@ public enum ResultEnum {
     //课程数据统计
     STATISTICS_SEARCH_ERROR(158, "词频查询失败：中文分词失败"),
 
-    //主题状态
-    STATE_INSERT_ERROR(184, "主题状态保存失败：课程不存在"),
+    //状态
+    STATE_INSERT_ERROR(184, "状态保存失败：课程不存在"),
+    STATE_INSERT_ERROR_1(185, "状态保存失败：主题不存在"),
     //推荐主题
     RECOMMENDATION_INSERT_ERROR(181, "推荐主题保存失败：课程不存在"),
 
