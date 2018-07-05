@@ -101,7 +101,6 @@ public class FacetStateService {
      */
     public Result findByDomainIdAndTopicIdAndUserId(Long domainId, Long topicId, Long userId) {
         FacetState facetState = facetStateRepository.findByDomainIdAndTopicIdAndUserId(domainId, topicId, userId);
-        logger.info("分面状态查询成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), facetState);
     }
 

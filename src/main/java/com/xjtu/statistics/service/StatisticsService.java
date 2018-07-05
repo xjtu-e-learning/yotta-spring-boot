@@ -145,7 +145,6 @@ public class StatisticsService {
         statistics.put("assembleNumbers", assembleNumbers);
         dependencyNumbers.set(0, dependencyNumberSum);
         statistics.put("dependencyNumbers", dependencyNumbers);
-        logger.info("所有课程统计数据成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), statistics);
     }
 
@@ -229,7 +228,6 @@ public class StatisticsService {
         statistics.put("assembleNumbers", assembleNumbers);
         dependencyNumbers.set(0, dependencyNumberSum);
         statistics.put("dependencyNumbers", dependencyNumbers);
-        logger.info("所有课程统计数据成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), statistics);
     }
 
@@ -318,7 +316,6 @@ public class StatisticsService {
         statisticsResult.put("thirdLayerFacetNumbers", thirdLayerFacetNumbers);
         statisticsResult.put("dependencyNumbers", dependencyNumbers);
         statisticsResult.put("assembleNumbers", assembleNumbers);
-        logger.info("课程统计数据成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), statisticsResult);
     }
 
@@ -414,7 +411,6 @@ public class StatisticsService {
         statisticsInformation.put("facetNames", facetNames);
         statisticsInformation.put("details", details);
         statisticsInformation.put("totals", totals);
-        logger.info("主题统计数据成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), statisticsInformation);
     }
 
@@ -459,7 +455,6 @@ public class StatisticsService {
         Map<String, Object> assembleDistribution = new HashMap<>(2);
         assembleDistribution.put("assembleDistributionGroupBySources", assembleDistributionGroupBySources);
         assembleDistribution.put("sourceNames", sourceNames);
-        logger.info("查询碎片统计信息成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), assembleDistribution);
     }
 
@@ -480,7 +475,6 @@ public class StatisticsService {
         } else {
             return result;
         }
-        logger.info("查询碎片信息成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), assemblesInDomainAndTopics);
     }
 
@@ -636,7 +630,6 @@ public class StatisticsService {
             result.put("dependencyNumber", dependencyNumber);
             results.add(result);
         }
-        logger.info("统计所有课程的主题、分面、碎片数量分布信息成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), results);
     }
 
@@ -651,7 +644,6 @@ public class StatisticsService {
         Map<String, Integer> information = new HashMap<>(2);
         information.put("subjectNumber", subjects.size());
         information.put("domainNumber", domains.size());
-        logger.info("信息统计成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), information);
     }
 
@@ -691,7 +683,6 @@ public class StatisticsService {
             facetQueryResult.put("domainName", facetInformation.get("3"));
             queryResults.add(facetQueryResult);
         }
-        logger.info("信息统计成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), queryResults);
     }
 }

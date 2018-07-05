@@ -1,6 +1,7 @@
 package com.xjtu.common.aspect;
 
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
@@ -24,7 +25,7 @@ public class HttpAspect {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Pointcut(value = "execution(* com.xjtu.facet.controller.FacetController.*(..))")
+    @Pointcut(value = "execution(* com.xjtu.*.controller.*.*(..))")
     private void log() {
 
     }
@@ -53,5 +54,8 @@ public class HttpAspect {
         logger.info("arguments:{}", joinPoint.getArgs());
     }
 
-
+    @AfterReturning(returning = "object", value = "log()")
+    private void logAfterReturn(Object object) {
+        logger.info("response:{}", object.toString());
+    }
 }

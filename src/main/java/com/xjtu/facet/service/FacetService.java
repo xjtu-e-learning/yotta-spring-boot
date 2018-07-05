@@ -60,7 +60,6 @@ public class FacetService {
         }
         try {
             facetRepository.save(facet);
-            logger.info("分面信息插入成功");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "分面信息插入成功");
         } catch (Exception err) {
             logger.error("分面信息插入失败：分面插入语句执行失败");
@@ -186,7 +185,6 @@ public class FacetService {
         }
         try {
             facetRepository.delete(facetId);
-            logger.info("分面信息删除成功");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "分面信息删除成功");
         } catch (Exception err) {
             logger.error("分面信息删除失败：分面删除语句执行失败");
@@ -204,7 +202,6 @@ public class FacetService {
             assembleRepository.deleteByFacetIdIsIn(facetIds);
             //删除分面
             facetRepository.delete(facets);
-            logger.info("分面信息删除成功");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "分面信息删除成功");
 
         } catch (Exception exception) {
@@ -331,7 +328,6 @@ public class FacetService {
             Long topicId = facet.getTopicId();
             facetRepository.updateFacetById(facetId, facetName, facetLayer,
                     parentFacetId, topicId);
-            logger.info("分面更新成功");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "分面更新成功");
         } catch (Exception err) {
             logger.error("分面更新失败：更新语句执行失败");
@@ -380,7 +376,6 @@ public class FacetService {
     public Result findFacets() {
         try {
             List<Facet> facets = facetRepository.findAll();
-            logger.info("分面查询成功");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), facets);
         } catch (Exception err) {
             logger.error("分面查询失败：查询语句执行失败");
@@ -464,7 +459,6 @@ public class FacetService {
                 result.put(topic.getTopicName(), firstLayerFacetNameContainChildrens);
             }
         }
-        logger.info("课程主题下的分面查询成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), result);
     }
 
@@ -488,7 +482,6 @@ public class FacetService {
             return ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR_4.getCode(), ResultEnum.FACET_SEARCH_ERROR_4.getMsg());
         }
         List<Facet> facets = facetRepository.findByTopicId(topic.getTopicId());
-        logger.info("分面查询成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), facets);
 
     }
@@ -539,7 +532,6 @@ public class FacetService {
             }
             childFacets = grandChildFacets;
         }
-        logger.info("子分面查询成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), facetMaps);
     }
 
@@ -579,7 +571,6 @@ public class FacetService {
         searchResult.put("topicName", topicName);
         searchResult.put("parentLayerFacetName", parentLayerFacetName);
         searchResult.put("childLayerFacetsNumber", childLayerFacets.size());
-        logger.info("子分面查询成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), searchResult);
     }
 
@@ -618,7 +609,6 @@ public class FacetService {
             result.put("secondLayerFacetNames", secondLayerFacetNames);
             results.add(result);
         }
-        logger.info("分面查询成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), results);
     }
 
@@ -643,7 +633,6 @@ public class FacetService {
      */
     public Result findByDomainName(String domainName) {
         List<Facet> facets = facetRepository.findByDomainName(domainName);
-        logger.info("分面查询成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(),
                 ResultEnum.SUCCESS.getMsg(), facets);
     }
@@ -680,7 +669,6 @@ public class FacetService {
      */
     public Result findFirstLayerFacetsByTopicId(Long topicId) {
         List<Facet> firstLayerFacets = facetRepository.findByTopicIdAndFacetLayer(topicId, 1);
-        logger.info("public Result findFirstLayerFacetsByDomainIdAndTopicId(Long topicId)");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), firstLayerFacets);
     }
 
@@ -742,7 +730,6 @@ public class FacetService {
         facetInformation.put("facetName", facetName);
         facetInformation.put("facetLayer", facet.getFacetLayer());
         facetInformation.put("assembleNumber", assembleNumber);
-        logger.info("分面查询成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), facetInformation);
     }
 
@@ -823,7 +810,6 @@ public class FacetService {
         }
         List<Long> secondLayerFacetNumbers = facetRepository
                 .countAllFacetsByParentFacetIdAndFacetLayer(allFirstLayerFacetIds,2);
-        logger.info(secondLayerFacetNumbers.toString());
         //查找最大二级分面数
         Long maxSecondLayerFacetNumber = new Long(0);
         for(Long secondLayerFacetNumber:secondLayerFacetNumbers){
@@ -841,7 +827,6 @@ public class FacetService {
         Map<String, Object> result = new HashMap<>();
         result.put("firstLayerFacet", firstLayerFacetNumberMap);
         result.put("secondLayerFacet", secondLayerFacetNumberMap);
-        logger.info("分面统计成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg()
                 , result);
     }
@@ -864,7 +849,6 @@ public class FacetService {
             return ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR_2.getCode(), ResultEnum.FACET_SEARCH_ERROR_2.getMsg());
         }
         // 返回查询的内容
-        logger.info("数据源分页查询成功" + facetPage);
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), facetPage);
     }
 

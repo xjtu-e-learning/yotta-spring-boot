@@ -32,12 +32,12 @@ public class CourseWangyuanService {
     public Result findDomainByCourseId(Long courseId) {
         CourseWangyuan courseWangyuan = courseWangyuanRepository.findOne(courseId);
         if (courseWangyuan == null) {
-            logger.info("网院课程查询失败：不存在该门网院课程");
+            logger.error("网院课程查询失败：不存在该门网院课程");
             return ResultUtil.error(ResultEnum.COURSEWANGYUAN_SEARCH_ERROR.getCode()
                     , ResultEnum.COURSEWANGYUAN_SEARCH_ERROR.getMsg());
         }
         if (courseWangyuan.getCourseWiki() == null || ("").equals(courseWangyuan.getCourseWiki())) {
-            logger.info("网院课程查询失败：不存在对应网院课程的维基课程");
+            logger.error("网院课程查询失败：不存在对应网院课程的维基课程");
             return ResultUtil.error(ResultEnum.COURSEWANGYUAN_SEARCH_ERROR_1.getCode()
                     , ResultEnum.COURSEWANGYUAN_SEARCH_ERROR_1.getMsg());
         }
@@ -45,7 +45,6 @@ public class CourseWangyuanService {
         Map<String, Object> map = new HashMap<>(2);
         map.put("wangyuan", courseWangyuan);
         map.put("wiki", domain);
-        logger.info("网院课程查询成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), map);
     }
 

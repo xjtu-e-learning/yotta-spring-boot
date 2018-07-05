@@ -122,7 +122,6 @@ public class TopicService {
     public Result deleteTopic(Long topicId) {
         try {
             topicRepository.delete(topicId);
-            logger.info("主题删除成功");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "主题删除成功");
         } catch (Exception err) {
             logger.error("主题删除失败");
@@ -179,7 +178,6 @@ public class TopicService {
             dependencyRepository.deleteByStartTopicIdOrEndTopicId(topicId, topicId);
             File gexfFile = new File(gexfPath + "\\" + domainName + ".gexf");
             gexfFile.delete();
-            logger.info("主题删除成功");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "主题删除成功");
         } catch (Exception exception) {
             logger.error("错误：" + exception);
@@ -214,7 +212,6 @@ public class TopicService {
                 return ResultUtil.error(ResultEnum.TOPIC_UPDATE_ERROR_3.getCode(), ResultEnum.TOPIC_UPDATE_ERROR_3.getMsg());
             }
             topicRepository.updateByTopicName(oldTopicName, newTopicName, domain.getDomainId());
-            logger.info("主题名更新成功");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "主题名更新成功");
         } catch (Exception err) {
             logger.error("主题名更新失败：更新语句执行失败");
@@ -232,7 +229,6 @@ public class TopicService {
         Domain domain = domainRepository.findByDomainName(domainName);
         List<Topic> topics = topicRepository.findByDomainId(domain.getDomainId());
         try {
-            logger.info("主题查询成功");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topics);
         } catch (Exception error) {
             logger.error("主题查询失败：" + error);
@@ -312,7 +308,6 @@ public class TopicService {
         }
         topicContainFacet.setChildren(firstLayerFacets);
         topicContainFacet.setChildrenNumber(firstLayerFacets.size());
-        logger.info("主题信息查询成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicContainFacet);
     }
 
@@ -363,7 +358,6 @@ public class TopicService {
         }
         topicContainFacet.setChildren(firstLayerFacets);
         topicContainFacet.setChildrenNumber(firstLayerFacets.size());
-        logger.info("主题信息查询成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicContainFacet);
     }
 
@@ -423,7 +417,6 @@ public class TopicService {
         topicInformation.put("facetNumber", firstLayerFacets.size()
                 + secondLayerFacets.size()
                 + thirdLayerFacets.size());
-        logger.info("主题信息查询成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicInformation);
     }
 

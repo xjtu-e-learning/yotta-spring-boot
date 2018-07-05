@@ -3,7 +3,6 @@ package com.xjtu.topic.controller;
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
 import com.xjtu.topic.service.TopicService;
-import com.xjtu.utils.HttpUtil;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,8 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * api:处理topic主题数据
@@ -37,9 +34,7 @@ public class TopicController {
     @GetMapping("/insertTopicByNameAndDomainName")
     @ApiOperation(value = "插入主题信息，指定插入课程名和主题名", notes = "插入主题信息，指定插入课程名和主题名")
     public ResponseEntity insertTopicByNameAndDomainName(@RequestParam(name = "domainName") String domainName
-            , @RequestParam(name = "topicName") String topicName
-            , HttpServletRequest request) {
-        logger.info(HttpUtil.getHeaders(request));
+            , @RequestParam(name = "topicName") String topicName) {
         Result result = topicService.insertTopicByNameAndDomainName(domainName, topicName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
@@ -55,9 +50,7 @@ public class TopicController {
     @GetMapping("/deleteTopicByNameAndDomainName")
     @ApiOperation(value = "删除主题", notes = "根据课程名和主题名进行删除")
     public ResponseEntity deleteTopicByNameAndDomainName(@RequestParam(name = "domainName") String domainName
-            , @RequestParam(name = "topicName") String topicName
-            , HttpServletRequest request) {
-        logger.info(HttpUtil.getHeaders(request));
+            , @RequestParam(name = "topicName") String topicName) {
         Result result = topicService.deleteTopicByNameAndDomainName(topicName, domainName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
@@ -74,9 +67,7 @@ public class TopicController {
     @ApiOperation(value = "更新主题名", notes = "根据旧主题名进行更新")
     public ResponseEntity updateTopicByTopicName(@RequestParam(name = "oldTopicName") String oldTopicName
             , @RequestParam(name = "newTopicName") String newTopicName
-            , @RequestParam(name = "newDomainName") String newDomainName
-            , HttpServletRequest request) {
-        logger.info(HttpUtil.getHeaders(request));
+            , @RequestParam(name = "newDomainName") String newDomainName) {
         Result result = topicService.updateTopicByName(oldTopicName, newTopicName, newDomainName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
@@ -87,9 +78,7 @@ public class TopicController {
 
     @GetMapping("/getTopicsByDomainName")
     @ApiOperation(value = "获得主题信息", notes = "输入课程名，获得课程下主题信息")
-    public ResponseEntity getTopicsByDomainName(@RequestParam(name = "domainName") String domainName
-            , HttpServletRequest request) {
-        logger.info(HttpUtil.getHeaders(request));
+    public ResponseEntity getTopicsByDomainName(@RequestParam(name = "domainName") String domainName) {
         Result result = topicService.findTopicsByDomainName(domainName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
@@ -105,9 +94,7 @@ public class TopicController {
     @GetMapping("/getCompleteTopicByNameAndDomainName")
     @ApiOperation(value = "获得指定课程、指定主题的所有信息", notes = "获得指定课程、指定主题的所有信息")
     public ResponseEntity getCompleteTopicByNameAndDomainName(@RequestParam(name = "domainName") String domainName
-            , @RequestParam(name = "topicName") String topicName
-            , HttpServletRequest request) {
-        logger.info(HttpUtil.getHeaders(request));
+            , @RequestParam(name = "topicName") String topicName) {
         Result result = topicService.findCompleteTopicByNameAndDomainName(domainName, topicName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
@@ -125,9 +112,7 @@ public class TopicController {
             , notes = "获得指定课程、指定主题的所有信息，用于构建分面树")
     public ResponseEntity getCompleteTopicByNameAndDomainNameWithHasFragment(@RequestParam(name = "domainName") String domainName
             , @RequestParam(name = "topicName") String topicName
-            , @RequestParam(name = "hasFragment") boolean hasFragment
-            , HttpServletRequest request) {
-        logger.info(HttpUtil.getHeaders(request));
+            , @RequestParam(name = "hasFragment") boolean hasFragment) {
         if (hasFragment == true) {
             Result result = topicService.findCompleteTopicByNameAndDomainName(domainName, topicName);
             if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
@@ -149,9 +134,7 @@ public class TopicController {
      */
     @PostMapping("/getFirstTopicByDomianName")
     @ApiOperation(value = "获得指定课程第一个主题的所有信息,用于构建分面树", notes = "获得指定课程第一个主题的所有信息,用于构建分面树")
-    public ResponseEntity getFirstTopicByDomianName(@RequestParam(name = "domainName") String domainName
-            , HttpServletRequest request) {
-        logger.info(HttpUtil.getHeaders(request));
+    public ResponseEntity getFirstTopicByDomianName(@RequestParam(name = "domainName") String domainName) {
         Result result = topicService.findFirstTopicByDomianName(domainName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
@@ -168,9 +151,7 @@ public class TopicController {
     @ApiOperation(value = "查询指定课程、主题下的，主题信息、以及分面统计信息"
             , notes = "查询指定课程、主题下的，主题信息、以及分面统计信息")
     public ResponseEntity getTopicInformationByDomainNameAndTopicName(@RequestParam(name = "domainName") String domainName
-            , @RequestParam(name = "topicName") String topicName
-            , HttpServletRequest request) {
-        logger.info(HttpUtil.getHeaders(request));
+            , @RequestParam(name = "topicName") String topicName) {
         Result result = topicService.findTopicInformationByDomainNameAndTopicName(domainName, topicName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
