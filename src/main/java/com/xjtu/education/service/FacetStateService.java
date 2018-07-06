@@ -14,7 +14,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author yangkuan
@@ -60,6 +62,40 @@ public class FacetStateService {
                     , states
                     , new Date());
         }
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "分面状态保存成功");
+    }
+
+    /**
+     * 保存分面状态
+     *
+     * @param domainId
+     * @param states
+     * @param userId
+     * @return
+     */
+    public Result saveState(Long domainId,
+                            String states,
+                            Long userId) {
+        String[] statesByComma = states.split(";");
+        List<Topic> topics = topicRepository.findByDomainId(domainId);
+        if (topics.size() != statesByComma.length) {
+            logger.error("分面状态保存失败：数量不一致");
+            return ResultUtil.error(ResultEnum.STATE_INSERT_ERROR_2.getCode(), ResultEnum.STATE_INSERT_ERROR_2.getMsg());
+        }
+        List<FacetState> facetStates = new ArrayList<>();
+        for (int i = 0; i < statesByComma.length; i++) {
+            String s = statesByComma[i];
+            Topic topic = topics.get(i);
+            FacetState facetState = new FacetState();
+            facetState.setDomainId(domainId);
+            facetState.setTopicId(topic.getTopicId());
+            facetState.setStates(s);
+            facetState.setUserId(userId);
+            facetState.setCreatedTime(new Date());
+            facetState.setModifiedTime(new Date());
+            facetStates.add(facetState);
+        }
+        facetStateRepository.save(facetStates);
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "分面状态保存成功");
     }
 

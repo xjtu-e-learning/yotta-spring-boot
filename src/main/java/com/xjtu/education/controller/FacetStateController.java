@@ -38,6 +38,18 @@ public class FacetStateController {
 
     }
 
+    @GetMapping("/saveStateByDomainIdAndUserId")
+    @ApiOperation(value = "保存分面状态", notes = "保存分面状态")
+    public ResponseEntity saveState(@RequestParam(name = "domainId") Long domainId
+            , @RequestParam(name = "states") String states
+            , @RequestParam(name = "userId") Long userId) {
+        Result result = facetStateService.saveState(domainId, states, userId);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
     @GetMapping("/saveStateByDomainNameAndTopicNameAndUserId")
     @ApiOperation(value = "保存分面状态", notes = "保存分面状态")
     public ResponseEntity saveState(@RequestParam(name = "domainName") String domainName
@@ -50,7 +62,6 @@ public class FacetStateController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
-
     @GetMapping("/getByDomainIdAndTopicIdAndUserId")
     @ApiOperation(value = "查询分面状态", notes = "查询分面状态")
     public ResponseEntity getByDomainIdAndTopicIdAndUserId(@RequestParam(name = "domainId") Long domainId

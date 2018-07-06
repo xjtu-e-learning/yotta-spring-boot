@@ -5,6 +5,7 @@ import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.reflect.CodeSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -42,16 +43,22 @@ public class HttpAspect {
         String method = request.getMethod();
         logger.info("method:{}", method);
 
-        //ip
-        String ip = request.getRemoteAddr();
-        logger.info("ip:{}", ip);
+        //remote address
+        String remoteAddress = request.getRemoteAddr();
+        logger.info("remote address:{}", remoteAddress);
 
         //class method
         String classMethod = joinPoint.getSignature().getDeclaringTypeName()
                 + "." + joinPoint.getSignature().getName();
         logger.info("class method:{}", classMethod);
-        //arguments
-        logger.info("arguments:{}", joinPoint.getArgs());
+        //parameters
+        String[] paramNames = ((CodeSignature) joinPoint.getSignature()).getParameterNames();
+        String args = "";
+        Object[] objects = joinPoint.getArgs();
+        for (int i = 0; i < objects.length; i++) {
+            args += paramNames[i] + ":" + objects[i].toString() + " ";
+        }
+        logger.info("parameters:{}", args);
     }
 
     @AfterReturning(returning = "object", value = "log()")
