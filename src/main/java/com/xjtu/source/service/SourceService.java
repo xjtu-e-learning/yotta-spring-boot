@@ -50,7 +50,6 @@ public class SourceService {
         if (sourceRepository.findBySourceIdAndSourceName(source.getSourceId(), source.getSourceName()) == null) {
             Source sourceInsert = sourceRepository.save(source);
             if (sourceInsert != null) {
-                logger.info("插入成功");
                 return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), sourceInsert);
             } else {
                 logger.error("数据源插入失败：数据库插入语句失败");
@@ -71,7 +70,6 @@ public class SourceService {
     public Result deleteSource(Long sourceId) {
         try {
             sourceRepository.delete(sourceId);
-            logger.info("删除成功");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "删除成功");
         } catch (Exception e) {
             logger.error("删除失败");
@@ -90,7 +88,6 @@ public class SourceService {
     public Result updateSource(Long sourceId, Source newSource) {
         try {
             sourceRepository.updateBySourceId(sourceId, newSource.getSourceId(), newSource.getSourceName(), newSource.getNote());
-            logger.info("更新成功");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "更新成功");
         } catch (Exception e) {
             logger.error("更新失败");
@@ -106,7 +103,6 @@ public class SourceService {
     public Result getSource() {
         List<Source> sources = sourceRepository.findAll();
         if (sources.size() > 0) {
-            logger.info("数据源查询成功");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), sources);
         } else {
             logger.error("数据源查询失败：没有数据源记录");
@@ -123,7 +119,6 @@ public class SourceService {
     public Result getSourceById(Long sourceId) {
         try {
             Source source = sourceRepository.findBySourceId(sourceId);
-            logger.info("查询成功" + source.toString());
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), source);
         } catch (Exception e) {
             logger.error("数据源查询失败：没有数据源记录");
@@ -205,7 +200,6 @@ public class SourceService {
             return ResultUtil.error(ResultEnum.SOURCE_SEARCH_ERROR_2.getCode(), ResultEnum.SOURCE_SEARCH_ERROR_2.getMsg());
         }
         // 返回查询的内容
-        logger.info("数据源分页查询成功" + sourcePage);
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), sourcePage);
     }
 

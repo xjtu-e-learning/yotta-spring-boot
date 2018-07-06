@@ -71,7 +71,6 @@ public class DomainService {
         else if (domainRepository.findByDomainIdAndDomainName(domain.getDomainId(), domainName) == null) {
             Domain domainInsert = domainRepository.save(domain);
             if (domainInsert != null) {
-                logger.info("插入课程信息成功");
                 return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "课程:" + domainName + "插入成功");
             } else {
                 logger.error("课程信息插入失败：数据库插入语句失败");
@@ -104,7 +103,6 @@ public class DomainService {
     public Result deleteDomain(Long domainId) {
         try {
             domainRepository.delete(domainId);
-            logger.info("删除课程成功");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "删除课程成功");
         } catch (Exception e) {
             logger.error("删除课程失败");
@@ -130,7 +128,6 @@ public class DomainService {
         }
         try {
             domainRepository.updateByDomainId(domainId, newDomainId, newDomainName, newSubjectId);
-            logger.info("课程更新成功");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "课程更新成功");
         } catch (Exception err) {
             logger.error("课程更新失败：更新语句执行失败");
@@ -152,7 +149,6 @@ public class DomainService {
         }
         try {
             domainRepository.updateDomainByDomainName(oldDomainName, newDomainName);
-            logger.info("课程名更新成功");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "课程名更新成功");
         } catch (Exception err) {
             logger.error("课程名更新失败：更新语句执行失败");
@@ -169,8 +165,6 @@ public class DomainService {
     public Result findDomains() {
         List<Domain> domains = domainRepository.findAll();
         if (domains.size() > 0) {
-            logger.info("课程查询成功");
-            domains.forEach(domain -> logger.info("查询结果为：" + domain.toString()));
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), domains);
         } else {
             logger.error("课程查询失败：没有课程记录");
@@ -234,7 +228,6 @@ public class DomainService {
             topicNameContainFacets.add(topicNameContainFacet);
         }
         //考虑有没有什么降低复杂度的方法，此处显然循环太多（4层）
-        logger.info("课程树状信息查询成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicNameContainFacets);
     }
 
@@ -247,7 +240,6 @@ public class DomainService {
     public Result findDomainById(Long domainId) {
         try {
             Domain domain = domainRepository.findOne(domainId);
-            logger.info("查询成功" + domain.toString());
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), domain);
         } catch (Exception err) {
             logger.error("课程查询失败：没有课程记录");
@@ -264,7 +256,6 @@ public class DomainService {
     public Result findDomainsBySubjectId(Long subjectId) {
         try {
             List<Domain> domains = domainRepository.findBySubjectId(subjectId);
-            domains.forEach(domain -> logger.info("查询结果为：" + domain.toString()));
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), domains);
         } catch (Exception err) {
             logger.error("课程查询失败：没有课程记录");
@@ -336,7 +327,6 @@ public class DomainService {
             return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR_1.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR_1.getMsg());
         }
         //查询成功，返回查询的内容
-        logger.info("课程分页查询成功" + domainPage);
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), domainPage);
     }
 
@@ -358,7 +348,6 @@ public class DomainService {
                     subject.getSubjectName(), subject.getNote(), domains);
             subjectContainDomains.add(subjectContainDomain);
         }
-        logger.info("课程查询成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), subjectContainDomains);
     }
 
@@ -375,7 +364,6 @@ public class DomainService {
             return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
         }
         List<Domain> domains = domainRepository.findBySubjectId(subject.getSubjectId());
-        logger.info("课程查询成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), domains);
     }
 
@@ -389,7 +377,6 @@ public class DomainService {
             List<Domain> domains = domainRepository.findAll();
             Map<String, Object> domainMap = new HashMap<>();
             domainMap.put("domainNumber", domains.size());
-            logger.info("课程数量统计查询成功");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), domainMap);
         } catch (Exception err) {
             logger.error("课程数量统计查询失败");

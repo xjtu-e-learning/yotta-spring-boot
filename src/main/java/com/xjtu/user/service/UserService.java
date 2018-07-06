@@ -42,12 +42,11 @@ public class UserService {
     public Result login(String userName, String password, String ip, String place, String date) {
         User user = userRepository.findByUserNameAndPassword(userName, password);
         if (user == null) {
-            logger.info("登录失败：用户不存在");
+            logger.error("登录失败：用户不存在");
             return ResultUtil.error(ResultEnum.LOGIN_ERROR.getCode(), ResultEnum.LOGIN_ERROR.getMsg());
         }
         UserLog userLog = new UserLog(userName, password, ip, place, date);
         userLogRepository.save(userLog);
-        logger.info("用户登录成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "用户登录成功");
     }
 

@@ -70,7 +70,7 @@ public class TopicStateService {
             , Long userId) {
         Domain domain = domainRepository.findByDomainName(domainName);
         if (domain == null) {
-            logger.info("保存失败:课程不存在");
+            logger.error("保存失败:课程不存在");
             return ResultUtil.error(ResultEnum.STATE_INSERT_ERROR.getCode(), ResultEnum.STATE_INSERT_ERROR.getMsg());
         }
         return saveState(domain.getDomainId()
@@ -88,7 +88,6 @@ public class TopicStateService {
     public Result findByDomainIdAndUserId(Long domainId, Long userId) {
         TopicState topicState = topicStateRepository
                 .findByDomainIdAndUserId(domainId, userId);
-        logger.info("主题状态查询成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicState);
     }
 }

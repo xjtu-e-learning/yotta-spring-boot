@@ -115,7 +115,6 @@ public class DependencyService {
         Dependency dependency = new Dependency(startTopic.getTopicId(), endTopic.getTopicId(), 0, domain.getDomainId());
         try {
             dependencyRepository.save(dependency);
-            logger.info("主题依赖关系插入成功");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "主题依赖关系插入成功");
         } catch (Exception exception) {
             logger.error("主题依赖关系插入失败:插入语句执行失败");
@@ -140,7 +139,6 @@ public class DependencyService {
         }
         try {
             dependencyRepository.deleteByDomainIdAndStartTopicIdAndEndTopicId(domain.getDomainId(), startTopicId, endTopicId);
-            logger.info("主题依赖关系删除成功");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "主题依赖关系删除成功");
         } catch (Exception exception) {
             logger.error("主题依赖关系删除失败：删除语句执行失败", exception);
@@ -176,7 +174,6 @@ public class DependencyService {
                 dependencyContainName.setEndTopicName(endTopicName);
                 dependencyContainNames.add(dependencyContainName);
             }
-            logger.info("主题依赖关系查询成功");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), dependencyContainNames);
         } catch (Exception exception) {
             logger.error("主题依赖关系查询失败：查询语句执行失败", exception);
@@ -210,7 +207,6 @@ public class DependencyService {
             dependencyContainName.setEndTopicName(endTopicName);
             dependencyContainNames.add(dependencyContainName);
         }
-        logger.info("主题依赖关系查询成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), dependencyContainNames);
     }
 
@@ -310,8 +306,6 @@ public class DependencyService {
 
         //See visible graph stats
         UndirectedGraph graphVisible = graphModel.getUndirectedGraphVisible();
-        logger.info("Nodes: " + graphVisible.getNodeCount());
-        logger.info("Edges: " + graphVisible.getEdgeCount());
 
         //Layout for 1 minute
         AutoLayout autoLayout = new AutoLayout(1, TimeUnit.MINUTES);
@@ -385,7 +379,6 @@ public class DependencyService {
         Column modColumn = graphModel.getNodeTable().getColumn(Modularity.MODULARITY_CLASS);
         Function func2 = appearanceModel.getNodeFunction(graph, modColumn, PartitionElementColorTransformer.class);
         Partition partition2 = ((PartitionFunction) func2).getPartition();
-        logger.info(partition2.size() + " partitions found");
         Palette palette2 = PaletteManager.getInstance().randomPalette(partition2.size());
         partition2.setColors(palette2.getColors());
         appearanceController.transform(func2);

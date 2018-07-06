@@ -83,7 +83,6 @@ public class AssembleService {
             //查询碎片
             assembles.addAll(assembleRepository.findByFacetId(facet.getFacetId()));
         }
-        logger.info("Assembles Search Successful");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), assembles);
     }
 
@@ -126,7 +125,6 @@ public class AssembleService {
             assembles.addAll(assembleRepository.findByFacetId(secondLayerFacet.getFacetId()));
             //此处未考虑三级分面
         }
-        logger.info("Assembles Search Successful");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), assembles);
     }
 
@@ -198,7 +196,6 @@ public class AssembleService {
             }
             resultMap.put(topicName, result);
         });
-        logger.info("Assembles Search Successful");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), resultMap);
     }
 
@@ -234,7 +231,6 @@ public class AssembleService {
         //此处未考虑三级分面
         //查询碎片
         List<Assemble> assembles = assembleRepository.findByFacetId(facet.getFacetId());
-        logger.info("Assembles Search Successful");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), assembles);
     }
 
@@ -269,7 +265,6 @@ public class AssembleService {
         }
         //查询碎片
         List<Assemble> assembles = assembleRepository.findByFacetId(facet.getFacetId());
-        logger.info("Assembles Search Successful");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), assembles);
     }
 
@@ -333,7 +328,6 @@ public class AssembleService {
                 , facet.getFacetId()
                 , source.getSourceId());
         assembleRepository.save(assemble);
-        logger.info("Assembles Insert Successful");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "碎片添加成功");
     }
 
@@ -366,7 +360,6 @@ public class AssembleService {
         try {
             TemporaryAssemble temporaryAssemble = new TemporaryAssemble(assembleContent, assembleScratchTime, userName);
             temporaryAssembleRepository.save(temporaryAssemble);
-            logger.info("Temporary Assemble Insert Successful");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "碎片添加成功");
         } catch (Exception error) {
             logger.error("Temporary Assemble Insert Failed: ", error);
@@ -383,7 +376,6 @@ public class AssembleService {
     public Result findTemporaryAssemblesByUserName(String userName) {
         try {
             List<TemporaryAssemble> temporaryAssembles = temporaryAssembleRepository.findByUserName(userName);
-            logger.info("Temporary Assemble Search Successful");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), temporaryAssembles);
         } catch (Exception error) {
             logger.error("Temporary Assemble Search Failed: ", error);
@@ -400,7 +392,6 @@ public class AssembleService {
     public Result findTemporaryAssembleById(Long assembleId) {
         try {
             TemporaryAssemble temporaryAssemble = temporaryAssembleRepository.findOne(assembleId);
-            logger.info("Temporary Assemble Search Successful");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), temporaryAssemble);
         } catch (Exception error) {
             logger.error("Temporary Assemble Search Failed: ", error);
@@ -417,7 +408,6 @@ public class AssembleService {
     public Result findAssembleById(Long assembleId) {
         try {
             Assemble assemble = assembleRepository.findOne(assembleId);
-            logger.info("Assemble Search Successful");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), assemble);
         } catch (Exception error) {
             logger.error("Assemble Search Failed: ", error);
@@ -439,7 +429,6 @@ public class AssembleService {
         }
         try {
             temporaryAssembleRepository.updateTemporaryAssemble(assembleId, assembleContent);
-            logger.info("Assemble Update Successful");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "碎片更新成功");
         } catch (Exception error) {
             logger.error("Assembles Update Failed: Update Statement Execute Failed", error);
@@ -456,7 +445,6 @@ public class AssembleService {
     public Result deleteTemporaryAssemble(Long assembleId) {
         try {
             temporaryAssembleRepository.delete(assembleId);
-            logger.info("Assemble Delete Successful");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "碎片删除成功");
         } catch (Exception e) {
             logger.error("Assembles Delete Failed: Delete Statement Execute Failed" + e);
@@ -473,7 +461,6 @@ public class AssembleService {
     public Result deleteAssemble(Long assembleId) {
         try {
             assembleRepository.delete(assembleId);
-            logger.info("Assemble Delete Successful");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "碎片删除成功");
         } catch (Exception ex) {
             logger.error("Assembles Delete Failed: Delete Statement Execute Failed", ex);
@@ -495,7 +482,6 @@ public class AssembleService {
         }
         try {
             assembleRepository.deleteByFacetIdIsIn(facetIds);
-            logger.info("Assemble Delete Successful");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "碎片删除成功");
         } catch (Exception exception) {
             logger.error("Assembles Delete Failed: Delete Statement Execute Failed", exception);

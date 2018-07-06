@@ -74,7 +74,6 @@ public class SpiderService {
 
         // 爬取多门课程
         String excelPath = SpiderController.class.getClassLoader().getResource("").getPath() + "domains.xls";
-        logger.info(excelPath);
         //String excelPath = "";
         List<Domain> domains = getDomainFromExcel(excelPath);
         for (Domain domain : domains) {

@@ -69,7 +69,6 @@ public class RecommendationService {
             , Long userId) {
         Domain domain = domainRepository.findByDomainName(domainName);
         if (domain == null) {
-            logger.info("保存失败:课程不存在");
             return ResultUtil.error(ResultEnum.RECOMMENDATION_INSERT_ERROR.getCode(), ResultEnum.RECOMMENDATION_INSERT_ERROR.getMsg());
         }
         return saveRecommendation(domain.getDomainId()
@@ -86,7 +85,6 @@ public class RecommendationService {
      */
     public Result findByDomainIdAndUserId(Long domainId, Long userId) {
         Recommendation recommendation = recommendationRepository.findByDomainIdAndUserId(domainId, userId);
-        logger.info("推荐主题查询成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), recommendation);
     }
 

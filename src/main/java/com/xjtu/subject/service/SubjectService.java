@@ -66,7 +66,6 @@ public class SubjectService {
         if (subjectRepository.findBySubjectIdAndSubjectName(subject.getSubjectId(), subject.getSubjectName()) == null) {
             Subject subjectInsert = subjectRepository.save(subject);
             if (subjectInsert != null) {
-                logger.info("插入学科信息成功");
                 return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), subjectInsert);
             } else {
                 logger.error("学科信息插入失败：数据库插入语句失败");
@@ -87,7 +86,6 @@ public class SubjectService {
     public Result deleteSubject(Long subjectId) {
         try {
             subjectRepository.delete(subjectId);
-            logger.info("删除学科成功");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "删除学科成功");
         } catch (Exception e) {
             logger.error("删除学科失败");
@@ -105,7 +103,6 @@ public class SubjectService {
     public Result updateSubject(Long subjectId, Subject newSubject) {
         try {
             subjectRepository.updateBySubjectId(subjectId, newSubject.getSubjectId(), newSubject.getSubjectName(), newSubject.getNote());
-            logger.info("更新成功");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "更新成功");
         } catch (Exception e) {
             logger.error("更新失败");
@@ -121,8 +118,6 @@ public class SubjectService {
     public Result findSubjects() {
         List<Subject> subjects = subjectRepository.findAll();
         if (subjects.size() > 0) {
-            logger.info("查询成功");
-            subjects.forEach(subject -> logger.info("查询结果为：" + subject.toString()));
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), subjects);
         } else {
             logger.error("查询学科信息失败");
@@ -139,7 +134,6 @@ public class SubjectService {
     public Result findSubjectById(Long subjectId) {
         try {
             Subject subject = subjectRepository.findBySubjectId(subjectId);
-            logger.info("查询成功" + subject.toString());
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), subject);
         } catch (Exception e) {
             logger.error("学科查询失败：没有学科信息记录");
@@ -193,7 +187,6 @@ public class SubjectService {
             subjectTree.put("domains", domainTrees);
             subjectTrees.add(subjectTree);
         }
-        logger.info("学科查询数据成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), subjectTrees);
     }
 
@@ -242,7 +235,6 @@ public class SubjectService {
             return ResultUtil.error(ResultEnum.SUBJECT_SEARCH_ERROR_1.getCode(), ResultEnum.SUBJECT_SEARCH_ERROR_1.getMsg());
         }
         //查询成功，返回查询的内容
-        logger.info("学科分页查询成功" + subjectPage);
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), subjectPage);
     }
 
