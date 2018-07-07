@@ -50,6 +50,6 @@ public class TopicContainFacet extends Topic {
         setTopicName(topic.getTopicName());
         setTopicUrl(topic.getTopicUrl());
         setTopicLayer(topic.getTopicLayer());
-        setTopicUrl(topic.getTopicUrl());
+        setDomainId(topic.getDomainId());
     }
 }

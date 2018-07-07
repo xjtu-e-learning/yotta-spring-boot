@@ -85,19 +85,40 @@ public class FacetStateService {
         List<FacetState> facetStates = new ArrayList<>();
         for (int i = 0; i < statesByComma.length; i++) {
             String s = statesByComma[i];
-            Topic topic = topics.get(i);
-            FacetState facetState = new FacetState();
-            facetState.setDomainId(domainId);
-            facetState.setTopicId(topic.getTopicId());
-            facetState.setStates(s);
-            facetState.setUserId(userId);
-            facetState.setCreatedTime(new Date());
-            facetState.setModifiedTime(new Date());
-            facetStates.add(facetState);
+            if (!s.equals("")) {
+                Topic topic = topics.get(i);
+                FacetState facetState = new FacetState();
+                facetState.setDomainId(domainId);
+                facetState.setTopicId(topic.getTopicId());
+                facetState.setStates(s);
+                facetState.setUserId(userId);
+                facetState.setCreatedTime(new Date());
+                facetState.setModifiedTime(new Date());
+                facetStates.add(facetState);
+            }
         }
         facetStateRepository.save(facetStates);
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "分面状态保存成功");
     }
+
+    /**
+     * 保存分面状态
+     *
+     * @param domainName
+     * @param states
+     * @param userId
+     * @return
+     */
+    public Result saveState(String domainName, String states
+            , Long userId) {
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("保存失败:课程不存在");
+            return ResultUtil.error(ResultEnum.STATE_INSERT_ERROR.getCode(), ResultEnum.STATE_INSERT_ERROR.getMsg());
+        }
+        return saveState(domain.getDomainId(), states, userId);
+    }
+
 
     /**
      * 保存主题状态
@@ -113,7 +134,6 @@ public class FacetStateService {
         Domain domain = domainRepository.findByDomainName(domainName);
         if (domain == null) {
             logger.error("保存失败:课程不存在");
-            logger.error("public Result saveState(String domainName, String topicName, String states, Long userId)");
             return ResultUtil.error(ResultEnum.STATE_INSERT_ERROR.getCode(), ResultEnum.STATE_INSERT_ERROR.getMsg());
         }
         Topic topic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(), topicName);
