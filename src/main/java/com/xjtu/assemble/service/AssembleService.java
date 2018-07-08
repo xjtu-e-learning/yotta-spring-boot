@@ -155,12 +155,12 @@ public class AssembleService {
             Topic topic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
             Long topicId = topic.getTopicId();
             List<Map<String, Object>> result = new ArrayList<>();
-            List<Facet> facets = facetRepository.findAllFacetsByDomainIdAndTopicName(domainId, topicName);
+            List<Facet> facets = facetRepository.findByTopicId(topicId);
             Map<Long, Facet> facetMap = new HashMap<>(facets.size());
             for (Facet facet : facets) {
                 facetMap.put(facet.getFacetId(), facet);
             }
-            List<Assemble> assembles = assembleRepository.findAllAssemblesByDomainIdAndTopicNameAndFacetLayer(domainId, topicName, 2);
+            List<Assemble> assembles = assembleRepository.findByTopicIdAndFacetLayer(topicId, 2);
             for (Assemble assemble : assembles) {
                 Map<String, Object> assembleMap = new HashMap<>(10);
                 assembleMap.put("assembleId", assemble.getAssembleId());
@@ -178,7 +178,7 @@ public class AssembleService {
                 result.add(assembleMap);
             }
 
-            List<Assemble> firstLayerAssembles = assembleRepository.findAllAssemblesByDomainIdAndTopicNameAndFacetLayer(domainId, topicName, 1);
+            List<Assemble> firstLayerAssembles = assembleRepository.findByTopicIdAndFacetLayer(topicId, 1);
             for (Assemble firstLayerAssemble : firstLayerAssembles) {
                 Map<String, Object> assembleMap = new HashMap<>(10);
                 assembleMap.put("assembleId", firstLayerAssemble.getAssembleId());

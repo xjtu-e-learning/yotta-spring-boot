@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author yangkuan
@@ -22,6 +23,18 @@ public interface FacetStateRepository extends JpaRepository<FacetState, Long> {
      */
     @Transactional(rollbackFor = Exception.class)
     FacetState findByDomainIdAndTopicIdAndUserId(Long domainId, Long topicId, Long userId);
+
+    /**
+     * 查询分面状态
+     *
+     * @param domainId
+     * @param userId
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    List<FacetState> findByDomainIdAndUserId(Long domainId, Long userId);
+
+
 
     /**
      * 更新分面状态
