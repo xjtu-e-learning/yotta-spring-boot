@@ -82,6 +82,7 @@ public class FacetStateService {
             logger.error("分面状态保存失败：数量不一致");
             return ResultUtil.error(ResultEnum.STATE_INSERT_ERROR_2.getCode(), ResultEnum.STATE_INSERT_ERROR_2.getMsg());
         }
+        List<FacetState> facetStateResults = facetStateRepository.findByDomainIdAndUserId(domainId, userId);
         List<FacetState> facetStates = new ArrayList<>();
         for (int i = 0; i < statesByComma.length; i++) {
             String s = statesByComma[i];
@@ -97,7 +98,18 @@ public class FacetStateService {
                 facetStates.add(facetState);
             }
         }
-        facetStateRepository.save(facetStates);
+        if (facetStateResults != null) {
+            for (int i = 0; i < facetStateResults.size(); i++) {
+                facetStates.get(i).setStateId(facetStateResults.get(i).getStateId());
+            }
+        }
+        try {
+            facetStateRepository.save(facetStates);
+        } catch (Exception e) {
+            return ResultUtil.error(ResultEnum.STATE_INSERT_ERROR_1.getCode()
+                    , ResultEnum.STATE_INSERT_ERROR_1.getMsg(), e);
+        }
+
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "分面状态保存成功");
     }
 
