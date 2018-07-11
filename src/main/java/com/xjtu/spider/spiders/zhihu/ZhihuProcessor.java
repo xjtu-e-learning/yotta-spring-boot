@@ -6,6 +6,8 @@ import com.xjtu.spider.service.SpiderService;
 import com.xjtu.spider.spiders.webmagic.bean.Assembles;
 import com.xjtu.spider.spiders.webmagic.pipeline.SqlPipeline;
 import com.xjtu.spider.spiders.webmagic.spider.YangKuanSpider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
@@ -23,6 +25,7 @@ import java.util.Map;
  */
 public class ZhihuProcessor implements PageProcessor {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     SpiderService spiderService;
 
@@ -46,14 +49,19 @@ public class ZhihuProcessor implements PageProcessor {
     @Override
     public void process(Page page) {
         //爬取碎片
-        List<String> assembleContents = page.getHtml().xpath("div[@class='RichContent-inner']/span[@class='RichText CopyrightRichText-richText']").all();
-        List<String> assembleTexts = page.getHtml().xpath("div[@class='RichContent-inner']/span[@class='RichText CopyrightRichText-richText']/tidyText()").all();
+        List<String> assembleContents = page.getHtml().xpath("div[@class='RichContent-inner']/span[@class='RichText ztext CopyrightRichText-richText']").all();
+        assembleContents.addAll(page.getHtml().xpath("div[@class='RichText ztext Post-RichText']").all());
+        logger.debug(assembleContents.size() + " " + assembleContents.toString());
+        List<String> assembleTexts = page.getHtml().xpath("div[@class='RichContent-inner']/span[@class='RichText ztext CopyrightRichText-richText']/tidyText()").all();
+        assembleTexts.addAll(page.getHtml().xpath("div[@class='RichText ztext Post-RichText']/tidyText()").all());
+        logger.debug(assembleTexts.size() + " " + assembleTexts.toString());
         Assembles assembles = new Assembles(assembleContents, assembleTexts);
         page.putField("assembles", assembles);
 
         List<String> urls;
         //这里获取得到的大部分链接都是相对路径
-        urls = page.getHtml().xpath("div[@class='title']/a[@class='js-title-link']/@href").all();
+        urls = page.getHtml().xpath("div[@class='List-item']//h2[@class='ContentItem-title']//a/@href").all();
+        logger.debug(urls.toString());
         //此处应该添加请求的附加信息，extras
         for (String url : urls) {
             Request request = new Request();
