@@ -13,13 +13,7 @@ import com.xjtu.question.repository.QuestionRepository;
 import com.xjtu.source.domain.Source;
 import com.xjtu.source.repository.SourceRepository;
 import com.xjtu.spider.controller.SpiderController;
-import com.xjtu.spider.spiders.baiduzhidao.BaiduZhidaoProcessor;
-import com.xjtu.spider.spiders.csdn.CSDNProcessor;
-import com.xjtu.spider.spiders.stackoverflow.StackoverflowAskerProcessor;
-import com.xjtu.spider.spiders.stackoverflow.StackoverflowQuestionProcessor;
-import com.xjtu.spider.spiders.yahooanswer.YahooAskerProcessor;
-import com.xjtu.spider.spiders.yahooanswer.YahooProcessor;
-import com.xjtu.spider.spiders.zhihu.ZhihuProcessor;
+import com.xjtu.spider.spiders.toutiao.ToutiaoProcessor;
 import com.xjtu.subject.domain.Subject;
 import com.xjtu.subject.repository.SubjectRepository;
 import com.xjtu.topic.domain.Topic;
@@ -80,7 +74,7 @@ public class SpiderService {
             String domainName = domain.getDomainName();
             logger.info("碎片开始爬取课程：" + domainName);
 
-            logger.info("百度知道碎片开始爬取 当前课程：" + domainName);
+/*            logger.info("百度知道碎片开始爬取 当前课程：" + domainName);
             BaiduZhidaoProcessor baiduZhidaoProcessor = new BaiduZhidaoProcessor(this);
             baiduZhidaoProcessor.baiduAnswerCrawl(domainName);
             logger.info("百度知道碎片爬取完成");
@@ -113,7 +107,12 @@ public class SpiderService {
             logger.info("知乎碎片开始爬取 当前课程：" + domainName);
             ZhihuProcessor zhihuProcessor = new ZhihuProcessor(this);
             zhihuProcessor.zhihuAnswerCrawl(domainName);
-            logger.info("知乎碎片爬取完成");
+            logger.info("知乎碎片爬取完成");*/
+
+            logger.info("今日头条碎片开始爬取 当前课程：" + domainName);
+            ToutiaoProcessor toutiaoProcessor = new ToutiaoProcessor(this);
+            toutiaoProcessor.toutiaoAnswerCrawl(domainName);
+            logger.info("今日头条碎片爬取完成");
         }
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "爬取碎片完成");
     }
