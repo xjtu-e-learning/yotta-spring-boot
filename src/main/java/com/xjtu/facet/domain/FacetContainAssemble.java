@@ -1,6 +1,8 @@
 package com.xjtu.facet.domain;
 
 
+import java.util.List;
+
 /**
  * 分面类，包含分面下的子分面以及碎片
  *
@@ -11,7 +13,7 @@ package com.xjtu.facet.domain;
 public class FacetContainAssemble extends Facet {
 
 
-    Object children;
+    List<Object> children;
 
     Integer childrenNumber = 0;
     String type = "branch";
@@ -25,13 +27,13 @@ public class FacetContainAssemble extends Facet {
     public FacetContainAssemble() {
     }
 
-    public FacetContainAssemble(Object children, Integer childrenNumber, String type) {
+    public FacetContainAssemble(List<Object> children, Integer childrenNumber, String type) {
         this.children = children;
         this.childrenNumber = childrenNumber;
         this.type = type;
     }
 
-    public FacetContainAssemble(String facetName, Integer facetLayer, Long topicId, Long parentFacetId, Object children, Integer childrenNumber, String type) {
+    public FacetContainAssemble(String facetName, Integer facetLayer, Long topicId, Long parentFacetId, List<Object> children, Integer childrenNumber, String type) {
         super(facetName, facetLayer, topicId, parentFacetId);
         this.children = children;
         this.childrenNumber = childrenNumber;
@@ -47,11 +49,11 @@ public class FacetContainAssemble extends Facet {
                 '}';
     }
 
-    public Object getChildren() {
+    public List<Object> getChildren() {
         return children;
     }
 
-    public void setChildren(Object children) {
+    public void setChildren(List<Object> children) {
         this.children = children;
     }
 
