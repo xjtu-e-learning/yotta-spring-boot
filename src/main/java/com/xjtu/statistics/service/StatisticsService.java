@@ -27,10 +27,8 @@ import org.wltea.analyzer.core.Lexeme;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.math.BigInteger;
+import java.util.*;
 
 /**
  * 处理课程统计信息
@@ -595,40 +593,49 @@ public class StatisticsService {
         List<Domain> domains = domainRepository.findAll();
         //存储统计结果
         List<Map<String, Object>> results = new ArrayList<>();
+        List<Long> domainIds = new ArrayList<>();
         for (Domain domain : domains) {
             Long domainId = domain.getDomainId();
+            domainIds.add(domainId);
             Map<String, Object> result = new HashMap<>(11);
             result.put("domainId", domain.getDomainId());
             result.put("domainName", domain.getDomainName());
             result.put("note", "");
-            //查询课程所属学科
-            Subject subject = subjectRepository.findBySubjectId(domain.getSubjectId());
-            if (subject != null) {
-                result.put("subjectName", subject.getSubjectName());
-            }
-            //根据课程查询课程主题
-            int topicNumber = topicRepository.findTopicNumberByDomainId(domainId);
-            result.put("topicNumber", topicNumber);
             //根据主题查询分面（一级、二级、三级、总数）
-            //查询总分面数
-            int facetNumber = facetRepository.findFacetNumberByDomainId(domainId);
+            //获取总分面数
+            int facetTotalNumber = 0;
+            List<Integer> layer = Arrays.asList(1, 2, 3);
+            List<BigInteger> facetNumbers = facetRepository.findFacetNumberByDomainIdAndFacetLayer(domainId, layer);
+            for (BigInteger facetNumber : facetNumbers) {
+                facetTotalNumber += facetNumber.intValue();
+            }
             //一级分面
-            int firstLayerFacetNumber = facetRepository.findFacetNumberByDomainIdAndFacetLayer(domainId, 1);
+            int firstLayerFacetNumber = facetNumbers.get(0).intValue();
             //二级分面
-            int secondLayerFacetNumber = facetRepository.findFacetNumberByDomainIdAndFacetLayer(domainId, 2);
+            int secondLayerFacetNumber = 0;
+            if (facetNumbers.size() >= 2) {
+                secondLayerFacetNumber = facetNumbers.get(1).intValue();
+            }
             //三级分面
-            int thirdLayerFacetNumber = facetRepository.findFacetNumberByDomainIdAndFacetLayer(domainId, 3);
-            //查询碎片数量
-            int assembleNumber = assembleRepository.findAssembleNumberByDomainId(domainId);
-            result.put("facetNumber", facetNumber);
+            int thirdLayerFacetNumber = 0;
+            if (facetNumbers.size() == 3) {
+                thirdLayerFacetNumber = facetNumbers.get(2).intValue();
+            }
+            result.put("facetNumber", facetTotalNumber);
             result.put("firstLayerFacetNumber", firstLayerFacetNumber);
             result.put("secondLayerFacetNumber", secondLayerFacetNumber);
             result.put("thirdLayerFacetNumber", thirdLayerFacetNumber);
+            //碎片数量
+            int assembleNumber = assembleRepository.findAssembleNumberByDomainId(domainId);
             result.put("assembleNumber", assembleNumber);
             //查询主题依赖关系
             int dependencyNumber = dependencyRepository.findDependencyNumberByDomainId(domainId);
             result.put("dependencyNumber", dependencyNumber);
             results.add(result);
+        }
+        List<BigInteger> topicNumbers = topicRepository.findTopicNumbersByDomainId(domainIds);
+        for (int i = 0; i < domainIds.size(); i++) {
+            results.get(i).put("topicNumber", topicNumbers.get(i));
         }
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), results);
     }
