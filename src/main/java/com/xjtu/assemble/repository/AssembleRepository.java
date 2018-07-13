@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 
@@ -118,21 +119,42 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
     /**
      * 查询课程下的碎片数量
      *
+     * @param domainIds 课程id
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "SELECT \n" +
+            "count(a.assemble_id) \n" +
+            "FROM \n" +
+            "assemble AS a ,\n" +
+            "facet AS f ,\n" +
+            "topic AS t \n" +
+            "WHERE \n" +
+            "t.topic_id = f.topic_id AND \n" +
+            "f.facet_id = a.facet_id AND \n" +
+            "t.domain_id IN ?1 GROUP BY t.domain_id", nativeQuery = true)
+    List<BigInteger> findAssembleNumbersByDomainId(List<Long> domainIds);
+
+
+    /**
+     * 查询课程下的碎片数量
+     *
      * @param domainId 课程id
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
     @Query(value = "SELECT\n" +
             "count(a.assemble_id) \n" +
-            "FROM\n" +
+            "FROM \n" +
             "assemble AS a ,\n" +
             "facet AS f ,\n" +
             "topic AS t\n" +
             "WHERE\n" +
             "t.topic_id = f.topic_id AND\n" +
             "f.facet_id = a.facet_id AND\n" +
-            "t.domain_id = ?1\n", nativeQuery = true)
+            "t.domain_id = ?1", nativeQuery = true)
     Integer findAssembleNumberByDomainId(Long domainId);
+
 
     /**
      * 查询最大主键
