@@ -179,56 +179,75 @@ public class DomainService {
      * @return
      */
     public Result findDomainTreeByDomainName(String domainName) {
-        Domain domain = domainRepository.findByDomainName(domainName);
-        if (domain == null) {
-            logger.error("分面查询失败：对应课程不存在");
-            return ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR_3.getCode(), ResultEnum.FACET_SEARCH_ERROR_3.getMsg());
+        //查询主题
+        List<Topic> topics = topicRepository.findByDomainName(domainName);
+        if (topics == null) {
+            logger.error("分面更新失败：对应主题不存在");
+            return ResultUtil.error(ResultEnum.FACET_UPDATE_ERROR_2.getCode(), ResultEnum.FACET_UPDATE_ERROR_2.getMsg());
         }
-        List<Topic> topics = topicRepository.findByDomainId(domain.getDomainId());
-        List<Map<String, Object>> topicNameContainFacets = new ArrayList<>();
-        //1.主题循环
+
+        List<Map<String, Object>> results = new ArrayList<>();
         for (Topic topic : topics) {
-            Map<String, Object> topicNameContainFacet = new LinkedHashMap<>();
-            //设置课程名
-            topicNameContainFacet.put("domainName", domainName);
-            //设置主题名
-            topicNameContainFacet.put("topicName", topic.getTopicName());
-            //设置主题下分面名
-            List<Facet> firstLayerFacets = facetRepository.findByTopicIdAndFacetLayer(topic.getTopicId(), 1);
+            Map<String, Object> result = new HashMap<>();
+            //查询分面
+            List<Facet> facets = facetRepository.findByTopicId(topic.getTopicId());
+            List<Facet> firstLayerFacets = new ArrayList<>();
+            List<Facet> secondLayerFacets = new ArrayList<>();
+            List<Facet> thirdLayerFacets = new ArrayList<>();
+            for (Facet facet : facets) {
+                //一级分面
+                if (facet.getFacetLayer() == 1) {
+                    firstLayerFacets.add(facet);
+                }
+                //二级分面
+                else if (facet.getFacetLayer() == 2) {
+                    secondLayerFacets.add(facet);
+                } else if (facet.getFacetLayer() == 3) {
+                    thirdLayerFacets.add(facet);
+                }
+            }
             List<Map<String, Object>> firstLayerFacetNameContainChildrens = new ArrayList<>();
-            //2.一级分面循环
+            //一级分面
             for (Facet firstLayerFacet : firstLayerFacets) {
-                Map<String, Object> firstLayerFacetNameContainChildren = new LinkedHashMap<>();
+                Map<String, Object> firstLayerFacetNameContainChildren = new HashMap<>();
                 firstLayerFacetNameContainChildren.put("firstLayerFacetName", firstLayerFacet.getFacetName());
-                //一级分面下的二级分面获取
-                List<Facet> secondLayerFacets = facetRepository.findByParentFacetIdAndFacetLayer(firstLayerFacet.getFacetId()
-                        , 2);
+                firstLayerFacetNameContainChildren.put("firstLayerFacetId", firstLayerFacet.getFacetId());
+                firstLayerFacetNameContainChildren.put("topicName", topic.getTopicName());
+                firstLayerFacetNameContainChildren.put("topicId", topic.getTopicId());
                 List<Map<String, Object>> secondLayerFacetNameContainChildrens = new ArrayList<>();
-                //3.二级分面循环
+                //二级分面
                 for (Facet secondLayerFacet : secondLayerFacets) {
-                    Map<String, Object> secondLayerFacetNameContainChildren = new LinkedHashMap<>();
-                    secondLayerFacetNameContainChildren.put("secondLayerFacetName", secondLayerFacet.getFacetName());
-                    //4.三级分面循环
-                    List<Map<String, Object>> thirdLayerFacetNames = new ArrayList<>();
-                    //二级分面下的三级分面获取
-                    List<Facet> thirdLayerFacets = facetRepository.findByParentFacetIdAndFacetLayer(secondLayerFacet.getFacetId()
-                            , 3);
-                    for (Facet thirdLayerFacet : thirdLayerFacets) {
-                        Map<String, Object> thirdLayerFacetName = new LinkedHashMap<>();
-                        thirdLayerFacetName.put("thirdLayerFacetName", thirdLayerFacet.getFacetName());
-                        thirdLayerFacetNames.add(thirdLayerFacetName);
+                    if (secondLayerFacet.getParentFacetId() != null && secondLayerFacet.getParentFacetId().equals(firstLayerFacet.getFacetId())) {
+                        Map<String, Object> secondLayerFacetNameContainChildren = new LinkedHashMap<>();
+                        secondLayerFacetNameContainChildren.put("secondLayerFacetName", secondLayerFacet.getFacetName());
+                        secondLayerFacetNameContainChildren.put("secondLayerFacetId", secondLayerFacet.getFacetId());
+                        secondLayerFacetNameContainChildren.put("topicName", topic.getTopicName());
+                        secondLayerFacetNameContainChildren.put("topicId", topic.getTopicId());
+                        //三级分面循环
+                        List<Map<String, Object>> thirdLayerFacetNames = new ArrayList<>();
+                        for (Facet thirdLayerFacet : thirdLayerFacets) {
+                            if (thirdLayerFacet.getParentFacetId() != null && thirdLayerFacet.getParentFacetId().equals(secondLayerFacet.getFacetId())) {
+                                Map<String, Object> thirdLayerFacetName = new LinkedHashMap<>();
+                                thirdLayerFacetName.put("thirdLayerFacetName", thirdLayerFacet.getFacetName());
+                                thirdLayerFacetName.put("thirdLayerFacetId", thirdLayerFacet.getFacetId());
+                                thirdLayerFacetName.put("topicName", topic.getTopicName());
+                                thirdLayerFacetName.put("topicId", topic.getTopicId());
+                                thirdLayerFacetNames.add(thirdLayerFacetName);
+                            }
+                        }
+                        secondLayerFacetNameContainChildren.put("thirdLayerFacets", thirdLayerFacetNames);
+                        secondLayerFacetNameContainChildrens.add(secondLayerFacetNameContainChildren);
                     }
-                    secondLayerFacetNameContainChildren.put("thirdLayerFacets", thirdLayerFacetNames);
-                    secondLayerFacetNameContainChildrens.add(secondLayerFacetNameContainChildren);
                 }
                 firstLayerFacetNameContainChildren.put("secondLayerFacets", secondLayerFacetNameContainChildrens);
                 firstLayerFacetNameContainChildrens.add(firstLayerFacetNameContainChildren);
             }
-            topicNameContainFacet.put("firstLayerFacets", firstLayerFacetNameContainChildrens);
-            topicNameContainFacets.add(topicNameContainFacet);
+            result.put("topicName", topic.getTopicName());
+            result.put("domainName", domainName);
+            result.put("firstLayerFacets", firstLayerFacetNameContainChildrens);
+            results.add(result);
         }
-        //考虑有没有什么降低复杂度的方法，此处显然循环太多（4层）
-        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicNameContainFacets);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), results);
     }
 
     /**
