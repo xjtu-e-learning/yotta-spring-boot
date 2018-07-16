@@ -410,13 +410,13 @@ public class FacetService {
                 List<Facet> thirdLayerFacets = new ArrayList<>();
                 for (Facet facet : facets) {
                     //一级分面
-                    if (facet.getFacetLayer() == 1) {
+                    if (facet.getFacetLayer() == 1 && !facet.getFacetName().equals("匿名分面")) {
                         firstLayerFacets.add(facet);
                     }
                     //二级分面
                     else if (facet.getFacetLayer() == 2) {
                         secondLayerFacets.add(facet);
-                    } else {
+                    } else if(facet.getFacetLayer() == 3){
                         thirdLayerFacets.add(facet);
                     }
                 }
