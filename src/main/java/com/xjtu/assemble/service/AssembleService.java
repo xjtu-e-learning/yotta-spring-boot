@@ -8,6 +8,8 @@ import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
 import com.xjtu.domain.domain.Domain;
 import com.xjtu.domain.repository.DomainRepository;
+import com.xjtu.education.domain.AssembleEvaluation;
+import com.xjtu.education.repository.AssembleEvaluationRepository;
 import com.xjtu.facet.domain.Facet;
 import com.xjtu.facet.repository.FacetRepository;
 import com.xjtu.source.domain.Source;
@@ -53,6 +55,9 @@ public class AssembleService {
 
     @Autowired
     private TemporaryAssembleRepository temporaryAssembleRepository;
+
+    @Autowired
+    private AssembleEvaluationRepository assembleEvaluationRepository;
 
     /**
      * 指定课程名、主题名，查询该主题下的碎片
@@ -164,6 +169,10 @@ public class AssembleService {
             for (Assemble assemble : assembles) {
                 Map<String, Object> assembleMap = new HashMap<>(10);
                 assembleMap.put("assembleId", assemble.getAssembleId());
+                Map<String, Object> assembleEvaluation = computePriority(assemble.getAssembleId());
+                assembleMap.put("priority", assembleEvaluation.get("priority"));
+                assembleMap.put("positive", assembleEvaluation.get("positive"));
+                assembleMap.put("negative", assembleEvaluation.get("negative"));
                 assembleMap.put("assembleContent", assemble.getAssembleContent());
                 assembleMap.put("assembleText", assemble.getAssembleText());
                 assembleMap.put("topicId", topicId);
@@ -182,6 +191,10 @@ public class AssembleService {
             for (Assemble firstLayerAssemble : firstLayerAssembles) {
                 Map<String, Object> assembleMap = new HashMap<>(10);
                 assembleMap.put("assembleId", firstLayerAssemble.getAssembleId());
+                Map<String, Object> assembleEvaluation = computePriority(firstLayerAssemble.getAssembleId());
+                assembleMap.put("priority", assembleEvaluation.get("priority"));
+                assembleMap.put("positive", assembleEvaluation.get("positive"));
+                assembleMap.put("negative", assembleEvaluation.get("negative"));
                 assembleMap.put("assembleContent", firstLayerAssemble.getAssembleContent());
                 assembleMap.put("assembleText", firstLayerAssemble.getAssembleText());
                 assembleMap.put("topicId", topicId);
@@ -194,9 +207,46 @@ public class AssembleService {
                 assembleMap.put("firstLayerFacetName", firstLayerFacet.getFacetName());
                 result.add(assembleMap);
             }
+            Comparator<Map> comparator = new Comparator<Map>() {
+                @Override
+                public int compare(Map o1, Map o2) {
+                    if ((double) o1.get("priority") > (double) o2.get("priority")) {
+                        return -1;
+                    } else if ((double) o1.get("priority") == (double) o2.get("priority")) {
+                        return 0;
+                    }
+                    return 1;
+                }
+            };
+            result.sort(comparator);
             resultMap.put(topicName, result);
         });
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), resultMap);
+    }
+
+    /**
+     * 根据用户评价，计算碎片质量
+     * 目前方法：m/n  其中，m是赞数，n是总评价数
+     *
+     * @param assembleId
+     */
+    private Map<String, Object> computePriority(Long assembleId) {
+        Map<String, Object> result = new HashMap<>(3);
+        List<AssembleEvaluation> assembleEvaluations = assembleEvaluationRepository.findByAssembleId(assembleId);
+        if (assembleEvaluations == null || assembleEvaluations.size() == 0) {
+            result.put("priority", new Double(0));
+            result.put("positive", 0);
+            result.put("negative", 0);
+            return result;
+        }
+        int positiveValue = 0;
+        for (AssembleEvaluation assembleQuality : assembleEvaluations) {
+            positiveValue += assembleQuality.getValue();
+        }
+        result.put("priority", ((double) positiveValue) / assembleEvaluations.size());
+        result.put("positive", positiveValue);
+        result.put("negative", assembleEvaluations.size() - positiveValue);
+        return result;
     }
 
     /**
