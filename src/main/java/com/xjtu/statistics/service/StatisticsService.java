@@ -27,6 +27,7 @@ import org.wltea.analyzer.core.Lexeme;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -595,42 +596,91 @@ public class StatisticsService {
         List<Domain> domains = domainRepository.findAll();
         //存储统计结果
         List<Map<String, Object>> results = new ArrayList<>();
+        List<Long> domainIds = new ArrayList<>();
         for (Domain domain : domains) {
             Long domainId = domain.getDomainId();
+            domainIds.add(domainId);
             Map<String, Object> result = new HashMap<>(11);
             result.put("domainId", domain.getDomainId());
             result.put("domainName", domain.getDomainName());
             result.put("note", "");
-            //查询课程所属学科
-            Subject subject = subjectRepository.findBySubjectId(domain.getSubjectId());
-            if (subject != null) {
-                result.put("subjectName", subject.getSubjectName());
-            }
-            //根据课程查询课程主题
-            int topicNumber = topicRepository.findTopicNumberByDomainId(domainId);
-            result.put("topicNumber", topicNumber);
-            //根据主题查询分面（一级、二级、三级、总数）
-            //查询总分面数
-            int facetNumber = facetRepository.findFacetNumberByDomainId(domainId);
-            //一级分面
-            int firstLayerFacetNumber = facetRepository.findFacetNumberByDomainIdAndFacetLayer(domainId, 1);
-            //二级分面
-            int secondLayerFacetNumber = facetRepository.findFacetNumberByDomainIdAndFacetLayer(domainId, 2);
-            //三级分面
-            int thirdLayerFacetNumber = facetRepository.findFacetNumberByDomainIdAndFacetLayer(domainId, 3);
-            //查询碎片数量
-            int assembleNumber = assembleRepository.findAssembleNumberByDomainId(domainId);
-            result.put("facetNumber", facetNumber);
-            result.put("firstLayerFacetNumber", firstLayerFacetNumber);
-            result.put("secondLayerFacetNumber", secondLayerFacetNumber);
-            result.put("thirdLayerFacetNumber", thirdLayerFacetNumber);
-            result.put("assembleNumber", assembleNumber);
-            //查询主题依赖关系
-            int dependencyNumber = dependencyRepository.findDependencyNumberByDomainId(domainId);
-            result.put("dependencyNumber", dependencyNumber);
             results.add(result);
         }
+        //查询主题
+        List<Object[]> topicNumbers = topicRepository.countTopicsGroupByDomainId(domainIds);
+        Map<Long, Integer> topicNumbersMap = convertListToMap(topicNumbers);
+        //查询分面
+        List<Object[]> facet1Numbers = facetRepository.countFacetsGroupByDomainIdAndFacetLayer(domainIds, 1);
+        Map<Long, Integer> facet1NumbersMap = convertListToMap(facet1Numbers);
+        List<Object[]> facet2Numbers = facetRepository.countFacetsGroupByDomainIdAndFacetLayer(domainIds, 2);
+        Map<Long, Integer> facet2NumbersMap = convertListToMap(facet2Numbers);
+        List<Object[]> facet3Numbers = facetRepository.countFacetsGroupByDomainIdAndFacetLayer(domainIds, 3);
+        Map<Long, Integer> facet3NumbersMap = convertListToMap(facet3Numbers);
+        //查询碎片
+        List<Object[]> assembleNumbers = assembleRepository.countAssemblesGroupByDomainId(domainIds);
+        Map<Long, Integer> assembleNumbersMap = convertListToMap(assembleNumbers);
+        //查询主题依赖关系
+        List<Object[]> dependencyNumbers = dependencyRepository.countDependenciesGroupByDomainId(domainIds);
+        Map<Long, Integer> dependencyNumbersMap = convertListToMap(dependencyNumbers);
+        for (int i = 0; i < domainIds.size(); i++) {
+            if (topicNumbersMap.containsKey(domainIds.get(i))) {
+                results.get(i).put("topicNumber", topicNumbersMap.get(domainIds.get(i)));
+            } else {
+                results.get(i).put("topicNumber", 0);
+            }
+            //查询分面（一级、二级、三级、总数）
+            int firstLayerFacetNumber;
+            int secondLayerFacetNumber;
+            int thirdLayerFacetNumber;
+            //一级
+            if (facet1NumbersMap.containsKey(domainIds.get(i))) {
+                firstLayerFacetNumber = facet1NumbersMap.get(domainIds.get(i));
+            } else {
+                firstLayerFacetNumber = 0;
+            }
+            //二级
+            if (facet2NumbersMap.containsKey(domainIds.get(i))) {
+                secondLayerFacetNumber = facet2NumbersMap.get(domainIds.get(i));
+            } else {
+                secondLayerFacetNumber = 0;
+            }
+            //一级
+            if (facet3NumbersMap.containsKey(domainIds.get(i))) {
+                thirdLayerFacetNumber = facet3NumbersMap.get(domainIds.get(i));
+            } else {
+                thirdLayerFacetNumber = 0;
+            }
+            //获取总分面数
+            int facetNumber = firstLayerFacetNumber + secondLayerFacetNumber + thirdLayerFacetNumber;
+            results.get(i).put("firstLayerFacetNumber", firstLayerFacetNumber);
+            results.get(i).put("secondLayerFacetNumber", secondLayerFacetNumber);
+            results.get(i).put("thirdLayerFacetNumber", thirdLayerFacetNumber);
+            results.get(i).put("facetNumber", facetNumber);
+            //查询碎片
+            //一级
+            if (assembleNumbersMap.containsKey(domainIds.get(i))) {
+                results.get(i).put("assembleNumber", assembleNumbersMap.get(domainIds.get(i)));
+            } else {
+                results.get(i).put("assembleNumber", 0);
+            }
+            //依赖关系
+            if (dependencyNumbersMap.containsKey(domainIds.get(i))) {
+                results.get(i).put("dependencyNumber", dependencyNumbersMap.get(domainIds.get(i)));
+            } else {
+                results.get(i).put("dependencyNumber", 0);
+            }
+        }
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), results);
+    }
+
+    private Map convertListToMap(List<Object[]> input) {
+        Map<Long, Integer> output = new HashMap<>(input.size());
+        for (Object[] objects : input) {
+            Long key = ((BigInteger) objects[0]).longValue();
+            Integer value = ((BigInteger) objects[1]).intValue();
+            output.put(key, value);
+        }
+        return output;
     }
 
     /**

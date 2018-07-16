@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 
@@ -99,7 +100,7 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
      * 查询课程和主题下的某层分面下的所有碎片
      *
      * @param domainId   课程id
-     * @param topicName  主题名
+     * @param topicId  主题id
      * @param facetLayer 分面所在层
      * @return
      */
@@ -108,34 +109,52 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
             "a \n" +
             "FROM\n" +
             "Assemble AS a ,\n" +
-            "Facet AS f ,\n" +
-            "Topic AS t\n" +
-            "WHERE\n" +
-            "t.topicId = f.topicId AND \n" +
-            "f.facetId = a.facetId AND \n" +
-            "f.facetLayer = ?3 AND " +
-            "t.topicName = ?2 AND \n" +
-            "t.domainId = ?1\n")
-    List<Assemble> findAllAssemblesByDomainIdAndTopicNameAndFacetLayer(Long domainId, String topicName, Integer facetLayer);
+            "Facet AS f \n" +
+            "WHERE \n" +
+            "f.topicId = ?1 AND \n" +
+            "f.facetLayer = ?2 AND \n" +
+            "f.facetId = a.facetId")
+    List<Assemble> findByTopicIdAndFacetLayer(Long topicId, Integer facetLayer);
 
     /**
      * 查询课程下的碎片数量
      *
-     * @param domainId 课程id
+     * @param domainIds 课程id
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "SELECT \n" +
+            "count(a.assemble_id) \n" +
+            "FROM \n" +
+            "assemble AS a ,\n" +
+            "facet AS f ,\n" +
+            "topic AS t \n" +
+            "WHERE \n" +
+            "t.topic_id = f.topic_id AND \n" +
+            "f.facet_id = a.facet_id AND \n" +
+            "t.domain_id IN ?1 GROUP BY t.domain_id", nativeQuery = true)
+    List<BigInteger> findAssembleNumbersByDomainId(List<Long> domainIds);
+
+
+    /**
+     * 查询课程下的碎片数量
+     *
+     * @param domainIds 课程id
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
     @Query(value = "SELECT\n" +
-            "count(a.assemble_id) \n" +
-            "FROM\n" +
+            "t.domain_id,count(a.facet_id) \n" +
+            "FROM \n" +
             "assemble AS a ,\n" +
             "facet AS f ,\n" +
             "topic AS t\n" +
             "WHERE\n" +
+            "t.domain_id IN ?1 AND\n" +
             "t.topic_id = f.topic_id AND\n" +
-            "f.facet_id = a.facet_id AND\n" +
-            "t.domain_id = ?1\n", nativeQuery = true)
-    Integer findAssembleNumberByDomainId(Long domainId);
+            "f.facet_id = a.facet_id GROUP BY t.domain_id", nativeQuery = true)
+    List<Object[]> countAssemblesGroupByDomainId(List<Long> domainIds);
+
 
     /**
      * 查询最大主键

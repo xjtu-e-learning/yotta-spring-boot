@@ -67,7 +67,7 @@ public class AssembleController {
     }
 
 
-    @GetMapping("/getAssemblesByDomainNameAndTopicNames")
+    @PostMapping("/getAssemblesByDomainNameAndTopicNames")
     @ApiOperation(value = "指定课程名、主题名列表，查询其下碎片"
             , notes = "指定课程名、主题名列表，查询其下碎片")
     public ResponseEntity getAssemblesByDomainNameAndTopicNames(@RequestParam(name = "domainName") String domainName

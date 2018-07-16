@@ -132,10 +132,10 @@ public class TopicController {
      * 获得指定课程第一个主题的所有信息,用于构建分面树
      * 获得指定课程第一个主题的所有信息,用于构建分面树
      */
-    @PostMapping("/getFirstTopicByDomianName")
+    @PostMapping("/getFirstTopicByDomainName")
     @ApiOperation(value = "获得指定课程第一个主题的所有信息,用于构建分面树", notes = "获得指定课程第一个主题的所有信息,用于构建分面树")
-    public ResponseEntity getFirstTopicByDomianName(@RequestParam(name = "domainName") String domainName) {
-        Result result = topicService.findFirstTopicByDomianName(domainName);
+    public ResponseEntity getFirstTopicByDomainName(@RequestParam(name = "domainName") String domainName) {
+        Result result = topicService.findFirstTopicByDomainName(domainName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }

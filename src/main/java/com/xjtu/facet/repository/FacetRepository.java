@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 
@@ -225,8 +226,25 @@ public interface FacetRepository extends JpaRepository<Facet, Long>, JpaSpecific
             "WHERE \n" +
             "t.domain_id = ?1 AND \n" +
             "t.topic_id = f .topic_id AND \n" +
-            "f.facet_layer = ?2 ", nativeQuery = true)
-    Integer findFacetNumberByDomainIdAndFacetLayer(Long domainId, Integer facetLayer);
+            "f.facet_layer IN ?2 GROUP BY f.facet_layer", nativeQuery = true)
+    List<BigInteger> findFacetNumberByDomainIdAndFacetLayer(Long domainId, List<Integer> facetLayer);
+
+
+    /**
+     * 查询课程下的各层分面数，连表查询
+     *
+     * @param domainId
+     * @param facetLayer
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "SELECT t.domain_id,COUNT(f.facet_id)\n" +
+            "FROM topic t, facet f\n" +
+            "WHERE t.domain_id IN ?1 AND \n" +
+            "t.topic_id = f.topic_id AND \n" +
+            "f.facet_layer=?2 \n" +
+            "GROUP BY t.domain_id", nativeQuery = true)
+    List<Object[]> countFacetsGroupByDomainIdAndFacetLayer(List<Long> domainId, Integer facetLayer);
 
 
     /**
