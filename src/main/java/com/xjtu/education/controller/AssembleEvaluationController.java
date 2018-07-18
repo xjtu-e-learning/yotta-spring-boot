@@ -32,6 +32,15 @@ public class AssembleEvaluationController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 
+    @ApiOperation(value = "查询碎片评价", notes = "查询碎片评价")
+    @GetMapping("/getAssembleEvaluationStatistics")
+    public ResponseEntity findAssembleEvaluationStatistics(@RequestParam("assembleId") Long assembleId) {
+        Result result = assembleEvaluationService.findAssembleEvaluationStatistics(assembleId);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 }

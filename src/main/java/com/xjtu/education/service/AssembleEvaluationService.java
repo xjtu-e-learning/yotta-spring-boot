@@ -11,6 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author yangkuan
@@ -33,7 +36,6 @@ public class AssembleEvaluationService {
      * @return
      */
     public Result saveAssembleEvaluation(Long userId, Long assembleId, int value) {
-        logger.error(" userId：" + userId + " assembleId：" + assembleId + "value：" + value);
         Date currentTime = new Date();
         //查找之前用户是否评价过碎片
         AssembleEvaluation assembleEvaluation = assembleEvaluationRepository.findByAssembleIdAndUserId(assembleId, userId);
@@ -51,5 +53,33 @@ public class AssembleEvaluationService {
             assembleEvaluationRepository.save(assembleEvaluation);
         }
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "评价保存成功");
+    }
+
+    /**
+     * 根据碎片id，查询该碎片下的用户评价（赞数/踩数）
+     *
+     * @param assembleId
+     * @return
+     */
+    public Result findAssembleEvaluationStatistics(Long assembleId) {
+        List<AssembleEvaluation> assembleEvaluations = assembleEvaluationRepository.findByAssembleId(assembleId);
+        Map<String, Integer> result = new HashMap<>(2);
+        if (assembleEvaluations == null || assembleEvaluations.size() == 0) {
+            result.put("positiveCnt", 0);
+            result.put("negativeCnt", 0);
+        } else {
+            int positiveCnt = 0;
+            int negativeCnt = 0;
+            for (AssembleEvaluation assembleEvaluation : assembleEvaluations) {
+                if (assembleEvaluation.getValue().equals(1)) {
+                    positiveCnt++;
+                } else if (assembleEvaluation.getValue().equals(-1)) {
+                    negativeCnt++;
+                }
+            }
+            result.put("positiveCnt", positiveCnt);
+            result.put("negativeCnt", negativeCnt);
+        }
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), result);
     }
 }
