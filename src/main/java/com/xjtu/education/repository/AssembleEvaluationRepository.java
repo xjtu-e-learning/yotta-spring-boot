@@ -22,11 +22,12 @@ public interface AssembleEvaluationRepository extends JpaRepository<AssembleEval
 
 
     /**
+     * 保存用户评价
      * @param assembleId
-     * @param domainId
+     * @param userId
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    AssembleEvaluation findByAssembleIdAndUserId(Long assembleId, Long domainId);
+    AssembleEvaluation findByAssembleIdAndUserId(Long assembleId, Long userId);
 
 }

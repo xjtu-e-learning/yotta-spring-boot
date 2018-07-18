@@ -5,6 +5,8 @@ import com.xjtu.common.domain.ResultEnum;
 import com.xjtu.education.domain.AssembleEvaluation;
 import com.xjtu.education.repository.AssembleEvaluationRepository;
 import com.xjtu.utils.ResultUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,8 @@ import java.util.Date;
  */
 @Service
 public class AssembleEvaluationService {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     AssembleEvaluationRepository assembleEvaluationRepository;
@@ -28,11 +32,13 @@ public class AssembleEvaluationService {
      * @param value
      * @return
      */
-    public Result saveAssembleQuality(Long userId, Long assembleId, int value) {
+    public Result saveAssembleEvaluation(Long userId, Long assembleId, int value) {
+        logger.error(" userId：" + userId + " assembleId：" + assembleId + "value：" + value);
         Date currentTime = new Date();
         //查找之前用户是否评价过碎片
         AssembleEvaluation assembleEvaluation = assembleEvaluationRepository.findByAssembleIdAndUserId(assembleId, userId);
         if (assembleEvaluation == null) {
+            assembleEvaluation = new AssembleEvaluation();
             assembleEvaluation.setAssembleId(assembleId);
             assembleEvaluation.setUserId(userId);
             assembleEvaluation.setValue(value);

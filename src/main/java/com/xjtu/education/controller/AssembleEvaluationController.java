@@ -23,11 +23,11 @@ public class AssembleEvaluationController {
     AssembleEvaluationService assembleEvaluationService;
 
     @ApiOperation(value = "保存碎片评价", notes = "保存碎片评价")
-    @GetMapping("/saveAssembleQuality")
-    public ResponseEntity saveAssembleQuality(@RequestParam(name = "userId") Long userId,
+    @GetMapping("/saveAssembleEvaluation")
+    public ResponseEntity saveAssembleEvaluation(@RequestParam(name = "userId") Long userId,
                                               @RequestParam(name = "assembleId") Long assembleId,
                                               @RequestParam(name = "value") Integer value) {
-        Result result = assembleEvaluationService.saveAssembleQuality(userId, assembleId, value);
+        Result result = assembleEvaluationService.saveAssembleEvaluation(userId, assembleId, value);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
