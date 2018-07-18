@@ -239,13 +239,19 @@ public class AssembleService {
             result.put("negative", 0);
             return result;
         }
-        int positiveValue = 0;
+        int positiveCnt = 0;
+        int negativeCnt = 0;
         for (AssembleEvaluation assembleQuality : assembleEvaluations) {
-            positiveValue += assembleQuality.getValue();
+            if (assembleQuality.getValue().equals(1)) {
+                positiveCnt++;
+            } else if (assembleQuality.getValue().equals(-1)) {
+                negativeCnt++;
+            }
         }
-        result.put("priority", ((double) positiveValue) / assembleEvaluations.size());
-        result.put("positive", positiveValue);
-        result.put("negative", assembleEvaluations.size() - positiveValue);
+        int value = positiveCnt - negativeCnt;
+        result.put("priority", ((double) value) / assembleEvaluations.size());
+        result.put("positive", positiveCnt);
+        result.put("negative", negativeCnt);
         return result;
     }
 
