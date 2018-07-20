@@ -139,21 +139,21 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
     /**
      * 查询课程下的碎片数量
      *
-     * @param domainId 课程id
+     * @param domainIds 课程id
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
     @Query(value = "SELECT\n" +
-            "count(a.assemble_id) \n" +
+            "t.domain_id,count(a.facet_id) \n" +
             "FROM \n" +
             "assemble AS a ,\n" +
             "facet AS f ,\n" +
             "topic AS t\n" +
             "WHERE\n" +
+            "t.domain_id IN ?1 AND\n" +
             "t.topic_id = f.topic_id AND\n" +
-            "f.facet_id = a.facet_id AND\n" +
-            "t.domain_id = ?1", nativeQuery = true)
-    Integer findAssembleNumberByDomainId(Long domainId);
+            "f.facet_id = a.facet_id GROUP BY t.domain_id", nativeQuery = true)
+    List<Object[]> countAssemblesGroupByDomainId(List<Long> domainIds);
 
 
     /**

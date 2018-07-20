@@ -56,14 +56,16 @@ public interface DependencyRepository extends JpaRepository<Dependency, Long>, J
     List<Dependency> findByDomainId(Long domainId);
 
     /**
-     * 根据课程id,查询依赖关系数量
+     * 根据课程ids,查询依赖关系数量
      *
-     * @param domainId
+     * @param domainIds
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    @Query(value = "select count(d.dependency_id) from dependency d where d.domain_id = ?1", nativeQuery = true)
-    Integer findDependencyNumberByDomainId(Long domainId);
+    @Query(value = "select d.domain_id,count(d.dependency_id) " +
+            "from dependency d " +
+            "where d.domain_id IN ?1 GROUP BY d.domain_id", nativeQuery = true)
+    List<Object[]> countDependenciesGroupByDomainId(List<Long> domainIds);
 
     /**
      * 删除依赖关系，指定起始主题或者终止主题

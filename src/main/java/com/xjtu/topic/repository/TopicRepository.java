@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 
@@ -56,9 +55,9 @@ public interface TopicRepository extends JpaRepository<Topic, Long>, JpaSpecific
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    @Query(value = "select count(t.topic_id) from topic t where t.domain_id IN ?1 " +
+    @Query(value = "select t.domain_id,count(t.topic_id) from topic t where t.domain_id IN ?1 " +
             "GROUP BY t.domain_id", nativeQuery = true)
-    List<BigInteger> findTopicNumbersByDomainId(List<Long> domainIds);
+    List<Object[]> countTopicsGroupByDomainId(List<Long> domainIds);
 
     /**
      * 根据课程id，查询课程下的第一个主题

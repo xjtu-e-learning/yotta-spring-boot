@@ -49,12 +49,22 @@ public class ZhihuProcessor implements PageProcessor {
     @Override
     public void process(Page page) {
         //爬取碎片
-        List<String> assembleContents = page.getHtml().xpath("div[@class='RichContent-inner']/span[@class='RichText ztext CopyrightRichText-richText']").all();
-        assembleContents.addAll(page.getHtml().xpath("div[@class='RichText ztext Post-RichText']").all());
-        logger.debug(assembleContents.size() + " " + assembleContents.toString());
-        List<String> assembleTexts = page.getHtml().xpath("div[@class='RichContent-inner']/span[@class='RichText ztext CopyrightRichText-richText']/tidyText()").all();
-        assembleTexts.addAll(page.getHtml().xpath("div[@class='RichText ztext Post-RichText']/tidyText()").all());
-        logger.debug(assembleTexts.size() + " " + assembleTexts.toString());
+        List<String> assembleContentsTemp = page.getHtml().xpath("div[@class='RichContent-inner']/span[@class='RichText ztext CopyrightRichText-richText']").all();
+        assembleContentsTemp.addAll(page.getHtml().xpath("div[@class='RichText ztext Post-RichText']").all());
+        logger.debug(assembleContentsTemp.size() + " " + assembleContentsTemp.toString());
+        List<String> assembleTextsTemp = page.getHtml().xpath("div[@class='RichContent-inner']/span[@class='RichText ztext CopyrightRichText-richText']/tidyText()").all();
+        assembleTextsTemp.addAll(page.getHtml().xpath("div[@class='RichText ztext Post-RichText']/tidyText()").all());
+        logger.debug(assembleTextsTemp.size() + " " + assembleTextsTemp.toString());
+        List<String> assembleContents = new ArrayList<>();
+        List<String> assembleTexts = new ArrayList<>();
+        int i = 0;
+        for (String assembleText : assembleTextsTemp) {
+            if (!assembleText.endsWith("...")) {
+                assembleContents.add(assembleContentsTemp.get(i));
+                assembleTexts.add(assembleText);
+            }
+            i++;
+        }
         Assembles assembles = new Assembles(assembleContents, assembleTexts);
         page.putField("assembles", assembles);
 
