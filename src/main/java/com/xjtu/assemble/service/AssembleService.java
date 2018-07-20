@@ -140,7 +140,7 @@ public class AssembleService {
      * @param topicNames
      * @return
      */
-    public Result findAssemblesByDomainNameAndTopicNames(String domainName, String topicNames) {
+    public Result findAssemblesByDomainNameAndTopicNamesAndUserId(String domainName, String topicNames, Long userId) {
         List<String> topicNameList = Arrays.asList(topicNames.split(","));
         //查询数据源
         List<Source> sources = sourceRepository.findAll();
@@ -154,6 +154,13 @@ public class AssembleService {
             logger.error("Assembles Search Failed: Corresponding Domain Not Exist");
             return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR.getCode(), ResultEnum.Assemble_SEARCH_ERROR.getMsg());
         }
+        //查询碎片评价
+        List<AssembleEvaluation> assembleEvaluations = assembleEvaluationRepository.findByUserId(userId);
+        Map<Long, Integer> assembleEvaluationsMap = new HashMap<>(assembleEvaluations.size());
+        for (AssembleEvaluation assembleEvaluation : assembleEvaluations) {
+            assembleEvaluationsMap.put(assembleEvaluation.getAssembleId(), assembleEvaluation.getValue());
+        }
+
         Long domainId = domain.getDomainId();
         Map<String, Object> resultMap = new HashMap<>();
         topicNameList.parallelStream().forEach(topicName -> {
@@ -169,6 +176,11 @@ public class AssembleService {
             for (Assemble assemble : assembles) {
                 Map<String, Object> assembleMap = new HashMap<>(10);
                 assembleMap.put("assembleId", assemble.getAssembleId());
+                if (assembleEvaluationsMap.get(assemble.getAssembleId()) == null) {
+                    assembleMap.put("evaluation", 0);
+                } else {
+                    assembleMap.put("evaluation", assembleEvaluationsMap.get(assemble.getAssembleId()));
+                }
                 Map<String, Object> assembleEvaluation = computePriority(assemble.getAssembleId());
                 assembleMap.put("priority", assembleEvaluation.get("priority"));
                 assembleMap.put("positive", assembleEvaluation.get("positive"));
@@ -191,6 +203,11 @@ public class AssembleService {
             for (Assemble firstLayerAssemble : firstLayerAssembles) {
                 Map<String, Object> assembleMap = new HashMap<>(10);
                 assembleMap.put("assembleId", firstLayerAssemble.getAssembleId());
+                if (assembleEvaluationsMap.get(firstLayerAssemble.getAssembleId()) == null) {
+                    assembleMap.put("evaluation", 0);
+                } else {
+                    assembleMap.put("evaluation", assembleEvaluationsMap.get(firstLayerAssemble.getAssembleId()));
+                }
                 Map<String, Object> assembleEvaluation = computePriority(firstLayerAssemble.getAssembleId());
                 assembleMap.put("priority", assembleEvaluation.get("priority"));
                 assembleMap.put("positive", assembleEvaluation.get("positive"));

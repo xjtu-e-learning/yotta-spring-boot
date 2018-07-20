@@ -12,7 +12,7 @@ import java.util.List;
 public interface AssembleEvaluationRepository extends JpaRepository<AssembleEvaluation, Long> {
 
     /**
-     * 根据碎片名查询用户评价
+     * 根据碎片id，查询用户评价
      *
      * @param assembleId
      * @return
@@ -20,6 +20,15 @@ public interface AssembleEvaluationRepository extends JpaRepository<AssembleEval
     @Transactional(rollbackFor = Exception.class)
     List<AssembleEvaluation> findByAssembleId(Long assembleId);
 
+
+    /**
+     * 根据用户id，查询用户评价
+     *
+     * @param userId
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    List<AssembleEvaluation> findByUserId(Long userId);
 
     /**
      * 保存用户评价
