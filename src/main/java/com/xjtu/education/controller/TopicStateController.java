@@ -64,4 +64,15 @@ public class TopicStateController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @GetMapping("/getByDomainIdAndUserIdGroupTopicId")
+    @ApiOperation(value = "查询主题状态,按主题Id组织返回", notes = "查询主题状态,按主题Id组织返回")
+    public ResponseEntity getByDomainIdAndUserIdGroupTopicId(@RequestParam(name = "domainId") Long domainId
+            , @RequestParam(name = "userId") Long userId) {
+        Result result = topicStateService.findByDomainIdAndUserIdGroupTopicId(domainId, userId);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
 }

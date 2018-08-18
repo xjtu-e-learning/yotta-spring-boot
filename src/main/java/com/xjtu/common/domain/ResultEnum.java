@@ -118,6 +118,9 @@ public enum ResultEnum {
     STATE_INSERT_ERROR(184, "状态保存失败：课程不存在"),
     STATE_INSERT_ERROR_1(185, "状态保存失败：状态保存失败"),
     STATE_INSERT_ERROR_2(186, "状态保存失败：数量不一致"),
+
+    STATE_SEARCH_ERROR_3(187, "状态查询失败:课程下主题和主题状态不一致（请咨询数据管理员）"),
+    STATE_SEARCH_ERROR_4(188, "状态查询失败:指定课程和用户下不存在状态"),
     //推荐主题
     RECOMMENDATION_INSERT_ERROR(181, "推荐主题保存失败：课程不存在"),
 
