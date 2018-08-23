@@ -241,6 +241,131 @@ public class AssembleService {
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), resultMap);
     }
 
+
+    /**
+     * 指定课程名、主题名列表，查询其下两种类型的碎片
+     *
+     * @param domainName
+     * @param topicNames
+     * @param userId
+     * @return
+     */
+    public Result findAssemblesByDomainNameAndTopicNamesAndUserIdSplitByType(String domainName, String topicNames, Long userId) {
+        List<String> topicNameList = Arrays.asList(topicNames.split(","));
+        //查询数据源
+        List<Source> sources = sourceRepository.findAll();
+        Map<Long, String> sourceMap = new HashMap<>();
+        for (Source source : sources) {
+            sourceMap.put(source.getSourceId(), source.getSourceName());
+        }
+        //查询课程
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("Assembles Search Failed: Corresponding Domain Not Exist");
+            return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR.getCode(), ResultEnum.Assemble_SEARCH_ERROR.getMsg());
+        }
+        //查询碎片评价
+        List<AssembleEvaluation> assembleEvaluations = assembleEvaluationRepository.findByUserId(userId);
+        Map<Long, Integer> assembleEvaluationsMap = new HashMap<>(assembleEvaluations.size());
+        for (AssembleEvaluation assembleEvaluation : assembleEvaluations) {
+            assembleEvaluationsMap.put(assembleEvaluation.getAssembleId(), assembleEvaluation.getValue());
+        }
+
+        Long domainId = domain.getDomainId();
+        Map<String, Object> resultMap = new HashMap<>();
+        topicNameList.parallelStream().forEach(topicName -> {
+            Topic topic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
+            Long topicId = topic.getTopicId();
+            List<Map<String, Object>> textResult = new ArrayList<>();
+            List<Map<String, Object>> videoResult = new ArrayList<>();
+            List<Facet> facets = facetRepository.findByTopicId(topicId);
+            Map<Long, Facet> facetMap = new HashMap<>(facets.size());
+            for (Facet facet : facets) {
+                facetMap.put(facet.getFacetId(), facet);
+            }
+            //二级分面
+            List<Assemble> assembles = assembleRepository.findByTopicIdAndFacetLayer(topicId, 2);
+            for (Assemble assemble : assembles) {
+                Map<String, Object> assembleMap = new HashMap<>(10);
+                assembleMap.put("assembleId", assemble.getAssembleId());
+                if (assembleEvaluationsMap.get(assemble.getAssembleId()) == null) {
+                    assembleMap.put("evaluation", 0);
+                } else {
+                    assembleMap.put("evaluation", assembleEvaluationsMap.get(assemble.getAssembleId()));
+                }
+                Map<String, Object> assembleEvaluation = computePriority(assemble.getAssembleId());
+                assembleMap.put("priority", assembleEvaluation.get("priority"));
+                assembleMap.put("positive", assembleEvaluation.get("positive"));
+                assembleMap.put("negative", assembleEvaluation.get("negative"));
+                assembleMap.put("assembleContent", assemble.getAssembleContent());
+                assembleMap.put("assembleText", assemble.getAssembleText());
+                assembleMap.put("topicId", topicId);
+                assembleMap.put("topicName", topicName);
+                assembleMap.put("sourceName", sourceMap.get(assemble.getSourceId()));
+                Facet secondLayerFacet = facetMap.get(assemble.getFacetId());
+                Facet firstLayerFacet = facetMap.get(secondLayerFacet.getParentFacetId());
+                assembleMap.put("secondLayerFacetId", secondLayerFacet.getFacetId());
+                assembleMap.put("secondLayerFacetName", secondLayerFacet.getFacetName());
+                assembleMap.put("firstLayerFacetId", firstLayerFacet.getFacetId());
+                assembleMap.put("firstLayerFacetName", firstLayerFacet.getFacetName());
+                if (assemble.getType() != null && assemble.getType().equals("video")) {
+                    videoResult.add(assembleMap);
+                } else {
+                    textResult.add(assembleMap);
+                }
+            }
+            //一级分面
+            List<Assemble> firstLayerAssembles = assembleRepository.findByTopicIdAndFacetLayer(topicId, 1);
+            for (Assemble firstLayerAssemble : firstLayerAssembles) {
+                Map<String, Object> assembleMap = new HashMap<>(10);
+                assembleMap.put("assembleId", firstLayerAssemble.getAssembleId());
+                if (assembleEvaluationsMap.get(firstLayerAssemble.getAssembleId()) == null) {
+                    assembleMap.put("evaluation", 0);
+                } else {
+                    assembleMap.put("evaluation", assembleEvaluationsMap.get(firstLayerAssemble.getAssembleId()));
+                }
+                Map<String, Object> assembleEvaluation = computePriority(firstLayerAssemble.getAssembleId());
+                assembleMap.put("priority", assembleEvaluation.get("priority"));
+                assembleMap.put("positive", assembleEvaluation.get("positive"));
+                assembleMap.put("negative", assembleEvaluation.get("negative"));
+                assembleMap.put("assembleContent", firstLayerAssemble.getAssembleContent());
+                assembleMap.put("assembleText", firstLayerAssemble.getAssembleText());
+                assembleMap.put("topicId", topicId);
+                assembleMap.put("topicName", topicName);
+                assembleMap.put("sourceName", sourceMap.get(firstLayerAssemble.getSourceId()));
+                Facet firstLayerFacet = facetMap.get(firstLayerAssemble.getFacetId());
+                assembleMap.put("secondLayerFacetId", null);
+                assembleMap.put("secondLayerFacetName", null);
+                assembleMap.put("firstLayerFacetId", firstLayerFacet.getFacetId());
+                assembleMap.put("firstLayerFacetName", firstLayerFacet.getFacetName());
+                if (firstLayerAssemble.getType() != null && firstLayerAssemble.getType().equals("video")) {
+                    videoResult.add(assembleMap);
+                } else {
+                    textResult.add(assembleMap);
+                }
+            }
+            Comparator<Map> comparator = new Comparator<Map>() {
+                @Override
+                public int compare(Map o1, Map o2) {
+                    if ((double) o1.get("priority") > (double) o2.get("priority")) {
+                        return -1;
+                    } else if ((double) o1.get("priority") == (double) o2.get("priority")) {
+                        return 0;
+                    }
+                    return 1;
+                }
+            };
+            videoResult.sort(comparator);
+            textResult.sort(comparator);
+            Map<String, Object> result = new HashMap<>(2);
+            result.put("text", textResult);
+            result.put("video", videoResult);
+            resultMap.put(topicName, result);
+        });
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), resultMap);
+    }
+
+
     /**
      * 根据用户评价，计算碎片质量
      * 目前方法：m/n  其中，m是赞数，n是总评价数
