@@ -240,9 +240,10 @@ public class TopicService {
      * 指定课程名和主题名，获取主题并包含其完整的下的分面、碎片数据
      * @param domainName
      * @param topicName
+     * @param hasFragment
      * @return
      */
-    public Result findCompleteTopicByNameAndDomainName(String domainName, String topicName) {
+    public Result findCompleteTopicByNameAndDomainName(String domainName, String topicName, String hasFragment) {
         Domain domain = domainRepository.findByDomainName(domainName);
         if (domain == null) {
             logger.error("主题查询失败：没有指定课程");
@@ -280,6 +281,9 @@ public class TopicService {
                         //二级分面下的碎片
                         if (assemble.getFacetId().equals(secondLayerFacet.getFacetId())) {
                             AssembleContainType assembleContainType = new AssembleContainType();
+                            if ("emptyAssembleContent".equals(hasFragment)) {
+                                assemble.setAssembleContent("");
+                            }
                             assembleContainType.setAssemble(assemble);
                             assembleContainTypes.add(assembleContainType);
                         }
@@ -303,6 +307,9 @@ public class TopicService {
                     //一级分面下的碎片
                     if (assemble.getFacetId().equals(firstLayerFacet.getFacetId())) {
                         AssembleContainType assembleContainType = new AssembleContainType();
+                        if ("emptyAssembleContent".equals(hasFragment)) {
+                            assemble.setAssembleContent("");
+                        }
                         assembleContainType.setAssemble(assemble);
                         assembleContainTypes.add(assembleContainType);
                     }
@@ -381,7 +388,7 @@ public class TopicService {
         }
         Long domainId = domain.getDomainId();
         Topic topic = topicRepository.findFirstByDomainId(domainId);
-        return findCompleteTopicByNameAndDomainName(domainName, topic.getTopicName());
+        return findCompleteTopicByNameAndDomainName(domainName, topic.getTopicName(), "true");
     }
 
     /**

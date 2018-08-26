@@ -128,6 +128,7 @@ public class TopicStateService {
         for (int i = 0; i < size; i++) {
             Map<String, Object> r = new HashMap<>(2);
             r.put("topicId", topics.get(i).getTopicId());
+            r.put("topicName", topics.get(i).getTopicName());
             r.put("state", states[i]);
             result.add(r);
         }

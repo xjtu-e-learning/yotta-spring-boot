@@ -4,8 +4,6 @@ import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
 import com.xjtu.topic.service.TopicService;
 import io.swagger.annotations.ApiOperation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(value = "/topic")
 public class TopicController {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     private TopicService topicService;
 
@@ -95,7 +92,7 @@ public class TopicController {
     @ApiOperation(value = "获得指定课程、指定主题的所有信息", notes = "获得指定课程、指定主题的所有信息")
     public ResponseEntity getCompleteTopicByNameAndDomainName(@RequestParam(name = "domainName") String domainName
             , @RequestParam(name = "topicName") String topicName) {
-        Result result = topicService.findCompleteTopicByNameAndDomainName(domainName, topicName);
+        Result result = topicService.findCompleteTopicByNameAndDomainName(domainName, topicName, "true");
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
@@ -112,9 +109,9 @@ public class TopicController {
             , notes = "获得指定课程、指定主题的所有信息，用于构建分面树")
     public ResponseEntity getCompleteTopicByNameAndDomainNameWithHasFragment(@RequestParam(name = "domainName") String domainName
             , @RequestParam(name = "topicName") String topicName
-            , @RequestParam(name = "hasFragment") boolean hasFragment) {
-        if (hasFragment == true) {
-            Result result = topicService.findCompleteTopicByNameAndDomainName(domainName, topicName);
+            , @RequestParam(name = "hasFragment") String hasFragment) {
+        if ("true".equals(hasFragment) || "emptyAssembleContent".equals(hasFragment)) {
+            Result result = topicService.findCompleteTopicByNameAndDomainName(domainName, topicName, hasFragment);
             if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
             }
