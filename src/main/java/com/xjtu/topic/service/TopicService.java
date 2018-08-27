@@ -16,6 +16,7 @@ import com.xjtu.relation.repository.RelationRepository;
 import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.domain.TopicContainFacet;
 import com.xjtu.topic.repository.TopicRepository;
+import com.xjtu.utils.HttpUtil;
 import com.xjtu.utils.ResultUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +62,10 @@ public class TopicService {
 
     @Value("${gexfpath}")
     private String gexfPath;
+
+    @Value("${server.port}")
+    private Integer port;
+
 
     /**
      * 插入主题信息
@@ -285,6 +290,8 @@ public class TopicService {
                                 assemble.setAssembleContent("");
                             }
                             assembleContainType.setAssemble(assemble);
+                            String ip = HttpUtil.getIp();
+                            assembleContainType.setUrl(ip + ":" + port + "/assemble/getAssembleContentById?assembleId=" + assemble.getAssembleId());
                             assembleContainTypes.add(assembleContainType);
                         }
                     }
@@ -311,6 +318,9 @@ public class TopicService {
                             assemble.setAssembleContent("");
                         }
                         assembleContainType.setAssemble(assemble);
+                        String ip = HttpUtil.getIp();
+                        assembleContainType.setUrl(ip + ":" + port + "/assemble/getAssembleContentById?assembleId=" + assemble.getAssembleId());
+
                         assembleContainTypes.add(assembleContainType);
                     }
                 }

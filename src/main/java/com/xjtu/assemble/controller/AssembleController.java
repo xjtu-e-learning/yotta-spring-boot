@@ -173,6 +173,14 @@ public class AssembleController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @GetMapping("/getAssembleContentById")
+    @ApiOperation(value = "根据碎片id从碎片表中查询碎片内容"
+            , notes = "根据碎片id从碎片表中查询碎片内容")
+    public ResponseEntity getAssembleContentById(@RequestParam(name = "assembleId") Long assembleId) {
+        String result = assembleService.findAssembleContentById(assembleId);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
 
     @PostMapping("/updateTemporaryAssemble")
     @ApiOperation(value = "根据碎片Id，更新暂存表中的碎片内容"

@@ -1,6 +1,8 @@
 package com.xjtu.utils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
  * 关于HTTP传输的信息的解析
@@ -27,5 +29,17 @@ public class HttpUtil {
         String headers = "Referer: " + getReferer(request)
                 + "; User-Agent: " + getUserAgent(request);
         return headers;
+    }
+
+    public static String getIp() {
+        String ip = "";
+        try {
+            InetAddress address = InetAddress.getLocalHost();
+            //获取本机ip
+            ip = address.getHostAddress().toString();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        return ip;
     }
 }
