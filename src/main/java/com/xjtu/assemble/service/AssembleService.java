@@ -614,6 +614,22 @@ public class AssembleService {
     }
 
     /**
+     * 根据碎片id从碎片表中查询碎片内容
+     *
+     * @param assembleId
+     * @return
+     */
+    public String findAssembleContentById(Long assembleId) {
+        try {
+            Assemble assemble = assembleRepository.findOne(assembleId);
+            return assemble.getAssembleContent();
+        } catch (Exception error) {
+            logger.error("Assemble Search Failed: ", error);
+            return "error request!";
+        }
+    }
+
+    /**
      * 根据碎片Id，更新暂存表中的碎片内容
      *
      * @param assembleId      碎片id
