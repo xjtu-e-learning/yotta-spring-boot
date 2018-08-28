@@ -271,6 +271,9 @@ public class TopicService {
         //firstLayerFacets一级分面列表，将二级分面挂到对应一级分面下
         List<Facet> firstLayerFacetContainAssembles = new ArrayList<>();
         for (Facet firstLayerFacet : firstLayerFacets) {
+            if (firstLayerFacet.getFacetName().equals("匿名分面")) {
+                continue;
+            }
             FacetContainAssemble firstLayerFacetContainAssemble = new FacetContainAssemble();
             firstLayerFacetContainAssemble.setFacet(firstLayerFacet);
             firstLayerFacetContainAssemble.setType("branch");
