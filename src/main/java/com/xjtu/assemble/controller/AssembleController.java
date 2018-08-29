@@ -80,6 +80,25 @@ public class AssembleController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @PostMapping("/getAssemblesByTopicIdAndUserIdAndPagingAndSorting")
+    @ApiOperation(value = "指定主题id、用户id、请求碎片类型、分页信息，查询其下碎片"
+            , notes = "指定主题id、用户id、请求碎片类型、分页信息，查询其下碎片")
+    public ResponseEntity getAssemblesByTopicIdAndUserIdAndPagingAndSorting(
+            @RequestParam(name = "topicId") Long topicId
+            , @RequestParam(name = "userId") Long userId
+            , @RequestParam(name = "requestType", defaultValue = "text") String requestType
+            , @RequestParam(name = "page") Integer page
+            , @RequestParam(name = "size") Integer size
+            , @RequestParam(name = "ascOrder", defaultValue = "false") boolean ascOrder) {
+        Result result = assembleService.findAssemblesByTopicIdAndUserIdAndPagingAndSorting(topicId, userId
+                , requestType, page, size, ascOrder);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
 
     @PostMapping("/getAssemblesByDomainNameAndTopicNamesAndUserIdSplitByType")
     @ApiOperation(value = "指定课程名、主题名列表，查询其下两种类型的碎片"
