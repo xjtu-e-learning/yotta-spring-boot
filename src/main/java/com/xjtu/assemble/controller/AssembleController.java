@@ -98,6 +98,24 @@ public class AssembleController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @PostMapping("/getAssemblesByFacetIdAndUserIdAndPagingAndSorting")
+    @ApiOperation(value = "指定分面id、用户id、请求碎片类型、分页信息，查询其下碎片"
+            , notes = "指定分面id、用户id、请求碎片类型、分页信息，查询其下碎片")
+    public ResponseEntity getAssemblesByFacetIdAndUserIdAndPagingAndSorting(
+            @RequestParam(name = "facetId") Long facetId
+            , @RequestParam(name = "userId") Long userId
+            , @RequestParam(name = "requestType", defaultValue = "text") String requestType
+            , @RequestParam(name = "page") Integer page
+            , @RequestParam(name = "size") Integer size
+            , @RequestParam(name = "ascOrder", defaultValue = "false") boolean ascOrder) {
+        Result result = assembleService.findAssemblesByFacetIdAndUserIdAndPagingAndSorting(facetId, userId
+                , requestType, page, size, ascOrder);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
 
 
     @PostMapping("/getAssemblesByDomainNameAndTopicNamesAndUserIdSplitByType")

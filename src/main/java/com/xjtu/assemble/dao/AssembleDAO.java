@@ -1,5 +1,6 @@
 package com.xjtu.assemble.dao;
 
+import com.xjtu.assemble.domain.Assemble;
 import com.xjtu.assemble.repository.AssembleRepository;
 import com.xjtu.assemble.repository.TemporaryAssembleRepository;
 import com.xjtu.domain.repository.DomainRepository;
@@ -9,6 +10,7 @@ import com.xjtu.facet.domain.Facet;
 import com.xjtu.facet.repository.FacetRepository;
 import com.xjtu.source.domain.Source;
 import com.xjtu.source.repository.SourceRepository;
+import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.repository.TopicRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -110,6 +112,36 @@ public class AssembleDAO {
         result.put("positive", positiveCnt);
         result.put("negative", negativeCnt);
         return result;
+    }
+
+    public Map<String, Object> generateAssembleMap(String sourceName, Topic topic
+            , Facet firstLayerFacet, Facet secondLayerFacet, Assemble assemble
+            , Map<String, Object> assembleEvaluation, Integer evaluation) {
+        Map<String, Object> assembleMap = new HashMap<>();
+        assembleMap.put("sourceName", sourceName);
+
+        assembleMap.put("topicId", topic.getTopicId());
+        assembleMap.put("topicName", topic.getTopicName());
+
+        assembleMap.put("firstLayerFacetId", firstLayerFacet.getFacetId());
+        assembleMap.put("firstLayerFacetName", firstLayerFacet.getFacetName());
+        if (secondLayerFacet == null) {
+            assembleMap.put("secondLayerFacetId", null);
+            assembleMap.put("secondLayerFacetName", null);
+        } else {
+            assembleMap.put("secondLayerFacetId", secondLayerFacet.getFacetId());
+            assembleMap.put("secondLayerFacetName", secondLayerFacet.getFacetName());
+        }
+        assembleMap.put("assembleId", assemble.getAssembleId());
+        assembleMap.put("assembleContent", assemble.getAssembleContent());
+        assembleMap.put("assembleText", assemble.getAssembleText());
+
+        assembleMap.put("priority", assembleEvaluation.get("priority"));
+        assembleMap.put("positive", assembleEvaluation.get("positive"));
+        assembleMap.put("negative", assembleEvaluation.get("negative"));
+
+        assembleMap.put("evaluation", evaluation);
+        return assembleMap;
     }
 
 

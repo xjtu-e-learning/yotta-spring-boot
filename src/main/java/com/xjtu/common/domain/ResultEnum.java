@@ -87,6 +87,7 @@ public enum ResultEnum {
     Assemble_SEARCH_ERROR_2(165, "碎片查询失败：对应分面不存在"),
     Assemble_SEARCH_ERROR_3(174, "碎片查询失败：查询语句执行失败"),
     Assemble_SEARCH_ERROR_4(189, "碎片分页查询失败：查询范围超出界限"),
+    Assemble_SEARCH_ERROR_5(190, "碎片分页查询失败：对应分面不存在"),
     Assemble_INSERT_ERROR(166, "碎片插入失败：插入语句执行失败"),
     Assemble_INSERT_ERROR_1(167, "碎片插入失败：碎片内容为空"),
     Assemble_INSERT_ERROR_2(168, "碎片插入失败：对应课程不存在"),
