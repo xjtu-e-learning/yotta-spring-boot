@@ -188,68 +188,37 @@ public class AssembleService {
 
             List<Assemble> assembles = assembleRepository.findByTopicIdAndFacetLayer(topicId, 2);
             for (Assemble assemble : assembles) {
-                Map<String, Object> assembleMap = new HashMap<>(10);
-                assembleMap.put("assembleId", assemble.getAssembleId());
-                if (assembleEvaluationsMap.get(assemble.getAssembleId()) == null) {
-                    assembleMap.put("evaluation", 0);
-                } else {
-                    assembleMap.put("evaluation", assembleEvaluationsMap.get(assemble.getAssembleId()));
+                int evaluation = 0;
+                if (assembleEvaluationsMap.get(assemble.getAssembleId()) != null) {
+                    evaluation = assembleEvaluationsMap.get(assemble.getAssembleId());
                 }
                 Map<String, Object> assembleEvaluation = assembleDAO.computePriority(assemble.getAssembleId());
-                assembleMap.put("priority", assembleEvaluation.get("priority"));
-                assembleMap.put("positive", assembleEvaluation.get("positive"));
-                assembleMap.put("negative", assembleEvaluation.get("negative"));
-                assembleMap.put("assembleContent", assemble.getAssembleContent());
-                assembleMap.put("assembleText", assemble.getAssembleText());
-                assembleMap.put("topicId", topicId);
-                assembleMap.put("topicName", topicName);
-                assembleMap.put("sourceName", sourceMap.get(assemble.getSourceId()));
+
                 Facet secondLayerFacet = facetMap.get(assemble.getFacetId());
                 Facet firstLayerFacet = facetMap.get(secondLayerFacet.getParentFacetId());
-                assembleMap.put("secondLayerFacetId", secondLayerFacet.getFacetId());
-                assembleMap.put("secondLayerFacetName", secondLayerFacet.getFacetName());
-                assembleMap.put("firstLayerFacetId", firstLayerFacet.getFacetId());
-                assembleMap.put("firstLayerFacetName", firstLayerFacet.getFacetName());
+                Map<String, Object> assembleMap = assembleDAO.generateAssembleMap(
+                        sourceMap.get(assemble.getSourceId()), topic, firstLayerFacet,
+                        secondLayerFacet, assemble, assembleEvaluation, evaluation
+                );
                 result.add(assembleMap);
             }
-
             List<Assemble> firstLayerAssembles = assembleRepository.findByTopicIdAndFacetLayer(topicId, 1);
             for (Assemble firstLayerAssemble : firstLayerAssembles) {
-                Map<String, Object> assembleMap = new HashMap<>(10);
-                assembleMap.put("assembleId", firstLayerAssemble.getAssembleId());
-                if (assembleEvaluationsMap.get(firstLayerAssemble.getAssembleId()) == null) {
-                    assembleMap.put("evaluation", 0);
-                } else {
-                    assembleMap.put("evaluation", assembleEvaluationsMap.get(firstLayerAssemble.getAssembleId()));
+                int evaluation = 0;
+                if (assembleEvaluationsMap.get(firstLayerAssemble.getAssembleId()) != null) {
+                    evaluation = assembleEvaluationsMap.get(firstLayerAssemble.getAssembleId());
                 }
                 Map<String, Object> assembleEvaluation = assembleDAO.computePriority(firstLayerAssemble.getAssembleId());
-                assembleMap.put("priority", assembleEvaluation.get("priority"));
-                assembleMap.put("positive", assembleEvaluation.get("positive"));
-                assembleMap.put("negative", assembleEvaluation.get("negative"));
-                assembleMap.put("assembleContent", firstLayerAssemble.getAssembleContent());
-                assembleMap.put("assembleText", firstLayerAssemble.getAssembleText());
-                assembleMap.put("topicId", topicId);
-                assembleMap.put("topicName", topicName);
-                assembleMap.put("sourceName", sourceMap.get(firstLayerAssemble.getSourceId()));
+
                 Facet firstLayerFacet = facetMap.get(firstLayerAssemble.getFacetId());
-                assembleMap.put("secondLayerFacetId", null);
-                assembleMap.put("secondLayerFacetName", null);
-                assembleMap.put("firstLayerFacetId", firstLayerFacet.getFacetId());
-                assembleMap.put("firstLayerFacetName", firstLayerFacet.getFacetName());
+
+                Map<String, Object> assembleMap = assembleDAO.generateAssembleMap(
+                        sourceMap.get(firstLayerAssemble.getSourceId()), topic, firstLayerFacet,
+                        null, firstLayerAssemble, assembleEvaluation, evaluation
+                );
                 result.add(assembleMap);
             }
-            Comparator<Map> comparator = new Comparator<Map>() {
-                @Override
-                public int compare(Map o1, Map o2) {
-                    if ((double) o1.get("priority") > (double) o2.get("priority")) {
-                        return -1;
-                    } else if ((double) o1.get("priority") == (double) o2.get("priority")) {
-                        return 0;
-                    }
-                    return 1;
-                }
-            };
-            result.sort(comparator);
+            result.sort(descComparator);
             resultMap.put(topicName, result);
         });
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), resultMap);
@@ -283,27 +252,16 @@ public class AssembleService {
         List<Map<String, Object>> textResults = new ArrayList<>();
         List<Map<String, Object>> videoResults = new ArrayList<>();
         for (Assemble assemble : firstLayerAssembles) {
-            Map<String, Object> assembleMap = new HashMap<>();
-            assembleMap.put("assembleId", assemble.getAssembleId());
-            if (assembleEvaluationsMap.get(assemble.getAssembleId()) == null) {
-                assembleMap.put("evaluation", 0);
-            } else {
-                assembleMap.put("evaluation", assembleEvaluationsMap.get(assemble.getAssembleId()));
+            int evaluation = 0;
+            if (assembleEvaluationsMap.get(assemble.getAssembleId()) != null) {
+                evaluation = assembleEvaluationsMap.get(assemble.getAssembleId());
             }
             Map<String, Object> assembleEvaluation = assembleDAO.computePriority(assemble.getAssembleId());
-            assembleMap.put("priority", assembleEvaluation.get("priority"));
-            assembleMap.put("positive", assembleEvaluation.get("positive"));
-            assembleMap.put("negative", assembleEvaluation.get("negative"));
-            assembleMap.put("assembleContent", assemble.getAssembleContent());
-            assembleMap.put("assembleText", assemble.getAssembleText());
-            assembleMap.put("topicId", topicId);
-            assembleMap.put("topicName", topic.getTopicName());
-            assembleMap.put("sourceName", sourceMap.get(assemble.getSourceId()));
             Facet firstLayerFacet = facetMap.get(assemble.getFacetId());
-            assembleMap.put("secondLayerFacetId", null);
-            assembleMap.put("secondLayerFacetName", null);
-            assembleMap.put("firstLayerFacetId", firstLayerFacet.getFacetId());
-            assembleMap.put("firstLayerFacetName", firstLayerFacet.getFacetName());
+            Map<String, Object> assembleMap = assembleDAO.generateAssembleMap(
+                    sourceMap.get(assemble.getSourceId()), topic, firstLayerFacet,
+                    null, assemble, assembleEvaluation, evaluation
+            );
             if (assemble.getType() == null || assemble.getType().equals("text")) {
                 textResults.add(assembleMap);
             } else {
@@ -311,28 +269,18 @@ public class AssembleService {
             }
         }
         for (Assemble assemble : secondLayerAssembles) {
-            Map<String, Object> assembleMap = new HashMap<>();
-            assembleMap.put("assembleId", assemble.getAssembleId());
-            if (assembleEvaluationsMap.get(assemble.getAssembleId()) == null) {
-                assembleMap.put("evaluation", 0);
-            } else {
-                assembleMap.put("evaluation", assembleEvaluationsMap.get(assemble.getAssembleId()));
+            int evaluation = 0;
+            if (assembleEvaluationsMap.get(assemble.getAssembleId()) != null) {
+                evaluation = assembleEvaluationsMap.get(assemble.getAssembleId());
             }
             Map<String, Object> assembleEvaluation = assembleDAO.computePriority(assemble.getAssembleId());
-            assembleMap.put("priority", assembleEvaluation.get("priority"));
-            assembleMap.put("positive", assembleEvaluation.get("positive"));
-            assembleMap.put("negative", assembleEvaluation.get("negative"));
-            assembleMap.put("assembleContent", assemble.getAssembleContent());
-            assembleMap.put("assembleText", assemble.getAssembleText());
-            assembleMap.put("topicId", topicId);
-            assembleMap.put("topicName", topic.getTopicName());
-            assembleMap.put("sourceName", sourceMap.get(assemble.getSourceId()));
+
             Facet secondLayerFacet = facetMap.get(assemble.getFacetId());
             Facet firstLayerFacet = facetMap.get(secondLayerFacet.getParentFacetId());
-            assembleMap.put("secondLayerFacetId", secondLayerFacet.getFacetId());
-            assembleMap.put("secondLayerFacetName", secondLayerFacet.getFacetName());
-            assembleMap.put("firstLayerFacetId", firstLayerFacet.getFacetId());
-            assembleMap.put("firstLayerFacetName", firstLayerFacet.getFacetName());
+            Map<String, Object> assembleMap = assembleDAO.generateAssembleMap(
+                    sourceMap.get(assemble.getSourceId()), topic, firstLayerFacet,
+                    secondLayerFacet, assemble, assembleEvaluation, evaluation
+            );
             if (assemble.getType() == null || assemble.getType().equals("text")) {
                 textResults.add(assembleMap);
             } else {
@@ -532,28 +480,17 @@ public class AssembleService {
             //二级分面
             List<Assemble> assembles = assembleRepository.findByTopicIdAndFacetLayer(topicId, 2);
             for (Assemble assemble : assembles) {
-                Map<String, Object> assembleMap = new HashMap<>(10);
-                assembleMap.put("assembleId", assemble.getAssembleId());
-                if (assembleEvaluationsMap.get(assemble.getAssembleId()) == null) {
-                    assembleMap.put("evaluation", 0);
-                } else {
-                    assembleMap.put("evaluation", assembleEvaluationsMap.get(assemble.getAssembleId()));
+                int evaluation = 0;
+                if (assembleEvaluationsMap.get(assemble.getAssembleId()) != null) {
+                    evaluation = assembleEvaluationsMap.get(assemble.getAssembleId());
                 }
                 Map<String, Object> assembleEvaluation = assembleDAO.computePriority(assemble.getAssembleId());
-                assembleMap.put("priority", assembleEvaluation.get("priority"));
-                assembleMap.put("positive", assembleEvaluation.get("positive"));
-                assembleMap.put("negative", assembleEvaluation.get("negative"));
-                assembleMap.put("assembleContent", assemble.getAssembleContent());
-                assembleMap.put("assembleText", assemble.getAssembleText());
-                assembleMap.put("topicId", topicId);
-                assembleMap.put("topicName", topicName);
-                assembleMap.put("sourceName", sourceMap.get(assemble.getSourceId()));
                 Facet secondLayerFacet = facetMap.get(assemble.getFacetId());
                 Facet firstLayerFacet = facetMap.get(secondLayerFacet.getParentFacetId());
-                assembleMap.put("secondLayerFacetId", secondLayerFacet.getFacetId());
-                assembleMap.put("secondLayerFacetName", secondLayerFacet.getFacetName());
-                assembleMap.put("firstLayerFacetId", firstLayerFacet.getFacetId());
-                assembleMap.put("firstLayerFacetName", firstLayerFacet.getFacetName());
+                Map<String, Object> assembleMap = assembleDAO.generateAssembleMap(
+                        sourceMap.get(assemble.getSourceId()), topic, firstLayerFacet,
+                        secondLayerFacet, assemble, assembleEvaluation, evaluation
+                );
                 if (assemble.getType() != null && assemble.getType().equals("video")) {
                     videoResult.add(assembleMap);
                 } else {
@@ -563,46 +500,25 @@ public class AssembleService {
             //一级分面
             List<Assemble> firstLayerAssembles = assembleRepository.findByTopicIdAndFacetLayer(topicId, 1);
             for (Assemble firstLayerAssemble : firstLayerAssembles) {
-                Map<String, Object> assembleMap = new HashMap<>(10);
-                assembleMap.put("assembleId", firstLayerAssemble.getAssembleId());
-                if (assembleEvaluationsMap.get(firstLayerAssemble.getAssembleId()) == null) {
-                    assembleMap.put("evaluation", 0);
-                } else {
-                    assembleMap.put("evaluation", assembleEvaluationsMap.get(firstLayerAssemble.getAssembleId()));
+                int evaluation = 0;
+                if (assembleEvaluationsMap.get(firstLayerAssemble.getAssembleId()) != null) {
+                    evaluation = assembleEvaluationsMap.get(firstLayerAssemble.getAssembleId());
                 }
                 Map<String, Object> assembleEvaluation = assembleDAO.computePriority(firstLayerAssemble.getAssembleId());
-                assembleMap.put("priority", assembleEvaluation.get("priority"));
-                assembleMap.put("positive", assembleEvaluation.get("positive"));
-                assembleMap.put("negative", assembleEvaluation.get("negative"));
-                assembleMap.put("assembleContent", firstLayerAssemble.getAssembleContent());
-                assembleMap.put("assembleText", firstLayerAssemble.getAssembleText());
-                assembleMap.put("topicId", topicId);
-                assembleMap.put("topicName", topicName);
-                assembleMap.put("sourceName", sourceMap.get(firstLayerAssemble.getSourceId()));
+
                 Facet firstLayerFacet = facetMap.get(firstLayerAssemble.getFacetId());
-                assembleMap.put("secondLayerFacetId", null);
-                assembleMap.put("secondLayerFacetName", null);
-                assembleMap.put("firstLayerFacetId", firstLayerFacet.getFacetId());
-                assembleMap.put("firstLayerFacetName", firstLayerFacet.getFacetName());
+                Map<String, Object> assembleMap = assembleDAO.generateAssembleMap(
+                        sourceMap.get(firstLayerAssemble.getSourceId()), topic, firstLayerFacet,
+                        null, firstLayerAssemble, assembleEvaluation, evaluation
+                );
                 if (firstLayerAssemble.getType() != null && firstLayerAssemble.getType().equals("video")) {
                     videoResult.add(assembleMap);
                 } else {
                     textResult.add(assembleMap);
                 }
             }
-            Comparator<Map> comparator = new Comparator<Map>() {
-                @Override
-                public int compare(Map o1, Map o2) {
-                    if ((double) o1.get("priority") > (double) o2.get("priority")) {
-                        return -1;
-                    } else if ((double) o1.get("priority") == (double) o2.get("priority")) {
-                        return 0;
-                    }
-                    return 1;
-                }
-            };
-            videoResult.sort(comparator);
-            textResult.sort(comparator);
+            videoResult.sort(descComparator);
+            textResult.sort(descComparator);
             Map<String, Object> result = new HashMap<>(2);
             result.put("text", textResult);
             result.put("video", videoResult);
