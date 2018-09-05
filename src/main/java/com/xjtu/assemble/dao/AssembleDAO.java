@@ -1,9 +1,6 @@
 package com.xjtu.assemble.dao;
 
 import com.xjtu.assemble.domain.Assemble;
-import com.xjtu.assemble.repository.AssembleRepository;
-import com.xjtu.assemble.repository.TemporaryAssembleRepository;
-import com.xjtu.domain.repository.DomainRepository;
 import com.xjtu.education.domain.AssembleEvaluation;
 import com.xjtu.education.repository.AssembleEvaluationRepository;
 import com.xjtu.facet.domain.Facet;
@@ -11,7 +8,6 @@ import com.xjtu.facet.repository.FacetRepository;
 import com.xjtu.source.domain.Source;
 import com.xjtu.source.repository.SourceRepository;
 import com.xjtu.topic.domain.Topic;
-import com.xjtu.topic.repository.TopicRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,19 +26,7 @@ public class AssembleDAO {
     private SourceRepository sourceRepository;
 
     @Autowired
-    private DomainRepository domainRepository;
-
-    @Autowired
-    private TopicRepository topicRepository;
-
-    @Autowired
     private FacetRepository facetRepository;
-
-    @Autowired
-    private AssembleRepository assembleRepository;
-
-    @Autowired
-    private TemporaryAssembleRepository temporaryAssembleRepository;
 
     @Autowired
     private AssembleEvaluationRepository assembleEvaluationRepository;
@@ -117,7 +101,7 @@ public class AssembleDAO {
     public Map<String, Object> generateAssembleMap(String sourceName, Topic topic
             , Facet firstLayerFacet, Facet secondLayerFacet, Assemble assemble
             , Map<String, Object> assembleEvaluation, Integer evaluation) {
-        Map<String, Object> assembleMap = new HashMap<>();
+        Map<String, Object> assembleMap = new HashMap<>(14);
         assembleMap.put("sourceName", sourceName);
 
         assembleMap.put("topicId", topic.getTopicId());

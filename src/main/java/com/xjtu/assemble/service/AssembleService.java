@@ -753,7 +753,15 @@ public class AssembleService {
     public String findAssembleContentById(Long assembleId) {
         try {
             Assemble assemble = assembleRepository.findOne(assembleId);
-            return assemble.getAssembleContent();
+            if ("video".equals(assemble.getType())) {
+                String head = "<video src=\"";
+                String tail = "\" controls=\"controls\">\n" +
+                        "您的浏览器不支持 video 标签。\n" +
+                        "</video>";
+                return head + assemble.getAssembleText() + tail;
+            } else {
+                return assemble.getAssembleContent();
+            }
         } catch (Exception error) {
             logger.error("Assemble Search Failed: ", error);
             return "error request!";
