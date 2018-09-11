@@ -87,13 +87,13 @@ public class DependencyService {
     @Value("${gexfpath}")
     private String gexfPath;
 
-    @Value("$(spring.datasource.url)")
+    @Value("${spring.datasource.url}")
     private String url;
 
-    @Value("$(spring.datasource.username)")
+    @Value("${spring.datasource.username}")
     private String username;
 
-    @Value("$(spring.datasource.password)")
+    @Value("${spring.datasource.password}")
     private String password;
 
     /**
@@ -430,6 +430,9 @@ public class DependencyService {
 
     private Map<String, Object> getDBInformation(Properties properties) {
 //        String url = properties.getProperty("spring.datasource.url");
+        logger.debug(url);
+        logger.debug(password);
+        logger.debug(username);
         int firstSlashIndex = url.indexOf("//");
         int lastSlashIndex = url.lastIndexOf("/");
         String hostAndPort = url.substring(firstSlashIndex + 2, lastSlashIndex);
