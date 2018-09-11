@@ -87,6 +87,14 @@ public class DependencyService {
     @Value("${gexfpath}")
     private String gexfPath;
 
+    @Value("$(spring.datasource.url)")
+    private String url;
+
+    @Value("$(spring.datasource.username)")
+    private String username;
+
+    @Value("$(spring.datasource.password)")
+    private String password;
 
     /**
      * 通过主课程名，在课程下的插入、添加主题依赖关系
@@ -421,7 +429,7 @@ public class DependencyService {
     }
 
     private Map<String, Object> getDBInformation(Properties properties) {
-        String url = properties.getProperty("spring.datasource.url");
+//        String url = properties.getProperty("spring.datasource.url");
         int firstSlashIndex = url.indexOf("//");
         int lastSlashIndex = url.lastIndexOf("/");
         String hostAndPort = url.substring(firstSlashIndex + 2, lastSlashIndex);
@@ -434,9 +442,9 @@ public class DependencyService {
         //获取数据库名
         String dbName = url.substring(lastSlashIndex + 1, questionMarkIndex);
         //获取用户名
-        String username = properties.getProperty("spring.datasource.username");
+//        String username = properties.getProperty("spring.datasource.username");
         //获取密码
-        String password = properties.getProperty("spring.datasource.password");
+//        String password = properties.getProperty("spring.datasource.password");
         //构造返回数据
         Map<String, Object> dbInformation = new HashMap<>(5);
         dbInformation.put("host", host);
