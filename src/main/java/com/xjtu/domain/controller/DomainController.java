@@ -4,8 +4,6 @@ import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
 import com.xjtu.domain.service.DomainService;
 import io.swagger.annotations.ApiOperation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/domain")
 public class DomainController {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     private DomainService domainService;
 
@@ -53,6 +50,17 @@ public class DomainController {
     @ApiOperation(value = "获得所有课程信息", notes = "获得所有课程信息")
     public ResponseEntity getDomains() {
         Result result = domainService.findDomains();
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
+    @GetMapping("/getDomainById")
+    @ApiOperation(value = "根据课程id，获得课程信息", notes = "根据课程id，获得课程信息")
+    public ResponseEntity getDomainById(@RequestParam(name = "domainId") Long domainId) {
+        Result result = domainService.findDomainById(domainId);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
