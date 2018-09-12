@@ -51,17 +51,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -256,11 +255,8 @@ public class DependencyService {
         FilterController filterController = Lookup.getDefault().lookup(FilterController.class);
         AppearanceController appearanceController = Lookup.getDefault().lookup(AppearanceController.class);
         AppearanceModel appearanceModel = appearanceController.getModel();
-
-        //获取属性文件
-        Properties properties = getProperties();
         //获取数据库
-        Map<String, Object> dbInformation = getDBInformation(properties);
+        Map<String, Object> dbInformation = getDBInformation();
 
         //Import database
         EdgeListDatabaseImpl db = new EdgeListDatabaseImpl();
@@ -417,19 +413,7 @@ public class DependencyService {
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), result);
     }
 
-    private Properties getProperties() {
-        Resource resource = new ClassPathResource("/application.properties");
-        Properties properties = null;
-        try {
-            properties = PropertiesLoaderUtils.loadProperties(resource);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return properties;
-    }
-
-    private Map<String, Object> getDBInformation(Properties properties) {
-//        String url = properties.getProperty("spring.datasource.url");
+    private Map<String, Object> getDBInformation() {
         logger.debug(url);
         logger.debug(password);
         logger.debug(username);
@@ -444,10 +428,6 @@ public class DependencyService {
         int questionMarkIndex = url.indexOf("?");
         //获取数据库名
         String dbName = url.substring(lastSlashIndex + 1, questionMarkIndex);
-        //获取用户名
-//        String username = properties.getProperty("spring.datasource.username");
-        //获取密码
-//        String password = properties.getProperty("spring.datasource.password");
         //构造返回数据
         Map<String, Object> dbInformation = new HashMap<>(5);
         dbInformation.put("host", host);
