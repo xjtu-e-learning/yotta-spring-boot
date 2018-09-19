@@ -6,6 +6,8 @@ import com.xjtu.domain.domain.Domain;
 import com.xjtu.domain.repository.DomainRepository;
 import com.xjtu.education.domain.FacetState;
 import com.xjtu.education.repository.FacetStateRepository;
+import com.xjtu.facet.domain.Facet;
+import com.xjtu.facet.repository.FacetRepository;
 import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.repository.TopicRepository;
 import com.xjtu.utils.ResultUtil;
@@ -33,6 +35,9 @@ public class FacetStateService {
 
     @Autowired
     TopicRepository topicRepository;
+
+    @Autowired
+    FacetRepository facetRepository;
 
     /**
      * 保存分面状态
@@ -169,6 +174,18 @@ public class FacetStateService {
      */
     public Result findByDomainIdAndTopicIdAndUserId(Long domainId, Long topicId, Long userId) {
         FacetState facetState = facetStateRepository.findByDomainIdAndTopicIdAndUserId(domainId, topicId, userId);
+        String states = facetState.getStates();
+        String[] stateList = states.split(",");
+        List<Facet> facets = facetRepository.findByTopicIdAndFacetLayer(topicId, 1);
+        states = "";
+        for (int i = 0; i < facets.size(); i++) {
+            if (!facets.get(i).getFacetName().equals("匿名分面") && i != (facets.size() - 1)) {
+                states += stateList[i] + ",";
+            } else if (!facets.get(i).getFacetName().equals("匿名分面") && i == (facets.size() - 1)) {
+                states += stateList[i];
+            }
+
+        }
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), facetState);
     }
 
