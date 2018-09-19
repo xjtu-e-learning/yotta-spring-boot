@@ -179,8 +179,12 @@ public class AssembleService {
 
         Long domainId = domain.getDomainId();
         Map<String, Object> resultMap = new HashMap<>();
-        topicNameList.parallelStream().forEach(topicName -> {
+        for (String topicName : topicNameList) {
             Topic topic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
+            if (topic == null) {
+                logger.error("Assembles Search Failed: Corresponding Topic Not Exist");
+                return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR_1.getCode(), ResultEnum.Assemble_SEARCH_ERROR_1.getMsg());
+            }
             Long topicId = topic.getTopicId();
             List<Map<String, Object>> result = new ArrayList<>();
             //查询分面
@@ -220,7 +224,7 @@ public class AssembleService {
             }
             result.sort(descComparator);
             resultMap.put(topicName, result);
-        });
+        }
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), resultMap);
     }
 
