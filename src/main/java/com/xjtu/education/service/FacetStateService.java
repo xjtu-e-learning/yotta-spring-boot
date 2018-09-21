@@ -184,8 +184,11 @@ public class FacetStateService {
             } else if (!facets.get(i).getFacetName().equals("匿名分面") && i == (facets.size() - 1)) {
                 states += stateList[i];
             }
-
         }
+        if (states.substring(states.length() - 1).equals(",")) {
+            states = states.substring(0, states.length() - 1);
+        }
+        facetState.setStates(states);
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), facetState);
     }
 
