@@ -67,6 +67,16 @@ public class DomainController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @GetMapping("/getDomainByName")
+    @ApiOperation(value = "根据课程名，获得课程信息", notes = "根据课程名，获得课程信息")
+    public ResponseEntity getDomainByName(@RequestParam(name = "domainName") String domainName) {
+        Result result = domainService.findDomainByName(domainName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
     /**
      * 读取domain，得到所有领域名和各领域下主题、分面、碎片、关系的数量
      * 未写
