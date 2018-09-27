@@ -45,4 +45,14 @@ public class CourseWangyuanController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
+    @ApiOperation(value = "根据维基课程名，查询网院课程", notes = "根据维基课程名，查询网院课程")
+    @GetMapping("/getDomainByDomainName")
+    public ResponseEntity getDomainByDomainName(@RequestParam("domainName") String domainName) {
+        Result result = courseWangyuanService.findDomainByDomainName(domainName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 }
