@@ -229,7 +229,18 @@ public class AssembleController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 
+    @PostMapping("/updateAssemble")
+    @ApiOperation(value = "根据碎片Id，更新碎片表中的碎片内容"
+            , notes = "根据碎片Id，更新碎片表中的碎片内容")
+    public ResponseEntity updateAssemble(@RequestParam(name = "assembleId") Long assembleId
+            , @RequestParam(name = "assembleContent") String assembleContent) {
+        Result result = assembleService.updateAssemble(assembleId, assembleContent);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
 
