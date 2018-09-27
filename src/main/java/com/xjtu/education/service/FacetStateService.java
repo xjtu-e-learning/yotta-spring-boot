@@ -104,6 +104,12 @@ public class FacetStateService {
             }
         }
         if (facetStateResults != null) {
+            if (facetStateResults.size() != facetStates.size()) {
+                logger.error("current facet states number is not equal to the origin: " +
+                        "current" + facetStates.size() + ",origin:" + facetStateResults.size());
+                return ResultUtil.error(ResultEnum.STATE_INSERT_ERROR_2.getCode()
+                        , ResultEnum.STATE_INSERT_ERROR_2.getMsg());
+            }
             for (int i = 0; i < facetStateResults.size(); i++) {
                 facetStates.get(i).setStateId(facetStateResults.get(i).getStateId());
             }

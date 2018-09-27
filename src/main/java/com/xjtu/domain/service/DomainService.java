@@ -267,6 +267,22 @@ public class DomainService {
     }
 
     /**
+     * 查询课程：根据课程名
+     *
+     * @param domainName 指定课程名
+     * @return 查询结果
+     */
+    public Result findDomainByName(String domainName) {
+        try {
+            Domain domain = domainRepository.findByDomainName(domainName);
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), domain);
+        } catch (Exception err) {
+            logger.error("课程查询失败：没有课程记录");
+            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
+        }
+    }
+
+    /**
      * 查询课程：根据学科Id
      *
      * @param subjectId 指定学科Id
