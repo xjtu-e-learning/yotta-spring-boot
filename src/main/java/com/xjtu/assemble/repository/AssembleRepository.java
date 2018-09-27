@@ -185,4 +185,17 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
     @Query("select max(a.assembleId) from Assemble a")
     Long findMaxId();
 
+    /**
+     * 更新碎片
+     *
+     * @param assembleId
+     * @param assembleContent
+     * @param assembleText
+     * @param assembleScratchTime
+     */
+    @Modifying(clearAutomatically = true)
+    @Transactional(rollbackFor = Exception.class)
+    @Query("update Assemble set assembleContent=?2,assembleText=?3,assembleScratchTime=?4 where assembleId=?1")
+    void updateAssemble(Long assembleId, String assembleContent, String assembleText, String assembleScratchTime);
+
 }

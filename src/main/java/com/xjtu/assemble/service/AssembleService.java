@@ -794,6 +794,31 @@ public class AssembleService {
     }
 
     /**
+     * 更新碎片
+     *
+     * @param assembleId
+     * @param assembleContent
+     * @return
+     */
+    public Result updateAssemble(Long assembleId, String assembleContent) {
+        if (assembleId == null) {
+            logger.error("Assemble Update Failed: Assemble Id Not Exist");
+            return ResultUtil.error(ResultEnum.Assemble_UPDATE_ERROR.getCode(), ResultEnum.Assemble_UPDATE_ERROR.getMsg());
+        }
+        //获取系统当前时间
+        Date date = new Date();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String assembleScratchTime = simpleDateFormat.format(date);
+        String assembleText = JsonUtil.parseHtmlText(assembleContent).text();
+        try {
+            assembleRepository.updateAssemble(assembleId, assembleContent, assembleText, assembleScratchTime);
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "碎片更新成功");
+        } catch (Exception error) {
+            logger.error("Assembles Update Failed: Update Statement Execute Failed", error);
+            return ResultUtil.error(ResultEnum.Assemble_UPDATE_ERROR_1.getCode(), ResultEnum.Assemble_UPDATE_ERROR_1.getMsg());
+        }
+    }
+    /**
      * 根据碎片Id，从碎片暂存表中删除碎片
      *
      * @param assembleId 碎片id

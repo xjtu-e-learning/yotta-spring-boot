@@ -103,7 +103,7 @@ public class FacetStateService {
                 facetStates.add(facetState);
             }
         }
-        if (facetStateResults != null) {
+        if (facetStateResults != null && facetStateResults.size() != 0) {
             if (facetStateResults.size() != facetStates.size()) {
                 logger.error("current facet states number is not equal to the origin: " +
                         "current" + facetStates.size() + ",origin:" + facetStateResults.size());
