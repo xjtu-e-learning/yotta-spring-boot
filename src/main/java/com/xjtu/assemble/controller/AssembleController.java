@@ -210,6 +210,17 @@ public class AssembleController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @GetMapping("/getAssemblesByFacetId")
+    @ApiOperation(value = "根据分面id从碎片表中查询碎片"
+            , notes = "根据分面id从碎片表中查询碎片")
+    public ResponseEntity getAssemblesByFacetId(@RequestParam(name = "facetId") Long facetId) {
+        Result result = assembleService.findAssemblesByFacetId(facetId);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
     @GetMapping("/getAssembleContentById")
     @ApiOperation(value = "根据碎片id从碎片表中查询碎片内容"
             , notes = "根据碎片id从碎片表中查询碎片内容")
