@@ -749,6 +749,36 @@ public class AssembleService {
     }
 
     /**
+     * 根据分面id,查询分面下的所有碎片
+     *
+     * @param facetId
+     * @return
+     */
+    public Result findAssemblesByFacetId(Long facetId) {
+        Facet facet = facetRepository.findOne(facetId);
+        if (facet == null) {
+            logger.error("Assemble Search Failed:facet not exist");
+            return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR_2.getCode(), ResultEnum.Assemble_SEARCH_ERROR_2.getMsg());
+        }
+        //一级分面，需要查询一级分面、对应二级分面下的所有碎片
+        List<Assemble> assembles = null;
+        if (facet.getFacetLayer() == 1) {
+            List<Facet> secondLayerFacets = facetRepository.findByParentFacetId(facetId);
+            //组织一、二级分面的id
+            List<Long> facetIds = new ArrayList<>();
+            for (Facet secondLayerFacet : secondLayerFacets) {
+                facetIds.add(secondLayerFacet.getFacetId());
+            }
+            facetIds.add(facetId);
+            //查询一、二级分面下的碎片
+            assembles = assembleRepository.findByFacetIdIn(facetIds);
+        } else {
+            assembles = assembleRepository.findByFacetId(facetId);
+        }
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), assembles);
+    }
+
+    /**
      * 根据碎片id从碎片表中查询碎片内容
      *
      * @param assembleId
