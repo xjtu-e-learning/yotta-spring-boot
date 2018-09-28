@@ -103,24 +103,24 @@ public class FacetStateService {
                 facetStates.add(facetState);
             }
         }
+        //表中有分面状态
         if (facetStateResults != null && facetStateResults.size() != 0) {
-            if (facetStateResults.size() != facetStates.size()) {
-                logger.error("current facet states number is not equal to the origin: " +
-                        "current" + facetStates.size() + ",origin:" + facetStateResults.size());
-                return ResultUtil.error(ResultEnum.STATE_INSERT_ERROR_2.getCode()
-                        , ResultEnum.STATE_INSERT_ERROR_2.getMsg());
-            }
-            for (int i = 0; i < facetStateResults.size(); i++) {
-                facetStates.get(i).setStateId(facetStateResults.get(i).getStateId());
-            }
+            facetStateRepository.deleteByDomainIdAndUserId(domainId, userId);
         }
+        //表中没有分面状态数量和即将更新的数量不一致
+        if (facetStateResults.size() != facetStates.size()) {
+            logger.error("current facet states number is not equal to the origin: " +
+                    "current" + facetStates.size() + ",origin:" + facetStateResults.size());
+            return ResultUtil.error(ResultEnum.STATE_INSERT_ERROR_2.getCode()
+                    , ResultEnum.STATE_INSERT_ERROR_2.getMsg());
+        }
+        //更新分面状态
         try {
             facetStateRepository.save(facetStates);
         } catch (Exception e) {
             return ResultUtil.error(ResultEnum.STATE_INSERT_ERROR_1.getCode()
                     , ResultEnum.STATE_INSERT_ERROR_1.getMsg(), e);
         }
-
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "分面状态保存成功");
     }
 
