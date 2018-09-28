@@ -41,6 +41,8 @@ public interface FacetStateRepository extends JpaRepository<FacetState, Long> {
      * @param domainId
      * @param userId
      */
+    @Modifying(clearAutomatically = true)
+    @Transactional(rollbackFor = Exception.class)
     void deleteByDomainIdAndUserId(Long domainId, Long userId);
     /**
      * 更新分面状态
