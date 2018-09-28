@@ -106,14 +106,15 @@ public class FacetStateService {
         //表中有分面状态
         if (facetStateResults != null && facetStateResults.size() != 0) {
             facetStateRepository.deleteByDomainIdAndUserId(domainId, userId);
+            //表中分面状态数量和即将更新的数量不一致
+            if (facetStateResults.size() != facetStates.size()) {
+                logger.error("current facet states number is not equal to the origin: " +
+                        "current" + facetStates.size() + ",origin:" + facetStateResults.size());
+                return ResultUtil.error(ResultEnum.STATE_INSERT_ERROR_2.getCode()
+                        , ResultEnum.STATE_INSERT_ERROR_2.getMsg());
+            }
         }
-        //表中没有分面状态数量和即将更新的数量不一致
-        if (facetStateResults.size() != facetStates.size()) {
-            logger.error("current facet states number is not equal to the origin: " +
-                    "current" + facetStates.size() + ",origin:" + facetStateResults.size());
-            return ResultUtil.error(ResultEnum.STATE_INSERT_ERROR_2.getCode()
-                    , ResultEnum.STATE_INSERT_ERROR_2.getMsg());
-        }
+
         //更新分面状态
         try {
             facetStateRepository.save(facetStates);
