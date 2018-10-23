@@ -26,10 +26,30 @@ public class CourseWangyuanController {
     @Autowired
     CourseWangyuanService courseWangyuanService;
 
-    @ApiOperation(value = "查询网院课程", notes = "查询网院课程")
+    @ApiOperation(value = "根据网院课程id，查询网院课程", notes = "根据网院课程id，查询网院课程")
     @GetMapping("/getDomainByCourseId")
     public ResponseEntity getDomainByCourseId(@RequestParam("courseId") Long courseId) {
         Result result = courseWangyuanService.findDomainByCourseId(courseId);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @ApiOperation(value = "根据维基课程id，查询网院课程", notes = "根据维基课程id，查询网院课程")
+    @GetMapping("/getDomainByDomainId")
+    public ResponseEntity getDomainByDomainId(@RequestParam("domainId") Long domainId) {
+        Result result = courseWangyuanService.findDomainByDomainId(domainId);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @ApiOperation(value = "根据维基课程名，查询网院课程", notes = "根据维基课程名，查询网院课程")
+    @GetMapping("/getDomainByDomainName")
+    public ResponseEntity getDomainByDomainName(@RequestParam("domainName") String domainName) {
+        Result result = courseWangyuanService.findDomainByDomainName(domainName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }

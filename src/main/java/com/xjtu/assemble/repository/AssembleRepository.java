@@ -2,6 +2,8 @@ package com.xjtu.assemble.repository;
 
 
 import com.xjtu.assemble.domain.Assemble;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -30,6 +32,15 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
     @Transactional(rollbackFor = Exception.class)
     void deleteByFacetIdIsIn(Collection<Long> facetIds);
 
+
+    /**
+     * 根据分面id，查询分面下的所有碎片
+     *
+     * @param facetIds
+     */
+    @Modifying(clearAutomatically = true)
+    @Transactional(rollbackFor = Exception.class)
+    List<Assemble> findByFacetIdIn(Collection<Long> facetIds);
 
     /**
      * 根据主题id，删除主题下的所有碎片
@@ -77,6 +88,25 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
 
 
     /**
+     * 分页查询主题下的所有碎片
+     *
+     * @param topicId  主题id
+     * @param pageable
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Query("SELECT\n" +
+            "a \n" +
+            "FROM\n" +
+            "Assemble AS a ,\n" +
+            "Facet AS f \n" +
+            "WHERE\n" +
+            "f.topicId = ?1 AND\n" +
+            "f.facetId = a.facetId")
+    Page<Assemble> findByTopicIdAndPageable(Long topicId, Pageable pageable);
+
+
+    /**
      * 查询课程下的所有碎片
      *
      * @param domainId 课程id
@@ -99,7 +129,6 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
     /**
      * 查询课程和主题下的某层分面下的所有碎片
      *
-     * @param domainId   课程id
      * @param topicId  主题id
      * @param facetLayer 分面所在层
      * @return
@@ -164,4 +193,18 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
     @Transactional(rollbackFor = Exception.class)
     @Query("select max(a.assembleId) from Assemble a")
     Long findMaxId();
+
+    /**
+     * 更新碎片
+     *
+     * @param assembleId
+     * @param assembleContent
+     * @param assembleText
+     * @param assembleScratchTime
+     */
+    @Modifying(clearAutomatically = true)
+    @Transactional(rollbackFor = Exception.class)
+    @Query("update Assemble set assembleContent=?2,assembleText=?3,assembleScratchTime=?4 where assembleId=?1")
+    void updateAssemble(Long assembleId, String assembleContent, String assembleText, String assembleScratchTime);
+
 }

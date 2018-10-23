@@ -1,5 +1,6 @@
 package com.xjtu.assemble.service;
 
+import com.xjtu.assemble.dao.AssembleDAO;
 import com.xjtu.assemble.domain.Assemble;
 import com.xjtu.assemble.domain.TemporaryAssemble;
 import com.xjtu.assemble.repository.AssembleRepository;
@@ -53,6 +54,34 @@ public class AssembleService {
 
     @Autowired
     private TemporaryAssembleRepository temporaryAssembleRepository;
+
+    @Autowired
+    private AssembleDAO assembleDAO;
+
+    //降序
+    Comparator<Map> descComparator = new Comparator<Map>() {
+        @Override
+        public int compare(Map o1, Map o2) {
+            if (((double) o1.get("priority") > (double) o2.get("priority"))) {
+                return -1;
+            } else if ((double) o1.get("priority") == (double) o2.get("priority")) {
+                return 0;
+            }
+            return 1;
+        }
+    };
+    //升序
+    Comparator<Map> ascComparator = new Comparator<Map>() {
+        @Override
+        public int compare(Map o1, Map o2) {
+            if (((double) o1.get("priority") < (double) o2.get("priority"))) {
+                return -1;
+            } else if ((double) o1.get("priority") == (double) o2.get("priority")) {
+                return 0;
+            }
+            return 1;
+        }
+    };
 
     /**
      * 指定课程名、主题名，查询该主题下的碎片
@@ -135,69 +164,373 @@ public class AssembleService {
      * @param topicNames
      * @return
      */
-    public Result findAssemblesByDomainNameAndTopicNames(String domainName, String topicNames) {
+    public Result findAssemblesByDomainNameAndTopicNamesAndUserId(String domainName, String topicNames, Long userId) {
         List<String> topicNameList = Arrays.asList(topicNames.split(","));
         //查询数据源
-        List<Source> sources = sourceRepository.findAll();
-        Map<Long, String> sourceMap = new HashMap<>();
-        for (Source source : sources) {
-            sourceMap.put(source.getSourceId(), source.getSourceName());
-        }
+        Map<Long, String> sourceMap = assembleDAO.generateSourceMap();
         //查询课程
         Domain domain = domainRepository.findByDomainName(domainName);
         if (domain == null) {
             logger.error("Assembles Search Failed: Corresponding Domain Not Exist");
             return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR.getCode(), ResultEnum.Assemble_SEARCH_ERROR.getMsg());
         }
+        //查询碎片评价
+        Map<Long, Integer> assembleEvaluationsMap = assembleDAO.generateAssembleEvaluationMap(userId);
+
+        Long domainId = domain.getDomainId();
+        Map<String, Object> resultMap = new HashMap<>();
+        for (String topicName : topicNameList) {
+            Topic topic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
+            if (topic == null) {
+                logger.error("Assembles Search Failed: Corresponding Topic Not Exist");
+                return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR_1.getCode(), ResultEnum.Assemble_SEARCH_ERROR_1.getMsg());
+            }
+            Long topicId = topic.getTopicId();
+            List<Map<String, Object>> result = new ArrayList<>();
+            //查询分面
+            Map<Long, Facet> facetMap = assembleDAO.generateFacetMap(topicId);
+
+            List<Assemble> assembles = assembleRepository.findByTopicIdAndFacetLayer(topicId, 2);
+            for (Assemble assemble : assembles) {
+                int evaluation = 0;
+                if (assembleEvaluationsMap.get(assemble.getAssembleId()) != null) {
+                    evaluation = assembleEvaluationsMap.get(assemble.getAssembleId());
+                }
+                Map<String, Object> assembleEvaluation = assembleDAO.computePriority(assemble.getAssembleId());
+
+                Facet secondLayerFacet = facetMap.get(assemble.getFacetId());
+                Facet firstLayerFacet = facetMap.get(secondLayerFacet.getParentFacetId());
+                Map<String, Object> assembleMap = assembleDAO.generateAssembleMap(
+                        sourceMap.get(assemble.getSourceId()), topic, firstLayerFacet,
+                        secondLayerFacet, assemble, assembleEvaluation, evaluation
+                );
+                result.add(assembleMap);
+            }
+            List<Assemble> firstLayerAssembles = assembleRepository.findByTopicIdAndFacetLayer(topicId, 1);
+            for (Assemble firstLayerAssemble : firstLayerAssembles) {
+                int evaluation = 0;
+                if (assembleEvaluationsMap.get(firstLayerAssemble.getAssembleId()) != null) {
+                    evaluation = assembleEvaluationsMap.get(firstLayerAssemble.getAssembleId());
+                }
+                Map<String, Object> assembleEvaluation = assembleDAO.computePriority(firstLayerAssemble.getAssembleId());
+
+                Facet firstLayerFacet = facetMap.get(firstLayerAssemble.getFacetId());
+
+                Map<String, Object> assembleMap = assembleDAO.generateAssembleMap(
+                        sourceMap.get(firstLayerAssemble.getSourceId()), topic, firstLayerFacet,
+                        null, firstLayerAssemble, assembleEvaluation, evaluation
+                );
+                result.add(assembleMap);
+            }
+            result.sort(descComparator);
+            resultMap.put(topicName, result);
+        }
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), resultMap);
+    }
+
+    /**
+     * 分页查询主题下的碎片
+     *
+     * @param topicId  主题id
+     * @param userId   用户id
+     * @param page     页码
+     * @param size     页大小
+     * @param ascOrder 升序/降序
+     * @return
+     */
+    public Result findAssemblesByTopicIdAndUserIdAndPagingAndSorting(Long topicId
+            , Long userId, String requestType, Integer page, Integer size, boolean ascOrder) {
+        //查询主题
+        Topic topic = topicRepository.findOne(topicId);
+        //查询数据源
+        Map<Long, String> sourceMap = assembleDAO.generateSourceMap();
+        //获取一级分面
+        List<Assemble> firstLayerAssembles = assembleRepository.findByTopicIdAndFacetLayer(topicId, 1);
+        //获取二级分面
+        List<Assemble> secondLayerAssembles = assembleRepository.findByTopicIdAndFacetLayer(topicId, 2);
+        //获取分面
+        Map<Long, Facet> facetMap = assembleDAO.generateFacetMap(topicId);
+        //查询碎片评价
+        Map<Long, Integer> assembleEvaluationsMap = assembleDAO.generateAssembleEvaluationMap(userId);
+
+        List<Map<String, Object>> textResults = new ArrayList<>();
+        List<Map<String, Object>> videoResults = new ArrayList<>();
+        for (Assemble assemble : firstLayerAssembles) {
+            int evaluation = 0;
+            if (assembleEvaluationsMap.get(assemble.getAssembleId()) != null) {
+                evaluation = assembleEvaluationsMap.get(assemble.getAssembleId());
+            }
+            Map<String, Object> assembleEvaluation = assembleDAO.computePriority(assemble.getAssembleId());
+            Facet firstLayerFacet = facetMap.get(assemble.getFacetId());
+            Map<String, Object> assembleMap = assembleDAO.generateAssembleMap(
+                    sourceMap.get(assemble.getSourceId()), topic, firstLayerFacet,
+                    null, assemble, assembleEvaluation, evaluation
+            );
+            if (assemble.getType() == null || assemble.getType().equals("text")) {
+                textResults.add(assembleMap);
+            } else {
+                videoResults.add(assembleMap);
+            }
+        }
+        for (Assemble assemble : secondLayerAssembles) {
+            int evaluation = 0;
+            if (assembleEvaluationsMap.get(assemble.getAssembleId()) != null) {
+                evaluation = assembleEvaluationsMap.get(assemble.getAssembleId());
+            }
+            Map<String, Object> assembleEvaluation = assembleDAO.computePriority(assemble.getAssembleId());
+
+            Facet secondLayerFacet = facetMap.get(assemble.getFacetId());
+            Facet firstLayerFacet = facetMap.get(secondLayerFacet.getParentFacetId());
+            Map<String, Object> assembleMap = assembleDAO.generateAssembleMap(
+                    sourceMap.get(assemble.getSourceId()), topic, firstLayerFacet,
+                    secondLayerFacet, assemble, assembleEvaluation, evaluation
+            );
+            if (assemble.getType() == null || assemble.getType().equals("text")) {
+                textResults.add(assembleMap);
+            } else {
+                videoResults.add(assembleMap);
+            }
+        }
+        List<Map<String, Object>> results = null;
+        if ("video".equals(requestType)) {
+            results = videoResults;
+        } else {
+            results = textResults;
+        }
+        if (ascOrder) {
+            results.sort(ascComparator);
+        } else {
+            results.sort(descComparator);
+        }
+        Integer totalElements = results.size();
+        Integer totalPages = (int) Math.ceil(totalElements / (double) size);
+        Map<String, Object> data = new HashMap<>();
+        if (size * page > totalElements) {
+            logger.error("Paging query error: out of memory");
+            return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR_4.getCode(), ResultEnum.Assemble_SEARCH_ERROR_4.getMsg());
+        } else if (size * (page + 1) > totalElements) {
+            data.put("content", results.subList(size * page, totalElements));
+        } else {
+            data.put("content", results.subList(size * page, size * (page + 1)));
+        }
+        data.put("totalElements", totalElements);
+        data.put("totalPages", totalPages);
+        data.put("page", page);
+        data.put("size", size);
+        data.put("ascOrder", ascOrder);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), data);
+    }
+
+
+    public Result findAssemblesByFacetIdAndUserIdAndPagingAndSorting(Long facetId
+            , Long userId, String requestType, Integer page, Integer size, boolean ascOrder) {
+        Facet facet = facetRepository.findOne(facetId);
+        if (facet == null) {
+            logger.error("Paging query error: facet not exists");
+            return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR_5.getCode(), ResultEnum.Assemble_SEARCH_ERROR_5.getMsg());
+        }
+        Topic topic = topicRepository.findOne(facet.getTopicId());
+        //查询数据源
+        Map<Long, String> sourceMap = assembleDAO.generateSourceMap();
+        //查询碎片评价
+        Map<Long, Integer> assembleEvaluationsMap = assembleDAO.generateAssembleEvaluationMap(userId);
+
+        List<Map<String, Object>> textResults = new ArrayList<>();
+        List<Map<String, Object>> videoResults = new ArrayList<>();
+
+        //查找父分面
+        Facet firstLayerFacet = null;
+        Facet secondLayerFacet = null;
+        List<Assemble> assembles = null;
+        //二级分面
+        if (facet.getFacetLayer().equals(2)) {
+            firstLayerFacet = facetRepository.findOne(facet.getParentFacetId());
+            secondLayerFacet = facet;
+            //查询碎片
+            assembles = assembleRepository.findByFacetId(facetId);
+            for (Assemble assemble : assembles) {
+                int evaluation = 0;
+                if (assembleEvaluationsMap.get(assemble.getAssembleId()) != null) {
+                    evaluation = assembleEvaluationsMap.get(assemble.getAssembleId());
+                }
+                Map<String, Object> assembleEvaluation = assembleDAO.computePriority(assemble.getAssembleId());
+                //文本碎片
+                if (assemble.getType() == null || assemble.getType().equals("text")) {
+                    textResults.add(assembleDAO.generateAssembleMap(
+                            sourceMap.get(assemble.getSourceId()), topic, firstLayerFacet,
+                            secondLayerFacet, assemble, assembleEvaluation, evaluation
+                    ));
+                } else {
+                    //视频碎片
+                    videoResults.add(assembleDAO.generateAssembleMap(
+                            sourceMap.get(assemble.getSourceId()), topic, firstLayerFacet,
+                            secondLayerFacet, assemble, assembleEvaluation, evaluation
+                    ));
+                }
+            }
+
+        } else if (facet.getFacetLayer().equals(1)) {
+            firstLayerFacet = facet;
+            secondLayerFacet = null;
+            //查询碎片
+            assembles = assembleRepository.findByFacetId(facetId);
+            for (Assemble assemble : assembles) {
+                int evaluation = 0;
+                if (assembleEvaluationsMap.get(assemble.getAssembleId()) != null) {
+                    evaluation = assembleEvaluationsMap.get(assemble.getAssembleId());
+                }
+                Map<String, Object> assembleEvaluation = assembleDAO.computePriority(assemble.getAssembleId());
+                //文本碎片
+                if (assemble.getType() == null || assemble.getType().equals("text")) {
+                    textResults.add(assembleDAO.generateAssembleMap(
+                            sourceMap.get(assemble.getSourceId()), topic, firstLayerFacet,
+                            secondLayerFacet, assemble, assembleEvaluation, evaluation
+                    ));
+                } else {
+                    //视频碎片
+                    videoResults.add(assembleDAO.generateAssembleMap(
+                            sourceMap.get(assemble.getSourceId()), topic, firstLayerFacet,
+                            secondLayerFacet, assemble, assembleEvaluation, evaluation
+                    ));
+                }
+            }
+
+            //查询二级分面
+            List<Facet> secondLayerFacets = facetRepository.findByParentFacetId(facetId);
+            for (Facet facet2 : secondLayerFacets) {
+                //查询碎片
+                assembles = assembleRepository.findByFacetId(facet2.getFacetId());
+                for (Assemble assemble : assembles) {
+                    int evaluation = 0;
+                    if (assembleEvaluationsMap.get(assemble.getAssembleId()) != null) {
+                        evaluation = assembleEvaluationsMap.get(assemble.getAssembleId());
+                    }
+                    Map<String, Object> assembleEvaluation = assembleDAO.computePriority(assemble.getAssembleId());
+                    //文本碎片
+                    if (assemble.getType() == null || assemble.getType().equals("text")) {
+                        textResults.add(assembleDAO.generateAssembleMap(
+                                sourceMap.get(assemble.getSourceId()), topic, firstLayerFacet,
+                                facet2, assemble, assembleEvaluation, evaluation
+                        ));
+                    } else {
+                        //视频碎片
+                        videoResults.add(assembleDAO.generateAssembleMap(
+                                sourceMap.get(assemble.getSourceId()), topic, firstLayerFacet,
+                                facet2, assemble, assembleEvaluation, evaluation
+                        ));
+                    }
+                }
+            }
+        }
+        List<Map<String, Object>> results = null;
+        if ("video".equals(requestType)) {
+            results = videoResults;
+        } else {
+            results = textResults;
+        }
+        if (ascOrder) {
+            results.sort(ascComparator);
+        } else {
+            results.sort(descComparator);
+        }
+        Integer totalElements = results.size();
+        Integer totalPages = (int) Math.ceil(totalElements / (double) size);
+        Map<String, Object> data = new HashMap<>();
+        if (size * page > totalElements) {
+            logger.error("Paging query error: out of memory");
+            return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR_4.getCode(), ResultEnum.Assemble_SEARCH_ERROR_4.getMsg());
+        } else if (size * (page + 1) > totalElements) {
+            data.put("content", results.subList(size * page, totalElements));
+        } else {
+            data.put("content", results.subList(size * page, size * (page + 1)));
+        }
+        data.put("totalElements", totalElements);
+        data.put("totalPages", totalPages);
+        data.put("page", page);
+        data.put("size", size);
+        data.put("ascOrder", ascOrder);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), data);
+    }
+    /**
+     * 指定课程名、主题名列表，查询其下两种类型的碎片
+     *
+     * @param domainName
+     * @param topicNames
+     * @param userId
+     * @return
+     */
+    public Result findAssemblesByDomainNameAndTopicNamesAndUserIdSplitByType(String domainName, String topicNames, Long userId) {
+        List<String> topicNameList = Arrays.asList(topicNames.split(","));
+        //查询数据源
+        Map<Long, String> sourceMap = assembleDAO.generateSourceMap();
+        //查询课程
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("Assembles Search Failed: Corresponding Domain Not Exist");
+            return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR.getCode(), ResultEnum.Assemble_SEARCH_ERROR.getMsg());
+        }
+        //查询碎片评价
+        Map<Long, Integer> assembleEvaluationsMap = assembleDAO.generateAssembleEvaluationMap(userId);
+
         Long domainId = domain.getDomainId();
         Map<String, Object> resultMap = new HashMap<>();
         topicNameList.parallelStream().forEach(topicName -> {
             Topic topic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
             Long topicId = topic.getTopicId();
-            List<Map<String, Object>> result = new ArrayList<>();
-            List<Facet> facets = facetRepository.findByTopicId(topicId);
-            Map<Long, Facet> facetMap = new HashMap<>(facets.size());
-            for (Facet facet : facets) {
-                facetMap.put(facet.getFacetId(), facet);
-            }
+            List<Map<String, Object>> textResult = new ArrayList<>();
+            List<Map<String, Object>> videoResult = new ArrayList<>();
+
+            Map<Long, Facet> facetMap = assembleDAO.generateFacetMap(topicId);
+            //二级分面
             List<Assemble> assembles = assembleRepository.findByTopicIdAndFacetLayer(topicId, 2);
             for (Assemble assemble : assembles) {
-                Map<String, Object> assembleMap = new HashMap<>(10);
-                assembleMap.put("assembleId", assemble.getAssembleId());
-                assembleMap.put("assembleContent", assemble.getAssembleContent());
-                assembleMap.put("assembleText", assemble.getAssembleText());
-                assembleMap.put("topicId", topicId);
-                assembleMap.put("topicName", topicName);
-                assembleMap.put("sourceName", sourceMap.get(assemble.getSourceId()));
+                int evaluation = 0;
+                if (assembleEvaluationsMap.get(assemble.getAssembleId()) != null) {
+                    evaluation = assembleEvaluationsMap.get(assemble.getAssembleId());
+                }
+                Map<String, Object> assembleEvaluation = assembleDAO.computePriority(assemble.getAssembleId());
                 Facet secondLayerFacet = facetMap.get(assemble.getFacetId());
                 Facet firstLayerFacet = facetMap.get(secondLayerFacet.getParentFacetId());
-                assembleMap.put("secondLayerFacetId", secondLayerFacet.getFacetId());
-                assembleMap.put("secondLayerFacetName", secondLayerFacet.getFacetName());
-                assembleMap.put("firstLayerFacetId", firstLayerFacet.getFacetId());
-                assembleMap.put("firstLayerFacetName", firstLayerFacet.getFacetName());
-                result.add(assembleMap);
+                Map<String, Object> assembleMap = assembleDAO.generateAssembleMap(
+                        sourceMap.get(assemble.getSourceId()), topic, firstLayerFacet,
+                        secondLayerFacet, assemble, assembleEvaluation, evaluation
+                );
+                if (assemble.getType() != null && assemble.getType().equals("video")) {
+                    videoResult.add(assembleMap);
+                } else {
+                    textResult.add(assembleMap);
+                }
             }
-
+            //一级分面
             List<Assemble> firstLayerAssembles = assembleRepository.findByTopicIdAndFacetLayer(topicId, 1);
             for (Assemble firstLayerAssemble : firstLayerAssembles) {
-                Map<String, Object> assembleMap = new HashMap<>(10);
-                assembleMap.put("assembleId", firstLayerAssemble.getAssembleId());
-                assembleMap.put("assembleContent", firstLayerAssemble.getAssembleContent());
-                assembleMap.put("assembleText", firstLayerAssemble.getAssembleText());
-                assembleMap.put("topicId", topicId);
-                assembleMap.put("topicName", topicName);
-                assembleMap.put("sourceName", sourceMap.get(firstLayerAssemble.getSourceId()));
+                int evaluation = 0;
+                if (assembleEvaluationsMap.get(firstLayerAssemble.getAssembleId()) != null) {
+                    evaluation = assembleEvaluationsMap.get(firstLayerAssemble.getAssembleId());
+                }
+                Map<String, Object> assembleEvaluation = assembleDAO.computePriority(firstLayerAssemble.getAssembleId());
+
                 Facet firstLayerFacet = facetMap.get(firstLayerAssemble.getFacetId());
-                assembleMap.put("secondLayerFacetId", null);
-                assembleMap.put("secondLayerFacetName", null);
-                assembleMap.put("firstLayerFacetId", firstLayerFacet.getFacetId());
-                assembleMap.put("firstLayerFacetName", firstLayerFacet.getFacetName());
-                result.add(assembleMap);
+                Map<String, Object> assembleMap = assembleDAO.generateAssembleMap(
+                        sourceMap.get(firstLayerAssemble.getSourceId()), topic, firstLayerFacet,
+                        null, firstLayerAssemble, assembleEvaluation, evaluation
+                );
+                if (firstLayerAssemble.getType() != null && firstLayerAssemble.getType().equals("video")) {
+                    videoResult.add(assembleMap);
+                } else {
+                    textResult.add(assembleMap);
+                }
             }
+            videoResult.sort(descComparator);
+            textResult.sort(descComparator);
+            Map<String, Object> result = new HashMap<>(2);
+            result.put("text", textResult);
+            result.put("video", videoResult);
             resultMap.put(topicName, result);
         });
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), resultMap);
     }
+
 
     /**
      * 指定课程名、主题名和二级分面名，查询二级分面下的碎片
@@ -416,6 +749,60 @@ public class AssembleService {
     }
 
     /**
+     * 根据分面id,查询分面下的所有碎片
+     *
+     * @param facetId
+     * @return
+     */
+    public Result findAssemblesByFacetId(Long facetId) {
+        Facet facet = facetRepository.findOne(facetId);
+        if (facet == null) {
+            logger.error("Assemble Search Failed:facet not exist");
+            return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR_2.getCode(), ResultEnum.Assemble_SEARCH_ERROR_2.getMsg());
+        }
+        //一级分面，需要查询一级分面、对应二级分面下的所有碎片
+        List<Assemble> assembles = null;
+        if (facet.getFacetLayer() == 1) {
+            List<Facet> secondLayerFacets = facetRepository.findByParentFacetId(facetId);
+            //组织一、二级分面的id
+            List<Long> facetIds = new ArrayList<>();
+            for (Facet secondLayerFacet : secondLayerFacets) {
+                facetIds.add(secondLayerFacet.getFacetId());
+            }
+            facetIds.add(facetId);
+            //查询一、二级分面下的碎片
+            assembles = assembleRepository.findByFacetIdIn(facetIds);
+        } else {
+            assembles = assembleRepository.findByFacetId(facetId);
+        }
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), assembles);
+    }
+
+    /**
+     * 根据碎片id从碎片表中查询碎片内容
+     *
+     * @param assembleId
+     * @return
+     */
+    public String findAssembleContentById(Long assembleId) {
+        try {
+            Assemble assemble = assembleRepository.findOne(assembleId);
+            if ("video".equals(assemble.getType())) {
+                String head = "<video src=\"";
+                String tail = "\" controls=\"controls\">\n" +
+                        "您的浏览器不支持 video 标签。\n" +
+                        "</video>";
+                return head + assemble.getAssembleText() + tail;
+            } else {
+                return assemble.getAssembleContent();
+            }
+        } catch (Exception error) {
+            logger.error("Assemble Search Failed: ", error);
+            return "error request!";
+        }
+    }
+
+    /**
      * 根据碎片Id，更新暂存表中的碎片内容
      *
      * @param assembleId      碎片id
@@ -436,6 +823,31 @@ public class AssembleService {
         }
     }
 
+    /**
+     * 更新碎片
+     *
+     * @param assembleId
+     * @param assembleContent
+     * @return
+     */
+    public Result updateAssemble(Long assembleId, String assembleContent) {
+        if (assembleId == null) {
+            logger.error("Assemble Update Failed: Assemble Id Not Exist");
+            return ResultUtil.error(ResultEnum.Assemble_UPDATE_ERROR.getCode(), ResultEnum.Assemble_UPDATE_ERROR.getMsg());
+        }
+        //获取系统当前时间
+        Date date = new Date();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String assembleScratchTime = simpleDateFormat.format(date);
+        String assembleText = JsonUtil.parseHtmlText(assembleContent).text();
+        try {
+            assembleRepository.updateAssemble(assembleId, assembleContent, assembleText, assembleScratchTime);
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "碎片更新成功");
+        } catch (Exception error) {
+            logger.error("Assembles Update Failed: Update Statement Execute Failed", error);
+            return ResultUtil.error(ResultEnum.Assemble_UPDATE_ERROR_1.getCode(), ResultEnum.Assemble_UPDATE_ERROR_1.getMsg());
+        }
+    }
     /**
      * 根据碎片Id，从碎片暂存表中删除碎片
      *

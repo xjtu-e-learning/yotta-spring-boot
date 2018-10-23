@@ -74,7 +74,7 @@ public class SpiderService {
             String domainName = domain.getDomainName();
             logger.info("碎片开始爬取课程：" + domainName);
 
-/*            logger.info("百度知道碎片开始爬取 当前课程：" + domainName);
+            /*logger.info("百度知道碎片开始爬取 当前课程：" + domainName);
             BaiduZhidaoProcessor baiduZhidaoProcessor = new BaiduZhidaoProcessor(this);
             baiduZhidaoProcessor.baiduAnswerCrawl(domainName);
             logger.info("百度知道碎片爬取完成");

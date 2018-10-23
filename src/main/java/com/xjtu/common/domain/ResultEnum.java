@@ -86,6 +86,8 @@ public enum ResultEnum {
     Assemble_SEARCH_ERROR_1(164, "碎片查询失败：对应主题不存在"),
     Assemble_SEARCH_ERROR_2(165, "碎片查询失败：对应分面不存在"),
     Assemble_SEARCH_ERROR_3(174, "碎片查询失败：查询语句执行失败"),
+    Assemble_SEARCH_ERROR_4(189, "碎片分页查询失败：查询范围超出界限"),
+    Assemble_SEARCH_ERROR_5(190, "碎片分页查询失败：对应分面不存在"),
     Assemble_INSERT_ERROR(166, "碎片插入失败：插入语句执行失败"),
     Assemble_INSERT_ERROR_1(167, "碎片插入失败：碎片内容为空"),
     Assemble_INSERT_ERROR_2(168, "碎片插入失败：对应课程不存在"),
@@ -118,6 +120,9 @@ public enum ResultEnum {
     STATE_INSERT_ERROR(184, "状态保存失败：课程不存在"),
     STATE_INSERT_ERROR_1(185, "状态保存失败：状态保存失败"),
     STATE_INSERT_ERROR_2(186, "状态保存失败：数量不一致"),
+
+    STATE_SEARCH_ERROR_3(187, "状态查询失败:课程下主题和主题状态不一致（请咨询数据管理员）"),
+    STATE_SEARCH_ERROR_4(188, "状态查询失败:指定课程和用户下不存在状态"),
     //推荐主题
     RECOMMENDATION_INSERT_ERROR(181, "推荐主题保存失败：课程不存在"),
 

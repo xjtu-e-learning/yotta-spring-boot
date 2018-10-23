@@ -60,6 +60,19 @@ public interface TopicRepository extends JpaRepository<Topic, Long>, JpaSpecific
     List<Object[]> countTopicsGroupByDomainId(List<Long> domainIds);
 
     /**
+     * 统计一门课程下的碎片，按主题分布
+     *
+     * @param domainId
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "SELECT topic.topic_id,COUNT(*)\n" +
+            "FROM topic,facet,assemble\n" +
+            "WHERE topic.topic_id=facet.topic_id and facet.facet_id=assemble.facet_id and topic.domain_id=?1\n" +
+            "GROUP BY topic.topic_id;", nativeQuery = true)
+    List<Object[]> countAssemblesByDomainIdGroupByTopicId(Long domainId);
+
+    /**
      * 根据课程id，查询课程下的第一个主题
      *
      * @param domainId

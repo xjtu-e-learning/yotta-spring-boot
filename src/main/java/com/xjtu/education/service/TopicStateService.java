@@ -6,13 +6,15 @@ import com.xjtu.domain.domain.Domain;
 import com.xjtu.domain.repository.DomainRepository;
 import com.xjtu.education.domain.TopicState;
 import com.xjtu.education.repository.TopicStateRepository;
+import com.xjtu.topic.domain.Topic;
+import com.xjtu.topic.repository.TopicRepository;
 import com.xjtu.utils.ResultUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.util.*;
 
 /**
  * 推荐方式服务层
@@ -28,6 +30,9 @@ public class TopicStateService {
 
     @Autowired
     DomainRepository domainRepository;
+
+    @Autowired
+    TopicRepository topicRepository;
 
     /**
      * 保存主题状态
@@ -88,6 +93,45 @@ public class TopicStateService {
     public Result findByDomainIdAndUserId(Long domainId, Long userId) {
         TopicState topicState = topicStateRepository
                 .findByDomainIdAndUserId(domainId, userId);
+        if (topicState == null) {
+            logger.error("状态查询失败:指定课程和用户下不存在状态");
+            return ResultUtil.error(ResultEnum.STATE_SEARCH_ERROR_4.getCode(), ResultEnum.STATE_SEARCH_ERROR_4.getMsg());
+
+        }
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicState);
+    }
+
+    /**
+     * 查询主题状态,按主题Id组织返回
+     *
+     * @param domainId
+     * @param userId
+     * @return
+     */
+    public Result findByDomainIdAndUserIdGroupTopicId(Long domainId, Long userId) {
+        TopicState topicState = topicStateRepository
+                .findByDomainIdAndUserId(domainId, userId);
+        if (topicState == null) {
+            logger.error("状态查询失败:指定课程和用户下不存在状态");
+            return ResultUtil.error(ResultEnum.STATE_SEARCH_ERROR_4.getCode(), ResultEnum.STATE_SEARCH_ERROR_4.getMsg());
+
+        }
+        String[] states = topicState.getStates().split(",");
+
+        List<Topic> topics = topicRepository.findByDomainId(domainId);
+        if (topics.size() != states.length) {
+            logger.error("状态查询失败:课程下主题和主题状态不一致（请咨询数据管理员）");
+            return ResultUtil.error(ResultEnum.STATE_SEARCH_ERROR_3.getCode(), ResultEnum.STATE_SEARCH_ERROR_3.getMsg());
+        }
+        int size = topics.size();
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            Map<String, Object> r = new HashMap<>(2);
+            r.put("topicId", topics.get(i).getTopicId());
+            r.put("topicName", topics.get(i).getTopicName());
+            r.put("state", states[i]);
+            result.add(r);
+        }
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), result);
     }
 }

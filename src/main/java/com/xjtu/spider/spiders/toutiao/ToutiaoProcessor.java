@@ -26,7 +26,6 @@ import java.util.Map;
 public class ToutiaoProcessor implements PageProcessor {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-
     SpiderService spiderService;
 
     public ToutiaoProcessor(SpiderService spiderService) {
@@ -107,7 +106,7 @@ public class ToutiaoProcessor implements PageProcessor {
             requests.add(request.setUrl(url).setExtras(facet));
         }
         //3.创建ToutiaoProcessor
-        System.setProperty("selenuim_config", "E:\\workspace\\webmagic-selenium\\config.ini");
+        System.setProperty("selenuim_config", "E:/workspace/webmagic-selenium/config.ini");
         YangKuanSpider.create(new ToutiaoProcessor(this.spiderService))
                 .addRequests(requests)
                 .setDownloader(new SeleniumDownloader("E:\\workspace\\chromedriver.exe"))

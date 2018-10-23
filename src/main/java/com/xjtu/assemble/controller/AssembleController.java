@@ -67,12 +67,64 @@ public class AssembleController {
     }
 
 
-    @PostMapping("/getAssemblesByDomainNameAndTopicNames")
+    @PostMapping("/getAssemblesByDomainNameAndTopicNamesAndUserId")
     @ApiOperation(value = "指定课程名、主题名列表，查询其下碎片"
             , notes = "指定课程名、主题名列表，查询其下碎片")
-    public ResponseEntity getAssemblesByDomainNameAndTopicNames(@RequestParam(name = "domainName") String domainName
-            , @RequestParam(name = "topicNames") String topicNames) {
-        Result result = assembleService.findAssemblesByDomainNameAndTopicNames(domainName, topicNames);
+    public ResponseEntity getAssemblesByDomainNameAndTopicNamesAndUserId(@RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "topicNames") String topicNames
+            , @RequestParam(name = "userId") Long userId) {
+        Result result = assembleService.findAssemblesByDomainNameAndTopicNamesAndUserId(domainName, topicNames, userId);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @PostMapping("/getAssemblesByTopicIdAndUserIdAndPagingAndSorting")
+    @ApiOperation(value = "指定主题id、用户id、请求碎片类型、分页信息，查询其下碎片"
+            , notes = "指定主题id、用户id、请求碎片类型、分页信息，查询其下碎片")
+    public ResponseEntity getAssemblesByTopicIdAndUserIdAndPagingAndSorting(
+            @RequestParam(name = "topicId") Long topicId
+            , @RequestParam(name = "userId") Long userId
+            , @RequestParam(name = "requestType", defaultValue = "text") String requestType
+            , @RequestParam(name = "page") Integer page
+            , @RequestParam(name = "size") Integer size
+            , @RequestParam(name = "ascOrder", defaultValue = "false") boolean ascOrder) {
+        Result result = assembleService.findAssemblesByTopicIdAndUserIdAndPagingAndSorting(topicId, userId
+                , requestType, page, size, ascOrder);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @PostMapping("/getAssemblesByFacetIdAndUserIdAndPagingAndSorting")
+    @ApiOperation(value = "指定分面id、用户id、请求碎片类型、分页信息，查询其下碎片"
+            , notes = "指定分面id、用户id、请求碎片类型、分页信息，查询其下碎片")
+    public ResponseEntity getAssemblesByFacetIdAndUserIdAndPagingAndSorting(
+            @RequestParam(name = "facetId") Long facetId
+            , @RequestParam(name = "userId") Long userId
+            , @RequestParam(name = "requestType", defaultValue = "text") String requestType
+            , @RequestParam(name = "page") Integer page
+            , @RequestParam(name = "size") Integer size
+            , @RequestParam(name = "ascOrder", defaultValue = "false") boolean ascOrder) {
+        Result result = assembleService.findAssemblesByFacetIdAndUserIdAndPagingAndSorting(facetId, userId
+                , requestType, page, size, ascOrder);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
+
+    @PostMapping("/getAssemblesByDomainNameAndTopicNamesAndUserIdSplitByType")
+    @ApiOperation(value = "指定课程名、主题名列表，查询其下两种类型的碎片"
+            , notes = "指定课程名、主题名列表，查询其下两种类型的碎片")
+    public ResponseEntity getAssemblesByDomainNameAndTopicNamesAndUserIdSplitByType(@RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "topicNames") String topicNames
+            , @RequestParam(name = "userId") Long userId) {
+        Result result = assembleService.findAssemblesByDomainNameAndTopicNamesAndUserIdSplitByType(domainName, topicNames, userId);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
@@ -158,6 +210,25 @@ public class AssembleController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @GetMapping("/getAssemblesByFacetId")
+    @ApiOperation(value = "根据分面id从碎片表中查询碎片"
+            , notes = "根据分面id从碎片表中查询碎片")
+    public ResponseEntity getAssemblesByFacetId(@RequestParam(name = "facetId") Long facetId) {
+        Result result = assembleService.findAssemblesByFacetId(facetId);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @GetMapping("/getAssembleContentById")
+    @ApiOperation(value = "根据碎片id从碎片表中查询碎片内容"
+            , notes = "根据碎片id从碎片表中查询碎片内容")
+    public ResponseEntity getAssembleContentById(@RequestParam(name = "assembleId") Long assembleId) {
+        String result = assembleService.findAssembleContentById(assembleId);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
 
     @PostMapping("/updateTemporaryAssemble")
     @ApiOperation(value = "根据碎片Id，更新暂存表中的碎片内容"
@@ -169,7 +240,18 @@ public class AssembleController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 
+    @PostMapping("/updateAssemble")
+    @ApiOperation(value = "根据碎片Id，更新碎片表中的碎片内容"
+            , notes = "根据碎片Id，更新碎片表中的碎片内容")
+    public ResponseEntity updateAssemble(@RequestParam(name = "assembleId") Long assembleId
+            , @RequestParam(name = "assembleContent") String assembleContent) {
+        Result result = assembleService.updateAssemble(assembleId, assembleContent);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
 

@@ -13,9 +13,11 @@ import com.xjtu.facet.domain.FacetContainAssemble;
 import com.xjtu.facet.repository.FacetRepository;
 import com.xjtu.relation.domain.Relation;
 import com.xjtu.relation.repository.RelationRepository;
+import com.xjtu.topic.dao.TopicDAO;
 import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.domain.TopicContainFacet;
 import com.xjtu.topic.repository.TopicRepository;
+import com.xjtu.utils.HttpUtil;
 import com.xjtu.utils.ResultUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,8 +61,15 @@ public class TopicService {
     @Autowired
     private DependencyRepository dependencyRepository;
 
+    @Autowired
+    private TopicDAO topicDAO;
+
     @Value("${gexfpath}")
     private String gexfPath;
+
+    @Value("${server.port}")
+    private Integer port;
+
 
     /**
      * 插入主题信息
@@ -228,8 +237,20 @@ public class TopicService {
     public Result findTopicsByDomainName(String domainName) {
         Domain domain = domainRepository.findByDomainName(domainName);
         List<Topic> topics = topicRepository.findByDomainId(domain.getDomainId());
+        Map<Long, Integer> assembleCounts = topicDAO.countAssemblesByDomainIdGroupByTopicId(domain.getDomainId());
+        List<Map<String, Object>> results = new ArrayList<>();
+        for (Topic topic : topics) {
+            Map<String, Object> result = new HashMap<>();
+            result.put("topicId", topic.getTopicId());
+            result.put("topicName", topic.getTopicName());
+            result.put("topicUrl", topic.getTopicUrl());
+            result.put("topicLayer", topic.getTopicLayer());
+            result.put("domainId", topic.getDomainId());
+            result.put("assembleNumber", assembleCounts.get(topic.getTopicId()));
+            results.add(result);
+        }
         try {
-            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topics);
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), results);
         } catch (Exception error) {
             logger.error("主题查询失败：" + error);
             return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_1.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_1.getMsg());
@@ -240,9 +261,10 @@ public class TopicService {
      * 指定课程名和主题名，获取主题并包含其完整的下的分面、碎片数据
      * @param domainName
      * @param topicName
+     * @param hasFragment
      * @return
      */
-    public Result findCompleteTopicByNameAndDomainName(String domainName, String topicName) {
+    public Result findCompleteTopicByNameAndDomainName(String domainName, String topicName, String hasFragment) {
         Domain domain = domainRepository.findByDomainName(domainName);
         if (domain == null) {
             logger.error("主题查询失败：没有指定课程");
@@ -265,6 +287,9 @@ public class TopicService {
         //firstLayerFacets一级分面列表，将二级分面挂到对应一级分面下
         List<Facet> firstLayerFacetContainAssembles = new ArrayList<>();
         for (Facet firstLayerFacet : firstLayerFacets) {
+            if (firstLayerFacet.getFacetName().equals("匿名分面")) {
+                continue;
+            }
             FacetContainAssemble firstLayerFacetContainAssemble = new FacetContainAssemble();
             firstLayerFacetContainAssemble.setFacet(firstLayerFacet);
             firstLayerFacetContainAssemble.setType("branch");
@@ -280,7 +305,12 @@ public class TopicService {
                         //二级分面下的碎片
                         if (assemble.getFacetId().equals(secondLayerFacet.getFacetId())) {
                             AssembleContainType assembleContainType = new AssembleContainType();
+                            if ("emptyAssembleContent".equals(hasFragment)) {
+                                assemble.setAssembleContent("");
+                            }
                             assembleContainType.setAssemble(assemble);
+                            String ip = HttpUtil.getIp();
+                            assembleContainType.setUrl(ip + ":" + port + "/assemble/getAssembleContentById?assembleId=" + assemble.getAssembleId());
                             assembleContainTypes.add(assembleContainType);
                         }
                     }
@@ -303,7 +333,13 @@ public class TopicService {
                     //一级分面下的碎片
                     if (assemble.getFacetId().equals(firstLayerFacet.getFacetId())) {
                         AssembleContainType assembleContainType = new AssembleContainType();
+                        if ("emptyAssembleContent".equals(hasFragment)) {
+                            assemble.setAssembleContent("");
+                        }
                         assembleContainType.setAssemble(assemble);
+                        String ip = HttpUtil.getIp();
+                        assembleContainType.setUrl(ip + ":" + port + "/assemble/getAssembleContentById?assembleId=" + assemble.getAssembleId());
+
                         assembleContainTypes.add(assembleContainType);
                     }
                 }
@@ -381,7 +417,7 @@ public class TopicService {
         }
         Long domainId = domain.getDomainId();
         Topic topic = topicRepository.findFirstByDomainId(domainId);
-        return findCompleteTopicByNameAndDomainName(domainName, topic.getTopicName());
+        return findCompleteTopicByNameAndDomainName(domainName, topic.getTopicName(), "true");
     }
 
     /**

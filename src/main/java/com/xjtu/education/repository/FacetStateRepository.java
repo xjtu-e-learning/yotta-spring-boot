@@ -35,7 +35,15 @@ public interface FacetStateRepository extends JpaRepository<FacetState, Long> {
     List<FacetState> findByDomainIdAndUserId(Long domainId, Long userId);
 
 
-
+    /**
+     * 删除分面状态
+     *
+     * @param domainId
+     * @param userId
+     */
+    @Modifying(clearAutomatically = true)
+    @Transactional(rollbackFor = Exception.class)
+    void deleteByDomainIdAndUserId(Long domainId, Long userId);
     /**
      * 更新分面状态
      *
@@ -50,4 +58,5 @@ public interface FacetStateRepository extends JpaRepository<FacetState, Long> {
     @Query("update FacetState set states=?4, modifiedTime=?5 where domainId=?1 and topicId=?2 and userId=?3")
     void updateByDomainIdAndTopicIdAndUserId(Long domainId, Long topicId, Long userId
             , String states, Date modifiedTime);
+
 }
