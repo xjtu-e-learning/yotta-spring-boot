@@ -114,7 +114,6 @@ public class FacetStateService {
                         , ResultEnum.STATE_INSERT_ERROR_2.getMsg());
             }
         }
-
         //更新分面状态
         try {
             facetStateRepository.save(facetStates);
