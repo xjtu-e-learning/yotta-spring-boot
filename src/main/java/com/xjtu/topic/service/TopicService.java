@@ -13,6 +13,7 @@ import com.xjtu.facet.domain.FacetContainAssemble;
 import com.xjtu.facet.repository.FacetRepository;
 import com.xjtu.relation.domain.Relation;
 import com.xjtu.relation.repository.RelationRepository;
+import com.xjtu.topic.dao.TopicDAO;
 import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.domain.TopicContainFacet;
 import com.xjtu.topic.repository.TopicRepository;
@@ -59,6 +60,9 @@ public class TopicService {
 
     @Autowired
     private DependencyRepository dependencyRepository;
+
+    @Autowired
+    private TopicDAO topicDAO;
 
     @Value("${gexfpath}")
     private String gexfPath;
@@ -233,8 +237,20 @@ public class TopicService {
     public Result findTopicsByDomainName(String domainName) {
         Domain domain = domainRepository.findByDomainName(domainName);
         List<Topic> topics = topicRepository.findByDomainId(domain.getDomainId());
+        Map<Long, Integer> assembleCounts = topicDAO.countAssemblesByDomainIdGroupByTopicId(domain.getDomainId());
+        List<Map<String, Object>> results = new ArrayList<>();
+        for (Topic topic : topics) {
+            Map<String, Object> result = new HashMap<>();
+            result.put("topicId", topic.getTopicId());
+            result.put("topicName", topic.getTopicName());
+            result.put("topicUrl", topic.getTopicUrl());
+            result.put("topicLayer", topic.getTopicLayer());
+            result.put("domainId", topic.getDomainId());
+            result.put("assembleNumber", assembleCounts.get(topic.getTopicId()));
+            results.add(result);
+        }
         try {
-            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topics);
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), results);
         } catch (Exception error) {
             logger.error("主题查询失败：" + error);
             return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_1.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_1.getMsg());
