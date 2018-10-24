@@ -4,8 +4,6 @@ import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
 import com.xjtu.education.service.RecommendationService;
 import io.swagger.annotations.ApiOperation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/recommendation")
 public class RecommendationController {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     RecommendationService recommendationService;
