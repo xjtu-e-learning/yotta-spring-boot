@@ -47,6 +47,33 @@ public interface DependencyRepository extends JpaRepository<Dependency, Long>, J
     List<Dependency> findByEndTopicId(Long endTopicId);
 
     /**
+     * 统计出度
+     *
+     * @param domainId
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "SELECT start_topic_id,COUNT(start_topic_id) \n" +
+            "FROM dependency \n" +
+            "WHERE domain_id=?1 \n" +
+            "GROUP BY start_topic_id", nativeQuery = true)
+    List<Object[]> countOutDegreeByDomainId(Long domainId);
+
+
+    /**
+     * 统计入度
+     *
+     * @param domainId
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "SELECT end_topic_id,COUNT(end_topic_id) \n" +
+            "FROM dependency \n" +
+            "WHERE domain_id=?1 \n" +
+            "GROUP BY end_topic_id", nativeQuery = true)
+    List<Object[]> countInDegreeByDomainId(Long domainId);
+
+    /**
      * 根据课程id,查询依赖关系
      *
      * @param domainId
