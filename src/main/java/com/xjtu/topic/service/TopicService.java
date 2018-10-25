@@ -238,6 +238,8 @@ public class TopicService {
         Domain domain = domainRepository.findByDomainName(domainName);
         List<Topic> topics = topicRepository.findByDomainId(domain.getDomainId());
         Map<Long, Integer> assembleCounts = topicDAO.countAssemblesByDomainIdGroupByTopicId(domain.getDomainId());
+        Map<Long, Integer> inDegreeCounts = topicDAO.countInDegreeByTopicId(domain.getDomainId());
+        Map<Long, Integer> outDegreeCounts = topicDAO.countOutDegreeByTopicId(domain.getDomainId());
         List<Map<String, Object>> results = new ArrayList<>();
         for (Topic topic : topics) {
             Map<String, Object> result = new HashMap<>();
@@ -247,6 +249,8 @@ public class TopicService {
             result.put("topicLayer", topic.getTopicLayer());
             result.put("domainId", topic.getDomainId());
             result.put("assembleNumber", assembleCounts.get(topic.getTopicId()));
+            result.put("inDegreeNumber", inDegreeCounts.get(topic.getTopicId()) == null ? 0 : inDegreeCounts.get(topic.getTopicId()));
+            result.put("outDegreeNumber", outDegreeCounts.get(topic.getTopicId()) == null ? 0 : outDegreeCounts.get(topic.getTopicId()));
             results.add(result);
         }
         try {
