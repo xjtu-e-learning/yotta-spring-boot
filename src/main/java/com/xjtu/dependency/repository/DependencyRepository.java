@@ -27,6 +27,15 @@ public interface DependencyRepository extends JpaRepository<Dependency, Long>, J
     @Transactional(rollbackFor = Exception.class)
     List<Dependency> findByStartTopicId(Long startTopicId);
 
+    /**
+     * 根据起始主题id和终止主题id,查询依赖关系
+     *
+     * @param startTopicId
+     * @param endTopicId
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    Dependency findByStartTopicIdAndEndTopicId(Long startTopicId, Long endTopicId);
 
     /**
      * 根据起始主题id或终止主题id,查询依赖关系
