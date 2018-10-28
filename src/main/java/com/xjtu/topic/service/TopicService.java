@@ -201,16 +201,16 @@ public class TopicService {
      *
      * @param oldTopicName  旧主题名
      * @param newTopicName  新主题名
-     * @param newDomainName 新课程名
+     * @param domainName 新课程名
      * @return 更新结果
      */
-    public Result updateTopicByName(String oldTopicName, String newTopicName, String newDomainName) {
+    public Result updateTopicByName(String oldTopicName, String newTopicName, String domainName) {
         if (newTopicName == null || newTopicName.equals("") || newTopicName.length() == 0) {
             logger.error("主题名更新失败：新主题名不存在或为空");
             return ResultUtil.error(ResultEnum.TOPIC_UPDATE_ERROR_1.getCode(), ResultEnum.TOPIC_UPDATE_ERROR_1.getMsg());
         }
         try {
-            Domain domain = domainRepository.findByDomainName(newDomainName);
+            Domain domain = domainRepository.findByDomainName(domainName);
             if (domain == null) {
                 logger.error("主题名更新失败：课程不存在");
                 return ResultUtil.error(ResultEnum.TOPIC_UPDATE_ERROR_2.getCode(), ResultEnum.TOPIC_UPDATE_ERROR_2.getMsg());
