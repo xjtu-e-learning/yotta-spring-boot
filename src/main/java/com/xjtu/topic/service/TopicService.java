@@ -201,16 +201,16 @@ public class TopicService {
      *
      * @param oldTopicName  旧主题名
      * @param newTopicName  新主题名
-     * @param newDomainName 新课程名
+     * @param domainName 新课程名
      * @return 更新结果
      */
-    public Result updateTopicByName(String oldTopicName, String newTopicName, String newDomainName) {
+    public Result updateTopicByName(String oldTopicName, String newTopicName, String domainName) {
         if (newTopicName == null || newTopicName.equals("") || newTopicName.length() == 0) {
             logger.error("主题名更新失败：新主题名不存在或为空");
             return ResultUtil.error(ResultEnum.TOPIC_UPDATE_ERROR_1.getCode(), ResultEnum.TOPIC_UPDATE_ERROR_1.getMsg());
         }
         try {
-            Domain domain = domainRepository.findByDomainName(newDomainName);
+            Domain domain = domainRepository.findByDomainName(domainName);
             if (domain == null) {
                 logger.error("主题名更新失败：课程不存在");
                 return ResultUtil.error(ResultEnum.TOPIC_UPDATE_ERROR_2.getCode(), ResultEnum.TOPIC_UPDATE_ERROR_2.getMsg());
@@ -238,6 +238,8 @@ public class TopicService {
         Domain domain = domainRepository.findByDomainName(domainName);
         List<Topic> topics = topicRepository.findByDomainId(domain.getDomainId());
         Map<Long, Integer> assembleCounts = topicDAO.countAssemblesByDomainIdGroupByTopicId(domain.getDomainId());
+        Map<Long, Integer> inDegreeCounts = topicDAO.countInDegreeByTopicId(domain.getDomainId());
+        Map<Long, Integer> outDegreeCounts = topicDAO.countOutDegreeByTopicId(domain.getDomainId());
         List<Map<String, Object>> results = new ArrayList<>();
         for (Topic topic : topics) {
             Map<String, Object> result = new HashMap<>();
@@ -247,6 +249,8 @@ public class TopicService {
             result.put("topicLayer", topic.getTopicLayer());
             result.put("domainId", topic.getDomainId());
             result.put("assembleNumber", assembleCounts.get(topic.getTopicId()));
+            result.put("inDegreeNumber", inDegreeCounts.get(topic.getTopicId()) == null ? 0 : inDegreeCounts.get(topic.getTopicId()));
+            result.put("outDegreeNumber", outDegreeCounts.get(topic.getTopicId()) == null ? 0 : outDegreeCounts.get(topic.getTopicId()));
             results.add(result);
         }
         try {
