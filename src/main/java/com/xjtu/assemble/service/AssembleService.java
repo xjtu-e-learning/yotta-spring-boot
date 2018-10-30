@@ -655,11 +655,12 @@ public class AssembleService {
         //从暂存表删除该碎片
         temporaryAssembleRepository.delete(temporaryAssembleId);
         //把该碎片添加进入碎片
-        Assemble assemble = new Assemble(temporaryAssemble.getAssembleContent()
-                , JsonUtil.parseHtmlText(temporaryAssemble.getAssembleContent()).text()
-                , temporaryAssemble.getAssembleScratchTime()
-                , facet.getFacetId()
-                , source.getSourceId());
+        Assemble assemble = new Assemble();
+        assemble.setAssembleContent(temporaryAssemble.getAssembleContent());
+        assemble.setAssembleText(JsonUtil.parseHtmlText(temporaryAssemble.getAssembleContent()).text());
+        assemble.setAssembleScratchTime(temporaryAssemble.getAssembleScratchTime());
+        assemble.setFacetId(facet.getFacetId());
+        assemble.setSourceId(source.getSourceId());
         assembleRepository.save(assemble);
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "碎片添加成功");
     }

@@ -45,11 +45,12 @@ public class SqlPipeline implements Pipeline {
                 SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 // 获取当前系统时间，也可使用当前时间戳
                 String date = df.format(new Date());
-                Assemble assemble = new Assemble(assembleContents.get(i)
-                        , assembleTexts.get(i)
-                        , date
-                        , (Long) facetMap.get("facetId")
-                        , (Long) facetMap.get("sourceId"));
+                Assemble assemble = new Assemble();
+                assemble.setAssembleContent(assembleContents.get(i));
+                assemble.setAssembleText(assembleTexts.get(i));
+                assemble.setAssembleScratchTime(date);
+                assemble.setFacetId((Long) facetMap.get("facetId"));
+                assemble.setFacetId((Long) facetMap.get("sourceId"));
                 //存碎片
                 assembleList.add(assemble);
             }
