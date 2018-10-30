@@ -248,6 +248,21 @@ public interface FacetRepository extends JpaRepository<Facet, Long>, JpaSpecific
 
 
     /**
+     * 查询课程下的各层分面数，连表查询
+     *
+     * @param domainIds
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "SELECT t.domain_id,COUNT(f.facet_id)\n" +
+            "FROM topic t, facet f\n" +
+            "WHERE t.domain_id IN ?1 AND \n" +
+            "t.topic_id = f.topic_id \n" +
+            "GROUP BY t.domain_id", nativeQuery = true)
+    List<Object[]> countFacetsGroupByDomainId(List<Long> domainIds);
+
+
+    /**
      * 更新分面
      *
      * @param facetId       分面Id

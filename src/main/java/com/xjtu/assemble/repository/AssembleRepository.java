@@ -173,7 +173,7 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
      */
     @Transactional(rollbackFor = Exception.class)
     @Query(value = "SELECT\n" +
-            "t.domain_id,count(a.facet_id) \n" +
+            "t.domain_id,count(a.assemble_id) \n" +
             "FROM \n" +
             "assemble AS a ,\n" +
             "facet AS f ,\n" +
