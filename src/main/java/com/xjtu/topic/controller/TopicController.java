@@ -64,8 +64,8 @@ public class TopicController {
     @ApiOperation(value = "更新主题名", notes = "根据旧主题名进行更新")
     public ResponseEntity updateTopicByTopicName(@RequestParam(name = "oldTopicName") String oldTopicName
             , @RequestParam(name = "newTopicName") String newTopicName
-            , @RequestParam(name = "newDomainName") String newDomainName) {
-        Result result = topicService.updateTopicByName(oldTopicName, newTopicName, newDomainName);
+            , @RequestParam(name = "domainName") String domainName) {
+        Result result = topicService.updateTopicByName(oldTopicName, newTopicName, domainName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }

@@ -603,25 +603,33 @@ public class StatisticsService {
             Map<String, Object> result = new HashMap<>(11);
             result.put("domainId", domain.getDomainId());
             result.put("domainName", domain.getDomainName());
-            result.put("note", "");
             results.add(result);
         }
+        logger.debug("查询主题开始");
         //查询主题
         List<Object[]> topicNumbers = topicRepository.countTopicsGroupByDomainId(domainIds);
         Map<Long, Integer> topicNumbersMap = convertListToMap(topicNumbers);
+        logger.debug("查询分面开始");
         //查询分面
-        List<Object[]> facet1Numbers = facetRepository.countFacetsGroupByDomainIdAndFacetLayer(domainIds, 1);
+        /*List<Object[]> facet1Numbers = facetRepository.countFacetsGroupByDomainIdAndFacetLayer(domainIds, 1);
         Map<Long, Integer> facet1NumbersMap = convertListToMap(facet1Numbers);
         List<Object[]> facet2Numbers = facetRepository.countFacetsGroupByDomainIdAndFacetLayer(domainIds, 2);
         Map<Long, Integer> facet2NumbersMap = convertListToMap(facet2Numbers);
         List<Object[]> facet3Numbers = facetRepository.countFacetsGroupByDomainIdAndFacetLayer(domainIds, 3);
-        Map<Long, Integer> facet3NumbersMap = convertListToMap(facet3Numbers);
+        Map<Long, Integer> facet3NumbersMap = convertListToMap(facet3Numbers);*/
+        List<Object[]> facetNumbers = facetRepository.countFacetsGroupByDomainId(domainIds);
+        Map<Long, Integer> facetNumbersMap = convertListToMap(facetNumbers);
+
+        logger.debug("查询碎片开始");
         //查询碎片
         List<Object[]> assembleNumbers = assembleRepository.countAssemblesGroupByDomainId(domainIds);
+        logger.debug("转换碎片开始");
         Map<Long, Integer> assembleNumbersMap = convertListToMap(assembleNumbers);
+        logger.debug("查询主题依赖关系开始");
         //查询主题依赖关系
         List<Object[]> dependencyNumbers = dependencyRepository.countDependenciesGroupByDomainId(domainIds);
         Map<Long, Integer> dependencyNumbersMap = convertListToMap(dependencyNumbers);
+        logger.debug("数据构建开始");
         for (int i = 0; i < domainIds.size(); i++) {
             if (topicNumbersMap.containsKey(domainIds.get(i))) {
                 results.get(i).put("topicNumber", topicNumbersMap.get(domainIds.get(i)));
@@ -629,11 +637,12 @@ public class StatisticsService {
                 results.get(i).put("topicNumber", 0);
             }
             //查询分面（一级、二级、三级、总数）
-            int firstLayerFacetNumber;
+           /* int firstLayerFacetNumber;
             int secondLayerFacetNumber;
-            int thirdLayerFacetNumber;
+            int thirdLayerFacetNumber;*/
+            int facetNumber;
             //一级
-            if (facet1NumbersMap.containsKey(domainIds.get(i))) {
+            /*if (facet1NumbersMap.containsKey(domainIds.get(i))) {
                 firstLayerFacetNumber = facet1NumbersMap.get(domainIds.get(i));
             } else {
                 firstLayerFacetNumber = 0;
@@ -649,12 +658,18 @@ public class StatisticsService {
                 thirdLayerFacetNumber = facet3NumbersMap.get(domainIds.get(i));
             } else {
                 thirdLayerFacetNumber = 0;
+            }*/
+            if (facetNumbersMap.containsKey(domainIds.get(i))) {
+                facetNumber = facetNumbersMap.get(domainIds.get(i));
+            } else {
+                facetNumber = 0;
             }
             //获取总分面数
-            int facetNumber = firstLayerFacetNumber + secondLayerFacetNumber + thirdLayerFacetNumber;
-            results.get(i).put("firstLayerFacetNumber", firstLayerFacetNumber);
+            //int facetNumber = firstLayerFacetNumber + secondLayerFacetNumber + thirdLayerFacetNumber;
+            /*results.get(i).put("firstLayerFacetNumber", firstLayerFacetNumber);
             results.get(i).put("secondLayerFacetNumber", secondLayerFacetNumber);
             results.get(i).put("thirdLayerFacetNumber", thirdLayerFacetNumber);
+            results.get(i).put("facetNumber", facetNumber);*/
             results.get(i).put("facetNumber", facetNumber);
             //查询碎片
             //一级
