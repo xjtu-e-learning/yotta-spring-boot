@@ -20,6 +20,7 @@ public class Statistics {
     private Long statisticsId;
 
     private Long domainId;
+    private String domainName;
 
     private Integer topicNumber;
     private Integer dependencyNumber;
@@ -46,6 +47,15 @@ public class Statistics {
 
     public void setDomainId(Long domainId) {
         this.domainId = domainId;
+    }
+
+
+    public String getDomainName() {
+        return domainName;
+    }
+
+    public void setDomainName(String domainName) {
+        this.domainName = domainName;
     }
 
     public Integer getTopicNumber() {

@@ -616,6 +616,7 @@ public class StatisticsService {
         for (Domain domain : domains) {
             Statistics statistics = new Statistics();
             statistics.setDomainId(domain.getDomainId());
+            statistics.setDomainName(domain.getDomainName());
             statisticsList.add(statistics);
 
             domainIds.add(domain.getDomainId());
