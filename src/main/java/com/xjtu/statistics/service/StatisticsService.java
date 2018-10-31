@@ -110,30 +110,30 @@ public class StatisticsService {
             Long domainId = domain.getDomainId();
             domainNames.add(domain.getDomainName());
             //
-            int topicNumber = topicRepository.findByDomainId(domain.getDomainId()).size();
+            int topicNumber = topicRepository.countByDomainId(domain.getDomainId());
             topicNumberSum += topicNumber;
             topicNumbers.add(topicNumber);
             //
-            int relationNumber = relationRepository.findByDomainId(domainId).size();
+            int relationNumber = relationRepository.countByDomainId(domainId);
             relationNumberSum += relationNumber;
             relationNumbers.add(relationNumber);
             //
-            int facetNumber = facetRepository.findAllFacetsByDomainId(domainId).size();
+            int facetNumber = facetRepository.countByDomainId(domainId);
             facetNumberSum += facetNumber;
             facetNumbers.add(facetNumber);
             //
             //分面关系数，等于二级分面数、三级分面数之和
-            Integer secondLayerFacetNumber = facetRepository.findFacetsByDomainIdAndFacetLayer(domainId, 2).size();
-            Integer thirdLayerFacetNumber = facetRepository.findFacetsByDomainIdAndFacetLayer(domainId, 3).size();
+            Integer secondLayerFacetNumber = facetRepository.countByDomainIdAndFacetLayer(domainId, 2);
+            Integer thirdLayerFacetNumber = facetRepository.countByDomainIdAndFacetLayer(domainId, 3);
             int facetRelationNumber = secondLayerFacetNumber + thirdLayerFacetNumber;
             facetRelationNumberSum += facetRelationNumber;
             facetRelationNumbers.add(facetRelationNumber);
             //
-            int assembleNumber = assembleRepository.findAllAssemblesByDomainId(domainId).size();
+            int assembleNumber = assembleRepository.countByDomainId(domainId);
             assembleNumberSum += assembleNumber;
             assembleNumbers.add(assembleNumber);
             //
-            int dependencyNumber = dependencyRepository.findByDomainId(domainId).size();
+            int dependencyNumber = dependencyRepository.countByDomainId(domainId);
             dependencyNumberSum += dependencyNumber;
             dependencyNumbers.add(dependencyNumber);
         }
