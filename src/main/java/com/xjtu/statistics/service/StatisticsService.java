@@ -193,30 +193,30 @@ public class StatisticsService {
             Long domainId = domain.getDomainId();
             domainNames.add(domain.getDomainName());
             //
-            int topicNumber = topicRepository.findByDomainId(domain.getDomainId()).size();
+            int topicNumber = topicRepository.countByDomainId(domainId);
             topicNumberSum += topicNumber;
             topicNumbers.add(topicNumber);
             //
-            int relationNumber = relationRepository.findByDomainId(domainId).size();
+            int relationNumber = relationRepository.countByDomainId(domainId);
             relationNumberSum += relationNumber;
             relationNumbers.add(relationNumber);
             //
-            int facetNumber = facetRepository.findAllFacetsByDomainId(domainId).size();
+            int facetNumber = facetRepository.countByDomainId(domainId);
             facetNumberSum += facetNumber;
             facetNumbers.add(facetNumber);
             //
             //分面关系数，等于二级分面数、三级分面数之和
-            Integer secondLayerFacetNumber = facetRepository.findFacetsByDomainIdAndFacetLayer(domainId, 2).size();
-            Integer thirdLayerFacetNumber = facetRepository.findFacetsByDomainIdAndFacetLayer(domainId, 3).size();
+            Integer secondLayerFacetNumber = facetRepository.countByDomainIdAndFacetLayer(domainId, 2);
+            Integer thirdLayerFacetNumber = facetRepository.countByDomainIdAndFacetLayer(domainId, 3);
             int facetRelationNumber = secondLayerFacetNumber + thirdLayerFacetNumber;
             facetRelationNumberSum += facetRelationNumber;
             facetRelationNumbers.add(facetRelationNumber);
             //
-            int assembleNumber = assembleRepository.findAllAssemblesByDomainId(domainId).size();
+            int assembleNumber = assembleRepository.countByDomainId(domainId);
             assembleNumberSum += assembleNumber;
             assembleNumbers.add(assembleNumber);
             //
-            int dependencyNumber = dependencyRepository.findByDomainId(domainId).size();
+            int dependencyNumber = dependencyRepository.countByDomainId(domainId);
             dependencyNumberSum += dependencyNumber;
             dependencyNumbers.add(dependencyNumber);
         }
@@ -298,13 +298,13 @@ public class StatisticsService {
             dependencyNumberSum += dependencies.size();
 
             //获取碎片
-            Integer assembleNumber = 0;
+            Integer assembleTotalNumber = 0;
             for (Facet facet : facets) {
-                List<Assemble> assembles = assembleRepository.findByFacetId(facet.getFacetId());
-                assembleNumber += assembles.size();
+                Integer assembleNumber = assembleRepository.countByFacetId(facet.getFacetId());
+                assembleTotalNumber += assembleNumber;
             }
-            assembleNumbers.add(assembleNumber);
-            assembleNumberSum += assembleNumber;
+            assembleNumbers.add(assembleTotalNumber);
+            assembleNumberSum += assembleTotalNumber;
         }
         //分别将所有统计数据的综合插入列表头
         facetNumbers.add(0, facetNumberSum);
@@ -370,18 +370,18 @@ public class StatisticsService {
         totalAboutSecondLayerFacets.put("value", secondLayerFacets.size());
         totals.add(totalAboutSecondLayerFacets);
         //查询碎片总数
-        List<Assemble> assembles = assembleRepository.findAllAssemblesByTopicId(topicId);
+        Integer assemblesNumber = assembleRepository.countByTopicId(topicId);
         facetNames.add("碎片总数");
         Map<String, Object> totalAboutAssembles = new HashMap<>(2);
         totalAboutAssembles.put("name", "碎片总数");
-        totalAboutAssembles.put("value", assembles.size());
+        totalAboutAssembles.put("value", assemblesNumber);
         totals.add(totalAboutAssembles);
         //查询认知关系总数
-        List<Dependency> dependencies = dependencyRepository.findByStartTopicIdOrEndTopicId(topicId, topicId);
+        Integer dependencyNumber = dependencyRepository.countByStartTopicIdOrEndTopicId(topicId, topicId);
         facetNames.add("认知关系总数");
         Map<String, Object> totalAboutDependencies = new HashMap<>(2);
         totalAboutDependencies.put("name", "认知关系总数");
-        totalAboutDependencies.put("value", dependencies.size());
+        totalAboutDependencies.put("value", dependencyNumber);
         totals.add(totalAboutDependencies);
         //统计一级分面碎片
         List<Map<String, Object>> details = new ArrayList<>();
@@ -389,14 +389,14 @@ public class StatisticsService {
             Map<String, Object> detail = new HashMap<>(2);
             Integer assembleNumber = 0;
             //查询一级分面下的碎片
-            List<Assemble> assemblesInFirstLayerFacet = assembleRepository.findByFacetId(firstLayerFacet.getFacetId());
-            assembleNumber += assemblesInFirstLayerFacet.size();
+            Integer assemblesInFirstLayerFacetNumber = assembleRepository.countByFacetId(firstLayerFacet.getFacetId());
+            assembleNumber += assemblesInFirstLayerFacetNumber;
             //查询二级分面下的碎片
             List<Facet> secondLayerFacetsInFirstLayerFacet = facetRepository
                     .findByParentFacetIdAndFacetLayer(firstLayerFacet.getFacetId(), 2);
             for (Facet secondLayerFacetInFirstLayerFacet : secondLayerFacetsInFirstLayerFacet) {
                 //查询二级碎片并添加
-                assembleNumber += assembleRepository.findByFacetId(secondLayerFacetInFirstLayerFacet.getFacetId()).size();
+                assembleNumber += assembleRepository.countByFacetId(secondLayerFacetInFirstLayerFacet.getFacetId());
                 //此处未考虑三级分面
             }
             facetNames.add("f1:" + firstLayerFacet.getFacetName());
@@ -407,10 +407,10 @@ public class StatisticsService {
         //统计二级分面碎片
         for (Facet secondLayerFacet : secondLayerFacets) {
             Map<String, Object> detail = new HashMap<>(2);
-            List<Assemble> assemblesInSecondLayerFacet = assembleRepository.findByFacetId(secondLayerFacet.getFacetId());
+            Integer assemblesInSecondLayerFacetNumber = assembleRepository.countByFacetId(secondLayerFacet.getFacetId());
             facetNames.add("f2:" + secondLayerFacet.getFacetName());
             detail.put("name", "f2:" + secondLayerFacet.getFacetName());
-            detail.put("value", assemblesInSecondLayerFacet.size());
+            detail.put("value", assemblesInSecondLayerFacetNumber);
             details.add(detail);
         }
         Map<String, Object> statisticsInformation = new HashMap<>(3);

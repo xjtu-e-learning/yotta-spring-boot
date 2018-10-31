@@ -81,4 +81,13 @@ public interface RelationRepository extends JpaRepository<Relation, Long>, JpaSp
     @Transactional(rollbackFor = Exception.class)
     void deleteByParentTopicId(Long parentTopicId);
 
+    /**
+     * 统计上下位关系数
+     *
+     * @param domainId
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    Integer countByDomainId(Long domainId);
+
 }

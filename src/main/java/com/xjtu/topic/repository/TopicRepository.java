@@ -72,6 +72,15 @@ public interface TopicRepository extends JpaRepository<Topic, Long>, JpaSpecific
             "GROUP BY topic.topic_id;", nativeQuery = true)
     List<Object[]> countAssemblesByDomainIdGroupByTopicId(Long domainId);
 
+
+    /**
+     * 统计主题数
+     *
+     * @param domainId
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    Integer countByDomainId(Long domainId);
     /**
      * 根据课程id，查询课程下的第一个主题
      *
