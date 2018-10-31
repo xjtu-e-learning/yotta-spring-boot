@@ -69,6 +69,16 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
     @Transactional(rollbackFor = Exception.class)
     List<Assemble> findByFacetId(Long facetId);
 
+
+    /**
+     * 指定分面id，统计对应分面下的碎片
+     *
+     * @param facetId
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    Integer countByFacetId(Long facetId);
+
     /**
      * 查询主题下的所有碎片
      *
@@ -87,6 +97,11 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
     List<Assemble> findAllAssemblesByTopicId(Long topicId);
 
 
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "SELECT COUNT(a.assemble_id)\n" +
+            "FROM assemble AS a,facet AS f\n" +
+            "WHERE f.topic_id=?1 AND f.facet_id=a.assemble_id;", nativeQuery = true)
+    Integer countByTopicId(Long topicId);
     /**
      * 分页查询主题下的所有碎片
      *
@@ -178,6 +193,15 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
             "GROUP BY a.domain_id", nativeQuery = true)
     List<Object[]> countAssemblesGroupByDomainId(List<Long> domainIds);
 
+
+    /**
+     * 统计课程下的碎片数
+     *
+     * @param domainId
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    Integer countByDomainId(Long domainId);
 
     /**
      * 查询最大主键
