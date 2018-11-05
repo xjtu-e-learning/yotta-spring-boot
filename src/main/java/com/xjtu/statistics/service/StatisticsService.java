@@ -608,6 +608,7 @@ public class StatisticsService {
      * @return
      */
     public Result updateStatistics() {
+        statisticsRepository.deleteAll();
         //查询所有课程
         List<Domain> domains = domainRepository.findAll();
         //存储统计结果
