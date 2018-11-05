@@ -383,6 +383,9 @@ public class TopicService {
         //firstLayerFacets一级分面列表，将二级分面挂到对应一级分面下
         List<Facet> firstLayerFacets = new ArrayList<>();
         for (Facet facet : facets) {
+            if (facet.getFacetName().equals("匿名分面")) {
+                continue;
+            }
             //设置一级分面
             FacetContainAssemble firstLayerFacet = new FacetContainAssemble();
             firstLayerFacet.setFacet(facet);
