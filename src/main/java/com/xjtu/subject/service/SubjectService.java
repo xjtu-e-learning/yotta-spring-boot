@@ -6,6 +6,7 @@ import com.xjtu.domain.domain.Domain;
 import com.xjtu.domain.repository.DomainRepository;
 import com.xjtu.subject.domain.Subject;
 import com.xjtu.subject.repository.SubjectRepository;
+import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.repository.TopicRepository;
 import com.xjtu.utils.ResultUtil;
 import org.slf4j.Logger;
@@ -168,6 +169,36 @@ public class SubjectService {
     public Result findSubjectTree() {
         //查找学科
         List<Subject> subjects = subjectRepository.findAll();
+        List<Domain> allDomains = domainRepository.findAll();
+        List<Topic> allTopics = topicRepository.findAll();
+        //key:subjectId
+        Map<Long, List<Domain>> domainsMap = new HashMap<>();
+        for (Domain domain : allDomains) {
+            Long subjectId = domain.getSubjectId();
+            if (domainsMap.containsKey(subjectId)) {
+                List<Domain> tmpDomains = domainsMap.get(subjectId);
+                tmpDomains.add(domain);
+                domainsMap.put(subjectId, tmpDomains);
+            } else {
+                List<Domain> tmpDomains = new ArrayList<>();
+                tmpDomains.add(domain);
+                domainsMap.put(subjectId, tmpDomains);
+            }
+        }
+        //key:domainId
+        Map<Long, List<Topic>> topicsMap = new HashMap<>();
+        for (Topic topic : allTopics) {
+            Long domainId = topic.getDomainId();
+            if (topicsMap.containsKey(domainId)) {
+                List<Topic> tmpTopics = topicsMap.get(domainId);
+                tmpTopics.add(topic);
+                topicsMap.put(domainId, tmpTopics);
+            } else {
+                List<Topic> tmpTopics = new ArrayList<>();
+                tmpTopics.add(topic);
+                topicsMap.put(domainId, tmpTopics);
+            }
+        }
         List<Map<String, Object>> subjectTrees = new ArrayList<>();
         for (Subject subject : subjects) {
             Map<String, Object> subjectTree = new HashMap<>(4);
@@ -175,14 +206,16 @@ public class SubjectService {
             subjectTree.put("subjectName", subject.getSubjectName());
             subjectTree.put("note", subject.getNote());
             //查找课程
-            List<Domain> domains = domainRepository.findBySubjectId(subject.getSubjectId());
+            List<Domain> domains = domainsMap.get(subject.getSubjectId());
             List<Map<String, Object>> domainTrees = new ArrayList<>();
-            for (Domain domain : domains) {
-                Map<String, Object> domainTree = new HashMap<>(5);
-                domainTree.put("domainId", domain.getDomainId());
-                domainTree.put("domainName", domain.getDomainName());
-                domainTree.put("topics", topicRepository.findByDomainId(domain.getDomainId()));
-                domainTrees.add(domainTree);
+            if (domains != null && domains.size() != 0) {
+                for (Domain domain : domains) {
+                    Map<String, Object> domainTree = new HashMap<>(5);
+                    domainTree.put("domainId", domain.getDomainId());
+                    domainTree.put("domainName", domain.getDomainName());
+                    domainTree.put("topics", topicsMap.get(domain.getDomainId()));
+                    domainTrees.add(domainTree);
+                }
             }
             subjectTree.put("domains", domainTrees);
             subjectTrees.add(subjectTree);
