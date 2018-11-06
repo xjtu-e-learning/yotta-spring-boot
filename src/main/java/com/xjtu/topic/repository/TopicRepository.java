@@ -49,6 +49,19 @@ public interface TopicRepository extends JpaRepository<Topic, Long>, JpaSpecific
     Integer findTopicNumberByDomainId(Long domainId);
 
     /**
+     * 查询所有主题
+     *
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "SELECT * \n" +
+            "FROM topic \n" +
+            "WHERE topic.domain_id IN\n" +
+            "(SELECT domain_id FROM domain);", nativeQuery = true)
+    List<Topic> findAll();
+
+
+    /**
      * 根据课程，查询课程下的主题数
      *
      * @param domainIds
