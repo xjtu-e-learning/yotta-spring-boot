@@ -185,25 +185,27 @@ public class DomainService {
             logger.error("分面更新失败：对应主题不存在");
             return ResultUtil.error(ResultEnum.FACET_UPDATE_ERROR_2.getCode(), ResultEnum.FACET_UPDATE_ERROR_2.getMsg());
         }
-
+        List<Facet> allFacets = facetRepository.findByDomainName(domainName);
         List<Map<String, Object>> results = new ArrayList<>();
         for (Topic topic : topics) {
             Map<String, Object> result = new HashMap<>();
             //查询分面
-            List<Facet> facets = facetRepository.findByTopicId(topic.getTopicId());
+//            List<Facet> facets = facetRepository.findByTopicId(topic.getTopicId());
             List<Facet> firstLayerFacets = new ArrayList<>();
             List<Facet> secondLayerFacets = new ArrayList<>();
             List<Facet> thirdLayerFacets = new ArrayList<>();
-            for (Facet facet : facets) {
-                //一级分面
-                if (facet.getFacetLayer() == 1) {
-                    firstLayerFacets.add(facet);
-                }
-                //二级分面
-                else if (facet.getFacetLayer() == 2) {
-                    secondLayerFacets.add(facet);
-                } else if (facet.getFacetLayer() == 3) {
-                    thirdLayerFacets.add(facet);
+            for (Facet facet : allFacets) {
+                if (facet.getTopicId() == topic.getTopicId()) {
+                    //一级分面
+                    if (facet.getFacetLayer() == 1) {
+                        firstLayerFacets.add(facet);
+                    }
+                    //二级分面
+                    else if (facet.getFacetLayer() == 2) {
+                        secondLayerFacets.add(facet);
+                    } else if (facet.getFacetLayer() == 3) {
+                        thirdLayerFacets.add(facet);
+                    }
                 }
             }
             List<Map<String, Object>> firstLayerFacetNameContainChildrens = new ArrayList<>();
