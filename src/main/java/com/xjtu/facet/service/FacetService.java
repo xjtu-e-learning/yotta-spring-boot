@@ -336,17 +336,18 @@ public class FacetService {
     }
 
     /**
-     * 更新某一层分面的分面名
+     * 更新一级分面的分面名
      *
      * @param domainName
      * @param topicName
      * @param facetName
      * @param newFacetName
-     * @param facetLayer
      * @return
      */
-    public Result updateSomeLayerFacet(String domainName, String topicName
-            , String facetName, String newFacetName, Integer facetLayer) {
+    public Result updateFirstLayerFacet(String domainName,
+                                        String topicName,
+                                        String facetName,
+                                        String newFacetName) {
         //查找旧分面
         Domain domain = domainRepository.findByDomainName(domainName);
         if (domain == null) {
@@ -359,13 +360,51 @@ public class FacetService {
             logger.error("分面更新失败：对应主题不存在");
             return ResultUtil.error(ResultEnum.FACET_UPDATE_ERROR_2.getCode(), ResultEnum.FACET_UPDATE_ERROR_2.getMsg());
         }
-        Facet facet = facetRepository.findByTopicIdAndFacetNameAndFacetLayer(topic.getTopicId(), facetName, facetLayer);
-        if (facet == null) {
+        Facet firstLayerFacet = facetRepository.findByTopicIdAndFacetNameAndFacetLayer(topic.getTopicId(), facetName, 1);
+        if (firstLayerFacet == null) {
             logger.error("分面更新失败：原分面不存在");
             return ResultUtil.error(ResultEnum.FACET_UPDATE_ERROR_3.getCode(), ResultEnum.FACET_UPDATE_ERROR_3.getMsg());
         }
-        facet.setFacetName(newFacetName);
-        return updateFacet(facet);
+        firstLayerFacet.setFacetName(newFacetName);
+        return updateFacet(firstLayerFacet);
+    }
+
+    /**
+     * 更新二级分面的分面名
+     *
+     * @param domainName
+     * @param topicName
+     * @param firstLayerFacetName
+     * @param facetName
+     * @param newFacetName
+     * @return
+     */
+    public Result updateSecondLayerFacet(String domainName, String topicName, String firstLayerFacetName
+            , String facetName, String newFacetName) {
+        //查找旧分面
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("分面更新失败：对应课程不存在");
+            return ResultUtil.error(ResultEnum.FACET_UPDATE_ERROR_1.getCode(), ResultEnum.FACET_UPDATE_ERROR_1.getMsg());
+        }
+        Long domainId = domain.getDomainId();
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
+        if (topic == null) {
+            logger.error("分面更新失败：对应主题不存在");
+            return ResultUtil.error(ResultEnum.FACET_UPDATE_ERROR_2.getCode(), ResultEnum.FACET_UPDATE_ERROR_2.getMsg());
+        }
+        Facet firstLayerFacet = facetRepository.findByTopicIdAndFacetNameAndFacetLayer(topic.getTopicId(), firstLayerFacetName, 1);
+        if (firstLayerFacet == null) {
+            logger.error("分面更新失败：父分面不存在");
+            return ResultUtil.error(ResultEnum.FACET_UPDATE_ERROR_4.getCode(), ResultEnum.FACET_UPDATE_ERROR_4.getMsg());
+        }
+        Facet secondLayerFacet = facetRepository.findByTopicIdAndFacetNameAndParentFacetId(topic.getTopicId(), facetName, firstLayerFacet.getFacetId());
+        if (secondLayerFacet == null) {
+            logger.error("分面更新失败：原分面不存在");
+            return ResultUtil.error(ResultEnum.FACET_UPDATE_ERROR_3.getCode(), ResultEnum.FACET_UPDATE_ERROR_3.getMsg());
+        }
+        secondLayerFacet.setFacetName(newFacetName);
+        return updateFacet(secondLayerFacet);
     }
 
     /**

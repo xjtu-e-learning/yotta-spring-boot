@@ -119,6 +119,15 @@ public interface FacetRepository extends JpaRepository<Facet, Long>, JpaSpecific
 
 
     /**
+     * @param topicId
+     * @param facetName
+     * @param parentFacetId
+     * @return
+     */
+    Facet findByTopicIdAndFacetNameAndParentFacetId(Long topicId, String facetName, Long parentFacetId);
+
+
+    /**
      * 指定分面所在层以及主题Id，查找分面
      *
      * @param topicId    主题Id

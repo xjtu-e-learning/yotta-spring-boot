@@ -3,6 +3,7 @@ package com.xjtu.facet.controller;
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
 import com.xjtu.facet.service.FacetService;
+import com.xjtu.utils.ResultUtil;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -119,8 +120,8 @@ public class FacetController {
             , @RequestParam(name = "topicName") String topicName
             , @RequestParam(name = "facetName") String facetName
             , @RequestParam(name = "newFacetName") String newFacetName) {
-        Result result = facetService.updateSomeLayerFacet(domainName, topicName
-                , facetName, newFacetName, 1);
+        Result result = facetService.updateFirstLayerFacet(domainName, topicName
+                , facetName, newFacetName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
@@ -132,10 +133,13 @@ public class FacetController {
     @GetMapping("/updateSecondLayerFacet")
     public ResponseEntity updateSecondLayerFacet(@RequestParam(name = "domainName") String domainName
             , @RequestParam(name = "topicName") String topicName
+            , @RequestParam(name = "firstLayerFacetName") String firstLayerFacetName
             , @RequestParam(name = "facetName") String facetName
             , @RequestParam(name = "newFacetName") String newFacetName) {
-        Result result = facetService.updateSomeLayerFacet(domainName, topicName
-                , facetName, newFacetName, 2);
+        Result result = facetService.updateSecondLayerFacet(domainName,
+                topicName,
+                firstLayerFacetName,
+                facetName, newFacetName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
@@ -147,10 +151,12 @@ public class FacetController {
     @GetMapping("/updateThirdLayerFacet")
     public ResponseEntity updateThirdLayerFacet(@RequestParam(name = "domainName") String domainName
             , @RequestParam(name = "topicName") String topicName
+            , @RequestParam(name = "firstLayerFacetName") String firstLayerFacetName
+            , @RequestParam(name = "secondLayerFacetName") String secondLayerFacetName
             , @RequestParam(name = "facetName") String facetName
             , @RequestParam(name = "newFacetName") String newFacetName) {
-        Result result = facetService.updateSomeLayerFacet(domainName, topicName
-                , facetName, newFacetName, 3);
+        Result result = ResultUtil.error(ResultEnum.NOT_DEVELOP_ERROR.getCode(),
+                ResultEnum.NOT_DEVELOP_ERROR.getMsg());
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
