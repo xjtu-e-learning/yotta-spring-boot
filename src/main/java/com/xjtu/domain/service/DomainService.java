@@ -190,12 +190,11 @@ public class DomainService {
         for (Topic topic : topics) {
             Map<String, Object> result = new HashMap<>();
             //查询分面
-//            List<Facet> facets = facetRepository.findByTopicId(topic.getTopicId());
             List<Facet> firstLayerFacets = new ArrayList<>();
             List<Facet> secondLayerFacets = new ArrayList<>();
             List<Facet> thirdLayerFacets = new ArrayList<>();
             for (Facet facet : allFacets) {
-                if (facet.getTopicId() == topic.getTopicId()) {
+                if (facet.getTopicId().equals(topic.getTopicId())) {
                     //一级分面
                     if (facet.getFacetLayer() == 1) {
                         firstLayerFacets.add(facet);

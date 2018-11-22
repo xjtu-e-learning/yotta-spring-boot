@@ -7,6 +7,7 @@ package com.xjtu.common.domain;
 public enum ResultEnum {
     SUCCESS(200, "成功"),
     UNKONW_ERROR(-1, "未知错误"),
+    NOT_DEVELOP_ERROR(9, "API尚未开发"),
 
     // 数据源
     SOURCE_INSERT_ERROR(100, "数据源插入失败：数据源名不存在或者为空"),
@@ -68,6 +69,7 @@ public enum ResultEnum {
     FACET_UPDATE_ERROR_1(146, "分面更新失败：对应课程不存在"),
     FACET_UPDATE_ERROR_2(147, "分面更新失败：对应主题不存在"),
     FACET_UPDATE_ERROR_3(148, "分面更新失败：原分面不存在"),
+    FACET_UPDATE_ERROR_4(148, "分面更新失败：父分面不存在"),
     FACET_SEARCH_ERROR(149, "分面查询失败：查询语句执行失败"),
     FACET_SEARCH_ERROR_1(150, "分面分页查询失败：没有数据源记录"),
     FACET_SEARCH_ERROR_2(151, "分面分页查询失败：查询的页数超过最大页数"),
