@@ -199,9 +199,9 @@ public class TopicService {
     /**
      * 更新主题：根据主题名
      *
-     * @param oldTopicName  旧主题名
-     * @param newTopicName  新主题名
-     * @param domainName 新课程名
+     * @param oldTopicName 旧主题名
+     * @param newTopicName 新主题名
+     * @param domainName   新课程名
      * @return 更新结果
      */
     public Result updateTopicByName(String oldTopicName, String newTopicName, String domainName) {
@@ -236,6 +236,10 @@ public class TopicService {
      */
     public Result findTopicsByDomainName(String domainName) {
         Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("主题查询失败：没有指定课程");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_2.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_2.getMsg());
+        }
         List<Topic> topics = topicRepository.findByDomainId(domain.getDomainId());
         Map<Long, Integer> assembleCounts = topicDAO.countAssemblesByDomainIdGroupByTopicId(domain.getDomainId());
         Map<Long, Integer> inDegreeCounts = topicDAO.countInDegreeByTopicId(domain.getDomainId());
@@ -263,6 +267,7 @@ public class TopicService {
 
     /**
      * 指定课程名和主题名，获取主题并包含其完整的下的分面、碎片数据
+     *
      * @param domainName
      * @param topicName
      * @param hasFragment
