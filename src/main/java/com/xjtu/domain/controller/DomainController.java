@@ -77,6 +77,17 @@ public class DomainController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @GetMapping("/getDomainStatisticalChartByDomainName")
+    @ApiOperation(value = "统计课程数据（包括主题、主题依赖关系、分面、碎片）", notes = "统计课程数据（包括主题、主题依赖关系、分面、碎片）")
+    public ResponseEntity getDomainStatisticalChartByDomainName(@RequestParam(name = "domainName") String domainName) {
+        Result result = domainService.findDomainStatisticalChartByDomainName(domainName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
     /**
      * 读取domain，得到所有领域名和各领域下主题、分面、碎片、关系的数量
      * 未写

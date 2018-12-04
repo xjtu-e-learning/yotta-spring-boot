@@ -71,6 +71,16 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
 
 
     /**
+     * 根据课程名查询碎片
+     *
+     * @param domainName
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "select a from Assemble a,Domain d where d.domainName=?1 and d.domainId=a.domainId")
+    List<Assemble> findByDomainName(String domainName);
+
+    /**
      * 指定分面id，统计对应分面下的碎片
      *
      * @param facetId
