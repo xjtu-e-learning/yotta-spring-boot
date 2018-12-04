@@ -110,6 +110,16 @@ public interface DependencyRepository extends JpaRepository<Dependency, Long>, J
     List<Dependency> findByDomainId(Long domainId);
 
     /**
+     * 根据课程名查询依赖关系
+     *
+     * @param domainName
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Query("select de from Dependency de,Domain d where d.domainName=?1 and d.domainId=de.domainId")
+    List<Dependency> findByDomainName(String domainName);
+
+    /**
      * 根据课程ids,查询依赖关系数量
      *
      * @param domainIds
