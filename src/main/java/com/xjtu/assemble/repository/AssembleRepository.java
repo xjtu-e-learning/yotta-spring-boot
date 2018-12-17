@@ -110,7 +110,7 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
     @Transactional(rollbackFor = Exception.class)
     @Query(value = "SELECT COUNT(a.assemble_id)\n" +
             "FROM assemble AS a,facet AS f\n" +
-            "WHERE f.topic_id=?1 AND f.facet_id=a.assemble_id;", nativeQuery = true)
+            "WHERE f.topic_id=?1 AND f.facet_id=a.facet_id;", nativeQuery = true)
     Integer countByTopicId(Long topicId);
     /**
      * 分页查询主题下的所有碎片
