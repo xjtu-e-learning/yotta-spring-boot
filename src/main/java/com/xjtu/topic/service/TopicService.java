@@ -453,11 +453,13 @@ public class TopicService {
         }
         Long topicId = topic.getTopicId();
         //查询一级分面
-        List<Facet> firstLayerFacets = facetRepository.findByTopicIdAndFacetLayer(topicId, 1);
+        Integer firstLayerFacetNumber = facetRepository.countByTopicIdAndFacetLayer(topicId, 1);
         //查询二级分面
-        List<Facet> secondLayerFacets = facetRepository.findByTopicIdAndFacetLayer(topicId, 2);
+        Integer secondLayerFacetNumber = facetRepository.countByTopicIdAndFacetLayer(topicId, 2);
         //查询三级分面
-        List<Facet> thirdLayerFacets = facetRepository.findByTopicIdAndFacetLayer(topicId, 3);
+        Integer thirdLayerFacetNumber = facetRepository.countByTopicIdAndFacetLayer(topicId, 3);
+        //查询碎片
+        Integer assembleNumber = assembleRepository.countByTopicId(topicId);
         Map<String, Object> topicInformation = new HashMap<>(10);
         topicInformation.put("topicId", topic.getTopicId());
         topicInformation.put("topicName", topicName);
@@ -465,12 +467,13 @@ public class TopicService {
         topicInformation.put("topicLayer", topic.getTopicLayer());
         topicInformation.put("domainId", domain.getDomainId());
         topicInformation.put("domainName", domainName);
-        topicInformation.put("firstLayerFacetNumber", firstLayerFacets.size());
-        topicInformation.put("secondLayerFacetNumber", secondLayerFacets.size());
-        topicInformation.put("thirdLayerFacetNumber", thirdLayerFacets.size());
-        topicInformation.put("facetNumber", firstLayerFacets.size()
-                + secondLayerFacets.size()
-                + thirdLayerFacets.size());
+        topicInformation.put("firstLayerFacetNumber", firstLayerFacetNumber);
+        topicInformation.put("secondLayerFacetNumber", secondLayerFacetNumber);
+        topicInformation.put("thirdLayerFacetNumber", thirdLayerFacetNumber);
+        topicInformation.put("facetNumber", firstLayerFacetNumber
+                + secondLayerFacetNumber
+                + thirdLayerFacetNumber);
+        topicInformation.put("assembleNumber", assembleNumber);
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicInformation);
     }
 
