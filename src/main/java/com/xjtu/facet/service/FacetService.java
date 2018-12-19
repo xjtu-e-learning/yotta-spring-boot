@@ -192,7 +192,13 @@ public class FacetService {
         }
     }
 
-    public Result deleteFacet(Iterable<? extends Facet> facets) {
+    /**
+     * 删除分面以及其下碎片
+     *
+     * @param facets
+     * @return
+     */
+    public Result deleteFacets(Iterable<? extends Facet> facets) {
         try {
             List<Long> facetIds = new ArrayList<>();
             for (Facet facet : facets) {
@@ -208,6 +214,43 @@ public class FacetService {
             logger.error("分面信息删除失败：删除语句执行失败");
             return ResultUtil.error(ResultEnum.FACET_DELETE_ERROR_4.getCode(), ResultEnum.FACET_DELETE_ERROR_4.getMsg());
         }
+    }
+
+    /**
+     * 删除分面
+     *
+     * @param domainName
+     * @param topicName
+     * @param facetLayer
+     * @param facetId
+     * @return
+     */
+    public Result deleteFacet(String domainName, String topicName, Integer facetLayer, Long facetId) {
+        //查询课程
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("分面删除失败：对应课程不存在");
+            return ResultUtil.error(ResultEnum.FACET_DELETE_ERROR_2.getCode(), ResultEnum.FACET_DELETE_ERROR_2.getMsg());
+        }
+        Long domainId = domain.getDomainId();
+        //查询主题
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
+        if (topic == null) {
+            logger.error("分面删除失败：对应主题不存在");
+            return ResultUtil.error(ResultEnum.FACET_DELETE_ERROR_3.getCode(), ResultEnum.FACET_DELETE_ERROR_3.getMsg());
+        }
+        Result result;
+        if (facetLayer.equals(1)) {
+            result = deleteFirstLayerFacet(facetId);
+        } else if (facetLayer.equals(2)) {
+            result = deleteSecondLayerFacet(facetId);
+        } else if (facetLayer.equals(3)) {
+            result = deleteThirdLayerFacet(facetId);
+        } else {
+            logger.error("分面删除失败：对应分面层不存在");
+            result = ResultUtil.error(ResultEnum.FACET_DELETE_ERROR_5.getCode(), ResultEnum.FACET_DELETE_ERROR_5.getMsg());
+        }
+        return result;
     }
 
     /**
@@ -247,7 +290,7 @@ public class FacetService {
         facets.add(firstLayerFacet);
         facets.addAll(secondLayerFacets);
         facets.addAll(thirdLayerFacets);
-        return deleteFacet(facets);
+        return deleteFacets(facets);
     }
 
     /**
@@ -281,7 +324,68 @@ public class FacetService {
         List<Facet> facets = new ArrayList<>();
         facets.add(secondLayerFacet);
         facets.addAll(thirdLayerFacets);
-        return deleteFacet(facets);
+        return deleteFacets(facets);
+    }
+
+    /**
+     * @param facetId
+     * @return
+     */
+    public Result deleteFirstLayerFacet(Long facetId) {
+        //删除一级分面，需要删除它的子分面
+        //查找一级分面
+        Facet firstLayerFacet = facetRepository.findOne(facetId);
+        //查找二级分面
+        List<Facet> secondLayerFacets = facetRepository.findByParentFacetId(firstLayerFacet.getFacetId());
+        //查找三级分面
+        List<Facet> thirdLayerFacets = new ArrayList<>();
+        for (Facet secondLayerFacet : secondLayerFacets) {
+            thirdLayerFacets.addAll(facetRepository.findByParentFacetId(secondLayerFacet.getFacetId()));
+        }
+        //所有分面合并
+        List<Facet> facets = new ArrayList<>();
+        facets.add(firstLayerFacet);
+        facets.addAll(secondLayerFacets);
+        facets.addAll(thirdLayerFacets);
+        return deleteFacets(facets);
+    }
+
+    /**
+     * 删除二级分面
+     *
+     * @param facetId
+     * @return
+     */
+    public Result deleteSecondLayerFacet(Long facetId) {
+        //查找二级分面
+        Facet secondLayerFacet = facetRepository.findOne(facetId);
+        //查找三级分面
+        List<Facet> thirdLayerFacets = facetRepository.findByParentFacetId(secondLayerFacet.getFacetId());
+        //所有分面合并
+        List<Facet> facets = new ArrayList<>();
+        facets.add(secondLayerFacet);
+        facets.addAll(thirdLayerFacets);
+        return deleteFacets(facets);
+    }
+
+    /**
+     * 删除三级分面
+     *
+     * @param facetId
+     * @return
+     */
+    public Result deleteThirdLayerFacet(Long facetId) {
+        Result result = null;
+        try {
+            facetRepository.delete(facetId);
+            assembleRepository.deleteByFacetId(facetId);
+            result = ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "分面删除成功");
+        } catch (Exception e) {
+            logger.error("分面更新失败：更新语句执行失败");
+            logger.error(e.toString());
+            result = ResultUtil.error(ResultEnum.FACET_UPDATE_ERROR.getCode(), ResultEnum.FACET_UPDATE_ERROR.getMsg());
+        }
+        return result;
     }
 
     /**
@@ -310,7 +414,7 @@ public class FacetService {
         Facet thirdLayerFacet = facetRepository.findByTopicIdAndFacetNameAndFacetLayer(topic.getTopicId(), thirdLayerFacetName, 3);
         List<Facet> facets = new ArrayList<>();
         facets.add(thirdLayerFacet);
-        return deleteFacet(facets);
+        return deleteFacets(facets);
     }
 
     /**
@@ -455,7 +559,7 @@ public class FacetService {
                     //二级分面
                     else if (facet.getFacetLayer() == 2) {
                         secondLayerFacets.add(facet);
-                    } else if(facet.getFacetLayer() == 3){
+                    } else if (facet.getFacetLayer() == 3) {
                         thirdLayerFacets.add(facet);
                     }
                 }

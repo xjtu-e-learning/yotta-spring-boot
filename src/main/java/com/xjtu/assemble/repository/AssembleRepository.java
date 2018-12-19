@@ -24,7 +24,7 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
 
 
     /**
-     * 根据分面id，删除分面下的所有碎片
+     * 根据分面id集合，删除分面下的所有碎片
      *
      * @param facetIds
      */
@@ -32,6 +32,14 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
     @Transactional(rollbackFor = Exception.class)
     void deleteByFacetIdIsIn(Collection<Long> facetIds);
 
+    /**
+     * 根据分面id，删除分面下的所有碎片
+     *
+     * @param facetId
+     */
+    @Modifying(clearAutomatically = true)
+    @Transactional(rollbackFor = Exception.class)
+    void deleteByFacetId(Long facetId);
 
     /**
      * 根据分面id，查询分面下的所有碎片

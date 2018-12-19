@@ -65,6 +65,7 @@ public enum ResultEnum {
     FACET_DELETE_ERROR_2(142, "分面信息删除失败：对应课程不存在"),
     FACET_DELETE_ERROR_3(143, "分面信息删除失败：对应主题不存在"),
     FACET_DELETE_ERROR_4(144, "分面信息删除失败：删除语句执行失败"),
+    FACET_DELETE_ERROR_5(197, "分面信息删除失败：对应分面层不存在"),
     FACET_UPDATE_ERROR(145, "分面更新失败：更新语句执行失败"),
     FACET_UPDATE_ERROR_1(146, "分面更新失败：对应课程不存在"),
     FACET_UPDATE_ERROR_2(147, "分面更新失败：对应主题不存在"),

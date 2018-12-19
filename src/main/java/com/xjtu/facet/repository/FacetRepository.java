@@ -31,6 +31,16 @@ public interface FacetRepository extends JpaRepository<Facet, Long>, JpaSpecific
 
 
     /**
+     * 删除分面
+     *
+     * @param facetId
+     * @param facetLayer
+     */
+    @Modifying(clearAutomatically = true)
+    @Transactional(rollbackFor = Exception.class)
+    void deleteByFacetIdAndFacetLayer(Long facetId, Integer facetLayer);
+
+    /**
      * 指定主题Id，查找分面
      *
      * @param topicId 主题Id
