@@ -876,6 +876,128 @@ public class FacetService {
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), facetInformation);
     }
 
+    public Result countFacetInfo(String domainName, String topicName, Integer facetLayer, Long facetId) {
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("分面查询失败：对应课程不存在");
+            return ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR_3.getCode(), ResultEnum.FACET_SEARCH_ERROR_3.getMsg());
+        }
+        Long domainId = domain.getDomainId();
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
+        if (topic == null) {
+            logger.error("分面查询失败：对应主题不存在");
+            return ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR_4.getCode(), ResultEnum.FACET_SEARCH_ERROR_4.getMsg());
+        }
+        Result result;
+        Map<String, Object> map = new HashMap<>();
+        map.put("domainName", domainName);
+        map.put("topicName", topicName);
+        map.put("facetLayer", facetLayer);
+        map.put("facetId", facetId);
+        switch (facetLayer) {
+            case 1:
+                map.putAll(countFirstLayerFacetInfo(facetId));
+                result = ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), map);
+                break;
+            case 2:
+                map.putAll(countSecondLayerFacetInfo(facetId));
+                result = ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), map);
+                break;
+            case 3:
+                map.putAll(countThirdLayerFacetInfo(facetId));
+                result = ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), map);
+                break;
+            default:
+                logger.error("分面查询失败：对应主题不存在");
+                result = ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR_8.getCode(), ResultEnum.FACET_SEARCH_ERROR_8.getMsg());
+        }
+        return result;
+    }
+
+    /**
+     * 统计一级分面信息
+     *
+     * @param facetId
+     * @return
+     */
+    Map<String, Object> countFirstLayerFacetInfo(Long facetId) {
+        Facet firstLayerFacet = facetRepository.findOne(facetId);
+        //查找二级分面
+        List<Facet> secondLayerFacets = facetRepository.findByParentFacetId(firstLayerFacet.getFacetId());
+        //查找三级分面
+        List<Facet> thirdLayerFacets = new ArrayList<>();
+        for (Facet secondLayerFacet : secondLayerFacets) {
+            thirdLayerFacets.addAll(facetRepository.findByParentFacetId(secondLayerFacet.getFacetId()));
+        }
+        //所有分面合并
+        List<Facet> facets = new ArrayList<>();
+        facets.add(firstLayerFacet);
+        facets.addAll(secondLayerFacets);
+        facets.addAll(thirdLayerFacets);
+        List<Long> facetIds = new ArrayList<>();
+        for (Facet facet : facets) {
+            facetIds.add(facet.getFacetId());
+        }
+        Integer assembleNumber = assembleRepository.countByFacetIdIn(facetIds);
+        Map<String, Object> map = new HashMap<>();
+        map.put("facetName", firstLayerFacet.getFacetName());
+        map.put("assembleNumber", assembleNumber);
+        map.put("secondLayerFacetNumber", secondLayerFacets.size());
+        map.put("thirdLayerFacetNumber", thirdLayerFacets.size());
+        return map;
+    }
+
+    /**
+     * 统计二级分面信息
+     *
+     * @param facetId
+     * @return
+     */
+    Map<String, Object> countSecondLayerFacetInfo(Long facetId) {
+        Facet secondLayerFacet = facetRepository.findOne(facetId);
+        //查找一级分面
+        Facet firstLayerFacet = facetRepository.findOne(secondLayerFacet.getParentFacetId());
+        //查找三级分面
+        List<Facet> thirdLayerFacets = facetRepository.findByParentFacetId(secondLayerFacet.getFacetId());
+        //所有分面合并
+        List<Facet> facets = new ArrayList<>();
+        facets.add(secondLayerFacet);
+        facets.addAll(thirdLayerFacets);
+        List<Long> facetIds = new ArrayList<>();
+        for (Facet facet : facets) {
+            facetIds.add(facet.getFacetId());
+        }
+        Integer assembleNumber = assembleRepository.countByFacetIdIn(facetIds);
+        Map<String, Object> map = new HashMap<>();
+        map.put("firstLayerFacetName", firstLayerFacet.getFacetName());
+        map.put("facetName", secondLayerFacet.getFacetName());
+        map.put("assembleNumber", assembleNumber);
+        map.put("thirdLayerFacetNumber", thirdLayerFacets.size());
+        return map;
+    }
+
+    /**
+     * 统计三级分面信息
+     *
+     * @param facetId
+     * @return
+     */
+    Map<String, Object> countThirdLayerFacetInfo(Long facetId) {
+        //查询三级分面
+        Facet thirdLayerFacet = facetRepository.findOne(facetId);
+        //查询二级分面
+        Facet secondLayerFacet = facetRepository.findOne(thirdLayerFacet.getParentFacetId());
+        //查询一级分面
+        Facet firstLayerFacet = facetRepository.findOne(secondLayerFacet.getParentFacetId());
+        Integer assembleNumber = assembleRepository.countByFacetId(facetId);
+        Map<String, Object> map = new HashMap<>();
+        map.put("firstLayerFacetName", firstLayerFacet.getFacetName());
+        map.put("secondLayerFacetName", secondLayerFacet.getFacetName());
+        map.put("facetName", thirdLayerFacet.getFacetName());
+        map.put("assembleNumber", assembleNumber);
+        return map;
+    }
+
     /**
      * 分页查询查询所有分面信息，按照分面Id排序 (不带查询条件)
      *

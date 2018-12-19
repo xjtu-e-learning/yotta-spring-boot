@@ -79,6 +79,7 @@ public enum ResultEnum {
     FACET_SEARCH_ERROR_5(154, "分面查询失败：对应课程和主题下没有分面"),
     FACET_SEARCH_ERROR_6(155, "分面查询失败：对应课程和主题下没有对应分面"),
     FACET_SEARCH_ERROR_7(156, "分面查询失败：对应课程、主题下以及分面下没有子分面"),
+    FACET_SEARCH_ERROR_8(198, "分面查询失败：对应分面层不存在"),
     FACET_INSERT_ERROR_2(157, "分面信息插入失败：对应课程不存在"),
     FACET_INSERT_ERROR_3(158, "分面信息插入失败：对应主题不存在"),
     FACET_INSERT_ERROR_4(159, "分面信息插入失败：对应父分面不存在"),

@@ -284,6 +284,19 @@ public class FacetController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @ApiOperation(value = "统计分面信息", notes = "统计分面信息")
+    @GetMapping("/countFacetInfo")
+    public ResponseEntity countFacetInfo(@RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "topicName") String topicName
+            , @RequestParam(name = "facetLayer") Integer facetLayer
+            , @RequestParam(name = "facetId") Long facetId) {
+        Result result = facetService.countFacetInfo(domainName, topicName, facetLayer, facetId);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
     @ApiOperation(value = "获取一门课程下的分面分布", notes = "获取一门课程下的分面分布")
     @GetMapping("/getFacetDistribution")
     public ResponseEntity getFacetDistribution(@RequestParam(name = "domainName") String domainName) {

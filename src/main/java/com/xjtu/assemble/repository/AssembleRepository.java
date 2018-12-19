@@ -98,6 +98,15 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
     Integer countByFacetId(Long facetId);
 
     /**
+     * 根据分面id集合，查询碎片数量
+     *
+     * @param facetIds
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    Integer countByFacetIdIn(Collection<Long> facetIds);
+
+    /**
      * 查询主题下的所有碎片
      *
      * @param topicId 主题id
