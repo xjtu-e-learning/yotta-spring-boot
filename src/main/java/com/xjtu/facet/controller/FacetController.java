@@ -86,6 +86,20 @@ public class FacetController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @ApiOperation(value = "指定课程、主题、分面层和分面id，删除分面"
+            , notes = "指定课程、主题、分面层和分面id，删除分面")
+    @GetMapping("/deleteFacet")
+    public ResponseEntity deleteFacet(@RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "topicName") String topicName
+            , @RequestParam(name = "facetLayer") Integer facetLayer
+            , @RequestParam(name = "facetId") Long facetId) {
+        Result result = facetService.deleteFacet(domainName, topicName, facetLayer, facetId);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
     @ApiOperation(value = "指定课程、主题和二级分面，删除二级分面"
             , notes = "指定课程、主题和二级分面，删除二级分面")
     @GetMapping("/deleteSecondLayerFacet")
@@ -264,6 +278,19 @@ public class FacetController {
             , @RequestParam(name = "facetName") String facetName
             , @RequestParam(name = "facetLayer") Integer facetLayer) {
         Result result = facetService.findAssembleNumberInFacet(domainName, topicName, facetName, facetLayer);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @ApiOperation(value = "统计分面信息", notes = "统计分面信息")
+    @GetMapping("/countFacetInfo")
+    public ResponseEntity countFacetInfo(@RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "topicName") String topicName
+            , @RequestParam(name = "facetLayer") Integer facetLayer
+            , @RequestParam(name = "facetId") Long facetId) {
+        Result result = facetService.countFacetInfo(domainName, topicName, facetLayer, facetId);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
