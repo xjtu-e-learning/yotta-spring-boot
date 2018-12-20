@@ -165,10 +165,12 @@ public class AssembleController {
     @PostMapping("/appendAssemble")
     @ApiOperation(value = "添加碎片到碎片表中"
             , notes = "添加碎片到碎片表中")
-    public ResponseEntity insertAssemble(@RequestParam(name = "domainName") String domainName
+    public ResponseEntity appendAssemble(
+            @RequestParam(name = "sourceName", defaultValue = "人工") String sourceName
+            , @RequestParam(name = "domainName") String domainName
             , @RequestParam(name = "facetId") Long facetId
             , @RequestParam(name = "assembleContent") String assembleContent) {
-        Result result = assembleService.insertAssemble(facetId, assembleContent, "人工", domainName);
+        Result result = assembleService.insertAssemble(facetId, assembleContent, sourceName, domainName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
