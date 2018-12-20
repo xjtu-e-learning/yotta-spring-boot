@@ -117,7 +117,6 @@ public class AssembleController {
     }
 
 
-
     @PostMapping("/getAssemblesByDomainNameAndTopicNamesAndUserIdSplitByType")
     @ApiOperation(value = "指定课程名、主题名列表，查询其下两种类型的碎片"
             , notes = "指定课程名、主题名列表，查询其下两种类型的碎片")
@@ -157,6 +156,19 @@ public class AssembleController {
                 , topicName, facetName
                 , facetLayer, temporaryAssembleId
                 , "人工");
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @PostMapping("/appendAssemble")
+    @ApiOperation(value = "添加碎片到碎片表中"
+            , notes = "添加碎片到碎片表中")
+    public ResponseEntity insertAssemble(@RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "facetId") Long facetId
+            , @RequestParam(name = "assembleContent") String assembleContent) {
+        Result result = assembleService.insertAssemble(facetId, assembleContent, "人工", domainName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
