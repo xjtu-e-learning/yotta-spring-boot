@@ -177,6 +177,21 @@ public class FacetController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @ApiOperation(value = "更新分面名"
+            , notes = "更新分面名")
+    @GetMapping("/updateFacet")
+    public ResponseEntity updateFacet(@RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "topicName") String topicName
+            , @RequestParam(name = "facetLayer") Integer facetLayer
+            , @RequestParam(name = "facetId") Long facetId
+            , @RequestParam(name = "newFacetName") String newFacetName) {
+        Result result = facetService.updateFacet(domainName, topicName, facetLayer, facetId, newFacetName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
     @ApiOperation(value = "获得主题的所有分面信息", notes = "输入课程名和主题名，获得知识主题的所有分面信息，知识森林VR使用（吴科炜）")
     @GetMapping("/getFacetsInTopic")
     public ResponseEntity getFacetsInTopic(@RequestParam(name = "domainName") String domainName
