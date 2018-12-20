@@ -451,6 +451,7 @@ public class AssembleService {
         data.put("ascOrder", ascOrder);
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), data);
     }
+
     /**
      * 指定课程名、主题名列表，查询其下两种类型的碎片
      *
@@ -665,6 +666,48 @@ public class AssembleService {
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "碎片添加成功");
     }
 
+    /**
+     * 添加碎片
+     *
+     * @param facetId
+     * @param assembleContent
+     * @param sourceName
+     * @param domainName
+     * @return
+     */
+    public Result insertAssemble(Long facetId, String assembleContent, String sourceName, String domainName) {
+        if (assembleContent == null || assembleContent.equals("") || assembleContent.length() == 0) {
+            logger.error("碎片插入失败：碎片内容为空");
+            ResultUtil.error(ResultEnum.Assemble_INSERT_ERROR_1.getCode(), ResultEnum.Assemble_INSERT_ERROR_1.getMsg());
+        }
+        //获取系统当前时间
+        Date date = new Date();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String assembleScratchTime = simpleDateFormat.format(date);
+        //查询数据源
+        Source source = sourceRepository.findBySourceName(sourceName);
+        if (source == null) {
+            logger.error("碎片插入失败：对应数据源不存在");
+            return ResultUtil.error(ResultEnum.Assemble_INSERT_ERROR_6.getCode(), ResultEnum.Assemble_INSERT_ERROR_6.getMsg());
+        }
+        //查询课程
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("Assembles Insert Failed: Corresponding Domain Not Exist");
+            return ResultUtil.error(ResultEnum.Assemble_INSERT_ERROR_2.getCode(), ResultEnum.Assemble_INSERT_ERROR_2.getMsg());
+        }
+        //把该碎片添加进入碎片
+        Assemble assemble = new Assemble();
+        assemble.setAssembleContent(assembleContent);
+        assemble.setAssembleText(JsonUtil.parseHtmlText(assembleContent).text());
+        assemble.setAssembleScratchTime(assembleScratchTime);
+        assemble.setFacetId(facetId);
+        assemble.setSourceId(source.getSourceId());
+        assemble.setDomainId(domain.getDomainId());
+        assembleRepository.save(assemble);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "碎片添加成功");
+    }
+
     public Result insertAssemble(Assemble assemble) {
         try {
             assembleRepository.save(assemble);
@@ -849,6 +892,7 @@ public class AssembleService {
             return ResultUtil.error(ResultEnum.Assemble_UPDATE_ERROR_1.getCode(), ResultEnum.Assemble_UPDATE_ERROR_1.getMsg());
         }
     }
+
     /**
      * 根据碎片Id，从碎片暂存表中删除碎片
      *
