@@ -512,6 +512,38 @@ public class FacetService {
     }
 
     /**
+     * 更新分面
+     *
+     * @param domainName
+     * @param topicName
+     * @param facetLayer
+     * @param facetId
+     * @param newFacetName
+     * @return
+     */
+    public Result updateFacet(String domainName, String topicName, Integer facetLayer, Long facetId, String newFacetName) {
+        //查找旧分面
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("分面更新失败：对应课程不存在");
+            return ResultUtil.error(ResultEnum.FACET_UPDATE_ERROR_1.getCode(), ResultEnum.FACET_UPDATE_ERROR_1.getMsg());
+        }
+        Long domainId = domain.getDomainId();
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
+        if (topic == null) {
+            logger.error("分面更新失败：对应主题不存在");
+            return ResultUtil.error(ResultEnum.FACET_UPDATE_ERROR_2.getCode(), ResultEnum.FACET_UPDATE_ERROR_2.getMsg());
+        }
+        Facet facet = facetRepository.findOne(facetId);
+        if (!facet.getFacetLayer().equals(facetLayer)) {
+            logger.error("分面更新失败：分面层级不符");
+            return ResultUtil.error(ResultEnum.FACET_UPDATE_ERROR_5.getCode(), ResultEnum.FACET_UPDATE_ERROR_5.getMsg());
+        }
+        facet.setFacetName(newFacetName);
+        return updateFacet(facet);
+    }
+
+    /**
      * 查询所有分面信息
      *
      * @return 查询结果
@@ -908,7 +940,7 @@ public class FacetService {
                 result = ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), map);
                 break;
             default:
-                logger.error("分面查询失败：对应主题不存在");
+                logger.error("分面查询失败：对应分面层不存在");
                 result = ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR_8.getCode(), ResultEnum.FACET_SEARCH_ERROR_8.getMsg());
         }
         return result;
