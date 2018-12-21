@@ -11,3 +11,6 @@ SpringApplication.run(Application.class);
 ```$xslt
 SpringApplication.run(Application.class, args);
 ```
+
+##### 2. Parameter value element [10] did not match expected type [java.lang.Long (n/a)]
+这是由于查询数据库biginteger(20)字段，返回的是BigInteger类型，需要转换成Long
