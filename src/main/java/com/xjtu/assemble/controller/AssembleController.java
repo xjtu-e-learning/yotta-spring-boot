@@ -3,6 +3,7 @@ package com.xjtu.assemble.controller;
 import com.xjtu.assemble.service.AssembleService;
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
+import com.xjtu.facet.repository.FacetRepository;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -233,6 +237,18 @@ public class AssembleController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @Autowired
+    FacetRepository facetRepository;
+
+    @GetMapping("/test")
+    @ApiOperation(value = "根据分面id从碎片表中查询碎片"
+            , notes = "根据分面id从碎片表中查询碎片")
+    public ResponseEntity test(@RequestParam(name = "facetId") Long facetId) {
+        List<Long> facetIds = new ArrayList<>();
+        facetIds.add(facetId);
+        return ResponseEntity.status(HttpStatus.OK).body(facetRepository.findFacetIdsByParentFacetIds(facetIds));
     }
 
     @GetMapping("/getAssembleContentById")

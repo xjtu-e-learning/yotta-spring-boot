@@ -81,6 +81,18 @@ public interface FacetRepository extends JpaRepository<Facet, Long>, JpaSpecific
     @Transactional(rollbackFor = Exception.class)
     List<Facet> findByParentFacetId(Long parentFacetId);
 
+
+    /**
+     * 根据父分面id，查询子分面id
+     *
+     * @param parentFacetIds
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "select f.facet_id from facet f where f.parent_facet_id in ?1", nativeQuery = true)
+    List<BigInteger> findFacetIdsByParentFacetIds(List<Long> parentFacetIds);
+
+
     /**
      * 指定父分面Id以及分面所在层，查找分面
      *

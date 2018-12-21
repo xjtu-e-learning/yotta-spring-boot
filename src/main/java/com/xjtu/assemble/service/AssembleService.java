@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -805,21 +806,96 @@ public class AssembleService {
             return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR_2.getCode(), ResultEnum.Assemble_SEARCH_ERROR_2.getMsg());
         }
         //一级分面，需要查询一级分面、对应二级分面下的所有碎片
-        List<Assemble> assembles = null;
-        if (facet.getFacetLayer() == 1) {
-            List<Facet> secondLayerFacets = facetRepository.findByParentFacetId(facetId);
-            //组织一、二级分面的id
-            List<Long> facetIds = new ArrayList<>();
-            for (Facet secondLayerFacet : secondLayerFacets) {
-                facetIds.add(secondLayerFacet.getFacetId());
-            }
-            facetIds.add(facetId);
-            //查询一、二级分面下的碎片
-            assembles = assembleRepository.findByFacetIdIn(facetIds);
-        } else {
-            assembles = assembleRepository.findByFacetId(facetId);
+        List<Assemble> assembles;
+        Result result;
+        switch (facet.getFacetLayer()) {
+            case 1:
+                assembles = findAssemblesInFirstLayerFacet(facetId);
+                result = ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), assembles);
+                break;
+            case 2:
+                assembles = findAssemblesInSecondLayerFacet(facetId);
+                result = ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), assembles);
+                break;
+            case 3:
+                assembles = findAssemblesInThirdLayerFacet(facetId);
+                result = ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), assembles);
+                break;
+            default:
+                logger.error("碎片查询失败：对应分面不存在");
+                result = ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR_2.getCode()
+                        , ResultEnum.Assemble_SEARCH_ERROR_2.getMsg());
         }
-        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), assembles);
+        return result;
+    }
+
+    /**
+     * 查找一级分面下的所有碎片
+     *
+     * @param facetId
+     * @return
+     */
+    public List<Assemble> findAssemblesInFirstLayerFacet(Long facetId) {
+        List<Long> facetIds = new ArrayList<>();
+        //添加一级分面的id
+        List<Long> firstLayerFacetIds = new ArrayList<>();
+        firstLayerFacetIds.add(facetId);
+        facetIds.addAll(firstLayerFacetIds);
+        //查询二级分面id
+        List<BigInteger> biSecondLayerFacetIds = facetRepository.findFacetIdsByParentFacetIds(firstLayerFacetIds);
+        List<Long> lSecondLayerFacetIds = new ArrayList<>();
+        for (BigInteger secondLayerFacetId : biSecondLayerFacetIds) {
+            lSecondLayerFacetIds.add(secondLayerFacetId.longValue());
+        }
+        facetIds.addAll(lSecondLayerFacetIds);
+        //查询三级分面id
+        if (biSecondLayerFacetIds != null && biSecondLayerFacetIds.size() != 0) {
+            List<BigInteger> biThirdLayerFacetIds = facetRepository.findFacetIdsByParentFacetIds(lSecondLayerFacetIds);
+            List<Long> lThirdLayerFacetIds = new ArrayList<>();
+            for (BigInteger thirdLayerFacetIds : biThirdLayerFacetIds) {
+                lThirdLayerFacetIds.add(thirdLayerFacetIds.longValue());
+            }
+            facetIds.addAll(lThirdLayerFacetIds);
+        }
+        //查询一、二、三级分面下的碎片
+        List<Assemble> assembles = assembleRepository.findByFacetIdIn(facetIds);
+        return assembles;
+    }
+
+    /**
+     * 查找二级分面下的所有碎片
+     *
+     * @param facetId
+     * @return
+     */
+    public List<Assemble> findAssemblesInSecondLayerFacet(Long facetId) {
+        //二级分面id
+        List<Long> secondLayerFacetIds = new ArrayList<>();
+        secondLayerFacetIds.add(facetId);
+        //查询三级分面id
+        List<BigInteger> biThirdLayerFacetIds = facetRepository.findFacetIdsByParentFacetIds(secondLayerFacetIds);
+        List<Long> lThirdLayerFacetIds = new ArrayList<>();
+        for (BigInteger thirdLayerFacetIds : biThirdLayerFacetIds) {
+            lThirdLayerFacetIds.add(thirdLayerFacetIds.longValue());
+        }
+        //添加一级分面id
+        List<Long> facetIds = new ArrayList<>();
+        facetIds.addAll(secondLayerFacetIds);
+        facetIds.addAll(lThirdLayerFacetIds);
+        //查询一、二、三级分面下的碎片
+        List<Assemble> assembles = assembleRepository.findByFacetIdIn(facetIds);
+        return assembles;
+    }
+
+    /**
+     * 查找三级分面下的所有碎片
+     *
+     * @param facetId
+     * @return
+     */
+    public List<Assemble> findAssemblesInThirdLayerFacet(Long facetId) {
+        List<Assemble> assembles = assembleRepository.findByFacetId(facetId);
+        return assembles;
     }
 
     /**

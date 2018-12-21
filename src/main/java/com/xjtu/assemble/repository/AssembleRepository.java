@@ -46,8 +46,8 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
      *
      * @param facetIds
      */
-    @Modifying(clearAutomatically = true)
     @Transactional(rollbackFor = Exception.class)
+    @Query("select a from Assemble as a where a.facetId in ?1")
     List<Assemble> findByFacetIdIn(Collection<Long> facetIds);
 
     /**
