@@ -110,13 +110,16 @@ public class DependencyService {
             logger.error("主题依赖关系插入失败：没有课程信息记录");
             return ResultUtil.error(ResultEnum.DEPENDENCY_INSERT_ERROR_1.getCode(), ResultEnum.DEPENDENCY_INSERT_ERROR_1.getMsg());
         }
+        if (startTopicName.equals(endTopicName)) {
+            logger.error("主题依赖关系插入失败:起始和终止主题重名");
+            return ResultUtil.error(ResultEnum.DEPENDENCY_INSERT_ERROR_4.getCode(), ResultEnum.DEPENDENCY_INSERT_ERROR_4.getMsg());
+        }
         //查找主题id
         Topic startTopic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(), startTopicName);
         Topic endTopic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(), endTopicName);
         if (startTopic == null || endTopic == null) {
             logger.error("主题依赖关系插入失败:起始或终止主题不存在");
             return ResultUtil.error(ResultEnum.DEPENDENCY_INSERT_ERROR_2.getCode(), ResultEnum.DEPENDENCY_INSERT_ERROR_2.getMsg());
-
         }
         //查找是否已有依赖关系
         Dependency existedDependency = dependencyRepository.findByStartTopicIdAndEndTopicId(startTopic.getTopicId(), endTopic.getTopicId());

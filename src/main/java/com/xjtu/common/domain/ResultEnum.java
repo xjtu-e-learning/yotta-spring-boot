@@ -118,6 +118,7 @@ public enum ResultEnum {
     DEPENDENCY_INSERT_ERROR_1(183, "主题依赖关系插入失败：没有课程信息记录"),
     DEPENDENCY_INSERT_ERROR_2(184, "主题依赖关系插入失败:起始或终止主题不存在"),
     DEPENDENCY_INSERT_ERROR_3(185, "主题依赖关系插入失败:主题依赖关系已经存在"),
+    DEPENDENCY_INSERT_ERROR_4(200, "主题依赖关系插入失败:起始和终止主题重名"),
     DEPENDENCY_DELETE_ERROR(186, "主题依赖关系删除失败:没有课程信息记录"),
     DEPENDENCY_DELETE_ERROR_1(187, "主题依赖关系删除失败：删除语句执行失败"),
 
