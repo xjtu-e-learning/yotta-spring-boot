@@ -14,3 +14,11 @@ SpringApplication.run(Application.class, args);
 
 ##### 2. Parameter value element [10] did not match expected type [java.lang.Long (n/a)]
 这是由于查询数据库biginteger(20)字段，返回的是BigInteger类型，需要转换成Long
+
+
+##### 2. error:关于无穷递归
+//不添加以下注解会导致FacetContainAssemble的无限递归
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,property = "facetId")
+//@JsonIgnoreProperties(value = "children")
+//@JsonBackReference
+

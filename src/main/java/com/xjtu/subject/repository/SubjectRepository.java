@@ -44,5 +44,4 @@ public interface SubjectRepository extends JpaRepository<Subject, Long>, JpaSpec
     @Query("update Subject s set s.subjectId = ?2, s.subjectName = ?3, s.note = ?4 where s.subjectId = ?1")
     void updateBySubjectId(Long subjectId, Long newSubjectId, String subjectName, String note);
 
-
 }
