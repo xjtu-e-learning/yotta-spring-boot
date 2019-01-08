@@ -723,6 +723,7 @@ public class StatisticsService {
     public Result queryKeyword(String keyword) {
         List<Map<String, Object>> queryResults = new ArrayList<>();
         //根据关键字，查询相关课程
+        logger.debug("domains start");
         List<Domain> domains = domainRepository.findByKeyword(keyword);
         for (Domain domain : domains) {
             Map<String, Object> domainQueryResult = new HashMap<>(2);
@@ -730,6 +731,7 @@ public class StatisticsService {
             domainQueryResult.put("name", domain.getDomainName());
             queryResults.add(domainQueryResult);
         }
+        logger.debug("topics start");
         //根据关键字，查询相关主题
         List<Map<String, Object>> topicInformations = topicRepository.findTopicInformationByKeyword(keyword);
         for (Map<String, Object> topicInformation : topicInformations) {
@@ -740,6 +742,7 @@ public class StatisticsService {
             queryResults.add(topicQueryResult);
         }
         //根据关键字，查询相关分面
+        logger.debug("facets start");
         List<Map<String, Object>> facetInformations = facetRepository.findFacetInformationByKeyword(keyword);
         for (Map<String, Object> facetInformation : facetInformations) {
             Map<String, Object> facetQueryResult = new HashMap<>(5);
@@ -750,6 +753,7 @@ public class StatisticsService {
             facetQueryResult.put("domainName", facetInformation.get("3"));
             queryResults.add(facetQueryResult);
         }
+        logger.debug("facets end");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), queryResults);
     }
 }
