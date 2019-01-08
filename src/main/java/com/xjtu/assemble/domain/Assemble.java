@@ -25,6 +25,8 @@ public class Assemble {
     Long sourceId = 0L;
     Long domainId;
 
+    String url;
+
     String type = "text";
 
     public Assemble() {
@@ -40,8 +42,18 @@ public class Assemble {
                 ", assembleScratchTime='" + assembleScratchTime + '\'' +
                 ", facetId=" + facetId +
                 ", sourceId=" + sourceId +
+                ", domainId=" + domainId +
+                ", url='" + url + '\'' +
                 ", type='" + type + '\'' +
                 '}';
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public Long getDomainId() {

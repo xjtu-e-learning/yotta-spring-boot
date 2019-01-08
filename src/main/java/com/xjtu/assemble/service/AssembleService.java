@@ -674,9 +674,10 @@ public class AssembleService {
      * @param assembleContent
      * @param sourceName
      * @param domainName
+     * @param url
      * @return
      */
-    public Result insertAssemble(Long facetId, String assembleContent, String sourceName, String domainName) {
+    public Result insertAssemble(Long facetId, String assembleContent, String sourceName, String domainName, String url) {
         if (assembleContent == null || assembleContent.equals("") || assembleContent.length() == 0) {
             logger.error("碎片插入失败：碎片内容为空");
             ResultUtil.error(ResultEnum.Assemble_INSERT_ERROR_1.getCode(), ResultEnum.Assemble_INSERT_ERROR_1.getMsg());
@@ -705,6 +706,7 @@ public class AssembleService {
         assemble.setFacetId(facetId);
         assemble.setSourceId(source.getSourceId());
         assemble.setDomainId(domain.getDomainId());
+        assemble.setUrl(url);
         assembleRepository.save(assemble);
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "碎片添加成功");
     }

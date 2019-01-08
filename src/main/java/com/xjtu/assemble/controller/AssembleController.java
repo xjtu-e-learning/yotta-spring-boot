@@ -173,8 +173,9 @@ public class AssembleController {
             @RequestParam(name = "sourceName", defaultValue = "人工") String sourceName
             , @RequestParam(name = "domainName") String domainName
             , @RequestParam(name = "facetId") Long facetId
-            , @RequestParam(name = "assembleContent") String assembleContent) {
-        Result result = assembleService.insertAssemble(facetId, assembleContent, sourceName, domainName);
+            , @RequestParam(name = "assembleContent") String assembleContent
+            , @RequestParam(name = "url") String url) {
+        Result result = assembleService.insertAssemble(facetId, assembleContent, sourceName, domainName, url);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
