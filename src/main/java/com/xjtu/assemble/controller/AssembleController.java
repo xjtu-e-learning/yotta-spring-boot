@@ -3,6 +3,7 @@ package com.xjtu.assemble.controller;
 import com.xjtu.assemble.service.AssembleService;
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
+import com.xjtu.facet.repository.FacetRepository;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -117,7 +121,6 @@ public class AssembleController {
     }
 
 
-
     @PostMapping("/getAssemblesByDomainNameAndTopicNamesAndUserIdSplitByType")
     @ApiOperation(value = "指定课程名、主题名列表，查询其下两种类型的碎片"
             , notes = "指定课程名、主题名列表，查询其下两种类型的碎片")
@@ -157,6 +160,22 @@ public class AssembleController {
                 , topicName, facetName
                 , facetLayer, temporaryAssembleId
                 , "人工");
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @PostMapping("/appendAssemble")
+    @ApiOperation(value = "添加碎片到碎片表中"
+            , notes = "添加碎片到碎片表中")
+    public ResponseEntity appendAssemble(
+            @RequestParam(name = "sourceName", defaultValue = "人工") String sourceName
+            , @RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "facetId") Long facetId
+            , @RequestParam(name = "assembleContent") String assembleContent
+            , @RequestParam(name = "url") String url) {
+        Result result = assembleService.insertAssemble(facetId, assembleContent, sourceName, domainName, url);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
@@ -219,6 +238,18 @@ public class AssembleController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @Autowired
+    FacetRepository facetRepository;
+
+    @GetMapping("/test")
+    @ApiOperation(value = "根据分面id从碎片表中查询碎片"
+            , notes = "根据分面id从碎片表中查询碎片")
+    public ResponseEntity test(@RequestParam(name = "facetId") Long facetId) {
+        List<Long> facetIds = new ArrayList<>();
+        facetIds.add(facetId);
+        return ResponseEntity.status(HttpStatus.OK).body(facetRepository.findFacetIdsByParentFacetIds(facetIds));
     }
 
     @GetMapping("/getAssembleContentById")

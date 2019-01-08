@@ -33,6 +33,7 @@ public class DependencyController {
     public ResponseEntity insertDependency(@RequestParam(name = "domainName") String domainName
             , @RequestParam(name = "startTopicName") String startTopicName
             , @RequestParam(name = "endTopicName") String endTopicName) {
+
         Result result = dependencyService.insertDependency(domainName, startTopicName, endTopicName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);

@@ -85,6 +85,16 @@ public class StatisticsController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @GetMapping("/updateStatistics")
+    @ApiOperation(value = "数据统计并保存", notes = "数据统计并保存")
+    public ResponseEntity updateStatistics() {
+        Result result = statisticsService.updateStatistics();
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
     /**
      * API
      * 根据课程名、主题名列表（以“，”分割的字符串），查询该课程下的碎片统计数据

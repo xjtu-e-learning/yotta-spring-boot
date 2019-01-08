@@ -199,9 +199,9 @@ public class TopicService {
     /**
      * 更新主题：根据主题名
      *
-     * @param oldTopicName  旧主题名
-     * @param newTopicName  新主题名
-     * @param domainName 新课程名
+     * @param oldTopicName 旧主题名
+     * @param newTopicName 新主题名
+     * @param domainName   新课程名
      * @return 更新结果
      */
     public Result updateTopicByName(String oldTopicName, String newTopicName, String domainName) {
@@ -236,6 +236,10 @@ public class TopicService {
      */
     public Result findTopicsByDomainName(String domainName) {
         Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("主题查询失败：没有指定课程");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_2.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_2.getMsg());
+        }
         List<Topic> topics = topicRepository.findByDomainId(domain.getDomainId());
         Map<Long, Integer> assembleCounts = topicDAO.countAssemblesByDomainIdGroupByTopicId(domain.getDomainId());
         Map<Long, Integer> inDegreeCounts = topicDAO.countInDegreeByTopicId(domain.getDomainId());
@@ -263,6 +267,7 @@ public class TopicService {
 
     /**
      * 指定课程名和主题名，获取主题并包含其完整的下的分面、碎片数据
+     *
      * @param domainName
      * @param topicName
      * @param hasFragment
@@ -383,6 +388,9 @@ public class TopicService {
         //firstLayerFacets一级分面列表，将二级分面挂到对应一级分面下
         List<Facet> firstLayerFacets = new ArrayList<>();
         for (Facet facet : facets) {
+            if (facet.getFacetName().equals("匿名分面")) {
+                continue;
+            }
             //设置一级分面
             FacetContainAssemble firstLayerFacet = new FacetContainAssemble();
             firstLayerFacet.setFacet(facet);
@@ -445,11 +453,13 @@ public class TopicService {
         }
         Long topicId = topic.getTopicId();
         //查询一级分面
-        List<Facet> firstLayerFacets = facetRepository.findByTopicIdAndFacetLayer(topicId, 1);
+        Integer firstLayerFacetNumber = facetRepository.countByTopicIdAndFacetLayer(topicId, 1);
         //查询二级分面
-        List<Facet> secondLayerFacets = facetRepository.findByTopicIdAndFacetLayer(topicId, 2);
+        Integer secondLayerFacetNumber = facetRepository.countByTopicIdAndFacetLayer(topicId, 2);
         //查询三级分面
-        List<Facet> thirdLayerFacets = facetRepository.findByTopicIdAndFacetLayer(topicId, 3);
+        Integer thirdLayerFacetNumber = facetRepository.countByTopicIdAndFacetLayer(topicId, 3);
+        //查询碎片
+        Integer assembleNumber = assembleRepository.countByTopicId(topicId);
         Map<String, Object> topicInformation = new HashMap<>(10);
         topicInformation.put("topicId", topic.getTopicId());
         topicInformation.put("topicName", topicName);
@@ -457,12 +467,13 @@ public class TopicService {
         topicInformation.put("topicLayer", topic.getTopicLayer());
         topicInformation.put("domainId", domain.getDomainId());
         topicInformation.put("domainName", domainName);
-        topicInformation.put("firstLayerFacetNumber", firstLayerFacets.size());
-        topicInformation.put("secondLayerFacetNumber", secondLayerFacets.size());
-        topicInformation.put("thirdLayerFacetNumber", thirdLayerFacets.size());
-        topicInformation.put("facetNumber", firstLayerFacets.size()
-                + secondLayerFacets.size()
-                + thirdLayerFacets.size());
+        topicInformation.put("firstLayerFacetNumber", firstLayerFacetNumber);
+        topicInformation.put("secondLayerFacetNumber", secondLayerFacetNumber);
+        topicInformation.put("thirdLayerFacetNumber", thirdLayerFacetNumber);
+        topicInformation.put("facetNumber", firstLayerFacetNumber
+                + secondLayerFacetNumber
+                + thirdLayerFacetNumber);
+        topicInformation.put("assembleNumber", assembleNumber);
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicInformation);
     }
 
