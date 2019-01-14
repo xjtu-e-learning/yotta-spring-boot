@@ -274,11 +274,13 @@ public class AssembleController {
     }
 
     @PostMapping("/updateAssemble")
-    @ApiOperation(value = "根据碎片Id，更新碎片表中的碎片内容"
-            , notes = "根据碎片Id，更新碎片表中的碎片内容")
+    @ApiOperation(value = "根据碎片Id，更新碎片表中的碎片内容、数据源以及链接"
+            , notes = "根据碎片Id，更新碎片表中的碎片内容、数据源以及链接")
     public ResponseEntity updateAssemble(@RequestParam(name = "assembleId") Long assembleId
-            , @RequestParam(name = "assembleContent") String assembleContent) {
-        Result result = assembleService.updateAssemble(assembleId, assembleContent);
+            , @RequestParam(name = "assembleContent") String assembleContent
+            , @RequestParam(name = "sourceName") String sourceName
+            , @RequestParam(name = "url") String url) {
+        Result result = assembleService.updateAssemble(assembleId, assembleContent, sourceName, url);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }

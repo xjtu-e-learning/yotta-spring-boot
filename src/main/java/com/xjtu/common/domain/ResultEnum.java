@@ -102,6 +102,7 @@ public enum ResultEnum {
     Assemble_INSERT_ERROR_6(172, "碎片插入失败：对应数据源不存在"),
     Assemble_UPDATE_ERROR(173, "碎片更新失败：碎片id不存在"),
     Assemble_UPDATE_ERROR_1(174, "碎片更新失败：更新语句执行失败"),
+    Assemble_UPDATE_ERROR_2(202, "碎片更新失败：对应数据源不存在"),
     Assemble_DELETE_ERROR(175, "碎片删除失败：删除语句执行失败"),
 
 
