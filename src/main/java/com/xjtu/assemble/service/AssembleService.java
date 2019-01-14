@@ -1048,6 +1048,44 @@ public class AssembleService {
         }
     }
 
+    public Result uploadImage(MultipartFile image) {
+        if (image.isEmpty()) {
+            logger.error("图片上传失败：图片为空");
+            return ResultUtil.error(ResultEnum.IMAGE_UPLOAD_ERROR.getCode()
+                    , ResultEnum.IMAGE_UPLOAD_ERROR.getMsg());
+        }
+        String imageOriginName = image.getOriginalFilename();
+        logger.info("load image: " + imageOriginName);
+        //获取图片后缀
+        String suffixName = imageOriginName.substring(imageOriginName.lastIndexOf('.'));
+        //以当前时间产生随机数作为文件名
+        Long currentMills = System.currentTimeMillis();
+        // 文件目录
+        String directory = imagePath + "/" + currentMills;
+        File dir = new File(directory);
+        //如果文件夹不存在，创建文件夹
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        Random random = new Random();
+        int i = random.nextInt(Integer.MAX_VALUE);
+        String imageSavePath = dir + "/" + i + suffixName;
+        String imageRemotePath = remotePath + "/" + currentMills + "/" + i + suffixName;
+        logger.info("imageSavePath: " + imageSavePath);
+        logger.info("imageRemotePath: " + imageRemotePath);
+        File file = new File(imageSavePath);
+        //保存文件
+        try {
+            image.transferTo(file);
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode()
+                    , ResultEnum.SUCCESS.getMsg(), imageRemotePath);
+        } catch (Exception e) {
+            logger.error("图片上传失败：图片保存失败");
+            logger.error("" + e);
+            return ResultUtil.error(ResultEnum.IMAGE_UPLOAD_ERROR_1.getCode()
+                    , ResultEnum.IMAGE_UPLOAD_ERROR_1.getMsg());
+        }
+    }
     /**
      * 上传图片到服务里
      *

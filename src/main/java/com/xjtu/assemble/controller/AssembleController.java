@@ -311,13 +311,24 @@ public class AssembleController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @PostMapping("/uploadImageWithId")
+    @ApiOperation(value = "上传图片到服务器"
+            , notes = "上传图片到服务器")
+    public ResponseEntity uploadImageWithId(@RequestParam(value = "facetId") Long facetId,
+                                            @RequestParam(value = "assembleId") Long assembleId,
+                                            @RequestParam(value = "image") MultipartFile image) {
+        Result result = assembleService.uploadImage(facetId, assembleId, image);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
     @PostMapping("/uploadImage")
     @ApiOperation(value = "上传图片到服务器"
             , notes = "上传图片到服务器")
-    public ResponseEntity uploadImage(@RequestParam(value = "facetId") Long facetId,
-                                      @RequestParam(value = "assembleId") Long assembleId,
-                                      @RequestParam(value = "image") MultipartFile image) {
-        Result result = assembleService.uploadImage(facetId, assembleId, image);
+    public ResponseEntity uploadImage(@RequestParam(value = "image") MultipartFile image) {
+        Result result = assembleService.uploadImage(image);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
