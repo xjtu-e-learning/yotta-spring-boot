@@ -1,5 +1,6 @@
 package com.xjtu.common;
 
+import io.undertow.servlet.spec.HttpServletRequestImpl;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.stereotype.Component;
 
@@ -12,14 +13,14 @@ import java.io.IOException;
 @ServletComponentScan
 @WebFilter(urlPatterns = "/**", filterName = "CorsFilter")
 public class CorsFilter implements Filter {
-    
+
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
         HttpServletResponse response = (HttpServletResponse) res;
-        response.setHeader("Access-Control-Allow-Origin", "http://" + req.getRemoteHost());
+        response.setHeader("Access-Control-Allow-Origin", ((HttpServletRequestImpl) req).getHeader("Origin"));
         response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
         response.setHeader("Access-Control-Max-Age", "3600");
-        response.setHeader("Access-Control-Allow-Headers", "x-requested-with");
+        response.setHeader("Access-Control-Allow-Headers", "*");
         chain.doFilter(req, res);
     }
 
