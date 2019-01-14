@@ -104,6 +104,8 @@ public enum ResultEnum {
     Assemble_UPDATE_ERROR_1(174, "碎片更新失败：更新语句执行失败"),
     Assemble_UPDATE_ERROR_2(202, "碎片更新失败：对应数据源不存在"),
     Assemble_DELETE_ERROR(175, "碎片删除失败：删除语句执行失败"),
+    IMAGE_UPLOAD_ERROR(203, "图片上传失败：图片为空"),
+    IMAGE_UPLOAD_ERROR_1(204, "图片上传失败：图片保存失败"),
 
 
     //用户登录

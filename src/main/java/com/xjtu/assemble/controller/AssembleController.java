@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -304,6 +305,19 @@ public class AssembleController {
             , notes = "根据碎片Id，从碎片表中删除碎片")
     public ResponseEntity deleteAssemble(@RequestParam(name = "assembleId") Long assembleId) {
         Result result = assembleService.deleteAssemble(assembleId);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @PostMapping("/uploadImage")
+    @ApiOperation(value = "上传图片到服务器"
+            , notes = "上传图片到服务器")
+    public ResponseEntity uploadImage(@RequestParam(value = "facetId") Long facetId,
+                                      @RequestParam(value = "assembleId") Long assembleId,
+                                      @RequestParam(value = "image") MultipartFile image) {
+        Result result = assembleService.uploadImage(facetId, assembleId, image);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
