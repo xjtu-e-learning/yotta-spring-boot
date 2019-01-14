@@ -952,10 +952,16 @@ public class AssembleService {
      * @param assembleContent
      * @return
      */
-    public Result updateAssemble(Long assembleId, String assembleContent) {
+    public Result updateAssemble(Long assembleId, String assembleContent, String sourceName, String url) {
         if (assembleId == null) {
             logger.error("Assemble Update Failed: Assemble Id Not Exist");
             return ResultUtil.error(ResultEnum.Assemble_UPDATE_ERROR.getCode(), ResultEnum.Assemble_UPDATE_ERROR.getMsg());
+        }
+        //查询数据源
+        Source source = sourceRepository.findBySourceName(sourceName);
+        if (source == null) {
+            logger.error("碎片更新失败：对应数据源不存在");
+            return ResultUtil.error(ResultEnum.Assemble_UPDATE_ERROR_2.getCode(), ResultEnum.Assemble_UPDATE_ERROR_2.getMsg());
         }
         //获取系统当前时间
         Date date = new Date();
@@ -963,7 +969,8 @@ public class AssembleService {
         String assembleScratchTime = simpleDateFormat.format(date);
         String assembleText = JsonUtil.parseHtmlText(assembleContent).text();
         try {
-            assembleRepository.updateAssemble(assembleId, assembleContent, assembleText, assembleScratchTime);
+            assembleRepository.updateAssemble(assembleId, assembleContent, assembleText
+                    , assembleScratchTime, source.getSourceId(), url);
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "碎片更新成功");
         } catch (Exception error) {
             logger.error("Assembles Update Failed: Update Statement Execute Failed", error);
