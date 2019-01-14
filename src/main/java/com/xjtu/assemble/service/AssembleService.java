@@ -20,8 +20,11 @@ import com.xjtu.utils.ResultUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -58,6 +61,12 @@ public class AssembleService {
 
     @Autowired
     private AssembleDAO assembleDAO;
+
+    @Value("${image.location}")
+    private String imagePath;
+
+    @Value("${image.remote}")
+    private String remotePath;
 
     //降序
     Comparator<Map> descComparator = new Comparator<Map>() {
@@ -1036,6 +1045,52 @@ public class AssembleService {
         } catch (Exception exception) {
             logger.error("Assembles Delete Failed: Delete Statement Execute Failed", exception);
             return ResultUtil.error(ResultEnum.Assemble_DELETE_ERROR.getCode(), ResultEnum.Assemble_DELETE_ERROR.getMsg());
+        }
+    }
+
+    /**
+     * 上传图片到服务里
+     *
+     * @param facetId
+     * @param assembleId
+     * @param image
+     * @return 返回图片的保存链接
+     */
+    public Result uploadImage(Long facetId, Long assembleId, MultipartFile image) {
+        if (image.isEmpty()) {
+            logger.error("图片上传失败：图片为空");
+            return ResultUtil.error(ResultEnum.IMAGE_UPLOAD_ERROR.getCode()
+                    , ResultEnum.IMAGE_UPLOAD_ERROR.getMsg());
+        }
+        String imageOriginName = image.getOriginalFilename();
+        logger.info("load image: " + imageOriginName);
+        //获取图片后缀
+        String suffixName = imageOriginName.substring(imageOriginName.lastIndexOf('.'));
+        //以当前时间产生随机数作为文件名
+        Random random = new Random();
+        long i = random.nextInt(Integer.MAX_VALUE);
+        // 文件目录
+        String directory = imagePath + "/" + facetId + "/" + assembleId;
+        File dir = new File(directory);
+        //如果文件夹不存在，创建文件夹
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        String imageSavePath = dir + "/" + i + suffixName;
+        String imageRemotePath = remotePath + "/" + facetId + "/" + assembleId + "/" + i + suffixName;
+        logger.info("imageSavePath: " + imageSavePath);
+        logger.info("imageRemotePath: " + imageRemotePath);
+        File file = new File(imageSavePath);
+        //保存文件
+        try {
+            image.transferTo(file);
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode()
+                    , ResultEnum.SUCCESS.getMsg(), imageRemotePath);
+        } catch (Exception e) {
+            logger.error("图片上传失败：图片保存失败");
+            logger.error("" + e);
+            return ResultUtil.error(ResultEnum.IMAGE_UPLOAD_ERROR_1.getCode()
+                    , ResultEnum.IMAGE_UPLOAD_ERROR_1.getMsg());
         }
     }
 
