@@ -788,7 +788,15 @@ public class AssembleService {
     public Result findAssembleById(Long assembleId) {
         try {
             Assemble assemble = assembleRepository.findOne(assembleId);
-            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), assemble);
+            //查询数据源
+            Source source = sourceRepository.findBySourceId(assemble.getSourceId());
+            Map<String, Object> map = new HashMap<>();
+            map.put("assembleId", assemble.getAssembleId());
+            map.put("assembleContent", assemble.getAssembleContent());
+            map.put("assembleScratchTime", assemble.getAssembleScratchTime());
+            map.put("url", assemble.getUrl());
+            map.put("sourceName", source.getSourceName());
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), map);
         } catch (Exception error) {
             logger.error("Assemble Search Failed: ", error);
             return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR_3.getCode(), ResultEnum.Assemble_SEARCH_ERROR_3.getMsg());
