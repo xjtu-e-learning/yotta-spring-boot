@@ -1048,11 +1048,14 @@ public class AssembleService {
         }
     }
 
-    public Result uploadImage(MultipartFile image) {
+    public Map<String, Object> uploadImage(MultipartFile image) {
+        Map<String, Object> result = new HashMap<>();
+        List<String> imageUrls = new ArrayList<>();
         if (image.isEmpty()) {
             logger.error("图片上传失败：图片为空");
-            return ResultUtil.error(ResultEnum.IMAGE_UPLOAD_ERROR.getCode()
-                    , ResultEnum.IMAGE_UPLOAD_ERROR.getMsg());
+            result.put("errno", ResultEnum.IMAGE_UPLOAD_ERROR.getCode());
+            result.put("data", imageUrls);
+            return result;
         }
         String imageOriginName = image.getOriginalFilename();
         logger.info("load image: " + imageOriginName);
@@ -1077,13 +1080,16 @@ public class AssembleService {
         //保存文件
         try {
             image.transferTo(file);
-            return ResultUtil.success(ResultEnum.SUCCESS.getCode()
-                    , ResultEnum.SUCCESS.getMsg(), imageRemotePath);
+            result.put("errno", 0);
+            imageUrls.add(imageRemotePath);
+            result.put("data", imageUrls);
+            return result;
         } catch (Exception e) {
             logger.error("图片上传失败：图片保存失败");
             logger.error("" + e);
-            return ResultUtil.error(ResultEnum.IMAGE_UPLOAD_ERROR_1.getCode()
-                    , ResultEnum.IMAGE_UPLOAD_ERROR_1.getMsg());
+            result.put("errno", ResultEnum.IMAGE_UPLOAD_ERROR_1.getCode());
+            result.put("data", imageUrls);
+            return result;
         }
     }
     /**

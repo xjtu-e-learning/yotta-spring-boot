@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -328,8 +329,8 @@ public class AssembleController {
     @ApiOperation(value = "上传图片到服务器"
             , notes = "上传图片到服务器")
     public ResponseEntity uploadImage(@RequestParam(value = "image") MultipartFile image) {
-        Result result = assembleService.uploadImage(image);
-        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+        Map<String, Object> result = assembleService.uploadImage(image);
+        if ((Integer) result.get("errno") != 0) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
