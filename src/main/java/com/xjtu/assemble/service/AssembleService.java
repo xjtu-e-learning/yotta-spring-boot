@@ -1064,7 +1064,7 @@ public class AssembleService {
         //以当前时间产生随机数作为文件名
         Long currentMills = System.currentTimeMillis();
         // 文件目录
-        String directory = imagePath + "/" + currentMills / 300;
+        String directory = imagePath + "/" + (currentMills / 1800);
         File dir = new File(directory);
         //如果文件夹不存在，创建文件夹
         if (!dir.exists()) {
@@ -1073,7 +1073,7 @@ public class AssembleService {
         Random random = new Random();
         int i = random.nextInt(Integer.MAX_VALUE);
         String imageSavePath = dir + "/" + i + suffixName;
-        String imageRemotePath = remotePath + "/" + currentMills + "/" + i + suffixName;
+        String imageRemotePath = remotePath + "/" + (currentMills / 1800) + "/" + i + suffixName;
         logger.info("imageSavePath: " + imageSavePath);
         logger.info("imageRemotePath: " + imageRemotePath);
         File file = new File(imageSavePath);
