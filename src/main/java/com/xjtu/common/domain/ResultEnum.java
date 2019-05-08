@@ -8,6 +8,7 @@ public enum ResultEnum {
     SUCCESS(200, "成功"),
     UNKONW_ERROR(-1, "未知错误"),
     NOT_DEVELOP_ERROR(9, "API尚未开发"),
+    ARGUMENTS_DEVELOP_ERROR(10, "API参数错误，逻辑不合理"),
 
     // 数据源
     SOURCE_INSERT_ERROR(100, "数据源插入失败：数据源名不存在或者为空"),
