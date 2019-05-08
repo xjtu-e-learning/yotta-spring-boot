@@ -756,4 +756,47 @@ public class StatisticsService {
         logger.debug("facets end");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), queryResults);
     }
+
+    /**
+     * 统计碎片数量
+     *
+     * @return
+     */
+    public Result countAssemble() {
+        long count = assembleRepository.count();
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), count);
+    }
+
+    /**
+     * 统计主题数量
+     *
+     * @return
+     */
+    public Result countTopic() {
+        long count = topicRepository.count();
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), count);
+    }
+
+    /**
+     * 根据课程id，统计碎片数量
+     *
+     * @param domainId
+     * @return
+     */
+    public Result countAssembleByDomainId(Long domainId) {
+        long count = assembleRepository.countByDomainId(domainId);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), count);
+    }
+
+    /**
+     * 根据主题id，统计碎片数量
+     *
+     * @param topicId
+     * @return
+     */
+    public Result countAssembleByTopicId(Long topicId) {
+        long count = assembleRepository.countByTopicId(topicId);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), count);
+    }
+
 }
