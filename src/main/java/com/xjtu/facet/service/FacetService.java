@@ -1,6 +1,5 @@
 package com.xjtu.facet.service;
 
-import com.xjtu.assemble.domain.Assemble;
 import com.xjtu.assemble.repository.AssembleRepository;
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
@@ -161,8 +160,8 @@ public class FacetService {
             return ResultUtil.error(ResultEnum.FACET_INSERT_ERROR_4.getCode(), ResultEnum.FACET_INSERT_ERROR_4.getMsg());
         }
         //查询二级分面
-        Facet secondLayerFacet = facetRepository.findByTopicIdAndFacetNameAndFacetLayer(topic.getTopicId()
-                , secondLayerFacetName, 2);
+        Facet secondLayerFacet = facetRepository.findByFacetNameAndParentFacetId(secondLayerFacetName, firstLayerFacet.getFacetId());
+
         if (secondLayerFacet == null) {
             logger.error("分面插入失败：对应父分面不存在");
             return ResultUtil.error(ResultEnum.FACET_INSERT_ERROR_4.getCode(), ResultEnum.FACET_INSERT_ERROR_4.getMsg());
@@ -277,7 +276,8 @@ public class FacetService {
         }
         //删除一级分面，需要删除它的子分面
         //查找一级分面
-        Facet firstLayerFacet = facetRepository.findByTopicIdAndFacetNameAndFacetLayer(topic.getTopicId(), firstLayerFacetName, 1);
+        Facet firstLayerFacet = facetRepository.findByTopicIdAndFacetNameAndFacetLayer(topic.getTopicId()
+                , firstLayerFacetName, 1);
         //查找二级分面
         List<Facet> secondLayerFacets = facetRepository.findByParentFacetId(firstLayerFacet.getFacetId());
         //查找三级分面
@@ -302,29 +302,9 @@ public class FacetService {
      * @return
      */
     public Result deleteSecondLayerFacet(String domainName, String topicName, String secondLayerFacetName) {
-        //查询课程
-        Domain domain = domainRepository.findByDomainName(domainName);
-        if (domain == null) {
-            logger.error("分面删除失败：对应课程不存在");
-            return ResultUtil.error(ResultEnum.FACET_DELETE_ERROR_2.getCode(), ResultEnum.FACET_DELETE_ERROR_2.getMsg());
-        }
-        Long domainId = domain.getDomainId();
-        //查询主题
-        Topic topic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
-        if (topic == null) {
-            logger.error("分面删除失败：对应主题不存在");
-            return ResultUtil.error(ResultEnum.FACET_DELETE_ERROR_3.getCode(), ResultEnum.FACET_DELETE_ERROR_3.getMsg());
-        }
-        //删除二级分面，需要删除它的子分面
-        //查询二级分面
-        Facet secondLayerFacet = facetRepository.findByTopicIdAndFacetNameAndFacetLayer(topic.getTopicId(), secondLayerFacetName, 2);
-        //查询三级分面
-        List<Facet> thirdLayerFacets = facetRepository.findByParentFacetId(secondLayerFacet.getFacetId());
-        //合并分面
-        List<Facet> facets = new ArrayList<>();
-        facets.add(secondLayerFacet);
-        facets.addAll(thirdLayerFacets);
-        return deleteFacets(facets);
+        logger.error("API参数错误，逻辑不合理");
+        return ResultUtil.error(ResultEnum.ARGUMENTS_DEVELOP_ERROR.getCode()
+                , ResultEnum.ARGUMENTS_DEVELOP_ERROR.getMsg());
     }
 
     /**
@@ -398,23 +378,8 @@ public class FacetService {
      */
     public Result deleteThirdLayerFacet(String domainName, String topicName, String thirdLayerFacetName) {
         //查询课程
-        Domain domain = domainRepository.findByDomainName(domainName);
-        if (domain == null) {
-            logger.error("分面删除失败：对应课程不存在");
-            return ResultUtil.error(ResultEnum.FACET_DELETE_ERROR_2.getCode(), ResultEnum.FACET_DELETE_ERROR_2.getMsg());
-        }
-        Long domainId = domain.getDomainId();
-        //查询主题
-        Topic topic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
-        if (topic == null) {
-            logger.error("分面删除失败：对应主题不存在");
-            return ResultUtil.error(ResultEnum.FACET_DELETE_ERROR_3.getCode(), ResultEnum.FACET_DELETE_ERROR_3.getMsg());
-        }
-        //删除三级分面
-        Facet thirdLayerFacet = facetRepository.findByTopicIdAndFacetNameAndFacetLayer(topic.getTopicId(), thirdLayerFacetName, 3);
-        List<Facet> facets = new ArrayList<>();
-        facets.add(thirdLayerFacet);
-        return deleteFacets(facets);
+        logger.error("API参数错误，逻辑不合理");
+        return ResultUtil.error(ResultEnum.ARGUMENTS_DEVELOP_ERROR.getCode(), ResultEnum.ARGUMENTS_DEVELOP_ERROR.getMsg());
     }
 
     /**
@@ -497,7 +462,8 @@ public class FacetService {
             logger.error("分面更新失败：对应主题不存在");
             return ResultUtil.error(ResultEnum.FACET_UPDATE_ERROR_2.getCode(), ResultEnum.FACET_UPDATE_ERROR_2.getMsg());
         }
-        Facet firstLayerFacet = facetRepository.findByTopicIdAndFacetNameAndFacetLayer(topic.getTopicId(), firstLayerFacetName, 1);
+        Facet firstLayerFacet = facetRepository.findByTopicIdAndFacetNameAndFacetLayer(topic.getTopicId()
+                , firstLayerFacetName, 1);
         if (firstLayerFacet == null) {
             logger.error("分面更新失败：父分面不存在");
             return ResultUtil.error(ResultEnum.FACET_UPDATE_ERROR_4.getCode(), ResultEnum.FACET_UPDATE_ERROR_4.getMsg());
@@ -666,11 +632,10 @@ public class FacetService {
      *
      * @param domainName
      * @param topicName
-     * @param facetName
-     * @param facetLayer
+     * @param firstLayerFacetName
      * @return
      */
-    public Result findFacetsInSomeLayerFacet(String domainName, String topicName, String facetName, Integer facetLayer) {
+    public Result findFacetsInFirstLayerFacet(String domainName, String topicName, String firstLayerFacetName) {
         Domain domain = domainRepository.findByDomainName(domainName);
         if (domain == null) {
             logger.error("分面查询失败：对应课程不存在");
@@ -684,8 +649,8 @@ public class FacetService {
         }
         //查找对应的一级分面
         Facet facet = facetRepository.findByTopicIdAndFacetNameAndFacetLayer(topic.getTopicId()
-                , facetName
-                , facetLayer);
+                , firstLayerFacetName
+                , 1);
         //保存结果
         List<Map<String, Object>> facetMaps = new ArrayList<>();
         //查询分面下的子分面
@@ -696,7 +661,7 @@ public class FacetService {
                 Map<String, Object> facetMap = new HashMap<>(7);
                 facetMap.put("facetName", childFacet.getFacetName());
                 facetMap.put("facetLayer", childFacet.getFacetLayer());
-                facetMap.put("parentFacetName", facetName);
+                facetMap.put("parentFacetName", firstLayerFacetName);
                 facetMap.put("topicId", topic.getTopicId());
                 facetMap.put("topicName", topicName);
                 facetMap.put("domainName", domainName);
@@ -709,46 +674,6 @@ public class FacetService {
         }
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), facetMaps);
     }
-
-    /**
-     * 指定课程名、主题名和父分面名，查询所有子分面数量
-     *
-     * @param domainName           课程名
-     * @param topicName            主题名
-     * @param parentLayerFacetName 父分面名
-     * @param facetLayer           父分面所在层
-     * @return 查询结果
-     */
-    public Result findChildLayerFacetNumber(String domainName, String topicName, String parentLayerFacetName, Integer facetLayer) {
-        Domain domain = domainRepository.findByDomainName(domainName);
-        if (domain == null) {
-            logger.error("分面查询失败：对应课程不存在");
-            return ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR_3.getCode(), ResultEnum.FACET_SEARCH_ERROR_3.getMsg());
-        }
-        Long domainId = domain.getDomainId();
-        Topic topic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
-        if (topic == null) {
-            logger.error("分面查询失败：对应主题不存在");
-            return ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR_4.getCode(), ResultEnum.FACET_SEARCH_ERROR_4.getMsg());
-        }
-        Facet parentLayerFacet = facetRepository.findByTopicIdAndFacetNameAndFacetLayer(topic.getTopicId(), parentLayerFacetName, facetLayer);
-        if (parentLayerFacet == null || parentLayerFacet.getFacetLayer() != 1) {
-            logger.error("分面查询失败：对应课程和主题下没有对应分面");
-            return ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR_6.getCode(), ResultEnum.FACET_SEARCH_ERROR_6.getMsg());
-        }
-        List<Facet> childLayerFacets = facetRepository.findByParentFacetId(parentLayerFacet.getFacetId());
-        if (childLayerFacets.size() == 0) {
-            logger.error("分面查询失败：对应课程、主题下以及分面下没有子分面");
-            return ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR_7.getCode(), ResultEnum.FACET_SEARCH_ERROR_7.getMsg());
-        }
-        Map<String, Object> searchResult = new HashMap<String, Object>();
-        searchResult.put("domainName", domainName);
-        searchResult.put("topicName", topicName);
-        searchResult.put("parentLayerFacetName", parentLayerFacetName);
-        searchResult.put("childLayerFacetsNumber", childLayerFacets.size());
-        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), searchResult);
-    }
-
     /**
      * 指定课程名、主题名和父分面名，查询所有子分面数量
      *
@@ -796,8 +721,9 @@ public class FacetService {
      * @return 查询结果
      */
     public Result findSecondLayerFacetNumber(String domainName, String topicName, String firstLayerFacetName) {
-        Result result = findChildLayerFacetNumber(domainName, topicName, firstLayerFacetName, 1);
-        return result;
+        logger.error("API参数错误，逻辑不合理");
+        return ResultUtil.error(ResultEnum.ARGUMENTS_DEVELOP_ERROR.getCode(),
+                ResultEnum.ARGUMENTS_DEVELOP_ERROR.getMsg());
     }
 
     /**
@@ -856,11 +782,10 @@ public class FacetService {
      * @return 查询结果
      */
     public Result findThirdLayerFacetNumber(String domainName, String topicName, String secondLayerFacetName) {
-        Result result = findChildLayerFacetNumber(domainName, topicName, secondLayerFacetName, 2);
-        return result;
+        logger.error("API参数错误，逻辑不合理");
+        return ResultUtil.error(ResultEnum.ARGUMENTS_DEVELOP_ERROR.getCode()
+                , ResultEnum.ARGUMENTS_DEVELOP_ERROR.getMsg());
     }
-
-
     /**
      * 获取对应分面下的碎片数量
      *
@@ -869,44 +794,13 @@ public class FacetService {
      * @param facetName
      * @return
      */
+
     public Result findAssembleNumberInFacet(String domainName, String topicName, String facetName, Integer facetLayer) {
-        Domain domain = domainRepository.findByDomainName(domainName);
-        if (domain == null) {
-            logger.error("分面查询失败：对应课程不存在");
-            return ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR_3.getCode(), ResultEnum.FACET_SEARCH_ERROR_3.getMsg());
-        }
-        Long domainId = domain.getDomainId();
-        Topic topic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
-        if (topic == null) {
-            logger.error("分面查询失败：对应主题不存在");
-            return ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR_4.getCode(), ResultEnum.FACET_SEARCH_ERROR_4.getMsg());
-        }
-        Long topicId = topic.getTopicId();
-        Facet facet = facetRepository.findByTopicIdAndFacetNameAndFacetLayer(topicId, facetName, facetLayer);
-        if (facet == null) {
-            logger.error("分面查询失败：对应课程和主题下没有对应分面");
-            return ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR_6.getCode(), ResultEnum.FACET_SEARCH_ERROR_6.getMsg());
-        }
-        int assembleNumber = 0;
-        List<Assemble> assembles = assembleRepository.findByFacetId(facet.getFacetId());
-        assembleNumber += assembles.size();
-        //查询该分面是否有子分面
-        List<Facet> childFacets = facetRepository.findByParentFacetId(facet.getFacetId());
-        while (childFacets.size() != 0 && childFacets != null) {
-            List<Facet> grandchildFacets = new ArrayList<>();
-            for (Facet childFacet : childFacets) {
-                List<Assemble> childAssembles = assembleRepository.findByFacetId(childFacet.getFacetId());
-                assembleNumber += childAssembles.size();
-                grandchildFacets.addAll(facetRepository.findByParentFacetId(childFacet.getFacetId()));
-            }
-            childFacets = grandchildFacets;
-        }
-        Map<String, Object> facetInformation = new HashMap<>(3);
-        facetInformation.put("facetName", facetName);
-        facetInformation.put("facetLayer", facet.getFacetLayer());
-        facetInformation.put("assembleNumber", assembleNumber);
-        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), facetInformation);
+        logger.error("API参数错误，逻辑不合理");
+        return ResultUtil.error(ResultEnum.ARGUMENTS_DEVELOP_ERROR.getCode()
+                , ResultEnum.ARGUMENTS_DEVELOP_ERROR.getMsg());
     }
+
 
     public Result countFacetInfo(String domainName, String topicName, Integer facetLayer, Long facetId) {
         Domain domain = domainRepository.findByDomainName(domainName);

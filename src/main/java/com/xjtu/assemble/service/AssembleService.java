@@ -548,10 +548,11 @@ public class AssembleService {
      *
      * @param domainName
      * @param topicName
+     * @param firstLayerFacetName
      * @param secondLayerFacetName
      * @return
      */
-    public Result findAssemblesInSecondLayerFacet(String domainName, String topicName, String secondLayerFacetName) {
+    public Result findAssemblesInSecondLayerFacet(String domainName, String topicName, String firstLayerFacetName, String secondLayerFacetName) {
         //查询课程
         Domain domain = domainRepository.findByDomainName(domainName);
         if (domain == null) {
@@ -566,8 +567,9 @@ public class AssembleService {
             return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR_1.getCode(), ResultEnum.Assemble_SEARCH_ERROR_1.getMsg());
         }
         Long topicId = topic.getTopicId();
+        Facet firstLayerFacet = facetRepository.findByTopicIdAndFacetNameAndFacetLayer(topicId, firstLayerFacetName, 1);
         //查询二级分面
-        Facet facet = facetRepository.findByTopicIdAndFacetNameAndFacetLayer(topicId, secondLayerFacetName, 2);
+        Facet facet = facetRepository.findByFacetNameAndParentFacetId(secondLayerFacetName, firstLayerFacet.getFacetId());
         if (facet == null) {
             logger.error("Assembles Search Failed: Corresponding Facet Not Exist");
             return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR_2.getCode(), ResultEnum.Assemble_SEARCH_ERROR_2.getMsg());
@@ -583,10 +585,13 @@ public class AssembleService {
      *
      * @param domainName
      * @param topicName
+     * @param firstLayerFacetName
+     * @param secondLayerFacetName
      * @param thirdLayerFacetName
      * @return
      */
-    public Result findAssemblesInThirdLayerFacet(String domainName, String topicName, String thirdLayerFacetName) {
+    public Result findAssemblesInThirdLayerFacet(String domainName, String topicName
+            , String firstLayerFacetName, String secondLayerFacetName, String thirdLayerFacetName) {
         //查询课程
         Domain domain = domainRepository.findByDomainName(domainName);
         if (domain == null) {
@@ -601,8 +606,11 @@ public class AssembleService {
             return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR_1.getCode(), ResultEnum.Assemble_SEARCH_ERROR_1.getMsg());
         }
         Long topicId = topic.getTopicId();
+        Facet firstLayerFacet = facetRepository.findByTopicIdAndFacetNameAndFacetLayer(topicId, firstLayerFacetName, 1);
+        //查询二级分面
+        Facet secondLayerFacet = facetRepository.findByFacetNameAndParentFacetId(secondLayerFacetName, firstLayerFacet.getFacetId());
         //查询三级分面
-        Facet facet = facetRepository.findByTopicIdAndFacetNameAndFacetLayer(topicId, thirdLayerFacetName, 3);
+        Facet facet = facetRepository.findByFacetNameAndParentFacetId(thirdLayerFacetName, secondLayerFacet.getFacetId());
         if (facet == null) {
             logger.error("Assembles Search Failed: Corresponding Facet Not Exist");
             return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR_2.getCode(), ResultEnum.Assemble_SEARCH_ERROR_2.getMsg());
@@ -623,7 +631,7 @@ public class AssembleService {
      * @param sourceName          数据源名
      * @return
      */
-    public Result insertAssemble(String domainName
+    /*public Result insertAssemble(String domainName
             , String topicName
             , String facetName
             , Integer facetLayer
@@ -674,7 +682,7 @@ public class AssembleService {
         assemble.setSourceId(source.getSourceId());
         assembleRepository.save(assemble);
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "碎片添加成功");
-    }
+    }*/
 
     /**
      * 添加碎片
@@ -1093,6 +1101,7 @@ public class AssembleService {
             return result;
         }
     }
+
     /**
      * 上传图片到服务里
      *

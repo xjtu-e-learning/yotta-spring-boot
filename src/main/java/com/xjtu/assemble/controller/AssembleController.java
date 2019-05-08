@@ -64,8 +64,10 @@ public class AssembleController {
             , notes = "指定课程名、主题名和二级分面名，查询二级分面下的碎片")
     public ResponseEntity getAssemblesInSecondLayerFacet(@RequestParam(name = "domainName") String domainName
             , @RequestParam(name = "topicName") String topicName
+            , @RequestParam(name = "firstLayerFacetName") String firstLayerFacetName
             , @RequestParam(name = "secondLayerFacetName") String secondLayerFacetName) {
-        Result result = assembleService.findAssemblesInSecondLayerFacet(domainName, topicName, secondLayerFacetName);
+        Result result = assembleService.findAssemblesInSecondLayerFacet(domainName, topicName
+                , firstLayerFacetName, secondLayerFacetName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
@@ -138,19 +140,22 @@ public class AssembleController {
 
 
     @GetMapping("/getAssemblesInThirdLayerFacet")
-    @ApiOperation(value = "指定课程名、主题名和三级分面名，查询三级分面下的碎片"
+    @ApiOperation(value = "指定课程名、主题名和一、二、三级分面名，查询三级分面下的碎片"
             , notes = "指定课程名、主题名和三级分面名，查询三级分面下的碎片")
     public ResponseEntity getAssemblesInThirdLayerFacet(@RequestParam(name = "domainName") String domainName
             , @RequestParam(name = "topicName") String topicName
+            , @RequestParam(name = "firstLayerFacetName") String firstLayerFacetName
+            , @RequestParam(name = "secondLayerFacetName") String secondLayerFacetName
             , @RequestParam(name = "thirdLayerFacetName") String thirdLayerFacetName) {
-        Result result = assembleService.findAssemblesInThirdLayerFacet(domainName, topicName, thirdLayerFacetName);
+        Result result = assembleService.findAssemblesInThirdLayerFacet(domainName, topicName
+                , firstLayerFacetName, secondLayerFacetName, thirdLayerFacetName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-    @PostMapping("/insertAssemble")
+    /*@PostMapping("/insertAssemble")
     @ApiOperation(value = "从暂存表中添加碎片到碎片表中，并删除暂存表中的碎片"
             , notes = "从暂存表中添加碎片到碎片表中，并删除暂存表中的碎片")
     public ResponseEntity insertAssemble(@RequestParam(name = "domainName") String domainName
@@ -166,7 +171,7 @@ public class AssembleController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
-    }
+    }*/
 
     @PostMapping("/appendAssemble")
     @ApiOperation(value = "添加碎片到碎片表中"
