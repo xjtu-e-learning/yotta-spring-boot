@@ -176,4 +176,65 @@ public class StatisticsController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    /**
+     * API
+     * 统计碎片数量
+     */
+    @ApiOperation(value = "统计碎片数量"
+            , notes = "统计碎片数量")
+    @GetMapping("/countAssemble")
+    public ResponseEntity countAssemble() {
+        Result result = statisticsService.countAssemble();
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    /**
+     * API
+     * 统计主题数量
+     */
+    @ApiOperation(value = "统计主题数量"
+            , notes = "统计主题数量")
+    @GetMapping("/countTopic")
+    public ResponseEntity countTopic() {
+        Result result = statisticsService.countTopic();
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
+    /**
+     * API
+     * 根据课程id，统计碎片数量
+     */
+    @ApiOperation(value = "根据课程id，统计碎片数量"
+            , notes = "根据课程id，统计碎片数量")
+    @GetMapping("/countAssembleByDomainId")
+    public ResponseEntity countAssembleByDomainId(@RequestParam(name = "domainId") Long domainId) {
+        Result result = statisticsService.countAssembleByDomainId(domainId);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    /**
+     * API
+     * 根据主题id，统计碎片数量
+     */
+    @ApiOperation(value = "根据主题id，统计碎片数量"
+            , notes = "根据主题id，统计碎片数量")
+    @GetMapping("/countAssembleByTopicId")
+    public ResponseEntity countAssembleByTopicId(@RequestParam(name = "topicId") Long topicId) {
+        Result result = statisticsService.countAssembleByTopicId(topicId);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
 }
