@@ -262,10 +262,6 @@ public class StatisticsController {
             , notes = "根据主题id集合，统计碎片数量")
     @GetMapping("/countAssembleGroupByTopicIds")
     public ResponseEntity countAssembleGroupByTopicIds(@RequestParam(name = "topicIds") List<Long> topicIds) {
-        logger.error(topicIds.toString());
-        for (Long topicId : topicIds) {
-            logger.error(topicId + " ");
-        }
         Result result = statisticsService.countAssembleGroupByTopicIds(topicIds);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
