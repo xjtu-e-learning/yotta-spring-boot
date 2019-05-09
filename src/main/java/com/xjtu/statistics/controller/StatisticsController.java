@@ -294,9 +294,9 @@ public class StatisticsController {
      */
     @ApiOperation(value = "根据课程id集合，统计主题数量"
             , notes = "根据课程id集合，统计主题数量")
-    @GetMapping("/countTopicByDomainIds")
-    public ResponseEntity countTopicByDomainIds(@RequestParam(name = "domainIds") List<Long> domainIds) {
-        Result result = statisticsService.countTopicByDomainIds(domainIds);
+    @GetMapping("/countTopicGroupByDomainIds")
+    public ResponseEntity countTopicGroupByDomainIds(@RequestParam(name = "domainIds") List<Long> domainIds) {
+        Result result = statisticsService.countTopicGroupByDomainIds(domainIds);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }

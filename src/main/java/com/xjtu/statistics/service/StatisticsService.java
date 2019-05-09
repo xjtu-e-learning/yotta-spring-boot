@@ -830,7 +830,7 @@ public class StatisticsService {
      * @param domainIds
      * @return
      */
-    public Result countTopicByDomainIds(List<Long> domainIds) {
+    public Result countTopicGroupByDomainIds(List<Long> domainIds) {
         List<Object[]> counts = topicRepository.countTopicsGroupByDomainId(domainIds);
         Map<Long, Long> map = convertListToMap(counts);
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), map);
