@@ -222,6 +222,13 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
     List<Object[]> countAssemblesGroupByDomainId(List<Long> domainIds);
 
 
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "SELECT f.topic_id,COUNT(a.assemble_id)\n" +
+            "FROM facet as f,assemble as a\n" +
+            "WHERE f.topic_id in ?1 and f.facet_id=a.facet_id\n" +
+            "GROUP BY topic_id;", nativeQuery = true)
+    List<Object[]> countAssemblesByGroupByTopicId(List<Long> topicIds);
+
     /**
      * 统计课程下的碎片数
      *

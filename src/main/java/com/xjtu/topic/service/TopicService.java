@@ -240,10 +240,21 @@ public class TopicService {
             logger.error("主题查询失败：没有指定课程");
             return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_2.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_2.getMsg());
         }
-        List<Topic> topics = topicRepository.findByDomainId(domain.getDomainId());
-        Map<Long, Integer> assembleCounts = topicDAO.countAssemblesByDomainIdGroupByTopicId(domain.getDomainId());
-        Map<Long, Integer> inDegreeCounts = topicDAO.countInDegreeByTopicId(domain.getDomainId());
-        Map<Long, Integer> outDegreeCounts = topicDAO.countOutDegreeByTopicId(domain.getDomainId());
+        Long domainId = domain.getDomainId();
+        return findTopicsByDomainId(domainId);
+    }
+
+    /**
+     * 查询主题：根据课程id
+     *
+     * @param domainId
+     * @return
+     */
+    public Result findTopicsByDomainId(Long domainId) {
+        List<Topic> topics = topicRepository.findByDomainId(domainId);
+        Map<Long, Integer> assembleCounts = topicDAO.countAssemblesByDomainIdGroupByTopicId(domainId);
+        Map<Long, Integer> inDegreeCounts = topicDAO.countInDegreeByTopicId(domainId);
+        Map<Long, Integer> outDegreeCounts = topicDAO.countOutDegreeByTopicId(domainId);
         List<Map<String, Object>> results = new ArrayList<>();
         for (Topic topic : topics) {
             Map<String, Object> result = new HashMap<>();

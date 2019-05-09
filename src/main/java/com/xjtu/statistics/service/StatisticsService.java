@@ -789,6 +789,55 @@ public class StatisticsService {
     }
 
     /**
+     * 根据课程id集合，统计碎片数量
+     *
+     * @param domainIds
+     * @return
+     */
+    public Result countAssembleGroupByDomainIds(List<Long> domainIds) {
+        List<Object[]> counts = assembleRepository.countAssemblesGroupByDomainId(domainIds);
+        Map<Long, Long> map = convertListToMap(counts);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), map);
+    }
+
+    /**
+     * 根据主题id集合，查询碎片数量
+     *
+     * @param topicIds
+     * @return
+     */
+    public Result countAssembleGroupByTopicIds(List<Long> topicIds) {
+        List<Object[]> counts = assembleRepository.countAssemblesByGroupByTopicId(topicIds);
+        Map<Long, Long> map = convertListToMap(counts);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), map);
+    }
+
+    /**
+     * 根据主题id集合，查询一级分面数量
+     *
+     * @param topicIds
+     * @return
+     */
+    public Result countFirstLayerFacetByTopicIds(List<Long> topicIds) {
+        List<Object[]> counts = facetRepository.countFacetsGroupByTopicId(topicIds, 1);
+        Map<Long, Long> map = convertListToMap(counts);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), map);
+    }
+
+    /**
+     * 根据课程id集合，统计主题数量
+     *
+     * @param domainIds
+     * @return
+     */
+    public Result countTopicByDomainIds(List<Long> domainIds) {
+        List<Object[]> counts = topicRepository.countTopicsGroupByDomainId(domainIds);
+        Map<Long, Long> map = convertListToMap(counts);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), map);
+    }
+
+
+    /**
      * 根据主题id，统计碎片数量
      *
      * @param topicId
