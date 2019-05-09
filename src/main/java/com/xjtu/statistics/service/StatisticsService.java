@@ -795,8 +795,13 @@ public class StatisticsService {
      * @return
      */
     public Result countAssembleGroupByDomainIds(List<Long> domainIds) {
-        List<Object[]> counts = assembleRepository.countAssemblesGroupByDomainId(domainIds);
+        List<Object[]> counts = statisticsRepository.countAssemblesGroupByDomainId(domainIds);
         Map<Long, Long> map = convertListToMap(counts);
+        new Thread(() -> {
+            logger.info("数据统计开始");
+            updateStatistics();
+            logger.info("数据统计完成并保存");
+        }).start();
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), map);
     }
 
