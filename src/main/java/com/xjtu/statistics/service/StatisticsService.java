@@ -797,11 +797,11 @@ public class StatisticsService {
     public Result countAssembleGroupByDomainIds(List<Long> domainIds) {
         List<Object[]> counts = statisticsRepository.countAssemblesGroupByDomainId(domainIds);
         Map<Long, Long> map = convertListToMap(counts);
-        new Thread(() -> {
+       /* new Thread(() -> {
             logger.info("数据统计开始");
             updateStatistics();
             logger.info("数据统计完成并保存");
-        }).start();
+        }).start();*/
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), map);
     }
 
