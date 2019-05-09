@@ -818,7 +818,7 @@ public class StatisticsService {
      * @param topicIds
      * @return
      */
-    public Result countFirstLayerFacetByTopicIds(List<Long> topicIds) {
+    public Result countFirstLayerFacetGroupByTopicIds(List<Long> topicIds) {
         List<Object[]> counts = facetRepository.countFacetsGroupByTopicId(topicIds, 1);
         Map<Long, Long> map = convertListToMap(counts);
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), map);

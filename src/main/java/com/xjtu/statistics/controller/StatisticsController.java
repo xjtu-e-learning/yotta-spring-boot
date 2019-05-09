@@ -279,9 +279,9 @@ public class StatisticsController {
      */
     @ApiOperation(value = "根据主题id集合，统计一级分面数量"
             , notes = "根据主题id集合，统计一级分面数量")
-    @GetMapping("/countFirstLayerFacetByTopicIds")
-    public ResponseEntity countFirstLayerFacetByTopicIds(@RequestParam(name = "topicIds") List<Long> topicIds) {
-        Result result = statisticsService.countFirstLayerFacetByTopicIds(topicIds);
+    @GetMapping("/countFirstLayerFacetGroupByTopicIds")
+    public ResponseEntity countFirstLayerFacetGroupByTopicIds(@RequestParam(name = "topicIds") List<Long> topicIds) {
+        Result result = statisticsService.countFirstLayerFacetGroupByTopicIds(topicIds);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
