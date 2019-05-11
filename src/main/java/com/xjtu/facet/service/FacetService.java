@@ -301,6 +301,7 @@ public class FacetService {
      * @param secondLayerFacetName 分面名
      * @return
      */
+    @Deprecated
     public Result deleteSecondLayerFacet(String domainName, String topicName, String secondLayerFacetName) {
         logger.error("API参数错误，逻辑不合理");
         return ResultUtil.error(ResultEnum.ARGUMENTS_DEVELOP_ERROR.getCode()
@@ -720,6 +721,7 @@ public class FacetService {
      * @param firstLayerFacetName 一级分面名
      * @return 查询结果
      */
+    @Deprecated
     public Result findSecondLayerFacetNumber(String domainName, String topicName, String firstLayerFacetName) {
         logger.error("API参数错误，逻辑不合理");
         return ResultUtil.error(ResultEnum.ARGUMENTS_DEVELOP_ERROR.getCode(),
@@ -781,6 +783,7 @@ public class FacetService {
      * @param secondLayerFacetName 二级分面名
      * @return 查询结果
      */
+    @Deprecated
     public Result findThirdLayerFacetNumber(String domainName, String topicName, String secondLayerFacetName) {
         logger.error("API参数错误，逻辑不合理");
         return ResultUtil.error(ResultEnum.ARGUMENTS_DEVELOP_ERROR.getCode()
