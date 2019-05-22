@@ -42,7 +42,8 @@ public class ESYotta {
     static {
         try {
             cpds.setDriverClass("com.mysql.jdbc.Driver"); //loads the jdbc driver
-            cpds.setJdbcUrl("jdbc:mysql://yotta.xjtushilei.com:9220/yotta_spring_boot_complete");
+//            cpds.setJdbcUrl("jdbc:mysql://yotta.xjtushilei.com:9220/yotta_spring_boot_complete");
+            cpds.setJdbcUrl("jdbc:mysql://127.0.0.1:9220/yotta_spring_boot_complete");
             cpds.setUser("root");
             cpds.setPassword("root");
             cpds.setMinPoolSize(5);
@@ -81,7 +82,7 @@ public class ESYotta {
        构建query
         */
         BoolQueryBuilder boolq = new BoolQueryBuilder();
-        if (subjectName != null && q.equals("")) {
+        if (q != null && q.equals("")) {
             boolq.must(QueryBuilders.matchAllQuery());
         } else {
             boolq.must(QueryBuilders.multiMatchQuery(q, "subject_name", "domain_name", "topic_name", "facet_name", "assemble_text"));
