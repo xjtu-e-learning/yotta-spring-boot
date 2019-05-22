@@ -791,7 +791,6 @@ public class FacetService {
     }
     /**
      * 获取对应分面下的碎片数量
-     *
      * @param domainName
      * @param topicName
      * @param facetName
