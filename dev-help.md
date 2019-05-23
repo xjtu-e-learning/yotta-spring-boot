@@ -1,1 +1,0 @@
-- 配置文件在 `com.xjtu.yottasearch.index.ESYotta`里，包括jdbc和es的配置。
