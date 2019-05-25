@@ -8,3 +8,14 @@
    
     - 文档参考
         - 官方文档6.2版本  ，使用了java客户端进行操作：https://www.elastic.co/guide/en/elasticsearch/client/java-rest/6.2/java-rest-high.html    
+        
+- 编译
+```
+mvnw package
+```  
+- 运行
+
+```
+java -jar target/yotta-search-1.0.jar
+```
+
