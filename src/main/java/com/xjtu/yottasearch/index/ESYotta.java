@@ -41,8 +41,8 @@ public class ESYotta {
     static {
         try {
             cpds.setDriverClass("com.mysql.jdbc.Driver"); //loads the jdbc driver
-            cpds.setJdbcUrl("jdbc:mysql://yotta.xjtushilei.com:9220/yotta_spring_boot_complete");
-//            cpds.setJdbcUrl("jdbc:mysql://127.0.0.1:9220/yotta_spring_boot_complete");
+//            cpds.setJdbcUrl("jdbc:mysql://yotta.xjtushilei.com:9220/yotta_spring_boot_complete");
+            cpds.setJdbcUrl("jdbc:mysql://127.0.0.1:9220/yotta_spring_boot_complete");
             cpds.setUser("root");
             cpds.setPassword("root");
             cpds.setMinPoolSize(5);
