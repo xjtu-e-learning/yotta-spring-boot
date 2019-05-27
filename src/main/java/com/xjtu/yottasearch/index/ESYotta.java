@@ -20,7 +20,6 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
-import org.elasticsearch.search.aggregations.bucket.filter.Filter;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
@@ -133,12 +132,6 @@ public class ESYotta {
                 .aggregation(AggregationBuilders.terms("facet_name_agg").field("facet_name.key"))
                 .aggregation(AggregationBuilders.terms("assemble_source_agg").field("assemble_source"))
                 .aggregation(AggregationBuilders.terms("assemble_type_agg").field("assemble_type"))
-                .aggregation(AggregationBuilders.filter("subject", QueryBuilders.matchQuery("subject_name", q)).subAggregation(
-                        AggregationBuilders.terms("subject_id_agg_sub").field("subject_id")))
-                .aggregation(AggregationBuilders.filter("domain", QueryBuilders.matchQuery("domain_name", q)).subAggregation(
-                        AggregationBuilders.terms("domain_id_agg_sub").field("domain_id")))
-                .aggregation(AggregationBuilders.filter("topic", QueryBuilders.matchQuery("topic_name", q)).subAggregation(
-                        AggregationBuilders.terms("topic_id_agg_sub").field("topic_id")))
                 .query(boolq)
                 .from(page)
                 .size(size);
@@ -223,39 +216,8 @@ public class ESYotta {
         praseAgg("assemble_source_agg", aggregations, aggs);
         praseAgg("assemble_type_agg", aggregations, aggs);
 
-        List<Map<String, Object>> subjectInfo = new ArrayList<>();
-        Filter subjectFilter = searchResponse.getAggregations().get("subject");
-        for (Terms.Bucket entry : ((Terms) subjectFilter.getAggregations().get("subject_id_agg_sub")).getBuckets()) {
-            String id = String.valueOf(entry.getKey());
-            HashMap<String, Object> map = new HashMap<>();
-            map.put(id, getSubject(id));
-            subjectInfo.add(map);
-        }
-
-        List<Map<String, Object>> domainInfo = new ArrayList<>();
-        Filter domainFilter = searchResponse.getAggregations().get("domain");
-        for (Terms.Bucket entry : ((Terms) domainFilter.getAggregations().get("domain_id_agg_sub")).getBuckets()) {
-            String id = String.valueOf(entry.getKey());
-            HashMap<String, Object> map = new HashMap<>();
-            map.put(id, getDomain(id));
-            domainInfo.add(map);
-        }
-
-        List<Map<String, Object>> topicInfo = new ArrayList<>();
-        Filter topicFilter = searchResponse.getAggregations().get("topic");
-        for (Terms.Bucket entry : ((Terms) topicFilter.getAggregations().get("topic_id_agg_sub")).getBuckets()) {
-            String id = String.valueOf(entry.getKey());
-            HashMap<String, Object> map = new HashMap<>();
-            map.put(id, getTopic(id));
-            topicInfo.add(map);
-        }
-
-
         res.put("hits", hits);
         res.put("aggs", aggs);
-        res.put("topicInfo", topicInfo);
-        res.put("subjectInfo", subjectInfo);
-        res.put("domainInfo", domainInfo);
 
         return res;
     }
@@ -267,14 +229,16 @@ public class ESYotta {
             long count = entry.getDocCount(); // Doc count
             subject_name_agg.put(key, count);
         }
-        aggs.put(aggName, subject_name_agg);
+        List<Map.Entry<String, Long>> list = new ArrayList<>(subject_name_agg.entrySet());
+        list.sort((a1, a2) -> Long.compare(a2.getValue(), a1.getValue()));
+        aggs.put(aggName, list);
     }
 
     public static String creatIndexAndMapping() throws IOException {
         //创建index
         CreateIndexRequest request = new CreateIndexRequest(indexName);
         request.settings(Settings.builder()
-                .put("index.number_of_shards", 10)
+                .put("index.number_of_shards", 5)
                 .put("index.number_of_replicas", 0)
         );
         request.mapping("_doc",
