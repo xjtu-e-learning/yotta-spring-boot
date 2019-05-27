@@ -29,6 +29,7 @@ public enum ResultEnum {
     SUBJECT_SEARCH_ERROR(113, "学科查询失败：没有学科信息记录"),
     SUBJECT_SEARCH_ERROR_1(114, "学科分页查询失败：没有该条学科信息记录"),
     SUBJECT_SEARCH_ERROR_2(115, "学科分页查询失败：查询的页数超过最大页数"),
+    SUBJECT_GRAPH_ERROR(197, "学科知识图谱查询失败：对应文件可能不存在"),
 
     //课程
     DOMAIN_INSERT_ERROR(116, "课程信息插入失败：课程名不存在或者为空"),
