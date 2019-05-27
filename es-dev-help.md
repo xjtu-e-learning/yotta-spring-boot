@@ -7,7 +7,8 @@
         -   可以看整体情况，网址是 https://xjtushilei.com/es-head/ ，只能在es安装的机器上打开该网址查看。外网禁止查看。
    
     - 文档参考
-        - 官方文档6.2版本  ，使用了java客户端进行操作：https://www.elastic.co/guide/en/elasticsearch/client/java-rest/6.2/java-rest-high.html    
+        - 官方文档6.2版本  ，使用了java客户端进行操作：https://www.elastic.co/guide/en/elasticsearch/client/java-rest/6.2/java-rest-high.html
+        - 查询语句教程   https://www.elastic.co/guide/en/elasticsearch/reference/6.2/index.html     
         
 - 编译
 ```
