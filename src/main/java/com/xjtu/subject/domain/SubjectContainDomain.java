@@ -46,4 +46,5 @@ public class SubjectContainDomain extends Subject {
         this.setSubjectId(subjectId);
         this.domain = domain;
     }
+
 }

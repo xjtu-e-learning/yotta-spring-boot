@@ -18,24 +18,20 @@ import java.util.List;
  * @date 2019/06/04
  */
 
-public interface PermissionRepository extends JpaRepository,JpaSpecificationExecutor<Permission> {
+public interface PermissionRepository extends JpaRepository<Permission,Long>,JpaSpecificationExecutor<Permission> {
 
     /**
      * 指定用户ID，查询其可访问的学科
      */
     @Transactional(rollbackFor = Exception.class)
-    @Query(value = "SELECT subject_id \n" +
-            "FROM permission \n" +
-            "WHERE user_id=?1")
-    Subject findSubjectIdByUserId(Long userId);
+    @Query(value = "SELECT p FROM Permission p WHERE p.userName=?1")
+    Permission findSubjectIdByUserName(String userName);
 
     /**
      * 指定用户ID，查询其可访问的课程
      */
     @Transactional(rollbackFor = Exception.class)
-    @Query(value = "SELECT domain_name \n" +
-            "FROM permission \n" +
-            "WHERE user_id=?1")
-    Domain findDomainNameByUserId(Long userId);
+    @Query(value = "SELECT p FROM Permission p WHERE p.userName=?1")
+    Permission findDomainIdByUserName(String userName);
 
 }

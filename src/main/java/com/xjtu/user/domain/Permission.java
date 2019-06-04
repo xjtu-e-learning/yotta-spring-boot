@@ -14,25 +14,22 @@ public class Permission {
     private Long permissionId;
 
     private Long userId;
-    private String userName;
-    private Long subjectId;
-    private String subjectName;
-    private Long domainId;
-    private String domainName;
 
+    private String userName;
+
+    private Long subjectId;
+
+    private Long domainId;
 
     public Permission() {
     }
 
-    public Permission(Long userId, String userName, Long subjectId, String subjectName, Long domainId, String domainName) {
+    public Permission(Long userId, String userName, Long subjectId, Long domainId) {
         this.userId = userId;
         this.userName = userName;
         this.subjectId = subjectId;
-        this.subjectName = subjectName;
         this.domainId = domainId;
-        this.domainName = domainName;
     }
-
 
     @Override
     public String toString() {
@@ -41,9 +38,7 @@ public class Permission {
                 ", userId=" + userId +
                 ", userName='" + userName + '\'' +
                 ", subjectId=" + subjectId +
-                ", subjectName='" + subjectName + '\'' +
                 ", domainId=" + domainId +
-                ", domainName='" + domainName + '\'' +
                 '}';
     }
 
@@ -79,27 +74,11 @@ public class Permission {
         this.subjectId = subjectId;
     }
 
-    public String getSubjectName() {
-        return subjectName;
-    }
-
-    public void setSubjectName(String subjectName) {
-        this.subjectName = subjectName;
-    }
-
     public Long getDomainId() {
         return domainId;
     }
 
     public void setDomainId(Long domainId) {
         this.domainId = domainId;
-    }
-
-    public String getDomainName() {
-        return domainName;
-    }
-
-    public void setDomainName(String domainName) {
-        this.domainName = domainName;
     }
 }

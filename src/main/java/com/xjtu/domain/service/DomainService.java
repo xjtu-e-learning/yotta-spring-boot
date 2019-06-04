@@ -1,5 +1,8 @@
 package com.xjtu.domain.service;
 
+import com.xjtu.user.domain.Permission;
+import com.xjtu.user.repository.PermissionRepository;
+import com.xjtu.user.repository.UserRepository;
 import com.xjtu.assemble.domain.Assemble;
 import com.xjtu.assemble.repository.AssembleRepository;
 import com.xjtu.common.domain.Result;
@@ -15,9 +18,6 @@ import com.xjtu.subject.domain.SubjectContainDomain;
 import com.xjtu.subject.repository.SubjectRepository;
 import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.repository.TopicRepository;
-import com.xjtu.user.domain.Permission;
-import com.xjtu.user.repository.PermissionRepository;
-import com.xjtu.user.repository.UserRepository;
 import com.xjtu.utils.ResultUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +66,8 @@ public class DomainService {
     private AssembleRepository assembleRepository;
 
     @Autowired
-    private  PermissionRepository permissionRepository;
+    private PermissionRepository permissionRepository;
+
 
 
     /**
@@ -460,21 +461,36 @@ public class DomainService {
      * 张铎 2019/06/04
      * @return 学科与课程列表
      */
-    public Result findSubjectsAndDomainsByUserId(Long userId){
-        Subject subject1 = permissionRepository.findSubjectIdByUserId(userId);
-        Subject subject = subjectRepository.findBySubjectId(subject1.getSubjectId());
+    public Result findSubjectsAndDomainsByUserId(String userName){
+        List<SubjectContainDomain> subjectContainDomains = new ArrayList<>();
+
+        //添加示范课程学科数据
+        Subject subject_typical = subjectRepository.findBySubjectName("示范课程");
+        if(subject_typical == null)
+        {
+            logger.error("学科查询失败：没有示范课程学科信息记录");
+            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
+        }
+        List<Domain> domains_typical = domainRepository.findBySubjectId(subject_typical.getSubjectId());
+        SubjectContainDomain subjectContainDomain_typical = new SubjectContainDomain(subject_typical.getSubjectId(),subject_typical.getSubjectName(), subject_typical.getNote(), domains_typical);
+        subjectContainDomains.add(subjectContainDomain_typical);
+
+        //添加每个用户权限下所能看到的学科课程数据
+        Permission permissionOfSubjectId = permissionRepository.findSubjectIdByUserName(userName);
+        Subject subject = subjectRepository.findBySubjectId(permissionOfSubjectId.getSubjectId());
         if (subject == null) {
             logger.error("学科查询失败：没有学科信息记录");
             return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
         }
-        Domain domain1 = permissionRepository.findDomainNameByUserId(userId);
-        Domain domain = domainRepository.findByDomainName(domain1.getDomainName());
+        Permission permissionOfDomainId = permissionRepository.findDomainIdByUserName(userName);
+        Domain domain = domainRepository.findOne(permissionOfDomainId.getDomainId());
         if (domain == null) {
             logger.error("课程查询失败：没有课程信息记录");
             return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
         }
         SubjectContainDomain subjectContainDomain = new SubjectContainDomain(subject.getSubjectId(),subject.getSubjectName(),subject.getNote(),domain);
-        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), subjectContainDomain);
+        subjectContainDomains.add(subjectContainDomain);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), subjectContainDomains);
     }
 
 

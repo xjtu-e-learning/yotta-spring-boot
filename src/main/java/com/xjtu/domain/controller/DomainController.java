@@ -139,6 +139,10 @@ public class DomainController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    /**
+     * 按课程转换RDF数据
+     * 未写
+     */
 
     /**
      * 加入权限控制，根据用户ID确认其可访问的学科与课程
@@ -146,8 +150,8 @@ public class DomainController {
      */
     @GetMapping("/getDomainsAndSubjectsByUseId")
     @ApiOperation(value = "根据用户ID获得其所能访问的学科和课程信息，不包含主题信息", notes = "根据用户ID获得其所能访问的学科和课程信息，不包含主题信息")
-    public ResponseEntity getSubjectsAndDomainsByUserId(Long userId) {
-        Result result = domainService.findSubjectsAndDomainsByUserId(userId);
+    public ResponseEntity getSubjectsAndDomainsByUserId(String userName) {
+        Result result = domainService.findSubjectsAndDomainsByUserId(userName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }

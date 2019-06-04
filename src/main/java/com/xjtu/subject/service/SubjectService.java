@@ -79,6 +79,7 @@ public class SubjectService {
                 return ResultUtil.error(ResultEnum.SUBJECT_INSERT_ERROR_2.getCode(), ResultEnum.SUBJECT_INSERT_ERROR_2.getMsg());
             }
         }
+
         //学科信息已经存在数据库
         logger.error("学科信息插入失败：插入已经存在的学科信息");
         return ResultUtil.error(ResultEnum.SUBJECT_INSERT_ERROR_1.getCode(), ResultEnum.SUBJECT_INSERT_ERROR_1.getMsg());
