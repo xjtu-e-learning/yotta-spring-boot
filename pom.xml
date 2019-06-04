@@ -21,7 +21,6 @@
         <version>1.5.13.RELEASE</version>
     </parent>
     <dependencies>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -161,7 +160,6 @@
             <artifactId>webmagic-selenium</artifactId>
             <version>0.7.3</version>
         </dependency>
-
     </dependencies>
 
 
