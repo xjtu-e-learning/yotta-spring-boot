@@ -141,9 +141,18 @@ public class DomainController {
 
 
     /**
-     * 按课程转换RDF数据
-     * 未写
+     * 加入权限控制，根据用户ID确认其可访问的学科与课程
+     *2019/06/04 张铎
      */
+    @GetMapping("/getDomainsAndSubjectsByUseId")
+    @ApiOperation(value = "根据用户ID获得其所能访问的学科和课程信息，不包含主题信息", notes = "根据用户ID获得其所能访问的学科和课程信息，不包含主题信息")
+    public ResponseEntity getSubjectsAndDomainsByUserId(Long userId) {
+        Result result = domainService.findSubjectsAndDomainsByUserId(userId);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 
 
 }

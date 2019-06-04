@@ -15,6 +15,9 @@ import com.xjtu.subject.domain.SubjectContainDomain;
 import com.xjtu.subject.repository.SubjectRepository;
 import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.repository.TopicRepository;
+import com.xjtu.user.domain.Permission;
+import com.xjtu.user.repository.PermissionRepository;
+import com.xjtu.user.repository.UserRepository;
 import com.xjtu.utils.ResultUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +64,9 @@ public class DomainService {
 
     @Autowired
     private AssembleRepository assembleRepository;
+
+    @Autowired
+    private  PermissionRepository permissionRepository;
 
 
     /**
@@ -447,6 +453,28 @@ public class DomainService {
             logger.error("课程数量统计查询失败");
             return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
         }
+    }
+
+    /**
+     * 加入带权限控制的课程查询
+     * 张铎 2019/06/04
+     * @return 学科与课程列表
+     */
+    public Result findSubjectsAndDomainsByUserId(Long userId){
+        Subject subject1 = permissionRepository.findSubjectIdByUserId(userId);
+        Subject subject = subjectRepository.findBySubjectId(subject1.getSubjectId());
+        if (subject == null) {
+            logger.error("学科查询失败：没有学科信息记录");
+            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
+        }
+        Domain domain1 = permissionRepository.findDomainNameByUserId(userId);
+        Domain domain = domainRepository.findByDomainName(domain1.getDomainName());
+        if (domain == null) {
+            logger.error("课程查询失败：没有课程信息记录");
+            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
+        }
+        SubjectContainDomain subjectContainDomain = new SubjectContainDomain(subject.getSubjectId(),subject.getSubjectName(),subject.getNote(),domain);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), subjectContainDomain);
     }
 
 
