@@ -483,12 +483,14 @@ public class DomainService {
             return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
         }
         Permission permissionOfDomainId = permissionRepository.findDomainIdByUserName(userName);
+        List<Domain> domains = new ArrayList<>();
         Domain domain = domainRepository.findOne(permissionOfDomainId.getDomainId());
+        domains.add(domain);
         if (domain == null) {
             logger.error("课程查询失败：没有课程信息记录");
             return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
         }
-        SubjectContainDomain subjectContainDomain = new SubjectContainDomain(subject.getSubjectId(),subject.getSubjectName(),subject.getNote(),domain);
+        SubjectContainDomain subjectContainDomain = new SubjectContainDomain(subject.getSubjectId(),subject.getSubjectName(),subject.getNote(),domains);
         subjectContainDomains.add(subjectContainDomain);
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), subjectContainDomains);
     }

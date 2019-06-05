@@ -13,7 +13,7 @@ import java.util.List;
 
 public class SubjectContainDomain extends Subject {
     private List<Domain> domains;
-    private Domain domain;
+
     @Override
     public String toString() {
         return "SubjectContainDomain{" +
@@ -25,7 +25,7 @@ public class SubjectContainDomain extends Subject {
         return domains;
     }
 
-    public Domain getDomain(){return domain;}
+
 
     public void setDomains(List<Domain> domains) {
         this.domains = domains;
@@ -41,10 +41,6 @@ public class SubjectContainDomain extends Subject {
         this.domains = domains;
     }
 
-    public SubjectContainDomain(Long subjectId, String subjectName, String note, Domain domain) {
-        super(subjectName, note);
-        this.setSubjectId(subjectId);
-        this.domain = domain;
-    }
+
 
 }
