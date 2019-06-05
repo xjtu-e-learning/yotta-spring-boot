@@ -476,22 +476,28 @@ public class DomainService {
         subjectContainDomains.add(subjectContainDomain_typical);
 
         //添加每个用户权限下所能看到的学科课程数据
-        Permission permissionOfSubjectId = permissionRepository.findSubjectIdByUserName(userName);
-        Subject subject = subjectRepository.findBySubjectId(permissionOfSubjectId.getSubjectId());
-        if (subject == null) {
-            logger.error("学科查询失败：没有学科信息记录");
-            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
+        List<Permission> permissionOfSubjectId = permissionRepository.findSubjectIdByUserName(userName);
+        for(Permission p : permissionOfSubjectId)
+        {
+            Subject subject = subjectRepository.findBySubjectId(p.getSubjectId());
+            if (subject == null) {
+                logger.error("学科查询失败：没有学科信息记录");
+                return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
+            }
+            List<Permission> permissionOfDomainId = permissionRepository.findDomainIdByUserName(userName);
+            List<Domain> domains = new ArrayList<>();
+            for(Permission pd : permissionOfDomainId)
+            {
+                Domain domain = domainRepository.findOne(pd.getDomainId());
+                if (domain == null) {
+                    logger.error("课程查询失败：没有课程信息记录");
+                    return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
+                }
+                domains.add(domain);
+            }
+            SubjectContainDomain subjectContainDomain = new SubjectContainDomain(subject.getSubjectId(),subject.getSubjectName(),subject.getNote(),domains);
+            subjectContainDomains.add(subjectContainDomain);
         }
-        Permission permissionOfDomainId = permissionRepository.findDomainIdByUserName(userName);
-        List<Domain> domains = new ArrayList<>();
-        Domain domain = domainRepository.findOne(permissionOfDomainId.getDomainId());
-        domains.add(domain);
-        if (domain == null) {
-            logger.error("课程查询失败：没有课程信息记录");
-            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
-        }
-        SubjectContainDomain subjectContainDomain = new SubjectContainDomain(subject.getSubjectId(),subject.getSubjectName(),subject.getNote(),domains);
-        subjectContainDomains.add(subjectContainDomain);
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), subjectContainDomains);
     }
 

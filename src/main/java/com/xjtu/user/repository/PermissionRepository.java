@@ -25,13 +25,13 @@ public interface PermissionRepository extends JpaRepository<Permission,Long>,Jpa
      */
     @Transactional(rollbackFor = Exception.class)
     @Query(value = "SELECT p FROM Permission p WHERE p.userName=?1")
-    Permission findSubjectIdByUserName(String userName);
+    List<Permission> findSubjectIdByUserName(String userName);
 
     /**
      * 指定用户ID，查询其可访问的课程
      */
     @Transactional(rollbackFor = Exception.class)
     @Query(value = "SELECT p FROM Permission p WHERE p.userName=?1")
-    Permission findDomainIdByUserName(String userName);
+    List<Permission> findDomainIdByUserName(String userName);
 
 }
