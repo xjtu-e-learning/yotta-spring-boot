@@ -477,26 +477,35 @@ public class DomainService {
 
         //添加每个用户权限下所能看到的学科课程数据
         List<Permission> permissionOfSubjectId = permissionRepository.findSubjectIdByUserName(userName);
+        Set<Long> subject_id_set = new HashSet<>();
         for(Permission p : permissionOfSubjectId)
         {
-            Subject subject = subjectRepository.findBySubjectId(p.getSubjectId());
-            if (subject == null) {
-                logger.error("学科查询失败：没有学科信息记录");
-                return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
-            }
-            List<Permission> permissionOfDomainId = permissionRepository.findDomainIdByUserName(userName);
-            List<Domain> domains = new ArrayList<>();
-            for(Permission pd : permissionOfDomainId)
+            subject_id_set.add(p.getSubjectId());
+
+        }
+        if(subject_id_set.size()>0)
+        {
+            for (Long subjectId : subject_id_set)
             {
-                Domain domain = domainRepository.findOne(pd.getDomainId());
-                if (domain == null) {
-                    logger.error("课程查询失败：没有课程信息记录");
+                Subject subject = subjectRepository.findBySubjectId(subjectId);
+                if (subject == null) {
+                    logger.error("学科查询失败：没有学科信息记录");
                     return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
                 }
-                domains.add(domain);
+                List<Permission> permissionOfDomainId = permissionRepository.findDomainIdByUserName(userName);
+                List<Domain> domains = new ArrayList<>();
+                for(Permission pd : permissionOfDomainId)
+                {
+                    Domain domain = domainRepository.findOne(pd.getDomainId());
+                    if (domain == null) {
+                        logger.error("课程查询失败：没有课程信息记录");
+                        return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
+                    }
+                    domains.add(domain);
+                }
+                SubjectContainDomain subjectContainDomain = new SubjectContainDomain(subject.getSubjectId(),subject.getSubjectName(),subject.getNote(),domains);
+                subjectContainDomains.add(subjectContainDomain);
             }
-            SubjectContainDomain subjectContainDomain = new SubjectContainDomain(subject.getSubjectId(),subject.getSubjectName(),subject.getNote(),domains);
-            subjectContainDomains.add(subjectContainDomain);
         }
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), subjectContainDomains);
     }
