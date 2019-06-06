@@ -496,12 +496,15 @@ public class DomainService {
                 List<Domain> domains = new ArrayList<>();
                 for(Permission pd : permissionOfDomainId)
                 {
-                    Domain domain = domainRepository.findOne(pd.getDomainId());
-                    if (domain == null) {
-                        logger.error("课程查询失败：没有课程信息记录");
-                        return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
+                    if(pd.getSubjectId().equals(subjectId))
+                    {
+                        Domain domain = domainRepository.findOne(pd.getDomainId());
+                        if (domain == null) {
+                            logger.error("课程查询失败：没有课程信息记录");
+                            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
+                        }
+                        domains.add(domain);
                     }
-                    domains.add(domain);
                 }
                 SubjectContainDomain subjectContainDomain = new SubjectContainDomain(subject.getSubjectId(),subject.getSubjectName(),subject.getNote(),domains);
                 subjectContainDomains.add(subjectContainDomain);
