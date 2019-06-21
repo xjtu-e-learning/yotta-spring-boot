@@ -4,6 +4,7 @@ package com.xjtu.dependency.controller;
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
 import com.xjtu.dependency.service.DependencyService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,6 +93,25 @@ public class DependencyController {
     public ResponseEntity getDependenciesByDomainNameSaveAsGexf(@RequestParam(name = "domainName") String domainName) {
         Result result = dependencyService.findDependenciesByDomainNameSaveAsGexf(domainName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    /**
+     * API
+     * 自动构建主题依赖关系
+     * 通过课程名，生成该课程下主题依赖关系。需已有主题，碎片信息
+     */
+    @PostMapping("/generateDependencyByDomainName")
+    @ApiOperation(value = "自动构建主题依赖关系。通过课程名，生成该课程下主题依赖关系。需已有主题，碎片信息。并给出该课程是否为英文课程信息",
+    notes = "自动构建主题依赖关系。通过课程名，生成该课程下主题依赖关系。需已有主题，碎片信息。并给出该课程是否为英文课程信息")
+    public ResponseEntity generateDependencyByDomainName(@RequestParam(name = "domainName") String domainName
+    , @RequestParam(name = "isEnglish?(true or false)") boolean isEnglish)
+    {
+        Result result = dependencyService.generateDependencyByDomainName(domainName, isEnglish);
+        if(!result.getCode().equals(ResultEnum.SUCCESS.getCode()))
+        {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);

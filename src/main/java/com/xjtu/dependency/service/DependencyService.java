@@ -1,14 +1,18 @@
 package com.xjtu.dependency.service;
 
 
+import com.xjtu.assemble.domain.Assemble;
+import com.xjtu.assemble.repository.AssembleRepository;
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
+import com.xjtu.dependency.RankDependency.RankDependency;
 import com.xjtu.dependency.domain.Dependency;
 import com.xjtu.dependency.domain.DependencyContainName;
 import com.xjtu.dependency.repository.DependencyRepository;
 import com.xjtu.domain.domain.Domain;
 import com.xjtu.domain.repository.DomainRepository;
 import com.xjtu.topic.domain.Topic;
+import com.xjtu.topic.domain.TopicContainAssembleText;
 import com.xjtu.topic.repository.TopicRepository;
 import com.xjtu.utils.ResultUtil;
 import org.apache.commons.io.FileUtils;
@@ -52,6 +56,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.awt.*;
 import java.io.File;
@@ -70,6 +75,7 @@ import java.util.concurrent.TimeUnit;
  * @date 2018/03/21 12:46
  */
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class DependencyService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -82,6 +88,9 @@ public class DependencyService {
 
     @Autowired
     private DomainRepository domainRepository;
+
+    @Autowired
+    private AssembleRepository assembleRepository;
 
     @Value("${gexfpath}")
     private String gexfPath;
@@ -445,6 +454,107 @@ public class DependencyService {
         dbInformation.put("username", username);
         dbInformation.put("password", password);
         return dbInformation;
+    }
+
+    /**
+     * 自动构建认知关系。从数据库中读取主题以及碎片
+     * @param domainName  课程名
+     * @param isEnglish   是否为英文课程
+     * @return
+     */
+    public Result generateDependencyByDomainName(String domainName, Boolean isEnglish)
+    {
+        Domain domain = domainRepository.findByDomainName(domainName);
+        //查询错误
+        if (domain == null) {
+            logger.error("主题依赖关系生成失败：没有课程信息记录");
+            return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR.getMsg());
+        }
+
+        Long domainId = domain.getDomainId();
+
+        //查看数据库中是否已有该课程的主题依赖关系
+        List<Dependency> dependencies = dependencyRepository.findByDomainId(domainId);
+        if(dependencies.size() > 0)   //数据库已有该课程主题依赖关系
+        {
+            List<DependencyContainName> dependencyContainNames = new ArrayList<>();
+            for (Dependency dependency : dependencies) {
+                DependencyContainName dependencyContainName = new DependencyContainName(dependency);
+                //获取主题名
+                String startTopicName = topicRepository.findOne(dependency.getStartTopicId()).getTopicName();
+                String endTopicName = topicRepository.findOne(dependency.getEndTopicId()).getTopicName();
+
+                //设置主题名
+                dependencyContainName.setStartTopicName(startTopicName);
+                dependencyContainName.setEndTopicName(endTopicName);
+
+                dependencyContainNames.add(dependencyContainName);
+
+            }
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), dependencyContainNames);
+        }
+
+        //数据库中没有该课程的主题依赖关系，需自动构建
+        //获得课程下所有主题
+        List<Topic> topicList = topicRepository.findByDomainId(domainId);
+        if(topicList.size() < 1)
+        {
+            logger.error("主题依赖关系生成失败：主题不存在");
+            return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR_1.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR_1.getMsg());
+        }
+
+        //获得topicContainAssembleText List，即每个主题有对应碎片文本，获得主题内容信息
+        List<TopicContainAssembleText> topicContainAssembleTexts = new ArrayList<>();
+
+        for(int i = 0; i<topicList.size(); i++)
+        {
+            Topic temp_topic = topicList.get(i);
+            TopicContainAssembleText temp_topicContentAssembleText = new TopicContainAssembleText(temp_topic);
+            temp_topicContentAssembleText.setTopicId(temp_topic.getTopicId());
+
+
+            //查询碎片信息
+            List<Assemble> assembleList = assembleRepository.findAllAssemblesByTopicId(temp_topic.getTopicId());
+            if(assembleList.size() < 1)
+            {
+                System.out.print(temp_topic.getTopicId());
+                logger.error("主体依赖关系生成失败：碎片内容为空");
+                return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR_2.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR_2.getMsg());
+            }
+            String text = "";
+            for(int j = 0; j<assembleList.size(); j++)
+            {
+                text = text + assembleList.get(j).getAssembleText() + " ";
+            }
+            temp_topicContentAssembleText.setText(text);
+
+            topicContainAssembleTexts.add(temp_topicContentAssembleText);
+        }
+
+        /**
+         * 根据主题内容，调用算法得到主题认知关系
+         */
+        RankDependency rankDependency = new RankDependency();
+        List<Dependency> generated_dependencies = rankDependency.rankText(topicContainAssembleTexts, topicContainAssembleTexts.size(), isEnglish);
+
+        //保存自动构建的依赖关系，存到数据库
+        dependencyRepository.save(generated_dependencies);
+//        for(Dependency temp_dependency : generated_dependencies)
+//            dependencyRepository.saveAndFlush(temp_dependency);
+
+        List<DependencyContainName> dependencyContainNames = new ArrayList<>();
+        for (Dependency dependency : generated_dependencies) {
+            DependencyContainName dependencyContainName = new DependencyContainName(dependency);
+            //获取主题名
+            String startTopicName = topicRepository.findOne(dependency.getStartTopicId()).getTopicName();
+            String endTopicName = topicRepository.findOne(dependency.getEndTopicId()).getTopicName();
+            //设置主题名
+            dependencyContainName.setStartTopicName(startTopicName);
+            dependencyContainName.setEndTopicName(endTopicName);
+            dependencyContainNames.add(dependencyContainName);
+        }
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), dependencyContainNames);
+
     }
 
     public static void main(String[] args) {
