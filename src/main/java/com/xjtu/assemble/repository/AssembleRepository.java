@@ -24,7 +24,7 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
 
 
     /**
-     * 根据分面id，删除分面下的所有碎片
+     * 根据分面id集合，删除分面下的所有碎片
      *
      * @param facetIds
      */
@@ -32,14 +32,22 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
     @Transactional(rollbackFor = Exception.class)
     void deleteByFacetIdIsIn(Collection<Long> facetIds);
 
+    /**
+     * 根据分面id，删除分面下的所有碎片
+     *
+     * @param facetId
+     */
+    @Modifying(clearAutomatically = true)
+    @Transactional(rollbackFor = Exception.class)
+    void deleteByFacetId(Long facetId);
 
     /**
      * 根据分面id，查询分面下的所有碎片
      *
      * @param facetIds
      */
-    @Modifying(clearAutomatically = true)
     @Transactional(rollbackFor = Exception.class)
+    @Query("select a from Assemble as a where a.facetId in ?1")
     List<Assemble> findByFacetIdIn(Collection<Long> facetIds);
 
     /**
@@ -69,6 +77,35 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
     @Transactional(rollbackFor = Exception.class)
     List<Assemble> findByFacetId(Long facetId);
 
+
+    /**
+     * 根据课程名查询碎片
+     *
+     * @param domainName
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "select a from Assemble a,Domain d where d.domainName=?1 and d.domainId=a.domainId")
+    List<Assemble> findByDomainName(String domainName);
+
+    /**
+     * 指定分面id，统计对应分面下的碎片
+     *
+     * @param facetId
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    Integer countByFacetId(Long facetId);
+
+    /**
+     * 根据分面id集合，查询碎片数量
+     *
+     * @param facetIds
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    Integer countByFacetIdIn(Collection<Long> facetIds);
+
     /**
      * 查询主题下的所有碎片
      *
@@ -86,6 +123,12 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
             "f.facetId = a.facetId")
     List<Assemble> findAllAssemblesByTopicId(Long topicId);
 
+
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "SELECT COUNT(a.assemble_id)\n" +
+            "FROM assemble AS a,facet AS f\n" +
+            "WHERE f.topic_id=?1 AND f.facet_id=a.facet_id;", nativeQuery = true)
+    Integer countByTopicId(Long topicId);
 
     /**
      * 分页查询主题下的所有碎片
@@ -129,7 +172,7 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
     /**
      * 查询课程和主题下的某层分面下的所有碎片
      *
-     * @param topicId  主题id
+     * @param topicId    主题id
      * @param facetLayer 分面所在层
      * @return
      */
@@ -172,18 +215,28 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    @Query(value = "SELECT\n" +
-            "t.domain_id,count(a.facet_id) \n" +
-            "FROM \n" +
-            "assemble AS a ,\n" +
-            "facet AS f ,\n" +
-            "topic AS t\n" +
-            "WHERE\n" +
-            "t.domain_id IN ?1 AND\n" +
-            "t.topic_id = f.topic_id AND\n" +
-            "f.facet_id = a.facet_id GROUP BY t.domain_id", nativeQuery = true)
+    @Query(value = "SELECT a.domain_id,count(a.assemble_id) \n" +
+            "from assemble AS a \n" +
+            "WHERE a.domain_id IN ?1\n" +
+            "GROUP BY a.domain_id", nativeQuery = true)
     List<Object[]> countAssemblesGroupByDomainId(List<Long> domainIds);
 
+
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "SELECT f.topic_id,COUNT(a.assemble_id)\n" +
+            "FROM facet as f,assemble as a\n" +
+            "WHERE f.topic_id in ?1 and f.facet_id=a.facet_id\n" +
+            "GROUP BY topic_id;", nativeQuery = true)
+    List<Object[]> countAssemblesByGroupByTopicId(List<Long> topicIds);
+
+    /**
+     * 统计课程下的碎片数
+     *
+     * @param domainId
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    Integer countByDomainId(Long domainId);
 
     /**
      * 查询最大主键
@@ -204,7 +257,9 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
      */
     @Modifying(clearAutomatically = true)
     @Transactional(rollbackFor = Exception.class)
-    @Query("update Assemble set assembleContent=?2,assembleText=?3,assembleScratchTime=?4 where assembleId=?1")
-    void updateAssemble(Long assembleId, String assembleContent, String assembleText, String assembleScratchTime);
+    @Query("update Assemble set assembleContent=?2,assembleText=?3,assembleScratchTime=?4,sourceId=?5,url=?6" +
+            " where assembleId=?1")
+    void updateAssemble(Long assembleId, String assembleContent, String assembleText
+            , String assembleScratchTime, Long sourceId, String url);
 
 }

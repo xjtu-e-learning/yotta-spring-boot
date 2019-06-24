@@ -31,6 +31,16 @@ public interface FacetRepository extends JpaRepository<Facet, Long>, JpaSpecific
 
 
     /**
+     * 删除分面
+     *
+     * @param facetId
+     * @param facetLayer
+     */
+    @Modifying(clearAutomatically = true)
+    @Transactional(rollbackFor = Exception.class)
+    void deleteByFacetIdAndFacetLayer(Long facetId, Integer facetLayer);
+
+    /**
      * 指定主题Id，查找分面
      *
      * @param topicId 主题Id
@@ -71,6 +81,18 @@ public interface FacetRepository extends JpaRepository<Facet, Long>, JpaSpecific
     @Transactional(rollbackFor = Exception.class)
     List<Facet> findByParentFacetId(Long parentFacetId);
 
+
+    /**
+     * 根据父分面id，查询子分面id
+     *
+     * @param parentFacetIds
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "select f.facet_id from facet f where f.parent_facet_id in ?1", nativeQuery = true)
+    List<BigInteger> findFacetIdsByParentFacetIds(List<Long> parentFacetIds);
+
+
     /**
      * 指定父分面Id以及分面所在层，查找分面
      *
@@ -106,8 +128,22 @@ public interface FacetRepository extends JpaRepository<Facet, Long>, JpaSpecific
             "group by parentFacetId")
     List<Long> countAllFacetsByParentFacetIdAndFacetLayer(List<Long> parentFacetIds, Integer facetLayer);
 
+
+    /**
+     * 根据主题id集合，统计一级分面数量
+     *
+     * @param topicIds
+     * @return
+     */
+    @Query(value = "SELECT topic_id,COUNT(facet_id)\n" +
+            "FROM facet\n" +
+            "WHERE topic_id in ?1 and facet_layer=?2\n" +
+            "GROUP BY topic_id;", nativeQuery = true)
+    List<Object[]> countFacetsGroupByTopicId(List<Long> topicIds, Integer facetLayer);
+
     /**
      * 指定分面名、主题Id以及分面所在层，查找分面
+     * 注意：只能用于查询一级分面，因为二级、三级分面可能存在重名
      *
      * @param topicId    主题Id
      * @param facetName  分面名
@@ -117,6 +153,22 @@ public interface FacetRepository extends JpaRepository<Facet, Long>, JpaSpecific
     @Transactional(rollbackFor = Exception.class)
     Facet findByTopicIdAndFacetNameAndFacetLayer(Long topicId, String facetName, Integer facetLayer);
 
+
+    /**
+     * @param topicId
+     * @param facetName
+     * @param parentFacetId
+     * @return
+     */
+    Facet findByTopicIdAndFacetNameAndParentFacetId(Long topicId, String facetName, Long parentFacetId);
+
+
+    /**
+     * @param facetName
+     * @param parentFacetId
+     * @return
+     */
+    Facet findByFacetNameAndParentFacetId(String facetName, Long parentFacetId);
 
     /**
      * 指定分面所在层以及主题Id，查找分面
@@ -245,6 +297,46 @@ public interface FacetRepository extends JpaRepository<Facet, Long>, JpaSpecific
             "f.facet_layer=?2 \n" +
             "GROUP BY t.domain_id", nativeQuery = true)
     List<Object[]> countFacetsGroupByDomainIdAndFacetLayer(List<Long> domainId, Integer facetLayer);
+
+
+    /**
+     * 查询课程下的各层分面数，连表查询
+     *
+     * @param domainIds
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "SELECT t.domain_id,COUNT(f.facet_id)\n" +
+            "FROM topic t, facet f\n" +
+            "WHERE t.domain_id IN ?1 AND \n" +
+            "t.topic_id = f.topic_id \n" +
+            "GROUP BY t.domain_id", nativeQuery = true)
+    List<Object[]> countFacetsGroupByDomainId(List<Long> domainIds);
+
+    /**
+     * 统计分面数
+     *
+     * @param domainId
+     * @return
+     */
+    @Query(value = "SELECT COUNT(f.facet_id)\n" +
+            "FROM facet AS f,topic AS t \n" +
+            "WHERE t.domain_id=?1 and t.topic_id=f.topic_id; ", nativeQuery = true)
+    @Transactional(rollbackFor = Exception.class)
+    Integer countByDomainId(Long domainId);
+
+
+    /**
+     * 统计某一级分面数
+     *
+     * @param domainId
+     * @return
+     */
+    @Query(value = "SELECT COUNT(f.facet_id)\n" +
+            "FROM facet AS f,topic AS t \n" +
+            "WHERE t.domain_id=?1 and t.topic_id=f.topic_id and f.facet_layer=?2", nativeQuery = true)
+    @Transactional(rollbackFor = Exception.class)
+    Integer countByDomainIdAndFacetLayer(Long domainId, Integer facetLayer);
 
 
     /**

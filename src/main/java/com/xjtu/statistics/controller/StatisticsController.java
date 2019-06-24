@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * API数据统计
  *
@@ -79,6 +81,16 @@ public class StatisticsController {
     @ApiOperation(value = "统计学科、课程数量", notes = "统计学科、课程数量")
     public ResponseEntity countSubjectAndDomain() {
         Result result = statisticsService.countSubjectAndDomain();
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @GetMapping("/updateStatistics")
+    @ApiOperation(value = "数据统计并保存", notes = "数据统计并保存")
+    public ResponseEntity updateStatistics() {
+        Result result = statisticsService.updateStatistics();
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
@@ -166,4 +178,124 @@ public class StatisticsController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    /**
+     * API
+     * 统计碎片数量
+     */
+    @ApiOperation(value = "统计碎片数量"
+            , notes = "统计碎片数量")
+    @GetMapping("/countAssemble")
+    public ResponseEntity countAssemble() {
+        Result result = statisticsService.countAssemble();
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    /**
+     * API
+     * 统计主题数量
+     */
+    @ApiOperation(value = "统计主题数量"
+            , notes = "统计主题数量")
+    @GetMapping("/countTopic")
+    public ResponseEntity countTopic() {
+        Result result = statisticsService.countTopic();
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
+    /**
+     * API
+     * 根据课程id，统计碎片数量
+     */
+    @ApiOperation(value = "根据课程id，统计碎片数量"
+            , notes = "根据课程id，统计碎片数量")
+    @GetMapping("/countAssembleByDomainId")
+    public ResponseEntity countAssembleByDomainId(@RequestParam(name = "domainId") Long domainId) {
+        Result result = statisticsService.countAssembleByDomainId(domainId);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    /**
+     * API
+     * 根据课程id集合，统计碎片数量
+     */
+    @ApiOperation(value = "根据课程id集合，统计碎片数量"
+            , notes = "根据课程id集合，统计碎片数量")
+    @GetMapping("/countAssembleGroupByDomainIds")
+    public ResponseEntity countAssembleGroupByDomainIds(@RequestParam(name = "domainIds") List<Long> domainIds) {
+        Result result = statisticsService.countAssembleGroupByDomainIds(domainIds);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    /**
+     * API
+     * 根据主题id，统计碎片数量
+     */
+    @ApiOperation(value = "根据主题id，统计碎片数量"
+            , notes = "根据主题id，统计碎片数量")
+    @GetMapping("/countAssembleByTopicId")
+    public ResponseEntity countAssembleByTopicId(@RequestParam(name = "topicId") Long topicId) {
+        Result result = statisticsService.countAssembleByTopicId(topicId);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    /**
+     * API
+     * 根据主题id集合，统计碎片数量
+     */
+    @ApiOperation(value = "根据主题id集合，统计碎片数量"
+            , notes = "根据主题id集合，统计碎片数量")
+    @GetMapping("/countAssembleGroupByTopicIds")
+    public ResponseEntity countAssembleGroupByTopicIds(@RequestParam(name = "topicIds") List<Long> topicIds) {
+        Result result = statisticsService.countAssembleGroupByTopicIds(topicIds);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    /**
+     * API
+     * 根据主题id集合，统计一级分面数量
+     */
+    @ApiOperation(value = "根据主题id集合，统计一级分面数量"
+            , notes = "根据主题id集合，统计一级分面数量")
+    @GetMapping("/countFirstLayerFacetGroupByTopicIds")
+    public ResponseEntity countFirstLayerFacetGroupByTopicIds(@RequestParam(name = "topicIds") List<Long> topicIds) {
+        Result result = statisticsService.countFirstLayerFacetGroupByTopicIds(topicIds);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    /**
+     * API
+     * 根据课程id集合，统计主题数量
+     */
+    @ApiOperation(value = "根据课程id集合，统计主题数量"
+            , notes = "根据课程id集合，统计主题数量")
+    @GetMapping("/countTopicGroupByDomainIds")
+    public ResponseEntity countTopicGroupByDomainIds(@RequestParam(name = "domainIds") List<Long> domainIds) {
+        Result result = statisticsService.countTopicGroupByDomainIds(domainIds);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 }

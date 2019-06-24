@@ -3,6 +3,7 @@ package com.xjtu.facet.controller;
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
 import com.xjtu.facet.service.FacetService;
+import com.xjtu.utils.ResultUtil;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,6 +86,20 @@ public class FacetController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @ApiOperation(value = "指定课程、主题、分面层和分面id，删除分面"
+            , notes = "指定课程、主题、分面层和分面id，删除分面")
+    @GetMapping("/deleteFacet")
+    public ResponseEntity deleteFacet(@RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "topicName") String topicName
+            , @RequestParam(name = "facetLayer") Integer facetLayer
+            , @RequestParam(name = "facetId") Long facetId) {
+        Result result = facetService.deleteFacet(domainName, topicName, facetLayer, facetId);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
     @ApiOperation(value = "指定课程、主题和二级分面，删除二级分面"
             , notes = "指定课程、主题和二级分面，删除二级分面")
     @GetMapping("/deleteSecondLayerFacet")
@@ -119,8 +134,8 @@ public class FacetController {
             , @RequestParam(name = "topicName") String topicName
             , @RequestParam(name = "facetName") String facetName
             , @RequestParam(name = "newFacetName") String newFacetName) {
-        Result result = facetService.updateSomeLayerFacet(domainName, topicName
-                , facetName, newFacetName, 1);
+        Result result = facetService.updateFirstLayerFacet(domainName, topicName
+                , facetName, newFacetName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
@@ -132,10 +147,13 @@ public class FacetController {
     @GetMapping("/updateSecondLayerFacet")
     public ResponseEntity updateSecondLayerFacet(@RequestParam(name = "domainName") String domainName
             , @RequestParam(name = "topicName") String topicName
+            , @RequestParam(name = "firstLayerFacetName") String firstLayerFacetName
             , @RequestParam(name = "facetName") String facetName
             , @RequestParam(name = "newFacetName") String newFacetName) {
-        Result result = facetService.updateSomeLayerFacet(domainName, topicName
-                , facetName, newFacetName, 2);
+        Result result = facetService.updateSecondLayerFacet(domainName,
+                topicName,
+                firstLayerFacetName,
+                facetName, newFacetName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
@@ -147,10 +165,27 @@ public class FacetController {
     @GetMapping("/updateThirdLayerFacet")
     public ResponseEntity updateThirdLayerFacet(@RequestParam(name = "domainName") String domainName
             , @RequestParam(name = "topicName") String topicName
+            , @RequestParam(name = "firstLayerFacetName") String firstLayerFacetName
+            , @RequestParam(name = "secondLayerFacetName") String secondLayerFacetName
             , @RequestParam(name = "facetName") String facetName
             , @RequestParam(name = "newFacetName") String newFacetName) {
-        Result result = facetService.updateSomeLayerFacet(domainName, topicName
-                , facetName, newFacetName, 3);
+        Result result = ResultUtil.error(ResultEnum.NOT_DEVELOP_ERROR.getCode(),
+                ResultEnum.NOT_DEVELOP_ERROR.getMsg());
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @ApiOperation(value = "更新分面名"
+            , notes = "更新分面名")
+    @GetMapping("/updateFacet")
+    public ResponseEntity updateFacet(@RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "topicName") String topicName
+            , @RequestParam(name = "facetLayer") Integer facetLayer
+            , @RequestParam(name = "facetId") Long facetId
+            , @RequestParam(name = "newFacetName") String newFacetName) {
+        Result result = facetService.updateFacet(domainName, topicName, facetLayer, facetId, newFacetName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
@@ -183,24 +218,11 @@ public class FacetController {
     public ResponseEntity getFacetsInFirstLayerFacet(@RequestParam(name = "domainName") String domainName
             , @RequestParam(name = "topicName") String topicName
             , @RequestParam(name = "firstLayerFacetName") String firstLayerFacetName) {
-        Result result = facetService.findFacetsInSomeLayerFacet(domainName, topicName, firstLayerFacetName, 1);
+        Result result = facetService.findFacetsInFirstLayerFacet(domainName, topicName, firstLayerFacetName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
-    }
-
-    @ApiOperation(value = "获得二级分面下的所有分面信息", notes = "输入课程名和主题名、二级分面名，获得该二级分面的所有分面信息")
-    @GetMapping("/getFacetsInSecondLayerFacet")
-    public ResponseEntity getFacetsInSecondLayerFacet(@RequestParam(name = "domainName") String domainName
-            , @RequestParam(name = "topicName") String topicName
-            , @RequestParam(name = "secondLayerFacetName") String secondLayerFacetName) {
-        Result result = facetService.findFacetsInSomeLayerFacet(domainName, topicName, secondLayerFacetName, 2);
-        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(result);
-
     }
 
     @ApiOperation(value = "获得指定课程、主题和一级分面下的二级分面数", notes = "获得指定课程、主题和一级分面下的二级分面数")
@@ -258,6 +280,19 @@ public class FacetController {
             , @RequestParam(name = "facetName") String facetName
             , @RequestParam(name = "facetLayer") Integer facetLayer) {
         Result result = facetService.findAssembleNumberInFacet(domainName, topicName, facetName, facetLayer);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @ApiOperation(value = "统计分面信息", notes = "统计分面信息")
+    @GetMapping("/countFacetInfo")
+    public ResponseEntity countFacetInfo(@RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "topicName") String topicName
+            , @RequestParam(name = "facetLayer") Integer facetLayer
+            , @RequestParam(name = "facetId") Long facetId) {
+        Result result = facetService.countFacetInfo(domainName, topicName, facetLayer, facetId);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }

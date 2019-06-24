@@ -7,6 +7,8 @@ package com.xjtu.common.domain;
 public enum ResultEnum {
     SUCCESS(200, "成功"),
     UNKONW_ERROR(-1, "未知错误"),
+    NOT_DEVELOP_ERROR(9, "API尚未开发"),
+    ARGUMENTS_DEVELOP_ERROR(10, "API参数错误，逻辑不合理"),
 
     // 数据源
     SOURCE_INSERT_ERROR(100, "数据源插入失败：数据源名不存在或者为空"),
@@ -27,6 +29,7 @@ public enum ResultEnum {
     SUBJECT_SEARCH_ERROR(113, "学科查询失败：没有学科信息记录"),
     SUBJECT_SEARCH_ERROR_1(114, "学科分页查询失败：没有该条学科信息记录"),
     SUBJECT_SEARCH_ERROR_2(115, "学科分页查询失败：查询的页数超过最大页数"),
+    SUBJECT_GRAPH_ERROR(197, "学科知识图谱查询失败：对应文件可能不存在"),
 
     //课程
     DOMAIN_INSERT_ERROR(116, "课程信息插入失败：课程名不存在或者为空"),
@@ -61,33 +64,37 @@ public enum ResultEnum {
     FACET_INSERT_ERROR_1(140, "分面信息插入失败：分面插入语句执行失败"),
     FACET_DELETE_ERROR(141, "分面信息删除失败：分面不存在"),
     FACET_DELETE_ERROR_1(141, "分面信息删除失败：删除语句执行失败"),
-    FACET_DELETE_ERROR_2(179, "分面信息删除失败：对应课程不存在"),
-    FACET_DELETE_ERROR_3(180, "分面信息删除失败：对应主题不存在"),
-    FACET_DELETE_ERROR_4(181, "分面信息删除失败：删除语句执行失败"),
-    FACET_UPDATE_ERROR(142, "分面更新失败：更新语句执行失败"),
-    FACET_UPDATE_ERROR_1(160, "分面更新失败：对应课程不存在"),
-    FACET_UPDATE_ERROR_2(161, "分面更新失败：对应主题不存在"),
-    FACET_UPDATE_ERROR_3(162, "分面更新失败：原分面不存在"),
-    FACET_SEARCH_ERROR(143, "分面查询失败：查询语句执行失败"),
-    FACET_SEARCH_ERROR_1(144, "分面分页查询失败：没有数据源记录"),
-    FACET_SEARCH_ERROR_2(145, "分面分页查询失败：查询的页数超过最大页数"),
-    FACET_SEARCH_ERROR_3(147, "分面查询失败：对应课程不存在"),
-    FACET_SEARCH_ERROR_4(148, "分面查询失败：对应主题不存在"),
-    FACET_SEARCH_ERROR_5(149, "分面查询失败：对应课程和主题下没有分面"),
-    FACET_SEARCH_ERROR_6(150, "分面查询失败：对应课程和主题下没有对应分面"),
-    FACET_SEARCH_ERROR_7(151, "分面查询失败：对应课程、主题下以及分面下没有子分面"),
-    FACET_INSERT_ERROR_2(152, "分面信息插入失败：对应课程不存在"),
-    FACET_INSERT_ERROR_3(153, "分面信息插入失败：对应主题不存在"),
+    FACET_DELETE_ERROR_2(142, "分面信息删除失败：对应课程不存在"),
+    FACET_DELETE_ERROR_3(143, "分面信息删除失败：对应主题不存在"),
+    FACET_DELETE_ERROR_4(144, "分面信息删除失败：删除语句执行失败"),
+    FACET_DELETE_ERROR_5(197, "分面信息删除失败：对应分面层不存在"),
+    FACET_UPDATE_ERROR(145, "分面更新失败：更新语句执行失败"),
+    FACET_UPDATE_ERROR_1(146, "分面更新失败：对应课程不存在"),
+    FACET_UPDATE_ERROR_2(147, "分面更新失败：对应主题不存在"),
+    FACET_UPDATE_ERROR_3(148, "分面更新失败：原分面不存在"),
+    FACET_UPDATE_ERROR_4(148, "分面更新失败：父分面不存在"),
+    FACET_UPDATE_ERROR_5(199, "分面更新失败：分面层级不符"),
+    FACET_SEARCH_ERROR(149, "分面查询失败：查询语句执行失败"),
+    FACET_SEARCH_ERROR_1(150, "分面分页查询失败：没有数据源记录"),
+    FACET_SEARCH_ERROR_2(151, "分面分页查询失败：查询的页数超过最大页数"),
+    FACET_SEARCH_ERROR_3(152, "分面查询失败：对应课程不存在"),
+    FACET_SEARCH_ERROR_4(153, "分面查询失败：对应主题不存在"),
+    FACET_SEARCH_ERROR_5(154, "分面查询失败：对应课程和主题下没有分面"),
+    FACET_SEARCH_ERROR_6(155, "分面查询失败：对应课程和主题下没有对应分面"),
+    FACET_SEARCH_ERROR_7(156, "分面查询失败：对应课程、主题下以及分面下没有子分面"),
+    FACET_SEARCH_ERROR_8(198, "分面查询失败：对应分面层不存在"),
+    FACET_INSERT_ERROR_2(157, "分面信息插入失败：对应课程不存在"),
+    FACET_INSERT_ERROR_3(158, "分面信息插入失败：对应主题不存在"),
     FACET_INSERT_ERROR_4(159, "分面信息插入失败：对应父分面不存在"),
 
 
     //碎片
-    Assemble_SEARCH_ERROR(163, "碎片查询失败：对应课程不存在"),
-    Assemble_SEARCH_ERROR_1(164, "碎片查询失败：对应主题不存在"),
-    Assemble_SEARCH_ERROR_2(165, "碎片查询失败：对应分面不存在"),
-    Assemble_SEARCH_ERROR_3(174, "碎片查询失败：查询语句执行失败"),
-    Assemble_SEARCH_ERROR_4(189, "碎片分页查询失败：查询范围超出界限"),
-    Assemble_SEARCH_ERROR_5(190, "碎片分页查询失败：对应分面不存在"),
+    Assemble_SEARCH_ERROR(160, "碎片查询失败：对应课程不存在"),
+    Assemble_SEARCH_ERROR_1(161, "碎片查询失败：对应主题不存在"),
+    Assemble_SEARCH_ERROR_2(162, "碎片查询失败：对应分面不存在"),
+    Assemble_SEARCH_ERROR_3(163, "碎片查询失败：查询语句执行失败"),
+    Assemble_SEARCH_ERROR_4(164, "碎片分页查询失败：查询范围超出界限"),
+    Assemble_SEARCH_ERROR_5(165, "碎片分页查询失败：对应分面不存在"),
     Assemble_INSERT_ERROR(166, "碎片插入失败：插入语句执行失败"),
     Assemble_INSERT_ERROR_1(167, "碎片插入失败：碎片内容为空"),
     Assemble_INSERT_ERROR_2(168, "碎片插入失败：对应课程不存在"),
@@ -97,38 +104,46 @@ public enum ResultEnum {
     Assemble_INSERT_ERROR_6(172, "碎片插入失败：对应数据源不存在"),
     Assemble_UPDATE_ERROR(173, "碎片更新失败：碎片id不存在"),
     Assemble_UPDATE_ERROR_1(174, "碎片更新失败：更新语句执行失败"),
+    Assemble_UPDATE_ERROR_2(202, "碎片更新失败：对应数据源不存在"),
     Assemble_DELETE_ERROR(175, "碎片删除失败：删除语句执行失败"),
+    IMAGE_UPLOAD_ERROR(203, "图片上传失败：图片为空"),
+    IMAGE_UPLOAD_ERROR_1(204, "图片上传失败：图片保存失败"),
 
 
     //用户登录
-    LOGIN_ERROR(154, "登录失败：用户不存在"),
+    LOGIN_ERROR(176, "登录失败：用户不存在"),
 
     //依赖关系
-    DEPENDENCY_SEARCH_ERROR(155, "主题依赖关系查询失败：没有课程信息记录"),
-    DEPENDENCY_SEARCH_ERROR_1(156, "主题依赖关系查询失败：该课程下没有主题依赖关系记录"),
-    DEPENDENCY_SEARCH_ERROR_2(157, "主题依赖关系生成失败：gexf文件生成失败"),
-    DEPENDENCY_SEARCH_ERROR_3(176, "主题依赖关系生成失败：起始或终止主题不存在"),
-    DEPENDENCY_SEARCH_ERROR_4(178, "主题依赖关系查询失败：查询语句执行失败"),
-    DEPENDENCY_INSERT_ERROR(177, "主题依赖关系插入失败:插入语句执行失败"),
-    DEPENDENCY_DELETE_ERROR(179, "主题依赖关系删除失败:没有课程信息记录"),
-    DEPENDENCY_DELETE_ERROR_1(180, "主题依赖关系删除失败：删除语句执行失败"),
+    DEPENDENCY_SEARCH_ERROR(177, "主题依赖关系查询失败：没有课程信息记录"),
+    DEPENDENCY_SEARCH_ERROR_1(178, "主题依赖关系查询失败：该课程下没有主题依赖关系记录"),
+    DEPENDENCY_SEARCH_ERROR_2(179, "主题依赖关系生成失败：gexf文件生成失败"),
+    DEPENDENCY_SEARCH_ERROR_3(180, "主题依赖关系生成失败：起始或终止主题不存在"),
+    DEPENDENCY_SEARCH_ERROR_4(181, "主题依赖关系查询失败：查询语句执行失败"),
+    DEPENDENCY_INSERT_ERROR(182, "主题依赖关系插入失败:插入语句执行失败"),
+    DEPENDENCY_INSERT_ERROR_1(183, "主题依赖关系插入失败：没有课程信息记录"),
+    DEPENDENCY_INSERT_ERROR_2(184, "主题依赖关系插入失败:起始或终止主题不存在"),
+    DEPENDENCY_INSERT_ERROR_3(185, "主题依赖关系插入失败:主题依赖关系已经存在"),
+    DEPENDENCY_INSERT_ERROR_4(201, "主题依赖关系插入失败:起始和终止主题重名"),
+    DEPENDENCY_DELETE_ERROR(186, "主题依赖关系删除失败:没有课程信息记录"),
+    DEPENDENCY_DELETE_ERROR_1(187, "主题依赖关系删除失败：删除语句执行失败"),
 
     //课程数据统计
-    STATISTICS_SEARCH_ERROR(158, "词频查询失败：中文分词失败"),
+    STATISTICS_SEARCH_ERROR(188, "词频查询失败：中文分词失败"),
 
     //状态
-    STATE_INSERT_ERROR(184, "状态保存失败：课程不存在"),
-    STATE_INSERT_ERROR_1(185, "状态保存失败：状态保存失败"),
-    STATE_INSERT_ERROR_2(186, "状态保存失败：数量不一致"),
+    STATE_INSERT_ERROR(189, "状态保存失败：课程不存在"),
+    STATE_INSERT_ERROR_1(190, "状态保存失败：状态保存失败"),
+    STATE_INSERT_ERROR_2(191, "状态保存失败：数量不一致"),
 
-    STATE_SEARCH_ERROR_3(187, "状态查询失败:课程下主题和主题状态不一致（请咨询数据管理员）"),
-    STATE_SEARCH_ERROR_4(188, "状态查询失败:指定课程和用户下不存在状态"),
+    STATE_SEARCH_ERROR_3(192, "状态查询失败:课程下主题和主题状态不一致（请咨询数据管理员）"),
+    STATE_SEARCH_ERROR_4(193, "状态查询失败:指定课程和用户下不存在状态"),
     //推荐主题
-    RECOMMENDATION_INSERT_ERROR(181, "推荐主题保存失败：课程不存在"),
+    RECOMMENDATION_INSERT_ERROR(194, "推荐主题保存失败：课程不存在"),
 
     //网院课程
-    COURSEWANGYUAN_SEARCH_ERROR(182, "网院课程查询失败：不存在该门网院课程"),
-    COURSEWANGYUAN_SEARCH_ERROR_1(183, "网院课程查询失败：不存在对应网院课程的维基课程"),;
+    COURSEWANGYUAN_SEARCH_ERROR(195, "网院课程查询失败：不存在该门网院课程"),
+    COURSEWANGYUAN_SEARCH_ERROR_1(196, "网院课程查询失败：不存在对应网院课程的维基课程"),
+    ;
 
     private Integer code;
 

@@ -27,6 +27,15 @@ public interface DependencyRepository extends JpaRepository<Dependency, Long>, J
     @Transactional(rollbackFor = Exception.class)
     List<Dependency> findByStartTopicId(Long startTopicId);
 
+    /**
+     * 根据起始主题id和终止主题id,查询依赖关系
+     *
+     * @param startTopicId
+     * @param endTopicId
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    Dependency findByStartTopicIdAndEndTopicId(Long startTopicId, Long endTopicId);
 
     /**
      * 根据起始主题id或终止主题id,查询依赖关系
@@ -35,7 +44,18 @@ public interface DependencyRepository extends JpaRepository<Dependency, Long>, J
      * @param endTopicId
      * @return
      */
+    @Transactional(rollbackFor = Exception.class)
     List<Dependency> findByStartTopicIdOrEndTopicId(Long startTopicId, Long endTopicId);
+
+    /**
+     * 根据起始主题id或终止主题id,统计依赖关系
+     *
+     * @param startTopicId
+     * @param endTopicId
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    Integer countByStartTopicIdOrEndTopicId(Long startTopicId, Long endTopicId);
 
     /**
      * 根据终止主题id,查询依赖关系
@@ -47,6 +67,40 @@ public interface DependencyRepository extends JpaRepository<Dependency, Long>, J
     List<Dependency> findByEndTopicId(Long endTopicId);
 
     /**
+     * 统计出度
+     *
+     * @param domainId
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "SELECT start_topic_id,COUNT(start_topic_id) \n" +
+            "FROM dependency \n" +
+            "WHERE domain_id=?1 \n" +
+            "GROUP BY start_topic_id", nativeQuery = true)
+    List<Object[]> countOutDegreeByDomainId(Long domainId);
+
+    /**
+     * 统计依赖关系
+     *
+     * @param domainId
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    Integer countByDomainId(Long domainId);
+    /**
+     * 统计入度
+     *
+     * @param domainId
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "SELECT end_topic_id,COUNT(end_topic_id) \n" +
+            "FROM dependency \n" +
+            "WHERE domain_id=?1 \n" +
+            "GROUP BY end_topic_id", nativeQuery = true)
+    List<Object[]> countInDegreeByDomainId(Long domainId);
+
+    /**
      * 根据课程id,查询依赖关系
      *
      * @param domainId
@@ -54,6 +108,16 @@ public interface DependencyRepository extends JpaRepository<Dependency, Long>, J
      */
     @Transactional(rollbackFor = Exception.class)
     List<Dependency> findByDomainId(Long domainId);
+
+    /**
+     * 根据课程名查询依赖关系
+     *
+     * @param domainName
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Query("select de from Dependency de,Domain d where d.domainName=?1 and d.domainId=de.domainId")
+    List<Dependency> findByDomainName(String domainName);
 
     /**
      * 根据课程ids,查询依赖关系数量

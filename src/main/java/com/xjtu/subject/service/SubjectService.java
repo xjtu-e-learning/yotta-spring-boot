@@ -6,11 +6,14 @@ import com.xjtu.domain.domain.Domain;
 import com.xjtu.domain.repository.DomainRepository;
 import com.xjtu.subject.domain.Subject;
 import com.xjtu.subject.repository.SubjectRepository;
+import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.repository.TopicRepository;
 import com.xjtu.utils.ResultUtil;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +25,8 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,6 +52,8 @@ public class SubjectService {
     @Autowired
     private TopicRepository topicRepository;
 
+    @Value("${subjectGexfpath}")
+    private String gexfPath;
 
     /**
      * 插入学科信息
@@ -72,6 +79,7 @@ public class SubjectService {
                 return ResultUtil.error(ResultEnum.SUBJECT_INSERT_ERROR_2.getCode(), ResultEnum.SUBJECT_INSERT_ERROR_2.getMsg());
             }
         }
+
         //学科信息已经存在数据库
         logger.error("学科信息插入失败：插入已经存在的学科信息");
         return ResultUtil.error(ResultEnum.SUBJECT_INSERT_ERROR_1.getCode(), ResultEnum.SUBJECT_INSERT_ERROR_1.getMsg());
@@ -168,6 +176,36 @@ public class SubjectService {
     public Result findSubjectTree() {
         //查找学科
         List<Subject> subjects = subjectRepository.findAll();
+        List<Domain> allDomains = domainRepository.findAll();
+        List<Topic> allTopics = topicRepository.findAll();
+        //key:subjectId
+        Map<Long, List<Domain>> domainsMap = new HashMap<>();
+        for (Domain domain : allDomains) {
+            Long subjectId = domain.getSubjectId();
+            if (domainsMap.containsKey(subjectId)) {
+                List<Domain> tmpDomains = domainsMap.get(subjectId);
+                tmpDomains.add(domain);
+                domainsMap.put(subjectId, tmpDomains);
+            } else {
+                List<Domain> tmpDomains = new ArrayList<>();
+                tmpDomains.add(domain);
+                domainsMap.put(subjectId, tmpDomains);
+            }
+        }
+        //key:domainId
+        Map<Long, List<Topic>> topicsMap = new HashMap<>();
+        for (Topic topic : allTopics) {
+            Long domainId = topic.getDomainId();
+            if (topicsMap.containsKey(domainId)) {
+                List<Topic> tmpTopics = topicsMap.get(domainId);
+                tmpTopics.add(topic);
+                topicsMap.put(domainId, tmpTopics);
+            } else {
+                List<Topic> tmpTopics = new ArrayList<>();
+                tmpTopics.add(topic);
+                topicsMap.put(domainId, tmpTopics);
+            }
+        }
         List<Map<String, Object>> subjectTrees = new ArrayList<>();
         for (Subject subject : subjects) {
             Map<String, Object> subjectTree = new HashMap<>(4);
@@ -175,14 +213,16 @@ public class SubjectService {
             subjectTree.put("subjectName", subject.getSubjectName());
             subjectTree.put("note", subject.getNote());
             //查找课程
-            List<Domain> domains = domainRepository.findBySubjectId(subject.getSubjectId());
+            List<Domain> domains = domainsMap.get(subject.getSubjectId());
             List<Map<String, Object>> domainTrees = new ArrayList<>();
-            for (Domain domain : domains) {
-                Map<String, Object> domainTree = new HashMap<>(5);
-                domainTree.put("domainId", domain.getDomainId());
-                domainTree.put("domainName", domain.getDomainName());
-                domainTree.put("topics", topicRepository.findByDomainId(domain.getDomainId()));
-                domainTrees.add(domainTree);
+            if (domains != null && domains.size() != 0) {
+                for (Domain domain : domains) {
+                    Map<String, Object> domainTree = new HashMap<>(5);
+                    domainTree.put("domainId", domain.getDomainId());
+                    domainTree.put("domainName", domain.getDomainName());
+                    domainTree.put("topics", topicsMap.get(domain.getDomainId()));
+                    domainTrees.add(domainTree);
+                }
             }
             subjectTree.put("domains", domainTrees);
             subjectTrees.add(subjectTree);
@@ -236,6 +276,28 @@ public class SubjectService {
         }
         //查询成功，返回查询的内容
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), subjectPage);
+    }
+
+    /**
+     * 根据学科名，返回学科图谱
+     *
+     * @param subjectName
+     * @return
+     */
+    public Result getSubjectGraphByName(String subjectName) {
+        new File(gexfPath).mkdir();
+        File gexfFile = new File(gexfPath + "\\" + subjectName + ".gexf");
+        if (gexfFile.exists()) {
+            // 如果存在，就直接调用本地gexf文件的内容，返回给前台
+            try {
+                String subjectGraph = FileUtils.readFileToString(gexfFile, "UTF-8");
+                return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), subjectGraph);
+            } catch (IOException e) {
+                logger.error(e.getMessage());
+                return ResultUtil.error(ResultEnum.SUBJECT_GRAPH_ERROR.getCode(), ResultEnum.SUBJECT_GRAPH_ERROR.getMsg());
+            }
+        }
+        return ResultUtil.error(ResultEnum.SUBJECT_GRAPH_ERROR.getCode(), ResultEnum.SUBJECT_GRAPH_ERROR.getMsg());
     }
 
 }

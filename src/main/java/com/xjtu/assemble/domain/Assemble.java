@@ -23,19 +23,15 @@ public class Assemble {
     String assembleScratchTime;
     Long facetId;
     Long sourceId = 0L;
+    Long domainId;
+
+    String url;
 
     String type = "text";
 
     public Assemble() {
     }
 
-    public Assemble(String assembleContent, String assembleText, String assembleScratchTime, Long facetId, Long sourceId) {
-        this.assembleContent = assembleContent;
-        this.assembleText = assembleText;
-        this.assembleScratchTime = assembleScratchTime;
-        this.facetId = facetId;
-        this.sourceId = sourceId;
-    }
 
     @Override
     public String toString() {
@@ -46,8 +42,26 @@ public class Assemble {
                 ", assembleScratchTime='" + assembleScratchTime + '\'' +
                 ", facetId=" + facetId +
                 ", sourceId=" + sourceId +
+                ", domainId=" + domainId +
+                ", url='" + url + '\'' +
                 ", type='" + type + '\'' +
                 '}';
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public Long getDomainId() {
+        return domainId;
+    }
+
+    public void setDomainId(Long domainId) {
+        this.domainId = domainId;
     }
 
     public Long getAssembleId() {

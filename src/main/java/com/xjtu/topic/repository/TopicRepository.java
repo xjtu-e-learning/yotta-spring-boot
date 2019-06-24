@@ -49,6 +49,19 @@ public interface TopicRepository extends JpaRepository<Topic, Long>, JpaSpecific
     Integer findTopicNumberByDomainId(Long domainId);
 
     /**
+     * 查询所有主题
+     *
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "SELECT * \n" +
+            "FROM topic \n" +
+            "WHERE topic.domain_id IN\n" +
+            "(SELECT domain_id FROM domain);", nativeQuery = true)
+    List<Topic> findAll();
+
+
+    /**
      * 根据课程，查询课程下的主题数
      *
      * @param domainIds
@@ -58,6 +71,30 @@ public interface TopicRepository extends JpaRepository<Topic, Long>, JpaSpecific
     @Query(value = "select t.domain_id,count(t.topic_id) from topic t where t.domain_id IN ?1 " +
             "GROUP BY t.domain_id", nativeQuery = true)
     List<Object[]> countTopicsGroupByDomainId(List<Long> domainIds);
+
+    /**
+     * 统计一门课程下的碎片，按主题分布
+     *
+     * @param domainId
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "SELECT topic.topic_id,COUNT(*)\n" +
+            "FROM topic,facet,assemble\n" +
+            "WHERE topic.topic_id=facet.topic_id and facet.facet_id=assemble.facet_id and topic.domain_id=?1\n" +
+            "GROUP BY topic.topic_id;", nativeQuery = true)
+    List<Object[]> countAssemblesByDomainIdGroupByTopicId(Long domainId);
+
+
+    /**
+     * 统计主题数
+     *
+     * @param domainId
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    Integer countByDomainId(Long domainId);
+
 
     /**
      * 根据课程id，查询课程下的第一个主题

@@ -1,7 +1,14 @@
 package com.xjtu.domain.service;
 
+import com.xjtu.user.domain.Permission;
+import com.xjtu.user.repository.PermissionRepository;
+import com.xjtu.user.repository.UserRepository;
+import com.xjtu.assemble.domain.Assemble;
+import com.xjtu.assemble.repository.AssembleRepository;
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
+import com.xjtu.dependency.domain.Dependency;
+import com.xjtu.dependency.repository.DependencyRepository;
 import com.xjtu.domain.domain.Domain;
 import com.xjtu.domain.repository.DomainRepository;
 import com.xjtu.facet.domain.Facet;
@@ -50,7 +57,17 @@ public class DomainService {
     private TopicRepository topicRepository;
 
     @Autowired
+    private DependencyRepository dependencyRepository;
+
+    @Autowired
     private FacetRepository facetRepository;
+
+    @Autowired
+    private AssembleRepository assembleRepository;
+
+    @Autowired
+    private PermissionRepository permissionRepository;
+
 
 
     /**
@@ -185,25 +202,26 @@ public class DomainService {
             logger.error("分面更新失败：对应主题不存在");
             return ResultUtil.error(ResultEnum.FACET_UPDATE_ERROR_2.getCode(), ResultEnum.FACET_UPDATE_ERROR_2.getMsg());
         }
-
+        List<Facet> allFacets = facetRepository.findByDomainName(domainName);
         List<Map<String, Object>> results = new ArrayList<>();
         for (Topic topic : topics) {
             Map<String, Object> result = new HashMap<>();
             //查询分面
-            List<Facet> facets = facetRepository.findByTopicId(topic.getTopicId());
             List<Facet> firstLayerFacets = new ArrayList<>();
             List<Facet> secondLayerFacets = new ArrayList<>();
             List<Facet> thirdLayerFacets = new ArrayList<>();
-            for (Facet facet : facets) {
-                //一级分面
-                if (facet.getFacetLayer() == 1) {
-                    firstLayerFacets.add(facet);
-                }
-                //二级分面
-                else if (facet.getFacetLayer() == 2) {
-                    secondLayerFacets.add(facet);
-                } else if (facet.getFacetLayer() == 3) {
-                    thirdLayerFacets.add(facet);
+            for (Facet facet : allFacets) {
+                if (facet.getTopicId().equals(topic.getTopicId())) {
+                    //一级分面
+                    if (facet.getFacetLayer() == 1) {
+                        firstLayerFacets.add(facet);
+                    }
+                    //二级分面
+                    else if (facet.getFacetLayer() == 2) {
+                        secondLayerFacets.add(facet);
+                    } else if (facet.getFacetLayer() == 3) {
+                        thirdLayerFacets.add(facet);
+                    }
                 }
             }
             List<Map<String, Object>> firstLayerFacetNameContainChildrens = new ArrayList<>();
@@ -280,6 +298,25 @@ public class DomainService {
             logger.error("课程查询失败：没有课程记录");
             return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
         }
+    }
+
+    /**
+     * 统计课程数据（包括主题、主题依赖关系、分面、碎片）
+     *
+     * @param domainName
+     * @return
+     */
+    public Result findDomainStatisticalChartByDomainName(String domainName) {
+        List<Topic> topics = topicRepository.findByDomainName(domainName);
+        List<Dependency> dependencies = dependencyRepository.findByDomainName(domainName);
+        List<Facet> facets = facetRepository.findByDomainName(domainName);
+        List<Assemble> assembles = assembleRepository.findByDomainName(domainName);
+        Map<String, Object> map = new HashMap<>();
+        map.put("topics", topics);
+        map.put("dependencies", dependencies);
+        map.put("facets", facets);
+        map.put("assembles", assembles);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), map);
     }
 
     /**
@@ -417,6 +454,63 @@ public class DomainService {
             logger.error("课程数量统计查询失败");
             return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
         }
+    }
+
+    /**
+     * 加入带权限控制的课程查询
+     * 张铎 2019/06/04
+     * @return 学科与课程列表
+     */
+    public Result findSubjectsAndDomainsByUserId(String userName){
+        List<SubjectContainDomain> subjectContainDomains = new ArrayList<>();
+
+        //添加示范课程学科数据
+        Subject subject_typical = subjectRepository.findBySubjectName("示范课程");
+        if(subject_typical == null)
+        {
+            logger.error("学科查询失败：没有示范课程学科信息记录");
+            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
+        }
+        List<Domain> domains_typical = domainRepository.findBySubjectId(subject_typical.getSubjectId());
+        SubjectContainDomain subjectContainDomain_typical = new SubjectContainDomain(subject_typical.getSubjectId(),subject_typical.getSubjectName(), subject_typical.getNote(), domains_typical);
+        subjectContainDomains.add(subjectContainDomain_typical);
+
+        //添加每个用户权限下所能看到的学科课程数据
+        List<Permission> permissionOfSubjectId = permissionRepository.findSubjectIdByUserName(userName);
+        Set<Long> subject_id_set = new HashSet<>();
+        for(Permission p : permissionOfSubjectId)
+        {
+            subject_id_set.add(p.getSubjectId());
+
+        }
+        if(subject_id_set.size()>0)
+        {
+            for (Long subjectId : subject_id_set)
+            {
+                Subject subject = subjectRepository.findBySubjectId(subjectId);
+                if (subject == null) {
+                    logger.error("学科查询失败：没有学科信息记录");
+                    return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
+                }
+                List<Permission> permissionOfDomainId = permissionRepository.findDomainIdByUserName(userName);
+                List<Domain> domains = new ArrayList<>();
+                for(Permission pd : permissionOfDomainId)
+                {
+                    if(pd.getSubjectId().equals(subjectId))
+                    {
+                        Domain domain = domainRepository.findOne(pd.getDomainId());
+                        if (domain == null) {
+                            logger.error("课程查询失败：没有课程信息记录");
+                            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
+                        }
+                        domains.add(domain);
+                    }
+                }
+                SubjectContainDomain subjectContainDomain = new SubjectContainDomain(subject.getSubjectId(),subject.getSubjectName(),subject.getNote(),domains);
+                subjectContainDomains.add(subjectContainDomain);
+            }
+        }
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), subjectContainDomains);
     }
 
 

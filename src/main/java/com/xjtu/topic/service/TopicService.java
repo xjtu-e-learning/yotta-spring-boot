@@ -13,6 +13,7 @@ import com.xjtu.facet.domain.FacetContainAssemble;
 import com.xjtu.facet.repository.FacetRepository;
 import com.xjtu.relation.domain.Relation;
 import com.xjtu.relation.repository.RelationRepository;
+import com.xjtu.topic.dao.TopicDAO;
 import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.domain.TopicContainFacet;
 import com.xjtu.topic.repository.TopicRepository;
@@ -59,6 +60,9 @@ public class TopicService {
 
     @Autowired
     private DependencyRepository dependencyRepository;
+
+    @Autowired
+    private TopicDAO topicDAO;
 
     @Value("${gexfpath}")
     private String gexfPath;
@@ -195,18 +199,18 @@ public class TopicService {
     /**
      * 更新主题：根据主题名
      *
-     * @param oldTopicName  旧主题名
-     * @param newTopicName  新主题名
-     * @param newDomainName 新课程名
+     * @param oldTopicName 旧主题名
+     * @param newTopicName 新主题名
+     * @param domainName   新课程名
      * @return 更新结果
      */
-    public Result updateTopicByName(String oldTopicName, String newTopicName, String newDomainName) {
+    public Result updateTopicByName(String oldTopicName, String newTopicName, String domainName) {
         if (newTopicName == null || newTopicName.equals("") || newTopicName.length() == 0) {
             logger.error("主题名更新失败：新主题名不存在或为空");
             return ResultUtil.error(ResultEnum.TOPIC_UPDATE_ERROR_1.getCode(), ResultEnum.TOPIC_UPDATE_ERROR_1.getMsg());
         }
         try {
-            Domain domain = domainRepository.findByDomainName(newDomainName);
+            Domain domain = domainRepository.findByDomainName(domainName);
             if (domain == null) {
                 logger.error("主题名更新失败：课程不存在");
                 return ResultUtil.error(ResultEnum.TOPIC_UPDATE_ERROR_2.getCode(), ResultEnum.TOPIC_UPDATE_ERROR_2.getMsg());
@@ -232,9 +236,40 @@ public class TopicService {
      */
     public Result findTopicsByDomainName(String domainName) {
         Domain domain = domainRepository.findByDomainName(domainName);
-        List<Topic> topics = topicRepository.findByDomainId(domain.getDomainId());
+        if (domain == null) {
+            logger.error("主题查询失败：没有指定课程");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_2.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_2.getMsg());
+        }
+        Long domainId = domain.getDomainId();
+        return findTopicsByDomainId(domainId);
+    }
+
+    /**
+     * 查询主题：根据课程id
+     *
+     * @param domainId
+     * @return
+     */
+    public Result findTopicsByDomainId(Long domainId) {
+        List<Topic> topics = topicRepository.findByDomainId(domainId);
+        Map<Long, Integer> assembleCounts = topicDAO.countAssemblesByDomainIdGroupByTopicId(domainId);
+        Map<Long, Integer> inDegreeCounts = topicDAO.countInDegreeByTopicId(domainId);
+        Map<Long, Integer> outDegreeCounts = topicDAO.countOutDegreeByTopicId(domainId);
+        List<Map<String, Object>> results = new ArrayList<>();
+        for (Topic topic : topics) {
+            Map<String, Object> result = new HashMap<>();
+            result.put("topicId", topic.getTopicId());
+            result.put("topicName", topic.getTopicName());
+            result.put("topicUrl", topic.getTopicUrl());
+            result.put("topicLayer", topic.getTopicLayer());
+            result.put("domainId", topic.getDomainId());
+            result.put("assembleNumber", assembleCounts.get(topic.getTopicId()));
+            result.put("inDegreeNumber", inDegreeCounts.get(topic.getTopicId()) == null ? 0 : inDegreeCounts.get(topic.getTopicId()));
+            result.put("outDegreeNumber", outDegreeCounts.get(topic.getTopicId()) == null ? 0 : outDegreeCounts.get(topic.getTopicId()));
+            results.add(result);
+        }
         try {
-            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topics);
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), results);
         } catch (Exception error) {
             logger.error("主题查询失败：" + error);
             return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_1.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_1.getMsg());
@@ -243,6 +278,7 @@ public class TopicService {
 
     /**
      * 指定课程名和主题名，获取主题并包含其完整的下的分面、碎片数据
+     *
      * @param domainName
      * @param topicName
      * @param hasFragment
@@ -363,6 +399,9 @@ public class TopicService {
         //firstLayerFacets一级分面列表，将二级分面挂到对应一级分面下
         List<Facet> firstLayerFacets = new ArrayList<>();
         for (Facet facet : facets) {
+            if (facet.getFacetName().equals("匿名分面")) {
+                continue;
+            }
             //设置一级分面
             FacetContainAssemble firstLayerFacet = new FacetContainAssemble();
             firstLayerFacet.setFacet(facet);
@@ -425,11 +464,13 @@ public class TopicService {
         }
         Long topicId = topic.getTopicId();
         //查询一级分面
-        List<Facet> firstLayerFacets = facetRepository.findByTopicIdAndFacetLayer(topicId, 1);
+        Integer firstLayerFacetNumber = facetRepository.countByTopicIdAndFacetLayer(topicId, 1);
         //查询二级分面
-        List<Facet> secondLayerFacets = facetRepository.findByTopicIdAndFacetLayer(topicId, 2);
+        Integer secondLayerFacetNumber = facetRepository.countByTopicIdAndFacetLayer(topicId, 2);
         //查询三级分面
-        List<Facet> thirdLayerFacets = facetRepository.findByTopicIdAndFacetLayer(topicId, 3);
+        Integer thirdLayerFacetNumber = facetRepository.countByTopicIdAndFacetLayer(topicId, 3);
+        //查询碎片
+        Integer assembleNumber = assembleRepository.countByTopicId(topicId);
         Map<String, Object> topicInformation = new HashMap<>(10);
         topicInformation.put("topicId", topic.getTopicId());
         topicInformation.put("topicName", topicName);
@@ -437,12 +478,13 @@ public class TopicService {
         topicInformation.put("topicLayer", topic.getTopicLayer());
         topicInformation.put("domainId", domain.getDomainId());
         topicInformation.put("domainName", domainName);
-        topicInformation.put("firstLayerFacetNumber", firstLayerFacets.size());
-        topicInformation.put("secondLayerFacetNumber", secondLayerFacets.size());
-        topicInformation.put("thirdLayerFacetNumber", thirdLayerFacets.size());
-        topicInformation.put("facetNumber", firstLayerFacets.size()
-                + secondLayerFacets.size()
-                + thirdLayerFacets.size());
+        topicInformation.put("firstLayerFacetNumber", firstLayerFacetNumber);
+        topicInformation.put("secondLayerFacetNumber", secondLayerFacetNumber);
+        topicInformation.put("thirdLayerFacetNumber", thirdLayerFacetNumber);
+        topicInformation.put("facetNumber", firstLayerFacetNumber
+                + secondLayerFacetNumber
+                + thirdLayerFacetNumber);
+        topicInformation.put("assembleNumber", assembleNumber);
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicInformation);
     }
 

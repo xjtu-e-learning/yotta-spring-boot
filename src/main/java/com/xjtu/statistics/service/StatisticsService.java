@@ -13,6 +13,8 @@ import com.xjtu.facet.repository.FacetRepository;
 import com.xjtu.relation.repository.RelationRepository;
 import com.xjtu.source.domain.Source;
 import com.xjtu.source.repository.SourceRepository;
+import com.xjtu.statistics.domain.Statistics;
+import com.xjtu.statistics.repository.StatisticsRepository;
 import com.xjtu.subject.domain.Subject;
 import com.xjtu.subject.repository.SubjectRepository;
 import com.xjtu.topic.domain.Topic;
@@ -68,6 +70,9 @@ public class StatisticsService {
     @Autowired
     RelationRepository relationRepository;
 
+    @Autowired
+    StatisticsRepository statisticsRepository;
+
     /**
      * 查询所有课程下的统计数据
      *
@@ -105,30 +110,30 @@ public class StatisticsService {
             Long domainId = domain.getDomainId();
             domainNames.add(domain.getDomainName());
             //
-            int topicNumber = topicRepository.findByDomainId(domain.getDomainId()).size();
+            int topicNumber = topicRepository.countByDomainId(domain.getDomainId());
             topicNumberSum += topicNumber;
             topicNumbers.add(topicNumber);
             //
-            int relationNumber = relationRepository.findByDomainId(domainId).size();
+            int relationNumber = relationRepository.countByDomainId(domainId);
             relationNumberSum += relationNumber;
             relationNumbers.add(relationNumber);
             //
-            int facetNumber = facetRepository.findAllFacetsByDomainId(domainId).size();
+            int facetNumber = facetRepository.countByDomainId(domainId);
             facetNumberSum += facetNumber;
             facetNumbers.add(facetNumber);
             //
             //分面关系数，等于二级分面数、三级分面数之和
-            Integer secondLayerFacetNumber = facetRepository.findFacetsByDomainIdAndFacetLayer(domainId, 2).size();
-            Integer thirdLayerFacetNumber = facetRepository.findFacetsByDomainIdAndFacetLayer(domainId, 3).size();
+            Integer secondLayerFacetNumber = facetRepository.countByDomainIdAndFacetLayer(domainId, 2);
+            Integer thirdLayerFacetNumber = facetRepository.countByDomainIdAndFacetLayer(domainId, 3);
             int facetRelationNumber = secondLayerFacetNumber + thirdLayerFacetNumber;
             facetRelationNumberSum += facetRelationNumber;
             facetRelationNumbers.add(facetRelationNumber);
             //
-            int assembleNumber = assembleRepository.findAllAssemblesByDomainId(domainId).size();
+            int assembleNumber = assembleRepository.countByDomainId(domainId);
             assembleNumberSum += assembleNumber;
             assembleNumbers.add(assembleNumber);
             //
-            int dependencyNumber = dependencyRepository.findByDomainId(domainId).size();
+            int dependencyNumber = dependencyRepository.countByDomainId(domainId);
             dependencyNumberSum += dependencyNumber;
             dependencyNumbers.add(dependencyNumber);
         }
@@ -188,30 +193,30 @@ public class StatisticsService {
             Long domainId = domain.getDomainId();
             domainNames.add(domain.getDomainName());
             //
-            int topicNumber = topicRepository.findByDomainId(domain.getDomainId()).size();
+            int topicNumber = topicRepository.countByDomainId(domainId);
             topicNumberSum += topicNumber;
             topicNumbers.add(topicNumber);
             //
-            int relationNumber = relationRepository.findByDomainId(domainId).size();
+            int relationNumber = relationRepository.countByDomainId(domainId);
             relationNumberSum += relationNumber;
             relationNumbers.add(relationNumber);
             //
-            int facetNumber = facetRepository.findAllFacetsByDomainId(domainId).size();
+            int facetNumber = facetRepository.countByDomainId(domainId);
             facetNumberSum += facetNumber;
             facetNumbers.add(facetNumber);
             //
             //分面关系数，等于二级分面数、三级分面数之和
-            Integer secondLayerFacetNumber = facetRepository.findFacetsByDomainIdAndFacetLayer(domainId, 2).size();
-            Integer thirdLayerFacetNumber = facetRepository.findFacetsByDomainIdAndFacetLayer(domainId, 3).size();
+            Integer secondLayerFacetNumber = facetRepository.countByDomainIdAndFacetLayer(domainId, 2);
+            Integer thirdLayerFacetNumber = facetRepository.countByDomainIdAndFacetLayer(domainId, 3);
             int facetRelationNumber = secondLayerFacetNumber + thirdLayerFacetNumber;
             facetRelationNumberSum += facetRelationNumber;
             facetRelationNumbers.add(facetRelationNumber);
             //
-            int assembleNumber = assembleRepository.findAllAssemblesByDomainId(domainId).size();
+            int assembleNumber = assembleRepository.countByDomainId(domainId);
             assembleNumberSum += assembleNumber;
             assembleNumbers.add(assembleNumber);
             //
-            int dependencyNumber = dependencyRepository.findByDomainId(domainId).size();
+            int dependencyNumber = dependencyRepository.countByDomainId(domainId);
             dependencyNumberSum += dependencyNumber;
             dependencyNumbers.add(dependencyNumber);
         }
@@ -293,13 +298,13 @@ public class StatisticsService {
             dependencyNumberSum += dependencies.size();
 
             //获取碎片
-            Integer assembleNumber = 0;
+            Integer assembleTotalNumber = 0;
             for (Facet facet : facets) {
-                List<Assemble> assembles = assembleRepository.findByFacetId(facet.getFacetId());
-                assembleNumber += assembles.size();
+                Integer assembleNumber = assembleRepository.countByFacetId(facet.getFacetId());
+                assembleTotalNumber += assembleNumber;
             }
-            assembleNumbers.add(assembleNumber);
-            assembleNumberSum += assembleNumber;
+            assembleNumbers.add(assembleTotalNumber);
+            assembleNumberSum += assembleTotalNumber;
         }
         //分别将所有统计数据的综合插入列表头
         facetNumbers.add(0, facetNumberSum);
@@ -365,18 +370,18 @@ public class StatisticsService {
         totalAboutSecondLayerFacets.put("value", secondLayerFacets.size());
         totals.add(totalAboutSecondLayerFacets);
         //查询碎片总数
-        List<Assemble> assembles = assembleRepository.findAllAssemblesByTopicId(topicId);
+        Integer assemblesNumber = assembleRepository.countByTopicId(topicId);
         facetNames.add("碎片总数");
         Map<String, Object> totalAboutAssembles = new HashMap<>(2);
         totalAboutAssembles.put("name", "碎片总数");
-        totalAboutAssembles.put("value", assembles.size());
+        totalAboutAssembles.put("value", assemblesNumber);
         totals.add(totalAboutAssembles);
         //查询认知关系总数
-        List<Dependency> dependencies = dependencyRepository.findByStartTopicIdOrEndTopicId(topicId, topicId);
+        Integer dependencyNumber = dependencyRepository.countByStartTopicIdOrEndTopicId(topicId, topicId);
         facetNames.add("认知关系总数");
         Map<String, Object> totalAboutDependencies = new HashMap<>(2);
         totalAboutDependencies.put("name", "认知关系总数");
-        totalAboutDependencies.put("value", dependencies.size());
+        totalAboutDependencies.put("value", dependencyNumber);
         totals.add(totalAboutDependencies);
         //统计一级分面碎片
         List<Map<String, Object>> details = new ArrayList<>();
@@ -384,14 +389,14 @@ public class StatisticsService {
             Map<String, Object> detail = new HashMap<>(2);
             Integer assembleNumber = 0;
             //查询一级分面下的碎片
-            List<Assemble> assemblesInFirstLayerFacet = assembleRepository.findByFacetId(firstLayerFacet.getFacetId());
-            assembleNumber += assemblesInFirstLayerFacet.size();
+            Integer assemblesInFirstLayerFacetNumber = assembleRepository.countByFacetId(firstLayerFacet.getFacetId());
+            assembleNumber += assemblesInFirstLayerFacetNumber;
             //查询二级分面下的碎片
             List<Facet> secondLayerFacetsInFirstLayerFacet = facetRepository
                     .findByParentFacetIdAndFacetLayer(firstLayerFacet.getFacetId(), 2);
             for (Facet secondLayerFacetInFirstLayerFacet : secondLayerFacetsInFirstLayerFacet) {
                 //查询二级碎片并添加
-                assembleNumber += assembleRepository.findByFacetId(secondLayerFacetInFirstLayerFacet.getFacetId()).size();
+                assembleNumber += assembleRepository.countByFacetId(secondLayerFacetInFirstLayerFacet.getFacetId());
                 //此处未考虑三级分面
             }
             facetNames.add("f1:" + firstLayerFacet.getFacetName());
@@ -402,10 +407,10 @@ public class StatisticsService {
         //统计二级分面碎片
         for (Facet secondLayerFacet : secondLayerFacets) {
             Map<String, Object> detail = new HashMap<>(2);
-            List<Assemble> assemblesInSecondLayerFacet = assembleRepository.findByFacetId(secondLayerFacet.getFacetId());
+            Integer assemblesInSecondLayerFacetNumber = assembleRepository.countByFacetId(secondLayerFacet.getFacetId());
             facetNames.add("f2:" + secondLayerFacet.getFacetName());
             detail.put("name", "f2:" + secondLayerFacet.getFacetName());
-            detail.put("value", assemblesInSecondLayerFacet.size());
+            detail.put("value", assemblesInSecondLayerFacetNumber);
             details.add(detail);
         }
         Map<String, Object> statisticsInformation = new HashMap<>(3);
@@ -585,6 +590,7 @@ public class StatisticsService {
         return newAssembles;
     }
 
+
     /**
      * 统计所有课程信息，包括包含学科名、课程名、课程id、主题数、
      * 一级分面、二级分面和三级分面数、碎片数、依赖（认知关系）数
@@ -592,23 +598,37 @@ public class StatisticsService {
      * @return
      */
     public Result findDomainDistribution() {
+        List<Statistics> statisticsList = statisticsRepository.findAll();
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), statisticsList);
+    }
+
+    /**
+     * 更新数据统计表
+     *
+     * @return
+     */
+    public Result updateStatistics() {
+        statisticsRepository.deleteAll();
         //查询所有课程
         List<Domain> domains = domainRepository.findAll();
         //存储统计结果
-        List<Map<String, Object>> results = new ArrayList<>();
+        List<Statistics> statisticsList = new ArrayList<>();
         List<Long> domainIds = new ArrayList<>();
         for (Domain domain : domains) {
-            Long domainId = domain.getDomainId();
-            domainIds.add(domainId);
-            Map<String, Object> result = new HashMap<>(11);
-            result.put("domainId", domain.getDomainId());
-            result.put("domainName", domain.getDomainName());
-            result.put("note", "");
-            results.add(result);
+            Statistics statistics = new Statistics();
+            statistics.setDomainId(domain.getDomainId());
+            statistics.setDomainName(domain.getDomainName());
+            statisticsList.add(statistics);
+
+            domainIds.add(domain.getDomainId());
         }
+
         //查询主题
         List<Object[]> topicNumbers = topicRepository.countTopicsGroupByDomainId(domainIds);
         Map<Long, Integer> topicNumbersMap = convertListToMap(topicNumbers);
+        //查询主题依赖关系
+        List<Object[]> dependencyNumbers = dependencyRepository.countDependenciesGroupByDomainId(domainIds);
+        Map<Long, Integer> dependencyNumbersMap = convertListToMap(dependencyNumbers);
         //查询分面
         List<Object[]> facet1Numbers = facetRepository.countFacetsGroupByDomainIdAndFacetLayer(domainIds, 1);
         Map<Long, Integer> facet1NumbersMap = convertListToMap(facet1Numbers);
@@ -616,61 +636,58 @@ public class StatisticsService {
         Map<Long, Integer> facet2NumbersMap = convertListToMap(facet2Numbers);
         List<Object[]> facet3Numbers = facetRepository.countFacetsGroupByDomainIdAndFacetLayer(domainIds, 3);
         Map<Long, Integer> facet3NumbersMap = convertListToMap(facet3Numbers);
+
         //查询碎片
         List<Object[]> assembleNumbers = assembleRepository.countAssemblesGroupByDomainId(domainIds);
         Map<Long, Integer> assembleNumbersMap = convertListToMap(assembleNumbers);
-        //查询主题依赖关系
-        List<Object[]> dependencyNumbers = dependencyRepository.countDependenciesGroupByDomainId(domainIds);
-        Map<Long, Integer> dependencyNumbersMap = convertListToMap(dependencyNumbers);
-        for (int i = 0; i < domainIds.size(); i++) {
-            if (topicNumbersMap.containsKey(domainIds.get(i))) {
-                results.get(i).put("topicNumber", topicNumbersMap.get(domainIds.get(i)));
+
+        for (Statistics statistics : statisticsList) {
+            Long domainId = statistics.getDomainId();
+            //主题
+            if (topicNumbersMap.containsKey(domainId)) {
+                statistics.setTopicNumber(topicNumbersMap.get(domainId));
             } else {
-                results.get(i).put("topicNumber", 0);
+                statistics.setTopicNumber(0);
             }
-            //查询分面（一级、二级、三级、总数）
+            //依赖关系
+            if (dependencyNumbersMap.containsKey(domainId)) {
+                statistics.setDependencyNumber(dependencyNumbersMap.get(domainId));
+            } else {
+                statistics.setDependencyNumber(0);
+            }
             int firstLayerFacetNumber;
             int secondLayerFacetNumber;
             int thirdLayerFacetNumber;
             //一级
-            if (facet1NumbersMap.containsKey(domainIds.get(i))) {
-                firstLayerFacetNumber = facet1NumbersMap.get(domainIds.get(i));
+            if (facet1NumbersMap.containsKey(domainId)) {
+                firstLayerFacetNumber = facet1NumbersMap.get(domainId);
             } else {
                 firstLayerFacetNumber = 0;
             }
             //二级
-            if (facet2NumbersMap.containsKey(domainIds.get(i))) {
-                secondLayerFacetNumber = facet2NumbersMap.get(domainIds.get(i));
+            if (facet2NumbersMap.containsKey(domainId)) {
+                secondLayerFacetNumber = facet2NumbersMap.get(domainId);
             } else {
                 secondLayerFacetNumber = 0;
             }
-            //一级
-            if (facet3NumbersMap.containsKey(domainIds.get(i))) {
-                thirdLayerFacetNumber = facet3NumbersMap.get(domainIds.get(i));
+            //三级
+            if (facet3NumbersMap.containsKey(domainId)) {
+                thirdLayerFacetNumber = facet3NumbersMap.get(domainId);
             } else {
                 thirdLayerFacetNumber = 0;
             }
-            //获取总分面数
-            int facetNumber = firstLayerFacetNumber + secondLayerFacetNumber + thirdLayerFacetNumber;
-            results.get(i).put("firstLayerFacetNumber", firstLayerFacetNumber);
-            results.get(i).put("secondLayerFacetNumber", secondLayerFacetNumber);
-            results.get(i).put("thirdLayerFacetNumber", thirdLayerFacetNumber);
-            results.get(i).put("facetNumber", facetNumber);
-            //查询碎片
-            //一级
-            if (assembleNumbersMap.containsKey(domainIds.get(i))) {
-                results.get(i).put("assembleNumber", assembleNumbersMap.get(domainIds.get(i)));
+            statistics.setFacetNumber(firstLayerFacetNumber + secondLayerFacetNumber + thirdLayerFacetNumber);
+            statistics.setFirstLayerFacetNumber(firstLayerFacetNumber);
+            statistics.setSecondLayerFacetNumber(secondLayerFacetNumber);
+            statistics.setThirdLayerFacetNumber(thirdLayerFacetNumber);
+            if (assembleNumbersMap.containsKey(domainId)) {
+                statistics.setAssembleNumber(assembleNumbersMap.get(domainId));
             } else {
-                results.get(i).put("assembleNumber", 0);
-            }
-            //依赖关系
-            if (dependencyNumbersMap.containsKey(domainIds.get(i))) {
-                results.get(i).put("dependencyNumber", dependencyNumbersMap.get(domainIds.get(i)));
-            } else {
-                results.get(i).put("dependencyNumber", 0);
+                statistics.setAssembleNumber(0);
             }
         }
-        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), results);
+        statisticsRepository.save(statisticsList);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "数据统计完成并保存");
     }
 
     private Map convertListToMap(List<Object[]> input) {
@@ -706,6 +723,7 @@ public class StatisticsService {
     public Result queryKeyword(String keyword) {
         List<Map<String, Object>> queryResults = new ArrayList<>();
         //根据关键字，查询相关课程
+        logger.debug("domains start");
         List<Domain> domains = domainRepository.findByKeyword(keyword);
         for (Domain domain : domains) {
             Map<String, Object> domainQueryResult = new HashMap<>(2);
@@ -713,6 +731,7 @@ public class StatisticsService {
             domainQueryResult.put("name", domain.getDomainName());
             queryResults.add(domainQueryResult);
         }
+        logger.debug("topics start");
         //根据关键字，查询相关主题
         List<Map<String, Object>> topicInformations = topicRepository.findTopicInformationByKeyword(keyword);
         for (Map<String, Object> topicInformation : topicInformations) {
@@ -723,6 +742,7 @@ public class StatisticsService {
             queryResults.add(topicQueryResult);
         }
         //根据关键字，查询相关分面
+        logger.debug("facets start");
         List<Map<String, Object>> facetInformations = facetRepository.findFacetInformationByKeyword(keyword);
         for (Map<String, Object> facetInformation : facetInformations) {
             Map<String, Object> facetQueryResult = new HashMap<>(5);
@@ -733,6 +753,104 @@ public class StatisticsService {
             facetQueryResult.put("domainName", facetInformation.get("3"));
             queryResults.add(facetQueryResult);
         }
+        logger.debug("facets end");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), queryResults);
     }
+
+    /**
+     * 统计碎片数量
+     *
+     * @return
+     */
+    public Result countAssemble() {
+        long count = assembleRepository.count();
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), count);
+    }
+
+    /**
+     * 统计主题数量
+     *
+     * @return
+     */
+    public Result countTopic() {
+        long count = topicRepository.count();
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), count);
+    }
+
+    /**
+     * 根据课程id，统计碎片数量
+     *
+     * @param domainId
+     * @return
+     */
+    public Result countAssembleByDomainId(Long domainId) {
+        long count = assembleRepository.countByDomainId(domainId);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), count);
+    }
+
+    /**
+     * 根据课程id集合，统计碎片数量
+     *
+     * @param domainIds
+     * @return
+     */
+    public Result countAssembleGroupByDomainIds(List<Long> domainIds) {
+        List<Object[]> counts = statisticsRepository.countAssemblesGroupByDomainId(domainIds);
+        Map<Long, Long> map = convertListToMap(counts);
+       /* new Thread(() -> {
+            logger.info("数据统计开始");
+            updateStatistics();
+            logger.info("数据统计完成并保存");
+        }).start();*/
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), map);
+    }
+
+    /**
+     * 根据主题id集合，查询碎片数量
+     *
+     * @param topicIds
+     * @return
+     */
+    public Result countAssembleGroupByTopicIds(List<Long> topicIds) {
+        List<Object[]> counts = assembleRepository.countAssemblesByGroupByTopicId(topicIds);
+        Map<Long, Long> map = convertListToMap(counts);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), map);
+    }
+
+    /**
+     * 根据主题id集合，查询一级分面数量
+     *
+     * @param topicIds
+     * @return
+     */
+    public Result countFirstLayerFacetGroupByTopicIds(List<Long> topicIds) {
+        List<Object[]> counts = facetRepository.countFacetsGroupByTopicId(topicIds, 1);
+        Map<Long, Long> map = convertListToMap(counts);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), map);
+    }
+
+    /**
+     * 根据课程id集合，统计主题数量
+     *
+     * @param domainIds
+     * @return
+     */
+    public Result countTopicGroupByDomainIds(List<Long> domainIds) {
+        List<Object[]> counts = topicRepository.countTopicsGroupByDomainId(domainIds);
+        Map<Long, Long> map = convertListToMap(counts);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), map);
+    }
+
+
+    /**
+     * 根据主题id，统计碎片数量
+     *
+     * @param topicId
+     * @return
+     */
+    public Result countAssembleByTopicId(Long topicId) {
+        long count = assembleRepository.countByTopicId(topicId);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), count);
+    }
+
 }

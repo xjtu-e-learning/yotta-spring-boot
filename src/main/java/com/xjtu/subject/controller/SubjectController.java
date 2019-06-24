@@ -38,6 +38,15 @@ public class SubjectController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @GetMapping(value = "getSubjectGraphByName")
+    public ResponseEntity getSubjectGraphByName(@RequestParam("subjectName") String subjectName) {
+        Result result = subjectService.getSubjectGraphByName(subjectName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
     @PostMapping(value = "/insertSubject")
     @ApiOperation(value = "插入一条学科信息", notes = "插入一条学科信息")
     public ResponseEntity insertSubject(@RequestParam("subjectName") String subjectName

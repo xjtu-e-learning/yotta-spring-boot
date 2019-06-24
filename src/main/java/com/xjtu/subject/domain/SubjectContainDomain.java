@@ -25,6 +25,8 @@ public class SubjectContainDomain extends Subject {
         return domains;
     }
 
+
+
     public void setDomains(List<Domain> domains) {
         this.domains = domains;
     }
@@ -38,4 +40,7 @@ public class SubjectContainDomain extends Subject {
         this.setSubjectId(subjectId);
         this.domains = domains;
     }
+
+
+
 }
