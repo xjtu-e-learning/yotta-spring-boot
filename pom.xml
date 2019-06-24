@@ -48,7 +48,7 @@
         </dependency>
 
 
-        <!-- json-path 解析包-->
+        <!-- json-path 解析包 -->
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
