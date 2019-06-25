@@ -16,6 +16,7 @@ public class AssembleContainType extends Assemble {
 
     public AssembleContainType() {
     }
+
     @Override
     public String toString() {
         return "AssembleContainType{" +

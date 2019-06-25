@@ -128,8 +128,22 @@ public interface FacetRepository extends JpaRepository<Facet, Long>, JpaSpecific
             "group by parentFacetId")
     List<Long> countAllFacetsByParentFacetIdAndFacetLayer(List<Long> parentFacetIds, Integer facetLayer);
 
+
+    /**
+     * 根据主题id集合，统计一级分面数量
+     *
+     * @param topicIds
+     * @return
+     */
+    @Query(value = "SELECT topic_id,COUNT(facet_id)\n" +
+            "FROM facet\n" +
+            "WHERE topic_id in ?1 and facet_layer=?2\n" +
+            "GROUP BY topic_id;", nativeQuery = true)
+    List<Object[]> countFacetsGroupByTopicId(List<Long> topicIds, Integer facetLayer);
+
     /**
      * 指定分面名、主题Id以及分面所在层，查找分面
+     * 注意：只能用于查询一级分面，因为二级、三级分面可能存在重名
      *
      * @param topicId    主题Id
      * @param facetName  分面名
@@ -148,6 +162,13 @@ public interface FacetRepository extends JpaRepository<Facet, Long>, JpaSpecific
      */
     Facet findByTopicIdAndFacetNameAndParentFacetId(Long topicId, String facetName, Long parentFacetId);
 
+
+    /**
+     * @param facetName
+     * @param parentFacetId
+     * @return
+     */
+    Facet findByFacetNameAndParentFacetId(String facetName, Long parentFacetId);
 
     /**
      * 指定分面所在层以及主题Id，查找分面

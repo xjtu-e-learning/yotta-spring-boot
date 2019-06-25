@@ -20,8 +20,11 @@ import com.xjtu.utils.ResultUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -58,6 +61,12 @@ public class AssembleService {
 
     @Autowired
     private AssembleDAO assembleDAO;
+
+    @Value("${image.location}")
+    private String imagePath;
+
+    @Value("${image.remote}")
+    private String remotePath;
 
     //降序
     Comparator<Map> descComparator = new Comparator<Map>() {
@@ -539,10 +548,11 @@ public class AssembleService {
      *
      * @param domainName
      * @param topicName
+     * @param firstLayerFacetName
      * @param secondLayerFacetName
      * @return
      */
-    public Result findAssemblesInSecondLayerFacet(String domainName, String topicName, String secondLayerFacetName) {
+    public Result findAssemblesInSecondLayerFacet(String domainName, String topicName, String firstLayerFacetName, String secondLayerFacetName) {
         //查询课程
         Domain domain = domainRepository.findByDomainName(domainName);
         if (domain == null) {
@@ -557,8 +567,9 @@ public class AssembleService {
             return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR_1.getCode(), ResultEnum.Assemble_SEARCH_ERROR_1.getMsg());
         }
         Long topicId = topic.getTopicId();
+        Facet firstLayerFacet = facetRepository.findByTopicIdAndFacetNameAndFacetLayer(topicId, firstLayerFacetName, 1);
         //查询二级分面
-        Facet facet = facetRepository.findByTopicIdAndFacetNameAndFacetLayer(topicId, secondLayerFacetName, 2);
+        Facet facet = facetRepository.findByFacetNameAndParentFacetId(secondLayerFacetName, firstLayerFacet.getFacetId());
         if (facet == null) {
             logger.error("Assembles Search Failed: Corresponding Facet Not Exist");
             return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR_2.getCode(), ResultEnum.Assemble_SEARCH_ERROR_2.getMsg());
@@ -574,10 +585,13 @@ public class AssembleService {
      *
      * @param domainName
      * @param topicName
+     * @param firstLayerFacetName
+     * @param secondLayerFacetName
      * @param thirdLayerFacetName
      * @return
      */
-    public Result findAssemblesInThirdLayerFacet(String domainName, String topicName, String thirdLayerFacetName) {
+    public Result findAssemblesInThirdLayerFacet(String domainName, String topicName
+            , String firstLayerFacetName, String secondLayerFacetName, String thirdLayerFacetName) {
         //查询课程
         Domain domain = domainRepository.findByDomainName(domainName);
         if (domain == null) {
@@ -592,8 +606,11 @@ public class AssembleService {
             return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR_1.getCode(), ResultEnum.Assemble_SEARCH_ERROR_1.getMsg());
         }
         Long topicId = topic.getTopicId();
+        Facet firstLayerFacet = facetRepository.findByTopicIdAndFacetNameAndFacetLayer(topicId, firstLayerFacetName, 1);
+        //查询二级分面
+        Facet secondLayerFacet = facetRepository.findByFacetNameAndParentFacetId(secondLayerFacetName, firstLayerFacet.getFacetId());
         //查询三级分面
-        Facet facet = facetRepository.findByTopicIdAndFacetNameAndFacetLayer(topicId, thirdLayerFacetName, 3);
+        Facet facet = facetRepository.findByFacetNameAndParentFacetId(thirdLayerFacetName, secondLayerFacet.getFacetId());
         if (facet == null) {
             logger.error("Assembles Search Failed: Corresponding Facet Not Exist");
             return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR_2.getCode(), ResultEnum.Assemble_SEARCH_ERROR_2.getMsg());
@@ -614,7 +631,7 @@ public class AssembleService {
      * @param sourceName          数据源名
      * @return
      */
-    public Result insertAssemble(String domainName
+    /*public Result insertAssemble(String domainName
             , String topicName
             , String facetName
             , Integer facetLayer
@@ -665,7 +682,7 @@ public class AssembleService {
         assemble.setSourceId(source.getSourceId());
         assembleRepository.save(assemble);
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "碎片添加成功");
-    }
+    }*/
 
     /**
      * 添加碎片
@@ -788,7 +805,15 @@ public class AssembleService {
     public Result findAssembleById(Long assembleId) {
         try {
             Assemble assemble = assembleRepository.findOne(assembleId);
-            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), assemble);
+            //查询数据源
+            Source source = sourceRepository.findBySourceId(assemble.getSourceId());
+            Map<String, Object> map = new HashMap<>();
+            map.put("assembleId", assemble.getAssembleId());
+            map.put("assembleContent", assemble.getAssembleContent());
+            map.put("assembleScratchTime", assemble.getAssembleScratchTime());
+            map.put("url", assemble.getUrl());
+            map.put("sourceName", source.getSourceName());
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), map);
         } catch (Exception error) {
             logger.error("Assemble Search Failed: ", error);
             return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR_3.getCode(), ResultEnum.Assemble_SEARCH_ERROR_3.getMsg());
@@ -952,10 +977,16 @@ public class AssembleService {
      * @param assembleContent
      * @return
      */
-    public Result updateAssemble(Long assembleId, String assembleContent) {
+    public Result updateAssemble(Long assembleId, String assembleContent, String sourceName, String url) {
         if (assembleId == null) {
             logger.error("Assemble Update Failed: Assemble Id Not Exist");
             return ResultUtil.error(ResultEnum.Assemble_UPDATE_ERROR.getCode(), ResultEnum.Assemble_UPDATE_ERROR.getMsg());
+        }
+        //查询数据源
+        Source source = sourceRepository.findBySourceName(sourceName);
+        if (source == null) {
+            logger.error("碎片更新失败：对应数据源不存在");
+            return ResultUtil.error(ResultEnum.Assemble_UPDATE_ERROR_2.getCode(), ResultEnum.Assemble_UPDATE_ERROR_2.getMsg());
         }
         //获取系统当前时间
         Date date = new Date();
@@ -963,7 +994,8 @@ public class AssembleService {
         String assembleScratchTime = simpleDateFormat.format(date);
         String assembleText = JsonUtil.parseHtmlText(assembleContent).text();
         try {
-            assembleRepository.updateAssemble(assembleId, assembleContent, assembleText, assembleScratchTime);
+            assembleRepository.updateAssemble(assembleId, assembleContent, assembleText
+                    , assembleScratchTime, source.getSourceId(), url);
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "碎片更新成功");
         } catch (Exception error) {
             logger.error("Assembles Update Failed: Update Statement Execute Failed", error);
@@ -1021,6 +1053,98 @@ public class AssembleService {
         } catch (Exception exception) {
             logger.error("Assembles Delete Failed: Delete Statement Execute Failed", exception);
             return ResultUtil.error(ResultEnum.Assemble_DELETE_ERROR.getCode(), ResultEnum.Assemble_DELETE_ERROR.getMsg());
+        }
+    }
+
+    public Map<String, Object> uploadImage(MultipartFile image) {
+        Map<String, Object> result = new HashMap<>();
+        List<String> imageUrls = new ArrayList<>();
+        if (image.isEmpty()) {
+            logger.error("图片上传失败：图片为空");
+            result.put("errno", ResultEnum.IMAGE_UPLOAD_ERROR.getCode());
+            result.put("data", imageUrls);
+            return result;
+        }
+        String imageOriginName = image.getOriginalFilename();
+        logger.info("load image: " + imageOriginName);
+        //获取图片后缀
+        String suffixName = imageOriginName.substring(imageOriginName.lastIndexOf('.'));
+        //以当前时间产生随机数作为文件名
+        Long currentMills = System.currentTimeMillis();
+        // 文件目录
+        String directory = imagePath + "/" + (currentMills / 1800);
+        File dir = new File(directory);
+        //如果文件夹不存在，创建文件夹
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        Random random = new Random();
+        int i = random.nextInt(Integer.MAX_VALUE);
+        String imageSavePath = dir + "/" + i + suffixName;
+        String imageRemotePath = remotePath + "/" + (currentMills / 1800) + "/" + i + suffixName;
+        logger.info("imageSavePath: " + imageSavePath);
+        logger.info("imageRemotePath: " + imageRemotePath);
+        File file = new File(imageSavePath);
+        try {
+            //保存文件
+            image.transferTo(file);
+
+            result.put("errno", 0);
+            imageUrls.add(imageRemotePath);
+            result.put("data", imageUrls);
+            return result;
+        } catch (Exception e) {
+            logger.error("图片上传失败：图片保存失败");
+            logger.error("" + e);
+            result.put("errno", ResultEnum.IMAGE_UPLOAD_ERROR_1.getCode());
+            result.put("data", imageUrls);
+            return result;
+        }
+    }
+
+    /**
+     * 上传图片到服务里
+     *
+     * @param facetId
+     * @param assembleId
+     * @param image
+     * @return 返回图片的保存链接
+     */
+    public Result uploadImage(Long facetId, Long assembleId, MultipartFile image) {
+        if (image.isEmpty()) {
+            logger.error("图片上传失败：图片为空");
+            return ResultUtil.error(ResultEnum.IMAGE_UPLOAD_ERROR.getCode()
+                    , ResultEnum.IMAGE_UPLOAD_ERROR.getMsg());
+        }
+        String imageOriginName = image.getOriginalFilename();
+        logger.info("load image: " + imageOriginName);
+        //获取图片后缀
+        String suffixName = imageOriginName.substring(imageOriginName.lastIndexOf('.'));
+        //以当前时间产生随机数作为文件名
+        Random random = new Random();
+        long i = random.nextInt(Integer.MAX_VALUE);
+        // 文件目录
+        String directory = imagePath + "/" + facetId + "/" + assembleId;
+        File dir = new File(directory);
+        //如果文件夹不存在，创建文件夹
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        String imageSavePath = dir + "/" + i + suffixName;
+        String imageRemotePath = remotePath + "/" + facetId + "/" + assembleId + "/" + i + suffixName;
+        logger.info("imageSavePath: " + imageSavePath);
+        logger.info("imageRemotePath: " + imageRemotePath);
+        File file = new File(imageSavePath);
+        //保存文件
+        try {
+            image.transferTo(file);
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode()
+                    , ResultEnum.SUCCESS.getMsg(), imageRemotePath);
+        } catch (Exception e) {
+            logger.error("图片上传失败：图片保存失败");
+            logger.error("" + e);
+            return ResultUtil.error(ResultEnum.IMAGE_UPLOAD_ERROR_1.getCode()
+                    , ResultEnum.IMAGE_UPLOAD_ERROR_1.getMsg());
         }
     }
 

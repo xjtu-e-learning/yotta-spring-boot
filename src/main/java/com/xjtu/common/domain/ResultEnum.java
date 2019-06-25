@@ -8,6 +8,7 @@ public enum ResultEnum {
     SUCCESS(200, "成功"),
     UNKONW_ERROR(-1, "未知错误"),
     NOT_DEVELOP_ERROR(9, "API尚未开发"),
+    ARGUMENTS_DEVELOP_ERROR(10, "API参数错误，逻辑不合理"),
 
     // 数据源
     SOURCE_INSERT_ERROR(100, "数据源插入失败：数据源名不存在或者为空"),
@@ -28,6 +29,7 @@ public enum ResultEnum {
     SUBJECT_SEARCH_ERROR(113, "学科查询失败：没有学科信息记录"),
     SUBJECT_SEARCH_ERROR_1(114, "学科分页查询失败：没有该条学科信息记录"),
     SUBJECT_SEARCH_ERROR_2(115, "学科分页查询失败：查询的页数超过最大页数"),
+    SUBJECT_GRAPH_ERROR(197, "学科知识图谱查询失败：对应文件可能不存在"),
 
     //课程
     DOMAIN_INSERT_ERROR(116, "课程信息插入失败：课程名不存在或者为空"),
@@ -102,7 +104,10 @@ public enum ResultEnum {
     Assemble_INSERT_ERROR_6(172, "碎片插入失败：对应数据源不存在"),
     Assemble_UPDATE_ERROR(173, "碎片更新失败：碎片id不存在"),
     Assemble_UPDATE_ERROR_1(174, "碎片更新失败：更新语句执行失败"),
+    Assemble_UPDATE_ERROR_2(202, "碎片更新失败：对应数据源不存在"),
     Assemble_DELETE_ERROR(175, "碎片删除失败：删除语句执行失败"),
+    IMAGE_UPLOAD_ERROR(203, "图片上传失败：图片为空"),
+    IMAGE_UPLOAD_ERROR_1(204, "图片上传失败：图片保存失败"),
 
 
     //用户登录

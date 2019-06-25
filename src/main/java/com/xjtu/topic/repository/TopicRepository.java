@@ -94,6 +94,8 @@ public interface TopicRepository extends JpaRepository<Topic, Long>, JpaSpecific
      */
     @Transactional(rollbackFor = Exception.class)
     Integer countByDomainId(Long domainId);
+
+
     /**
      * 根据课程id，查询课程下的第一个主题
      *

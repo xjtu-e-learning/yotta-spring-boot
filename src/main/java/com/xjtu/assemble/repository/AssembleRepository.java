@@ -129,6 +129,7 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
             "FROM assemble AS a,facet AS f\n" +
             "WHERE f.topic_id=?1 AND f.facet_id=a.facet_id;", nativeQuery = true)
     Integer countByTopicId(Long topicId);
+
     /**
      * 分页查询主题下的所有碎片
      *
@@ -171,7 +172,7 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
     /**
      * 查询课程和主题下的某层分面下的所有碎片
      *
-     * @param topicId  主题id
+     * @param topicId    主题id
      * @param facetLayer 分面所在层
      * @return
      */
@@ -221,6 +222,13 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
     List<Object[]> countAssemblesGroupByDomainId(List<Long> domainIds);
 
 
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "SELECT f.topic_id,COUNT(a.assemble_id)\n" +
+            "FROM facet as f,assemble as a\n" +
+            "WHERE f.topic_id in ?1 and f.facet_id=a.facet_id\n" +
+            "GROUP BY topic_id;", nativeQuery = true)
+    List<Object[]> countAssemblesByGroupByTopicId(List<Long> topicIds);
+
     /**
      * 统计课程下的碎片数
      *
@@ -249,7 +257,9 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
      */
     @Modifying(clearAutomatically = true)
     @Transactional(rollbackFor = Exception.class)
-    @Query("update Assemble set assembleContent=?2,assembleText=?3,assembleScratchTime=?4 where assembleId=?1")
-    void updateAssemble(Long assembleId, String assembleContent, String assembleText, String assembleScratchTime);
+    @Query("update Assemble set assembleContent=?2,assembleText=?3,assembleScratchTime=?4,sourceId=?5,url=?6" +
+            " where assembleId=?1")
+    void updateAssemble(Long assembleId, String assembleContent, String assembleText
+            , String assembleScratchTime, Long sourceId, String url);
 
 }
