@@ -2,6 +2,7 @@ package com.xjtu.spider.controller;
 
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
+
 import com.xjtu.spider.service.SpiderService;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
@@ -20,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @date 2018/05/15 23:17
  */
 @RestController
-@RequestMapping("/spider")
+@RequestMapping("/spiderAssemble")
 public class SpiderController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -28,7 +29,7 @@ public class SpiderController {
     @Autowired
     SpiderService spiderService;
 
-    @ApiOperation(value = "webmagic爬取课程碎片", notes = "webmagic爬取课程碎片")
+    @ApiOperation(value = "webmagic自动爬取课程碎片api", notes = "webmagic自动爬取课程碎片api")
     @GetMapping("/crawlAssembles")
     public ResponseEntity crawlAssembles() {
         Result result = spiderService.crawlAssembles();
