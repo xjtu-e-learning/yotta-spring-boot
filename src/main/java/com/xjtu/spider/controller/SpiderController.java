@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @date 2018/05/15 23:17
  */
 @RestController
-@RequestMapping("/spiderAssemble")
+@RequestMapping("/spider")
 public class SpiderController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -29,7 +29,7 @@ public class SpiderController {
     @Autowired
     SpiderService spiderService;
 
-    @ApiOperation(value = "webmagic自动爬取课程碎片api", notes = "webmagic自动爬取课程碎片api")
+    @ApiOperation(value = "webmagic爬取课程碎片", notes = "webmagic爬取课程碎片")
     @GetMapping("/crawlAssembles")
     public ResponseEntity crawlAssembles() {
         Result result = spiderService.crawlAssembles();

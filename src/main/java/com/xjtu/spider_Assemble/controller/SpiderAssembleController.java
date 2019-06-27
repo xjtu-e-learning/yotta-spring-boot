@@ -26,7 +26,7 @@ public class SpiderAssembleController {
     @Autowired
     SpiderAssembleService spiderService;
 
-    @ApiOperation(value = "webmagic爬取课程碎片", notes = "webmagic爬取课程碎片")
+    @ApiOperation(value = "webmagic自动爬取课程碎片api", notes = "webmagic自动爬取课程碎片api")
     @PostMapping("/crawlAssemblesByDomainName")
     public ResponseEntity crawlAssembles(@RequestParam(name = "domain name") String domainName) {
         Result result = spiderService.crawlAssembles(domainName);
