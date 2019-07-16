@@ -1,14 +1,15 @@
 package com.xjtu.spider_topic.spiders.wikicn;
 
-import app.Config;
+import com.xjtu.common.Config;
 import assemble.bean.AssembleFragmentFuzhu;
+import com.xjtu.domain.domain.Domain;
 import domain.bean.Domain;
 import domainTopic.bean.LayerRelation;
 import domainTopic.bean.Term;
 import domainTopic.bean.Topic;
 import facet.bean.FacetRelation;
 import facet.bean.FacetSimple;
-import utils.mysqlUtils;
+import com.xjtu.utils.mysqlUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.*;

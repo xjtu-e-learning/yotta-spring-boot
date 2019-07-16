@@ -1,10 +1,10 @@
 package com.xjtu.spider_topic.spiders.wikicn;
 
-import common.Config;
-import domain.bean.Domain;
+import com.xjtu.common.Config;
+import com.xjtu.domain.domain.Domain;
 import domainTopic.bean.LayerRelation;
 import domainTopic.bean.Term;
-import utils.Log;
+import com.xjtu.utils.Log;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -31,11 +31,11 @@ public class TopicCrawler {
 		 * 读取domain表格，获取所有领域名
 		 * 将所有领域术语存储到damain_layer表格中
 		 */
-		String domainName = domain.getClassName();
+		String domainName = domain.getDomainName();
 		/**
 		 * 判断该领域是否已经爬取
 		 */
-		Boolean existLayer = MysqlReadWriteDAO.judgeByClass(Config.DOMAIN_LAYER_TABLE, domainName);
+		Boolean existLayer = MysqlReadWriteDAO.judgeByClass(Config.TOPIC_TABLE, domainName);
 		if (!existLayer) {
 			layerExtract(domainName);
 		} else {
@@ -44,7 +44,7 @@ public class TopicCrawler {
 		/**
 		 * 判断该领域是否已经爬取
 		 */
-		Boolean existTopic = MysqlReadWriteDAO.judgeByClass(Config.DOMAIN_TOPIC_TABLE, domainName);
+		Boolean existTopic = MysqlReadWriteDAO.judgeByClass(Config.TOPIC_TABLE, domainName);
 		if (!existTopic) {
 			topicExtract(domainName);
 		} else {
@@ -60,7 +60,7 @@ public class TopicCrawler {
 	public static void storeDomain(Domain domain) {
 		List<Domain> list = new ArrayList<>();
 		list.add(domain);
-		if (!MysqlReadWriteDAO.judgeByClass(Config.DOMAIN_TABLE, domain.getClassName())) {
+		if (!MysqlReadWriteDAO.judgeByClass(Config.DOMAIN_TABLE, domain.getDomainName())){
 			MysqlReadWriteDAO.storeDomain(list);
 		}
 	}
