@@ -1,14 +1,15 @@
 package com.xjtu.spider_topic.spiders.wikicn;
 
-import app.Config;
+import com.xjtu.common.Config;
 import assemble.bean.AssembleFragmentFuzhu;
+import com.xjtu.domain.domain.Domain;
 import domain.bean.Domain;
-import domainTopic.bean.LayerRelation;
-import domainTopic.bean.Term;
+import com.xjtu.topic.domain.LayerRelation;
+import com.xjtu.topic.domain.Term;
 import domainTopic.bean.Topic;
 import facet.bean.FacetRelation;
 import facet.bean.FacetSimple;
-import utils.mysqlUtils;
+import com.xjtu.utils.mysqlUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -186,12 +187,12 @@ public class MysqlReadWriteDAO {
 	 */
 	public static void storeDomain(List<Domain> domainList){
 		mysqlUtils mysql = new mysqlUtils();
-		String sql = "insert into " + Config.DOMAIN_TABLE + " (ClassName, SubjectName) VALUES(?, ?);";
+		String sql = "insert into " + Config.DOMAIN_TABLE + " (domainName, subjectId) VALUES(?, ?);";
 		for (int i = 0; i < domainList.size(); i++) {
 			Domain domain = domainList.get(i);
 			List<Object> params = new ArrayList<Object>();
-			params.add(domain.getClassName());
-			params.add(domain.getSubjectName());
+			params.add(domain.getDomainName());
+			params.add(domain.getSubjectId());
 			try {
 				mysql.addDeleteModify(sql, params);
 			} catch (Exception e) {

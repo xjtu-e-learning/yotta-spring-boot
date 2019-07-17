@@ -1,5 +1,7 @@
 package com.xjtu.common;
 
+import com.spreada.utils.chinese.ZHConverter;
+
 import java.util.Random;
 
 /**
@@ -22,6 +24,9 @@ public class Config {
     public final static String SOURCE_TABLE = "source";
     public final static String SUBJECT_TABLE = "subject";
     public final static String DOMAIN_TABLE = "domain";
+    public static String DOMAIN_LAYER_TABLE = "domain_layer";
+    public static String DOMAIN_LAYER_FUZHU_TABLE = "domain_layer_fuzhu";
+    public static String DOMAIN_TOPIC_RELATION_TABLE = "domain_topic_relation";
     public final static String TOPIC_TABLE = "topic";
     public final static String FACET_TABLE = "facet";
     public final static String ASSEMBLE_TABLE = "assemble";
@@ -31,7 +36,7 @@ public class Config {
      */
     public static String userAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36";
 
-    public static String IE_PATH = "";
+    //public static String IE_PATH = "";
     /**
      * Stack overflow网站爬虫参数配置：网站防扒做的比较好，爬虫条件苛刻
      */
@@ -72,4 +77,39 @@ public class Config {
     public static int retrySleepTime = new Random().nextInt(2000) + 1000;
     public static int sleepTime = new Random().nextInt(3000) + 3000;
     public static int timeOut = new Random().nextInt(3000) + 3000;
+
+
+    /**20190628新增
+     * Selenium Webdriver 配置
+     */
+    public static String PHANTOMJS_PATH = "D:\\Yotta\\phantomjs.exe";  // 无界面浏览器
+    public static String IE_PATH = "D:\\Yotta\\IEDriverServer.exe";  // IE模拟
+    public static String CHROME_PATH = "D:\\Yotta\\chromedriver.exe";  // Chrome模拟
+
+    /**20190628新增
+     * Mysql 配置
+     */
+    public static String DBNAME = "yotta_create_test";
+    //    public static String DBNAME = "yotta";
+    public static String HOST = "localhost";
+    public static String USERNAME = "root";
+    public static String PASSWD = "123456";
+    public static int PORT = 3306;
+    //    public static int PORT = 9220;
+    public static String MYSQL_URL = "jdbc:mysql://" + HOST + ":" + PORT + "/" + DBNAME + "?user=" + USERNAME + "&password=" + PASSWD + "&characterEncoding=UTF8"; // 阿里云服务器：域名+http端口
+
+//   public static String MYSQL_URL = "jdbc:mysql://localhost:3306/yotta_create_test?user=root&password=root&characterEncoding=UTF8"; // 阿里云服务器：域名+http端口
+
+    public static String IP1 = "http://202.117.54.39:666"; // 跨域访问控制：域名+apache端口
+    public static String IP2 = "http://202.117.54.39:8081/Yotta"; // 阿里云服务器：域名+http端口
+    public static String SWAGGERHOST = "202.117.54.39:8081"; // swagger主机
+    public static String SWAGGERBASEPATH = "/Yotta"; //swagger根路径
+
+    /**
+     * 爬虫
+     */
+    public static ZHConverter converter = ZHConverter.getInstance(ZHConverter.SIMPLIFIED);// 转化为简体中文
+    public static int TEXTLENGTH = 50; // 保存文本最短长度
+
+    //public static String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36"; // 代理设置
 }

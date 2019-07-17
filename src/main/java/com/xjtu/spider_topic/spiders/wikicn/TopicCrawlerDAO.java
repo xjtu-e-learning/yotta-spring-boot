@@ -1,19 +1,21 @@
 package com.xjtu.spider_topic.spiders.wikicn;
 
-import domainTopic.bean.Term;
+import com.xjtu.topic.domain.Term;
+import com.xjtu.utils.JsoupDao;
+import com.xjtu.utils.SpiderUtils;
 import org.jsoup.nodes.Document;
-import utils.JsoupDao;
-import utils.Log;
-import utils.SpiderUtils;
+import com.xjtu.utils.JsoupDao;
+import com.xjtu.utils.Log;
+import com.xjtu.utils.SpiderUtils;
 
 import java.util.*;
 
 
 /**  
- * 爬取中文维基的领域术语
+ * 移植：爬取中文维基的领域术语
  *  
- * @author 郑元浩 
- * @date 2016年11月26日
+ * @author 张铎
+ * @date 2019年7月
  */
 public class TopicCrawlerDAO {
 	
