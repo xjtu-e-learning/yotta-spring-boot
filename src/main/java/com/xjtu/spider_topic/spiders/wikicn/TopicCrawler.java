@@ -2,8 +2,7 @@ package com.xjtu.spider_topic.spiders.wikicn;
 
 import com.xjtu.common.Config;
 import com.xjtu.domain.domain.Domain;
-import domainTopic.bean.LayerRelation;
-import domainTopic.bean.Term;
+import com.xjtu.topic.domain.Term;
 import com.xjtu.utils.Log;
 
 import java.net.URLEncoder;

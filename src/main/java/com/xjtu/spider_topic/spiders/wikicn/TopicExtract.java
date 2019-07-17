@@ -1,12 +1,12 @@
 package com.xjtu.spider_topic.spiders.wikicn;
 
 import com.spreada.utils.chinese.ZHConverter;
-import domainTopic.bean.Term;
+import com.xjtu.topic.domain.Term;
+import com.xjtu.utils.JsoupDao;
+import com.xjtu.utils.Log;
+import com.xjtu.utils.SpiderUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-import utils.JsoupDao;
-import utils.Log;
-import utils.SpiderUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,8 +16,8 @@ import java.util.List;
  * 1. 获得每一分类的子分类
  * 2. 获得每一分类的子页面
  *  
- * @author 郑元浩 
- * @date 2016年11月26日
+ * @author 张铎
+ * @date 2019年7月
  */
 public class TopicExtract {
 	
