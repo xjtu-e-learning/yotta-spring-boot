@@ -3,6 +3,7 @@ package com.xjtu.spider_topic.spiders.wikicn;
 import com.xjtu.common.Config;
 import com.xjtu.domain.domain.Domain;
 import com.xjtu.topic.domain.Term;
+import com.xjtu.topic.domain.LayerRelation;
 import com.xjtu.utils.Log;
 
 import java.net.URLEncoder;
@@ -13,33 +14,42 @@ import java.util.Set;
 
 
 /**  
- * 爬取中文维基的领域术语
- * @author 郑元浩 
- * @date 2016年11月26日
+ * 移植：爬取中文维基的领域术语
+ * @author 张铎
+ * @date 2019年7月
  */
 public class TopicCrawler {
 	
 	/**
-	 * 获取三层领域术语和知识主题（某门课程）
+	 * 根据课程名，判断课程是否已经爬取，显示结果
+	 * 否则，获取三层领域术语和知识主题（某门课程）
 	 * @param domain 课程
 	 * @throws Exception
 	 */
 	public static void storeTopic(Domain domain) throws Exception{
+
+
+
 		/**
 		 * 领域术语采集：爬虫爬取
 		 * 读取domain表格，获取所有领域名
 		 * 将所有领域术语存储到damain_layer表格中
 		 */
 		String domainName = domain.getDomainName();
-		/**
-		 * 判断该领域是否已经爬取
-		 */
-		Boolean existLayer = MysqlReadWriteDAO.judgeByClass(Config.TOPIC_TABLE, domainName);
-		if (!existLayer) {
-			layerExtract(domainName);
-		} else {
-			Log.log(domain + "：领域术语已经爬取");
-		}
+
+
+
+//		/**功能存疑【】【】
+//		 * 判断该领域是否已经爬取
+//		 */
+//		Boolean existLayer = MysqlReadWriteDAO.judgeByClass(Config.DOMAIN_TABLE, domainName);
+//		if (!existLayer) {
+//			layerExtract(domainName);
+//		} else {
+//			Log.log(domain + "：领域术语已经爬取");
+//		}
+
+
 		/**
 		 * 判断该领域是否已经爬取
 		 */
