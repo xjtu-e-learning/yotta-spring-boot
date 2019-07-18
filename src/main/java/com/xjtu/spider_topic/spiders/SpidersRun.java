@@ -49,8 +49,29 @@ public class SpidersRun {
    //     spiderEn();
     }
 
+    // 中文网站爬虫
+    public static void spiderCn() throws Exception {
+        // 如果数据库中表格不存在，先新建数据库表格
+        DatabaseUtils.createTable();
+        // 爬取多门课程
+        String excelPath = SpidersRun.class.getClassLoader().getResource("").getPath() + "domains.xls";
+        List<Domain> domainList = getDomainFromExcel(excelPath);
+        for (int i = 0; i < domainList.size(); i++) {
+            Domain domain = domainList.get(i);
+            boolean hasSpidered = MysqlReadWriteDAO.judgeByClass(Config.DOMAIN_TABLE, domain.getDomainName());
+            // 如果domain表已经有这门课程，就不爬取这门课程的数据，没有就爬取
+            if (!hasSpidered) {
+                Log.log("domain表格没有这门课程，开始爬取课程：" + domain);
+                constructKGByDomainName(domain);
+                spiderFragment(domain);
+            } else {
+                Log.log("domain表格有这门课程，不需要爬取课程：" + domain);
+            }
+        }
+    }
 
-//
+
+    //
 //    英文爬虫
 //    public static void spiderEn() throws Exception {
 //        // 如果数据库中表格不存在，先新建数据库表格
@@ -73,26 +94,7 @@ public class SpidersRun {
 //        }
 //    }
 
-    // 中文网站爬虫
-    public static void spiderCn() throws Exception {
-        // 如果数据库中表格不存在，先新建数据库表格
-        DatabaseUtils.createTable();
-        // 爬取多门课程
-        String excelPath = SpidersRun.class.getClassLoader().getResource("").getPath() + "domains.xls";
-        List<Domain> domainList = getDomainFromExcel(excelPath);
-        for (int i = 0; i < domainList.size(); i++) {
-            Domain domain = domainList.get(i);
-            boolean hasSpidered = MysqlReadWriteDAO.judgeByClass(Config.DOMAIN_TABLE, domain.getDomainName());
-            // 如果domain表已经有这门课程，就不爬取这门课程的数据，没有就爬取
-            if (!hasSpidered) {
-                Log.log("domain表格没有这门课程，开始爬取课程：" + domain);
-                constructKGByDomainName(domain);
-                spiderFragment(domain);
-            } else {
-                Log.log("domain表格有这门课程，不需要爬取课程：" + domain);
-            }
-        }
-    }
+
 
     /**
      * 爬取一门课程：主题、主题上下位关系、分面、分面关系、主题认知关系(gephi文件)、碎片（中文维基）
