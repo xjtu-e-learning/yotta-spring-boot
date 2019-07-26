@@ -3,6 +3,7 @@ package com.xjtu.spider_topic.spiders.wikicn;
 import com.xjtu.common.Config;
 import assemble.bean.AssembleFragmentFuzhu;
 import com.xjtu.domain.domain.Domain;
+import com.xjtu.facet.domain.Facet;
 import domain.bean.Domain;
 import com.xjtu.topic.domain.LayerRelation;
 import com.xjtu.topic.domain.Term;
@@ -153,33 +154,33 @@ public class MysqlReadWriteDAO {
 		return layerRelationList;
 	}
 
-//	/**
-//	 * 读取domain_topic，得到所有主题（按照课程）
-//	 * @return
-//	 */
-//	public static List<Topic> getDomainTopic(String domain) throws Exception {
-//		List<Topic> topicList = new ArrayList<Topic>();
-//		mysqlUtils mysql = new mysqlUtils();
-//		String sql = "select * from " + Config.TOPIC_TABLE + " where topicName=?";
-//		List<Object> params = new ArrayList<Object>();
-//		params.add(domain);
-//		try {
-//			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
-//			for (int i = 0; i < results.size(); i++) {
-//				Map<String, Object> result = results.get(i);
-//				int topicID = Integer.parseInt(result.get("TermID").toString());
-//				String topicName = result.get("TermName").toString();
-//				String topicUrl = result.get("TermUrl").toString();
-//				Topic topic = new Topic(topicID, topicName, topicUrl);
-//				topicList.add(topic);
-//			}
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		} finally {
-//			mysql.closeconnection();
-//		}
-//		return topicList;
-//	}
+	/**
+	 * 读取domain_topic，得到所有主题（按照课程）
+	 * @return
+	 */
+	public static List<Topic> getDomainTopic(String domain) throws Exception {
+		List<Topic> topicList = new ArrayList<Topic>();
+		mysqlUtils mysql = new mysqlUtils();
+		String sql = "select * from " + Config.TOPIC_TABLE + " where topicName=?";
+		List<Object> params = new ArrayList<Object>();
+		params.add(domain);
+		try {
+			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
+			for (int i = 0; i < results.size(); i++) {
+				Map<String, Object> result = results.get(i);
+				int topicId = Integer.parseInt(result.get("TermID").toString());
+				String topicName = result.get("TermName").toString();
+				String topicUrl = result.get("TermUrl").toString();
+				Topic topic = new Topic(topicId, topicName, topicUrl);
+				topicList.add(topic);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			mysql.closeconnection();
+		}
+		return topicList;
+	}
 
 	/**
 	 * 存储领域课程名【完成】
@@ -359,17 +360,19 @@ public class MysqlReadWriteDAO {
 	}
 
 	/**
+	 * 张铎	2019.7
+	 * 【已核查】
 	 * 存储facet，按照领域进行存储
 	 * @return
 	 */
-	public static void storeFacet(String domain, int topicID, String topicName, List<FacetSimple> facetSimpleList)
+	public static void storeFacet(String domain, int topicID, String topicName, List<Facet> facetSimpleList)
 			throws Exception {
 
 		for (int i = 0; i < facetSimpleList.size(); i++) {
 			mysqlUtils mysql = new mysqlUtils();
 			String sql = "insert into " + Config.FACET_TABLE + "(TermID, TermName, FacetName, FacetLayer, ClassName) "
 					+ "values(?, ?, ?, ?, ?)";
-			FacetSimple facetSimple = facetSimpleList.get(i);
+			Facet facetSimple = facetSimpleList.get(i);
 			String facetName = facetSimple.getFacetName();
 			int facetLayer = facetSimple.getFacetLayer();
 			List<Object> params = new ArrayList<Object>();

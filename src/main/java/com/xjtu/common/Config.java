@@ -31,6 +31,7 @@ public class Config {
     public static String DOMAIN_LAYER_RELATION_TABLE = "domain_layer_relation";
     public final static String TOPIC_TABLE = "topic";
     public final static String FACET_TABLE = "facet";
+    public static String FACET_RELATION_TABLE = "facet_relation";
     public final static String ASSEMBLE_TABLE = "assemble";
 
     /**

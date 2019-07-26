@@ -1,30 +1,15 @@
 package com.xjtu.spider_topic.spiders;
 
-import app.Config;
 import com.xjtu.common.Config;
 import com.xjtu.domain.domain.Domain;
 import com.xjtu.spider_topic.spiders.wikicn.MysqlReadWriteDAO;
 import com.xjtu.spider_topic.spiders.wikicn.TopicCrawler;
 import com.xjtu.utils.DatabaseUtils;
 import com.xjtu.utils.Log;
-import domain.bean.Domain;
 import jxl.Sheet;
 import jxl.Workbook;
 import jxl.read.biff.BiffException;
-import spider.spiders.baiduzhidao.BaiduZhidaoProcessor;
-import spider.spiders.csdn.CSDNProcessor;
-import spider.spiders.stackoverflow.StackoverflowAskerProcessor;
-import spider.spiders.stackoverflow.StackoverflowQuestionProcessor;
-import spider.spiders.wikicn.FragmentCrawler;
-import spider.spiders.wikicn.MysqlReadWriteDAO;
-import spider.spiders.wikicn.TopicCrawler;
-import spider.spiders.wikien.FragmentEnCrawler;
-import spider.spiders.wikien.TopicEnCrawler;
-import spider.spiders.yahooanswer.YahooAskerProcessor;
-import spider.spiders.yahooanswer.YahooProcessor;
-import spider.spiders.zhihu.ZhihuProcessor;
-import utils.DatabaseUtils;
-import utils.Log;
+
 
 import java.io.File;
 import java.io.IOException;
@@ -126,39 +111,45 @@ public class SpidersRun {
 //        FragmentEnCrawler.storeKGByDomainName(domainName);
 //    }
 
-    /**
-     * 爬取一门课程：碎片（数据源为：百度知道、知乎、csdn）
-     *
-     * @param domain 课程
-     */
-    public static void spiderFragment(Domain domain) {
-        String domainName = domain.getClassName();
 
-        //爬取百度知道
-        if (!MysqlReadWriteDAO.judgeByClassAndSourceName(Config.ASSEMBLE_FRAGMENT_TABLE, domainName, "百度知道")) {
-            BaiduZhidaoProcessor baiduZhidaoProcessor = new BaiduZhidaoProcessor();
-            baiduZhidaoProcessor.baiduAnswerCrawl(domainName);
-        } else {
-            Log.log("数据已经爬取：" + domainName + "，百度知道");
-        }
 
-        //爬取知乎
-        if (!MysqlReadWriteDAO.judgeByClassAndSourceName(Config.ASSEMBLE_FRAGMENT_TABLE, domainName, "知乎")) {
-            ZhihuProcessor zhihuProcessor = new ZhihuProcessor();
-            zhihuProcessor.zhihuAnswerCrawl(domainName);
-        } else {
-            Log.log("数据已经爬取：" + domainName + "，知乎");
-        }
+//
+//    /**
+//     * 爬取一门课程：碎片（数据源为：百度知道、知乎、csdn）
+//     *
+//     * @param domain 课程
+//     */
+//    public static void spiderFragment(Domain domain) {
+//        String domainName = domain.getClassName();
+//
+//        //爬取百度知道
+//        if (!MysqlReadWriteDAO.judgeByClassAndSourceName(Config.ASSEMBLE_FRAGMENT_TABLE, domainName, "百度知道")) {
+//            BaiduZhidaoProcessor baiduZhidaoProcessor = new BaiduZhidaoProcessor();
+//            baiduZhidaoProcessor.baiduAnswerCrawl(domainName);
+//        } else {
+//            Log.log("数据已经爬取：" + domainName + "，百度知道");
+//        }
+//
+//        //爬取知乎
+//        if (!MysqlReadWriteDAO.judgeByClassAndSourceName(Config.ASSEMBLE_FRAGMENT_TABLE, domainName, "知乎")) {
+//            ZhihuProcessor zhihuProcessor = new ZhihuProcessor();
+//            zhihuProcessor.zhihuAnswerCrawl(domainName);
+//        } else {
+//            Log.log("数据已经爬取：" + domainName + "，知乎");
+//        }
+//
+//        //爬取CSDN
+//        if (!MysqlReadWriteDAO.judgeByClassAndSourceName(Config.ASSEMBLE_FRAGMENT_TABLE, domainName, "csdn")) {
+//            CSDNProcessor csdnProcessor = new CSDNProcessor();
+//            csdnProcessor.CSDNAnswerCrawl(domainName);
+//        } else {
+//            Log.log("数据已经爬取：" + domainName + "，csdn");
+//        }
+//
+//    }
 
-        //爬取CSDN
-        if (!MysqlReadWriteDAO.judgeByClassAndSourceName(Config.ASSEMBLE_FRAGMENT_TABLE, domainName, "csdn")) {
-            CSDNProcessor csdnProcessor = new CSDNProcessor();
-            csdnProcessor.CSDNAnswerCrawl(domainName);
-        } else {
-            Log.log("数据已经爬取：" + domainName + "，csdn");
-        }
 
-    }
+
 
 //    /**
 //     * 爬取一门课程：碎片（数据源为：Quora、Stackoverflow、Yahoo、Twitter）
@@ -193,6 +184,8 @@ public class SpidersRun {
 //        }
 //
 //    }
+
+
 
     /**
      * 读取本地excel文件，获取课程和对应的学科信息
