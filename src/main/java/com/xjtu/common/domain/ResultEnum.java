@@ -108,6 +108,12 @@ public enum ResultEnum {
     Assemble_DELETE_ERROR(175, "碎片删除失败：删除语句执行失败"),
     IMAGE_UPLOAD_ERROR(203, "图片上传失败：图片为空"),
     IMAGE_UPLOAD_ERROR_1(204, "图片上传失败：图片保存失败"),
+    Assemble_GENERATE_ERROR(205, "碎片构建失败： 无分面信息"),
+    Assemble_GENERATE_ERROR_1(206, "碎片构建失败： 课程不存在"),
+    Assemble_GENERATE_ERROR_2(207, "开始构建碎片"),
+    Assemble_GENERATE_ERROR_3(208, "正在构建碎片"),
+    Assemble_GENERATE_ERROR_4(209, "上个构建碎片任务尚未完成"),
+
 
 
     //用户登录

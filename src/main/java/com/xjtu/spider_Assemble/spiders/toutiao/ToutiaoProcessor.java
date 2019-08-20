@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
+import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.downloader.selenium.SeleniumDownloader;
 import us.codecraft.webmagic.processor.PageProcessor;
 import us.codecraft.webmagic.selector.JsonPathSelector;
@@ -87,12 +88,12 @@ public class ToutiaoProcessor implements PageProcessor {
         }
     }
 
-    public void toutiaoAnswerCrawl(String domainName) {
+    public Spider toutiaoAnswerCrawl(String domainName) {
         //1.获取分面信息
         List<Map<String, Object>> facets = spiderService.getFacets(domainName);
-        if (facets == null || facets.size() == 0) {
-            return;
-        }
+//        if (facets == null || facets.size() == 0) {
+//            return;
+//        }
         //2.添加连接请求
         List<Request> requests = new ArrayList<>();
         for (Map<String, Object> facet : facets) {
@@ -109,12 +110,14 @@ public class ToutiaoProcessor implements PageProcessor {
         }
         //3.创建ToutiaoProcessor
         System.setProperty("selenuim_config", "D:\\spiderProject\\webMagicProject\\chromedriver/config.ini");
-        spiderCreate.create(new com.xjtu.spider_Assemble.spiders.toutiao.ToutiaoProcessor(this.spiderService))
+        Spider toutiaoSpider = spiderCreate.create(new com.xjtu.spider_Assemble.spiders.toutiao.ToutiaoProcessor(this.spiderService))
                 .addRequests(requests)
                 .setDownloader(new SeleniumDownloader("D:\\spiderProject\\webMagicProject\\chromedriver/chromedriver.exe"))
                 .thread(Config.THREAD)
-                .addPipeline(new SqlPipeline(this.spiderService))
+                .addPipeline(new SqlPipeline(this.spiderService));
                 //.addPipeline(new ConsolePipeline())
-                .runAsync();
+
+        toutiaoSpider.runAsync();
+        return toutiaoSpider;
     }
 }

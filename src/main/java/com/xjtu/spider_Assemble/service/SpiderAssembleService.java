@@ -3,6 +3,7 @@ package com.xjtu.spider_Assemble.service;
 
 import com.xjtu.assemble.domain.Assemble;
 import com.xjtu.assemble.repository.AssembleRepository;
+import com.xjtu.assemble.service.AssembleService;
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
 import com.xjtu.domain.domain.Domain;
@@ -22,6 +23,8 @@ import com.xjtu.subject.repository.SubjectRepository;
 import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.repository.TopicRepository;
 import com.xjtu.utils.ResultUtil;
+import com.xjtu.spider_Assemble.spiders.webmagic.spider.myMonitor;
+
 import jxl.Sheet;
 import jxl.Workbook;
 import jxl.read.biff.BiffException;
@@ -29,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import us.codecraft.webmagic.Spider;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,11 +43,17 @@ import java.util.Map;
 
 /**
  * 根据课程名自动爬取碎片，
+ * @Author: makexin
  */
+
 @Service
 public class SpiderAssembleService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private static int total_left;
+    private static Spider last_spider;
+    private static String last_domainName = null;
 
     @Autowired
     SourceRepository sourceRepository;
@@ -66,19 +76,94 @@ public class SpiderAssembleService {
     @Autowired
     QuestionRepository questionRepository;
 
-    public Result crawlAssembles(String domainName) {
 
-        logger.info("碎片开始爬取课程：" + domainName);
+    public Result startCrawlAssembles(String domainName)
+    {
+        //1.获取分面信息
+        List<Map<String, Object>> facets = getFacets(domainName);
+        if (facets == null || facets.size() == 0) {
+            return ResultUtil.success(ResultEnum.Assemble_GENERATE_ERROR.getCode(), ResultEnum.Assemble_GENERATE_ERROR.getMsg(), "碎片构建失败： 无分面信息");
+        }
 
-//        logger.info("百度知道碎片开始爬取 当前课程：" + domainName);
-//        BaiduZhidaoProcessor baiduZhidaoProcessor = new BaiduZhidaoProcessor(this);
-//        baiduZhidaoProcessor.baiduAnswerCrawl(domainName);
-//        logger.info("百度知道碎片爬取完成");
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("碎片构建失败： 课程不存在");
+            return ResultUtil.error(ResultEnum.Assemble_GENERATE_ERROR_1.getCode(), ResultEnum.Assemble_GENERATE_ERROR_1.getMsg());
+        }
+        Long domain_id = domain.getDomainId();
+        Integer assemble_number = assembleRepository.countByDomainId(domain_id);
 
-//        logger.info("CSDN碎片开始爬取 当前课程：" + domainName);
-//        CSDNProcessor csdnProcessor = new CSDNProcessor(this);
-//        csdnProcessor.CSDNAnswerCrawl(domainName);
-//        logger.info("CSDN碎片爬取完成");
+
+        if (assemble_number == 0)
+        {
+            last_spider = crawlAssembles(domainName);
+            last_domainName = domainName;
+            return ResultUtil.success(ResultEnum.Assemble_GENERATE_ERROR_2.getCode(), ResultEnum.Assemble_GENERATE_ERROR_2.getMsg(), "开始构建碎片");
+        }
+        else
+        {
+            if (last_domainName.equals(domainName))
+            {
+                if (total_left == 0)
+                {
+                    return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "碎片构建完成");
+                }
+                else
+                {
+                    myMonitor monitor = new myMonitor();
+                    int last_leftCount = monitor.monitor(last_spider);
+                    total_left = last_leftCount;
+                    if(last_leftCount == 0)
+                        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "碎片构建完成");
+                    else
+                        return ResultUtil.success(ResultEnum.Assemble_GENERATE_ERROR_3.getCode(), ResultEnum.Assemble_GENERATE_ERROR_3.getMsg(), "正在构建碎片");
+                }
+            }
+            else // last_domainName != domainName
+            {
+                if (total_left == 0)
+                {
+                    last_spider = crawlAssembles(domainName);
+                    last_domainName = domainName;
+                    return ResultUtil.success(ResultEnum.Assemble_GENERATE_ERROR_2.getCode(), ResultEnum.Assemble_GENERATE_ERROR_2.getMsg(), "开始构建碎片");
+                }
+                else
+                {
+                    return ResultUtil.success(ResultEnum.Assemble_GENERATE_ERROR_4.getCode(), ResultEnum.Assemble_GENERATE_ERROR_4.getMsg(), "上个构建碎片任务尚未完成");
+                }
+            }
+        }
+    }
+
+    public Spider crawlAssembles(String domainName) {
+
+
+        logger.info("爬取碎片开始，课程：" + domainName);
+
+        int max_leftCount;
+        Spider max_spider;
+
+        logger.info("百度知道碎片开始爬取 当前课程：" + domainName);
+        BaiduZhidaoProcessor baiduZhidaoProcessor = new BaiduZhidaoProcessor(this);
+        Spider baiduZhidaoSpider = baiduZhidaoProcessor.baiduAnswerCrawl(domainName);
+        myMonitor baiduZhidaoMonitor = new myMonitor();
+        baiduZhidaoMonitor.register(baiduZhidaoSpider);
+        int baiduZhidao_leftCount = baiduZhidaoMonitor.monitor(baiduZhidaoSpider);
+        max_leftCount = baiduZhidao_leftCount;
+        max_spider = baiduZhidaoSpider;
+
+        logger.info("CSDN碎片开始爬取 当前课程：" + domainName);
+        CSDNProcessor csdnProcessor = new CSDNProcessor(this);
+        Spider csdnSpider = csdnProcessor.CSDNAnswerCrawl(domainName);
+        myMonitor csdnMonitor = new myMonitor();
+        csdnMonitor.register(csdnSpider);
+        int csdn_leftCount = csdnMonitor.monitor(csdnSpider);
+        if (max_leftCount < csdn_leftCount)
+        {
+            max_leftCount = csdn_leftCount;
+            max_spider = csdnSpider;
+        }
+
 
 //        logger.info("stack overflow 提问者碎片开始爬取 当前课程：" + domainName);
 //        StackoverflowAskerProcessor stackoverflowAskerProcessor = new StackoverflowAskerProcessor(this);
@@ -102,15 +187,36 @@ public class SpiderAssembleService {
 //
         logger.info("知乎碎片开始爬取 当前课程：" + domainName);
         ZhihuProcessor zhihuProcessor = new ZhihuProcessor(this);
-        zhihuProcessor.zhihuAnswerCrawl(domainName);
-        logger.info("知乎碎片爬取完成");
+        Spider zhihuSpider = zhihuProcessor.zhihuAnswerCrawl(domainName);
+        myMonitor zhihuMonitor = new myMonitor();
+        zhihuMonitor.register(zhihuSpider);
+        int zhihu_leftCount = zhihuMonitor.monitor(zhihuSpider);
+        if (max_leftCount < zhihu_leftCount)
+        {
+            max_leftCount = zhihu_leftCount;
+            max_spider = zhihuSpider;
+        }
+//        System.out.println("left page: "+ zhihu_leftCount);
+
+//        logger.info("知乎碎片爬取完成");
 
 
-//            logger.info("今日头条碎片开始爬取 当前课程：" + domainName);
-//            ToutiaoProcessor toutiaoProcessor = new ToutiaoProcessor(this);
-//            toutiaoProcessor.toutiaoAnswerCrawl(domainName);
-//            logger.info("今日头条碎片爬取完成");
-        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "爬取碎片完成");
+        logger.info("今日头条碎片开始爬取 当前课程：" + domainName);
+        ToutiaoProcessor toutiaoProcessor = new ToutiaoProcessor(this);
+        Spider toutiaoSpider = toutiaoProcessor.toutiaoAnswerCrawl(domainName);
+        myMonitor toutiaoMonitor = new myMonitor();
+        toutiaoMonitor.register(toutiaoSpider);
+        int toutiao_leftCount = toutiaoMonitor.monitor(toutiaoSpider);
+        if (max_leftCount < toutiao_leftCount)
+        {
+            max_leftCount = toutiao_leftCount;
+            max_spider = toutiaoSpider;
+        }
+
+
+        total_left = baiduZhidao_leftCount + csdn_leftCount + toutiao_leftCount + zhihu_leftCount;
+
+        return max_spider;
     }
 
     /**
