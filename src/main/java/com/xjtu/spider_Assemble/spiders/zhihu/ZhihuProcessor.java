@@ -10,12 +10,20 @@ import org.slf4j.LoggerFactory;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
+import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.pipeline.ConsolePipeline;
 import us.codecraft.webmagic.processor.PageProcessor;
+import us.codecraft.webmagic.monitor.SpiderMonitor;
+import us.codecraft.webmagic.SpiderListener;
+import us.codecraft.webmagic.monitor.SpiderMonitor.MonitorSpiderListener;
+import us.codecraft.webmagic.monitor.SpiderStatusMXBean;
+import us.codecraft.webmagic.monitor.SpiderStatus;
 
+import javax.management.JMException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ZhihuProcessor implements PageProcessor {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -79,12 +87,12 @@ public class ZhihuProcessor implements PageProcessor {
         }
     }
 
-    public void zhihuAnswerCrawl(String domainName) {
+    public Spider zhihuAnswerCrawl(String domainName) {
         //1.获取分面信息
         List<Map<String, Object>> facets = spiderService.getFacets(domainName);
-        if (facets == null || facets.size() == 0) {
-            return;
-        }
+//        if (facets == null || facets.size() == 0) {
+//            return;
+//        }
         //2.添加连接请求
         List<Request> requests = new ArrayList<>();
         for (Map<String, Object> facet : facets) {
@@ -98,11 +106,48 @@ public class ZhihuProcessor implements PageProcessor {
             requests.add(request.setUrl(url).setExtras(facet));
         }
         //3.创建ZhihuProcessor
-        spiderCreate.create(new com.xjtu.spider_Assemble.spiders.zhihu.ZhihuProcessor(this.spiderService))
+        Spider zhihuSpider = spiderCreate.create(new ZhihuProcessor(this.spiderService))
                 .addRequests(requests)
                 .thread(Config.THREAD)
                 .addPipeline(new SqlPipeline(this.spiderService))
-                .addPipeline(new ConsolePipeline())
-                .runAsync();
+                .addPipeline(new ConsolePipeline());
+//        SpiderMonitor spiderMonitor = new SpiderMonitor(){
+//            @Override
+//            protected SpiderStatusMXBean getSpiderStatusMBean(Spider spider, MonitorSpiderListener monitorSpiderListener){
+//                return new SpiderStatus(spider, monitorSpiderListener);
+//            }
+//        };
+//        try {
+//            spiderMonitor.register(zhihuSpider);
+//        } catch (JMException e) {
+//            e.printStackTrace();
+//        }
+//        try {
+//            SpiderMonitor.instance().register(zhihuSpider);
+//        } catch (JMException e) {
+//            e.printStackTrace();
+//        }
+        zhihuSpider.runAsync();
+
+//        List<SpiderListener> spiderListeners = zhihuSpider.getSpiderListeners();
+//        while (true)
+//        {
+//            for(SpiderListener spiderListener : spiderListeners)
+//            {
+//                if(spiderListener instanceof MonitorSpiderListener)
+//                {
+//                    MonitorSpiderListener monitorSpiderListener = (MonitorSpiderListener) spiderListener;
+//                    SpiderStatus spiderStatus = new SpiderStatus(zhihuSpider, monitorSpiderListener);
+//                    int leftCount = spiderStatus.getLeftPageCount();
+//                    if(leftCount == 0)
+//                    {
+//                        break;
+//                    }
+//                    System.out.println("left page count: " + leftCount);
+//                }
+//            }
+//        }
+
+        return zhihuSpider;
     }
 }

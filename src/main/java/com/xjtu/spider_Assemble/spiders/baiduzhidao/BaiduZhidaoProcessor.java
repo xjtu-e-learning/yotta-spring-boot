@@ -9,6 +9,7 @@ import com.xjtu.spider_Assemble.spiders.webmagic.spider.spiderCreate;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
+import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.pipeline.ConsolePipeline;
 import us.codecraft.webmagic.processor.PageProcessor;
 
@@ -59,15 +60,15 @@ public class BaiduZhidaoProcessor implements PageProcessor {
         }
     }
 
-    public void baiduAnswerCrawl(String domainName) {
+    public Spider baiduAnswerCrawl(String domainName) {
         //1.获取分面信息
         if (spiderService == null) {
             System.out.println("YYYYYYYYYYYYYYYYYYYYYYYYYY");
         }
         List<Map<String, Object>> facets = spiderService.getFacets(domainName);
-        if (facets == null || facets.size() == 0) {
-            return;
-        }
+//        if (facets == null || facets.size() == 0) {
+//            return;
+//        }
         //2.添加连接请求，根据课程名，主题名，分面名爬取内容
         List<Request> requests = new ArrayList<>();
         for (Map<String, Object> facet : facets) {
@@ -80,11 +81,13 @@ public class BaiduZhidaoProcessor implements PageProcessor {
             facet.put("sourceName", "百度知道");
             requests.add(request.setUrl(url).setExtras(facet));
         }
-        spiderCreate.create(new com.xjtu.spider_Assemble.spiders.baiduzhidao.BaiduZhidaoProcessor(this.spiderService))
+        Spider baiduzhidaoSpider = spiderCreate.create(new com.xjtu.spider_Assemble.spiders.baiduzhidao.BaiduZhidaoProcessor(this.spiderService))
                 .addRequests(requests)
                 .thread(Config.THREAD)
                 .addPipeline(new SqlPipeline(this.spiderService))
-                .addPipeline(new ConsolePipeline())
-                .runAsync();
+                .addPipeline(new ConsolePipeline());
+
+        baiduzhidaoSpider.runAsync();
+        return baiduzhidaoSpider;
     }
 }

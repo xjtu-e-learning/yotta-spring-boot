@@ -9,6 +9,7 @@ import com.xjtu.spider_Assemble.spiders.webmagic.spider.spiderCreate;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
+import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.pipeline.ConsolePipeline;
 import us.codecraft.webmagic.processor.PageProcessor;
 
@@ -59,12 +60,12 @@ public class CSDNProcessor implements PageProcessor {
         }
     }
 
-    public void CSDNAnswerCrawl(String domainName) {
+    public Spider CSDNAnswerCrawl(String domainName) {
         //1.获取分面信息
         List<Map<String, Object>> facets = spiderService.getFacets(domainName);
-        if (facets == null || facets.size() == 0) {
-            return;
-        }
+//        if (facets == null || facets.size() == 0) {
+//            return;
+//        }
         //2.添加连接请求
         List<Request> requests = new ArrayList<Request>();
         for (Map<String, Object> facet : facets) {
@@ -77,12 +78,14 @@ public class CSDNProcessor implements PageProcessor {
             facet.put("sourceName", "csdn");
             requests.add(request.setUrl(url).setExtras(facet));
         }
-        spiderCreate.create(new com.xjtu.spider_Assemble.spiders.csdn.CSDNProcessor(this.spiderService))
+        Spider csdnSpider = spiderCreate.create(new com.xjtu.spider_Assemble.spiders.csdn.CSDNProcessor(this.spiderService))
                 .addRequests(requests)
                 .thread(Config.THREAD)
                 .addPipeline(new SqlPipeline(this.spiderService))
-                .addPipeline(new ConsolePipeline())
-                .runAsync();
+                .addPipeline(new ConsolePipeline());
+
+        csdnSpider.runAsync();
+        return csdnSpider;
     }
 }
 
