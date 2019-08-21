@@ -43,6 +43,32 @@ public class MysqlReadWriteDAO {
 	}
 
 	/**
+	 * 判断表格，判断某门课程的数据是否已经在这个数据表中存在
+	 * 适用表格：domain_layer，domain_topic，dependency
+	 * @param table
+	 * @param domainName
+	 * @return true表示该领域已经爬取
+	 */
+	public static Boolean judgeByClass(String table,String table1, String domainName){
+		Boolean exist = false;
+		mysqlUtils mysql = new mysqlUtils();
+		String sql = "select topic.* " + "from " + table + "," + table1 + " where domainName=? and domain.domain_id=topic.domain_id";
+		List<Object> params = new ArrayList<Object>();
+		params.add(domainName);
+		try {
+			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
+			if (results.size()!=0) {
+				exist = true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			mysql.closeconnection();
+		}
+		return exist;
+	}
+
+	/**
 	 * 读取domain，得到所有领域名
 	 * @return
 	 */
@@ -473,31 +499,7 @@ public class MysqlReadWriteDAO {
 //
 //	}
 
-	/**
-	 * 判断表格，判断某门课程的数据是否已经在这个数据表中存在
-	 * 适用表格：domain_layer，domain_topic，dependency
-	 * @param table
-	 * @param domainName
-	 * @return true表示该领域已经爬取
-	 */
-	public static Boolean judgeByClass(String table, String domainName){
-		Boolean exist = false;
-		mysqlUtils mysql = new mysqlUtils();
-		String sql = "select * from " + table + " where ClassName=?";
-		List<Object> params = new ArrayList<Object>();
-		params.add(domainName);
-		try {
-			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
-			if (results.size()!=0) {
-				exist = true;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			mysql.closeconnection();
-		}
-		return exist;
-	}
+
 
 	/**
 	 * 判断表格，判断某门课程下某个主题的数据是否已经在这个数据表中存在

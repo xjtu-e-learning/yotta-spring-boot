@@ -19,7 +19,20 @@ import java.util.Set;
  * @date 2019年7月
  */
 public class TopicCrawler {
-	
+
+	/**
+	 * 根据课程名，判断若不存在课程，则存储课程名
+	 * @param domain 课程
+	 * @return true 表示已经爬取
+	 */
+	public static void storeDomain(Domain domain) {
+		List<Domain> list = new ArrayList<>();
+		list.add(domain);
+		if (!MysqlReadWriteDAO.judgeByClass(Config.DOMAIN_TABLE, domain.getDomainName())){
+			MysqlReadWriteDAO.storeDomain(list);
+		}
+	}
+
 	/**
 	 * 根据课程名，判断课程是否已经爬取，显示结果
 	 * 否则，获取三层领域术语和知识主题（某门课程）
@@ -37,8 +50,6 @@ public class TopicCrawler {
 		 */
 		String domainName = domain.getDomainName();
 
-
-
 //		/**功能存疑【】【】
 //		 * 判断该领域是否已经爬取
 //		 */
@@ -49,11 +60,10 @@ public class TopicCrawler {
 //			Log.log(domain + "：领域术语已经爬取");
 //		}
 
-
 		/**
 		 * 判断该领域是否已经爬取
 		 */
-		Boolean existTopic = MysqlReadWriteDAO.judgeByClass(Config.TOPIC_TABLE, domainName);
+		Boolean existTopic = MysqlReadWriteDAO.judgeByClass(Config.TOPIC_TABLE, Config.DOMAIN_TABLE, domainName);
 		if (!existTopic) {
 			topicExtract(domainName);
 		} else {
@@ -61,18 +71,7 @@ public class TopicCrawler {
 		}
 	}
 
-	/**
-	 * 根据领域名存储领域
-	 * @param domain 课程
-	 * @return true 表示已经爬取
-	 */
-	public static void storeDomain(Domain domain) {
-		List<Domain> list = new ArrayList<>();
-		list.add(domain);
-		if (!MysqlReadWriteDAO.judgeByClass(Config.DOMAIN_TABLE, domain.getDomainName())){
-			MysqlReadWriteDAO.storeDomain(list);
-		}
-	}
+
 	
 	/**
 	 * 获取三层领域术语（某门所有课程）
