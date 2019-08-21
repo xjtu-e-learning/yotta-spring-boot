@@ -26,9 +26,12 @@ public class Config {
     public final static String DOMAIN_TABLE = "domain";
     public static String DOMAIN_LAYER_TABLE = "domain_layer";
     public static String DOMAIN_LAYER_FUZHU_TABLE = "domain_layer_fuzhu";
+    public static String DOMAIN_LAYER_FUZHU2_TABLE = "domain_layer_fuzhu2";
     public static String DOMAIN_TOPIC_RELATION_TABLE = "domain_topic_relation";
+    public static String DOMAIN_LAYER_RELATION_TABLE = "domain_layer_relation";
     public final static String TOPIC_TABLE = "topic";
     public final static String FACET_TABLE = "facet";
+    public static String FACET_RELATION_TABLE = "facet_relation";
     public final static String ASSEMBLE_TABLE = "assemble";
 
     /**

@@ -3,10 +3,11 @@ package com.xjtu.spider_topic.spiders.wikicn;
 import com.xjtu.common.Config;
 import assemble.bean.AssembleFragmentFuzhu;
 import com.xjtu.domain.domain.Domain;
+import com.xjtu.facet.domain.Facet;
 import domain.bean.Domain;
 import com.xjtu.topic.domain.LayerRelation;
 import com.xjtu.topic.domain.Term;
-import domainTopic.bean.Topic;
+import com.xjtu.topic.domain.Topic;
 import facet.bean.FacetRelation;
 import facet.bean.FacetSimple;
 import com.xjtu.utils.mysqlUtils;
@@ -39,6 +40,32 @@ public class MysqlReadWriteDAO {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
+	}
+
+	/**
+	 * 判断表格，判断某门课程的数据是否已经在这个数据表中存在
+	 * 适用表格：domain_layer，domain_topic，dependency
+	 * @param table
+	 * @param domainName
+	 * @return true表示该领域已经爬取
+	 */
+	public static Boolean judgeByClass(String table,String table1, String domainName){
+		Boolean exist = false;
+		mysqlUtils mysql = new mysqlUtils();
+		String sql = "select topic.* " + "from " + table + "," + table1 + " where domainName=? and domain.domain_id=topic.domain_id";
+		List<Object> params = new ArrayList<Object>();
+		params.add(domainName);
+		try {
+			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
+			if (results.size()!=0) {
+				exist = true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			mysql.closeconnection();
+		}
+		return exist;
 	}
 
 	/**
@@ -160,17 +187,17 @@ public class MysqlReadWriteDAO {
 	public static List<Topic> getDomainTopic(String domain) throws Exception {
 		List<Topic> topicList = new ArrayList<Topic>();
 		mysqlUtils mysql = new mysqlUtils();
-		String sql = "select * from " + Config.DOMAIN_TOPIC_TABLE + " where ClassName=?";
+		String sql = "select * from " + Config.TOPIC_TABLE + " where topicName=?";
 		List<Object> params = new ArrayList<Object>();
 		params.add(domain);
 		try {
 			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
 			for (int i = 0; i < results.size(); i++) {
 				Map<String, Object> result = results.get(i);
-				int topicID = Integer.parseInt(result.get("TermID").toString());
+				int topicId = Integer.parseInt(result.get("TermID").toString());
 				String topicName = result.get("TermName").toString();
 				String topicUrl = result.get("TermUrl").toString();
-				Topic topic = new Topic(topicID, topicName, topicUrl);
+				Topic topic = new Topic(topicId, topicName, topicUrl);
 				topicList.add(topic);
 			}
 		} catch (Exception e) {
@@ -182,6 +209,7 @@ public class MysqlReadWriteDAO {
 	}
 
 	/**
+	 * 存储领域课程名【完成】
 	 * 存储domain，保存领域名信息
 	 * @param domainList
 	 */
@@ -203,6 +231,7 @@ public class MysqlReadWriteDAO {
 	}
 
 	/**
+	 * 【未妥】
 	 * 存储domain_layer，存储第n层领域术语到数据库 domain_layer 表格（List）
 	 * @param termList
 	 * @param domain
@@ -288,7 +317,7 @@ public class MysqlReadWriteDAO {
 	 */
 	public static void storeDomainTopic(Set<Term> termList, String domain, int layer){
 		mysqlUtils mysql = new mysqlUtils();
-		String sql = "insert into " + Config.DOMAIN_TOPIC_TABLE + " (TermName, TermUrl, TermLayer, ClassName)"
+		String sql = "insert into " + Config.TOPIC_TABLE + " (topic_name, topic_url, topic_layer, domain_id)"
 				+ " VALUES(?, ?, ?, ?);";
 		for (Term term : termList) {
 			List<Object> params = new ArrayList<Object>();
@@ -357,17 +386,19 @@ public class MysqlReadWriteDAO {
 	}
 
 	/**
+	 * 张铎	2019.7
+	 * 【已核查】
 	 * 存储facet，按照领域进行存储
 	 * @return
 	 */
-	public static void storeFacet(String domain, int topicID, String topicName, List<FacetSimple> facetSimpleList)
+	public static void storeFacet(String domain, int topicID, String topicName, List<Facet> facetSimpleList)
 			throws Exception {
 
 		for (int i = 0; i < facetSimpleList.size(); i++) {
 			mysqlUtils mysql = new mysqlUtils();
 			String sql = "insert into " + Config.FACET_TABLE + "(TermID, TermName, FacetName, FacetLayer, ClassName) "
 					+ "values(?, ?, ?, ?, ?)";
-			FacetSimple facetSimple = facetSimpleList.get(i);
+			Facet facetSimple = facetSimpleList.get(i);
 			String facetName = facetSimple.getFacetName();
 			int facetLayer = facetSimple.getFacetLayer();
 			List<Object> params = new ArrayList<Object>();
@@ -424,74 +455,51 @@ public class MysqlReadWriteDAO {
 	}
 
 
-	/**
-	 * 存储assemble_fragment
-	 * @return
-	 */
-	public static void storeFragment(String domain, int topicID, String topicName, String topicUrl, List<AssembleFragmentFuzhu> assembleFragmentList) throws Exception {
-		for(int j = 0; j < assembleFragmentList.size(); j++){
-			AssembleFragmentFuzhu assemble = assembleFragmentList.get(j);
-			String facet = assemble.getFacetName();
-			String content = assemble.getFacetContent();
-			String contentPureText = assemble.getFacetContentPureText();
-			int facetLayer = assemble.getFacetLayer();
-			if(!content.equals("")){ // content内容不为空进行存储
-				/**
-				 * 碎片装配：存储assemble_fragment数据表
-				 */
-				mysqlUtils mysql = new mysqlUtils();
-				String sqlAssemble = "insert into " + Config.ASSEMBLE_FRAGMENT_TABLE + "(FragmentContent, Text, "
-						+ "FragmentScratchTime, TermID, TermName, FacetName, FacetLayer, ClassName, SourceName) "
-						+ "values(?, ?, ?, ?, ?, ?, ?, ?, ?)";
-				List<Object> paramsAssemble = new ArrayList<>();
-				paramsAssemble.add(content);
-				paramsAssemble.add(contentPureText);
-				SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
-				String time = df.format(new Date());// new Date()为获取当前系统时间
-				paramsAssemble.add(time);
-				paramsAssemble.add(topicID);
-				paramsAssemble.add(topicName);
-				paramsAssemble.add(facet);
-				paramsAssemble.add(facetLayer);
-				paramsAssemble.add(domain);
-				paramsAssemble.add("中文维基");
-				try {
-					mysql.addDeleteModify(sqlAssemble, paramsAssemble);
-				} catch (Exception e) {
-					e.printStackTrace();
-				} finally {
-					mysql.closeconnection();
-				}
-			}
-		}
+//	/**
+//     * 存储数据碎片
+//	 * 存储assemble_fragment
+//	 * @return
+//	 */
+//	public static void storeFragment(String domain, int topicID, String topicName, String topicUrl, List<AssembleFragmentFuzhu> assembleFragmentList) throws Exception {
+//		for(int j = 0; j < assembleFragmentList.size(); j++){
+//			AssembleFragmentFuzhu assemble = assembleFragmentList.get(j);
+//			String facet = assemble.getFacetName();
+//			String content = assemble.getFacetContent();
+//			String contentPureText = assemble.getFacetContentPureText();
+//			int facetLayer = assemble.getFacetLayer();
+//			if(!content.equals("")){ // content内容不为空进行存储
+//				/**
+//				 * 碎片装配：存储assemble_fragment数据表
+//				 */
+//				mysqlUtils mysql = new mysqlUtils();
+//				String sqlAssemble = "insert into " + Config.ASSEMBLE_FRAGMENT_TABLE + "(FragmentContent, Text, "
+//						+ "FragmentScratchTime, TermID, TermName, FacetName, FacetLayer, ClassName, SourceName) "
+//						+ "values(?, ?, ?, ?, ?, ?, ?, ?, ?)";
+//				List<Object> paramsAssemble = new ArrayList<>();
+//				paramsAssemble.add(content);
+//				paramsAssemble.add(contentPureText);
+//				SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
+//				String time = df.format(new Date());// new Date()为获取当前系统时间
+//				paramsAssemble.add(time);
+//				paramsAssemble.add(topicID);
+//				paramsAssemble.add(topicName);
+//				paramsAssemble.add(facet);
+//				paramsAssemble.add(facetLayer);
+//				paramsAssemble.add(domain);
+//				paramsAssemble.add("中文维基");
+//				try {
+//					mysql.addDeleteModify(sqlAssemble, paramsAssemble);
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				} finally {
+//					mysql.closeconnection();
+//				}
+//			}
+//		}
+//
+//	}
 
-	}
 
-	/**
-	 * 判断表格，判断某门课程的数据是否已经在这个数据表中存在
-	 * 适用表格：domain_layer，domain_topic，dependency
-	 * @param table
-	 * @param domainName
-	 * @return true表示该领域已经爬取
-	 */
-	public static Boolean judgeByClass(String table, String domainName){
-		Boolean exist = false;
-		mysqlUtils mysql = new mysqlUtils();
-		String sql = "select * from " + table + " where ClassName=?";
-		List<Object> params = new ArrayList<Object>();
-		params.add(domainName);
-		try {
-			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
-			if (results.size()!=0) {
-				exist = true;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			mysql.closeconnection();
-		}
-		return exist;
-	}
 
 	/**
 	 * 判断表格，判断某门课程下某个主题的数据是否已经在这个数据表中存在
