@@ -9,7 +9,7 @@ package com.xjtu.spider_topic.controller;
  */
 @RestController
 @RequestMapping("/spider_topic")
-public class TSpideController {
+public class TSpiderController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

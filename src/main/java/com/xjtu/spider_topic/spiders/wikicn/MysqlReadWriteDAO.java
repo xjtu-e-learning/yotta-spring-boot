@@ -42,14 +42,63 @@ public class MysqlReadWriteDAO {
 
 	}
 
+
 	/**
 	 * 判断表格，判断某门课程的数据是否已经在这个数据表中存在
-	 * 适用表格：domain_layer，domain_topic，dependency
+	 * 适用表格：domain_layer，dependency
 	 * @param table
 	 * @param domainName
 	 * @return true表示该领域已经爬取
 	 */
-	public static Boolean judgeByClass(String table,String table1, String domainName){
+	public static Boolean judgeByClass(String table, String domainName){
+		Boolean exist = false;
+		mysqlUtils mysql = new mysqlUtils();
+		String sql = "select * from " + table + " where domain_name=?";
+		List<Object> params = new ArrayList<Object>();
+		params.add(domainName);
+		try {
+			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
+			if (results.size()!=0) {
+				exist = true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			mysql.closeconnection();
+		}
+		return exist;
+	}
+
+	/**
+	 * 存储领域课程名【完成】
+	 * 存储domain，保存领域名信息
+	 * @param domainList
+	 */
+	public static void storeDomain(List<Domain> domainList){
+		mysqlUtils mysql = new mysqlUtils();
+		String sql = "insert into " + Config.DOMAIN_TABLE + " (domain_name, subject_id) VALUES(?, ?);";
+		for (int i = 0; i < domainList.size(); i++) {
+			Domain domain = domainList.get(i);
+			List<Object> params = new ArrayList<Object>();
+			params.add(domain.getDomainName());
+			params.add(domain.getSubjectId());
+			try {
+				mysql.addDeleteModify(sql, params);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		mysql.closeconnection();
+	}
+
+	/**
+	 * 判断表格，判断某门课程的知识主题数据是否已经在这个数据表中存在
+	 * 适用表格：topic
+	 * @param table
+	 * @param domainName
+	 * @return true表示该领域已经爬取
+	 */
+	public static Boolean judgeByClass1(String table,String table1, String domainName){
 		Boolean exist = false;
 		mysqlUtils mysql = new mysqlUtils();
 		String sql = "select topic.* " + "from " + table + "," + table1 + " where domainName=? and domain.domain_id=topic.domain_id";
@@ -69,115 +118,28 @@ public class MysqlReadWriteDAO {
 	}
 
 	/**
-	 * 读取domain，得到所有领域名
-	 * @return
+	 * 存储domain_topic，存储第n层领域术语到数据库 domain_topic 表格（Set）
+	 * @param termList
+	 * @param domain
+	 * @param layer
 	 */
-	public static List<Domain> getDomain() throws Exception {
-		List<Domain> domainList = new ArrayList<Domain>();
+	public static void storeDomainTopic(Set<Term> termList, String domain, int layer){
 		mysqlUtils mysql = new mysqlUtils();
-		String sql = "select * from " + Config.DOMAIN_TABLE;
-		List<Object> params = new ArrayList<Object>();
-		try {
-			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
-			for (int i = 0; i < results.size(); i++) {
-				Map<String, Object> result = results.get(i);
-				int domainID = Integer.parseInt(result.get("ClassID").toString());
-				String domainName = result.get("ClassName").toString();
-				Domain domain = new Domain(domainID, domainName);
-				domainList.add(domain);
+		String sql = "insert into " + Config.TOPIC_TABLE + " (topic_name, topic_url, topic_layer, domain_id)"
+				+ " VALUES(?, ?, ?, ?);";
+		for (Term term : termList) {
+			List<Object> params = new ArrayList<Object>();
+			params.add(term.getTermName());
+			params.add(term.getTermUrl());
+			params.add(layer);
+			params.add(domain);
+			try {
+				mysql.addDeleteModify(sql, params);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			mysql.closeconnection();
 		}
-		return domainList;
-	}
-
-	/**
-	 * 读取domain_layer，得到所有术语（按照课程）
-	 * @return
-	 */
-	public static List<Term> getDomainLayer(String domain, int layer) throws Exception {
-		List<Term> termList = new ArrayList<Term>();
-		mysqlUtils mysql = new mysqlUtils();
-		String sql = "select * from " + Config.DOMAIN_LAYER_TABLE + " where ClassName=? and TermLayer=?";
-		List<Object> params = new ArrayList<Object>();
-		params.add(domain);
-		params.add(layer);
-		try {
-			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
-			for (int i = 0; i < results.size(); i++) {
-				Map<String, Object> result = results.get(i);
-				String termName = result.get("TermName").toString();
-				String termUrl = result.get("TermUrl").toString();
-				Term termLayer = new Term(termName, termUrl);
-				termList.add(termLayer);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			mysql.closeconnection();
-		}
-		return termList;
-	}
-
-	/**
-	 * 读取domain_layer_fuzhu，得到所有术语（按照课程）
-	 * @return
-	 */
-	public static List<Term> getDomainLayerFuzhu(String domain, int layer, int isCatalog) throws Exception {
-		List<Term> termList = new ArrayList<Term>();
-		mysqlUtils mysql = new mysqlUtils();
-		String sql = "select * from " + Config.DOMAIN_LAYER_FUZHU_TABLE + " where ClassName=? and TermLayer=? and isCatalog=?";
-		List<Object> params = new ArrayList<Object>();
-		params.add(domain);
-		params.add(layer);
-		params.add(isCatalog);
-		try {
-			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
-			for (int i = 0; i < results.size(); i++) {
-				Map<String, Object> result = results.get(i);
-				String termName = result.get("TermName").toString();
-				String termUrl = result.get("TermUrl").toString();
-				Term termLayer = new Term(termName, termUrl);
-				termList.add(termLayer);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			mysql.closeconnection();
-		}
-		return termList;
-	}
-
-	/**
-	 * 读取domain_layer_relation，得到所有术语上下位关系（按照课程）
-	 * @return
-	 */
-	public static List<LayerRelation> getDomainLayerRelation(String domain) throws Exception {
-		List<LayerRelation> layerRelationList = new ArrayList<LayerRelation>();
-		mysqlUtils mysql = new mysqlUtils();
-		String sql = "select * from " + Config.DOMAIN_LAYER_RELATION_TABLE + " where ClassName=?";
-		List<Object> params = new ArrayList<Object>();
-		params.add(domain);
-		try {
-			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
-			for (int i = 0; i < results.size(); i++) {
-				Map<String, Object> result = results.get(i);
-				String parentName = result.get("Parent").toString();
-				int parentLayer = Integer.parseInt(result.get("ParentLayer").toString());
-				String childName = result.get("Child").toString();
-				int childLayer = Integer.parseInt(result.get("ChildLayer").toString());
-				LayerRelation layerRelation = new LayerRelation(parentName, parentLayer, childName, childLayer, domain);
-				layerRelationList.add(layerRelation);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			mysql.closeconnection();
-		}
-		return layerRelationList;
+		mysql.closeconnection();
 	}
 
 	/**
@@ -207,28 +169,118 @@ public class MysqlReadWriteDAO {
 		}
 		return topicList;
 	}
-
-	/**
-	 * 存储领域课程名【完成】
-	 * 存储domain，保存领域名信息
-	 * @param domainList
-	 */
-	public static void storeDomain(List<Domain> domainList){
+//	/**
+//	 * 读取domain，得到所有领域名
+//	 * @return
+//	 */
+	public static List<Domain> getDomain() throws Exception {
+		List<Domain> domainList = new ArrayList<Domain>();
 		mysqlUtils mysql = new mysqlUtils();
-		String sql = "insert into " + Config.DOMAIN_TABLE + " (domainName, subjectId) VALUES(?, ?);";
-		for (int i = 0; i < domainList.size(); i++) {
-			Domain domain = domainList.get(i);
-			List<Object> params = new ArrayList<Object>();
-			params.add(domain.getDomainName());
-			params.add(domain.getSubjectId());
-			try {
-				mysql.addDeleteModify(sql, params);
-			} catch (Exception e) {
-				e.printStackTrace();
+		String sql = "select * from " + Config.DOMAIN_TABLE;
+		List<Object> params = new ArrayList<Object>();
+		try {
+			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
+			for (int i = 0; i < results.size(); i++) {
+				Map<String, Object> result = results.get(i);
+				int domainID = Integer.parseInt(result.get("ClassID").toString());
+				String domainName = result.get("ClassName").toString();
+				Domain domain = new Domain(domainID, domainName);
+				domainList.add(domain);
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			mysql.closeconnection();
 		}
-		mysql.closeconnection();
+		return domainList;
 	}
+
+//	/**
+//	 * 读取domain_layer，得到所有术语（按照课程）
+//	 * @return
+//	 */
+	public static List<Term> getDomainLayer(String domain, int layer) throws Exception {
+		List<Term> termList = new ArrayList<Term>();
+		mysqlUtils mysql = new mysqlUtils();
+		String sql = "select * from " + Config.DOMAIN_LAYER_TABLE + " where ClassName=? and TermLayer=?";
+		List<Object> params = new ArrayList<Object>();
+		params.add(domain);
+		params.add(layer);
+		try {
+			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
+			for (int i = 0; i < results.size(); i++) {
+				Map<String, Object> result = results.get(i);
+				String termName = result.get("TermName").toString();
+				String termUrl = result.get("TermUrl").toString();
+				Term termLayer = new Term(termName, termUrl);
+				termList.add(termLayer);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			mysql.closeconnection();
+		}
+		return termList;
+	}
+
+//	/**
+//	 * 读取domain_layer_fuzhu，得到所有术语（按照课程）
+//	 * @return
+//	 */
+	public static List<Term> getDomainLayerFuzhu(String domain, int layer, int isCatalog) throws Exception {
+		List<Term> termList = new ArrayList<Term>();
+		mysqlUtils mysql = new mysqlUtils();
+		String sql = "select * from " + Config.DOMAIN_LAYER_FUZHU_TABLE + " where ClassName=? and TermLayer=? and isCatalog=?";
+		List<Object> params = new ArrayList<Object>();
+		params.add(domain);
+		params.add(layer);
+		params.add(isCatalog);
+		try {
+			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
+			for (int i = 0; i < results.size(); i++) {
+				Map<String, Object> result = results.get(i);
+				String termName = result.get("TermName").toString();
+				String termUrl = result.get("TermUrl").toString();
+				Term termLayer = new Term(termName, termUrl);
+				termList.add(termLayer);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			mysql.closeconnection();
+		}
+		return termList;
+	}
+
+//	/**
+//	 * 读取domain_layer_relation，得到所有术语上下位关系（按照课程）
+//	 * @return
+//	 */
+//	public static List<LayerRelation> getDomainLayerRelation(String domain) throws Exception {
+//		List<LayerRelation> layerRelationList = new ArrayList<LayerRelation>();
+//		mysqlUtils mysql = new mysqlUtils();
+//		String sql = "select * from " + Config.DOMAIN_LAYER_RELATION_TABLE + " where ClassName=?";
+//		List<Object> params = new ArrayList<Object>();
+//		params.add(domain);
+//		try {
+//			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
+//			for (int i = 0; i < results.size(); i++) {
+//				Map<String, Object> result = results.get(i);
+//				String parentName = result.get("Parent").toString();
+//				int parentLayer = Integer.parseInt(result.get("ParentLayer").toString());
+//				String childName = result.get("Child").toString();
+//				int childLayer = Integer.parseInt(result.get("ChildLayer").toString());
+//				LayerRelation layerRelation = new LayerRelation(parentName, parentLayer, childName, childLayer, domain);
+//				layerRelationList.add(layerRelation);
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		} finally {
+//			mysql.closeconnection();
+//		}
+//		return layerRelationList;
+//	}
+
 
 	/**
 	 * 【未妥】
@@ -284,55 +336,32 @@ public class MysqlReadWriteDAO {
 		mysql.closeconnection();
 	}
 
-	/**
-	 * 存储domain_topic_relation
-	 * @param layerRelationSet
-	 */
-	public static void storeDomainTopicRelation(Set<LayerRelation> layerRelationSet){
-		mysqlUtils mysql = new mysqlUtils();
-		String sql = "insert into " + Config.DOMAIN_TOPIC_RELATION_TABLE + " (Parent, Child, ClassName)"
-				+ " VALUES(?, ?, ?);";
-		for (LayerRelation layerRelation : layerRelationSet) {
-			List<Object> params = new ArrayList<Object>();
-			if (layerRelation.getChildName().equals(layerRelation.getDomain())) {
-				continue;
-			}
-			params.add(layerRelation.getParentName());
-			params.add(layerRelation.getChildName());
-			params.add(layerRelation.getDomain());
-			try {
-				mysql.addDeleteModify(sql, params);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		mysql.closeconnection();
-	}
+//	/**
+//	 * 存储domain_topic_relation
+//	 * @param layerRelationSet
+//	 */
+//	public static void storeDomainTopicRelation(Set<LayerRelation> layerRelationSet){
+//		mysqlUtils mysql = new mysqlUtils();
+//		String sql = "insert into " + Config.DOMAIN_TOPIC_RELATION_TABLE + " (Parent, Child, ClassName)"
+//				+ " VALUES(?, ?, ?);";
+//		for (LayerRelation layerRelation : layerRelationSet) {
+//			List<Object> params = new ArrayList<Object>();
+//			if (layerRelation.getChildName().equals(layerRelation.getDomain())) {
+//				continue;
+//			}
+//			params.add(layerRelation.getParentName());
+//			params.add(layerRelation.getChildName());
+//			params.add(layerRelation.getDomain());
+//			try {
+//				mysql.addDeleteModify(sql, params);
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+//		}
+//		mysql.closeconnection();
+//	}
 
-	/**
-	 * 存储domain_topic，存储第n层领域术语到数据库 domain_topic 表格（Set）
-	 * @param termList
-	 * @param domain
-	 * @param layer
-	 */
-	public static void storeDomainTopic(Set<Term> termList, String domain, int layer){
-		mysqlUtils mysql = new mysqlUtils();
-		String sql = "insert into " + Config.TOPIC_TABLE + " (topic_name, topic_url, topic_layer, domain_id)"
-				+ " VALUES(?, ?, ?, ?);";
-		for (Term term : termList) {
-			List<Object> params = new ArrayList<Object>();
-			params.add(term.getTermName());
-			params.add(term.getTermUrl());
-			params.add(layer);
-			params.add(domain);
-			try {
-				mysql.addDeleteModify(sql, params);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		mysql.closeconnection();
-	}
+
 
 	/**
 	 * 存储domain_topic，存储第n层领域术语到数据库 domain_topic 表格（Set）

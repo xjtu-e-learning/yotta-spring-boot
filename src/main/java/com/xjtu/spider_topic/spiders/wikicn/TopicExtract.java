@@ -32,7 +32,7 @@ public class TopicExtract {
 	}
 	
 	/**
-	 * 解析得到Category中的页面术语
+	 * 1.解析得到Category中的页面领域术语
 	 * @param doc
 	 * @return 
 	 */
@@ -45,7 +45,7 @@ public class TopicExtract {
 			String url = "https://zh.wikipedia.org" + mwPages.get(i).select("a").attr("href");
 			String topic = mwPages.get(i).text();
 			topic = converter.convert(topic);
-//			Log.log("topic is : " + topic + "  url is : " + url);
+			Log.log("topic is : " + topic + "  url is : " + url);
 			Term term = new Term(topic, url);
 			termList.add(term);
 		}
@@ -69,7 +69,7 @@ public class TopicExtract {
 				String url = "https://zh.wikipedia.org" + mwPages.get(i).select("a").attr("href");
 				String layer = mwPages.get(i).select("a").text();
 				layer = converter.convert(layer);
-//				Log.log("Layer is : " + layer + "  url is : " + url);
+				Log.log("Layer is : " + layer + "  url is : " + url);
 				Term term = new Term(layer, url);
 				termList.add(term);
 			}
