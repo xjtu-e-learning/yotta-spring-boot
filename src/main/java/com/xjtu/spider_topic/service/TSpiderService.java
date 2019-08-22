@@ -1,26 +1,25 @@
 package com.xjtu.spider_topic.service;
 
 import com.xjtu.common.Config;
+import com.xjtu.common.domain.Result;
+import com.xjtu.common.domain.ResultEnum;
 import com.xjtu.domain.domain.Domain;
 import com.xjtu.domain.repository.DomainRepository;
 import com.xjtu.spider_topic.spiders.wikicn.FragmentCrawler;
 import com.xjtu.spider_topic.spiders.wikicn.MysqlReadWriteDAO;
 import com.xjtu.spider_topic.spiders.wikicn.TopicCrawler;
-import com.xjtu.topic.repository.TopicRepository;
 import com.xjtu.utils.Log;
+import com.xjtu.utils.ResultUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 
 @Service
 public class TSpiderService {
     @Autowired
-    private DomainRepository domainRepository;
-    @Autowired
-    private TopicRepository topicRepository;
+    private static DomainRepository domainRepository;
 
     // 中文网站爬虫
-    public void TSpider(String domainName) throws Exception {
+    public Result TSpider(String domainName) throws Exception {
         // 如果数据库中表格不存在，先新建数据库表格
         //DatabaseUtils.createTable();
         Domain domain = domainRepository.findByDomainName(domainName);
@@ -32,6 +31,7 @@ public class TSpiderService {
         } else {
             Log.log("domain表格有这门课程，不需要爬取课程：" + domain);
         }
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), domain);
     }
     /**
      * 爬取一门课程：主题、分面、分面关系、【主题认知关系(gephi文件)、碎片（中文维基）】

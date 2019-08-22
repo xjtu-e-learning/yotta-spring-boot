@@ -1,5 +1,7 @@
 package com.xjtu.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.List;
 
 /**
@@ -13,8 +15,10 @@ public class Log {
 //	private final static Boolean flag = false;
 	private final static Boolean flag = true;
 
+	private static final Logger logger = LoggerFactory.getLogger(Log.class);
+
 	public static void main(String[] args) {
-		log("test print...");
+		logger.info("test print...");
 	}
 
 	/**
@@ -35,7 +39,7 @@ public class Log {
 	 */
 	public static void log(List<Object> list) {
 		for (int i = 0; i < list.size(); i++) {
-			log(list.get(i));
+			logger.equals(list.get(i));
 		}
 	}
 	

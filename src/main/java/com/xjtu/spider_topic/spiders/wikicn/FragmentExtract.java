@@ -1,13 +1,11 @@
 package com.xjtu.spider_topic.spiders.wikicn;
 
-import app.Config;
-import assemble.bean.AssembleFragmentFuzhu;
+import com.xjtu.common.Config;
+
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import utils.JsoupDao;
-import utils.Log;
-import utils.SpiderUtils;
+import com.xjtu.utils.*;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -32,329 +30,399 @@ public class FragmentExtract {
 		Document doc = JsoupDao.parseHtmlText(topicHtml);
 //		getSpecialContent(doc);
 //		getSummary(doc);
-		getFirstContent(doc);
-		getSecondContent(doc);
-		getThirdContent(doc);
+//		getFirstContent(doc);
+//		getSecondContent(doc);
+//		getThirdContent(doc);
 	}
-	
+
+
 	/**
-	 * 网页没有一级或者二级标题，网页内容的获取
+	 * 获取一级标题
 	 * @param doc
 	 * @return
 	 */
-	public static List<AssembleFragmentFuzhu> getSpecialContent(Document doc){
-		List<AssembleFragmentFuzhu> assembleList = new ArrayList<AssembleFragmentFuzhu>();
-		Log.log("------------------ 页面所有内容 ----------------------");
-		Elements para = doc.select("div#mw-content-text");
-		if(para.size() != 0){
-			String con = para.get(0).html();
-			String conPureText = para.get(0).text();
-			Log.log(conPureText);
-			AssembleFragmentFuzhu assemble = new AssembleFragmentFuzhu("摘要", con, 1, conPureText);
-			assembleList.add(assemble);
-		}
-		return assembleList;
-	}
-	
-	/**
-	 * 获取介绍信息
-	 * @param doc
-	 * @return
-	 */
-	public static List<AssembleFragmentFuzhu> getSummary(Document doc) {
-		List<AssembleFragmentFuzhu> assembleList = new ArrayList<AssembleFragmentFuzhu>();
-		Log.log("------------------ 摘要内容 ----------------------");
-		LinkedList<Element> list = getNodes(doc);
-		String summary = "";
-		String summaryPureText = "";
-		int tocId = 0;
-		
-		/**
-		 * 获取summary的下标
-		 */
-		for (int i = 0; i < list.size(); i++) {
-			Element child = list.get(i);
-			Elements toc = child.select("div#toc");
-			if (toc.size() != 0) {
-				tocId = i;
-				break;
-			} else {
-				Elements h = child.select("span.mw-headline");
-				if(h.size()!=0){
-					tocId = i;
-					break;
-				}
-			}
-		}
-		
-		/**
-		 * 获取summary内容
-		 */
-		for (int i = 0; i < tocId; i++) {
-			Element child = list.get(i);
-			if (!child.text().contains("本条目")) { // 不保存多余信息
-				summary = child.html();
-				summaryPureText = child.text();
-				Log.log("摘要" + "--->" + child.text());
-				AssembleFragmentFuzhu assemble = new AssembleFragmentFuzhu("摘要", summary, 1, summaryPureText);
-				assembleList.add(assemble);
-			}
-		}
-		return assembleList;
-	}
-	
-	/**
-	 * 获取三级标题之间的内容
-	 * @param doc
-	 * @return
-	 */
-	public static List<AssembleFragmentFuzhu> getThirdContent(Document doc){
-		List<AssembleFragmentFuzhu> assembleList = new ArrayList<AssembleFragmentFuzhu>();
-		LinkedList<String> allTitle = getAllTitle(doc);
-		LinkedList<String> thirdTitle = getThirdTitle(doc);
-		LinkedList<Element> nodes = getNodes(doc);
-
-		/**
-		 * 寻找一级和二级标题在节点链表的下标
-		 */
-		LinkedList<Integer> allTitleIndex = getTitleIndex(allTitle, nodes);
-
-		/**
-		 * 比较标题链表和对应的下标链表的大小是否相同，原则上是相同的，不相同说明网页存在问题等。。。
-		 */
-		int len = allTitle.size();
-		int indexLen = allTitleIndex.size();
-		if(len > indexLen){
-			len = indexLen;
-		}
-
-		if (len == 0) {
-			return null;
-		}
-
-		Log.log("------------------ 三级标题内容 ----------------------");
-		/**
-		 * 获取每个三级标题的内容，为该标题与相邻标题下标之间的节点内容
-		 */
-		for(int i = 0; i < len - 1; i++){
-			String title = allTitle.get(i);
-			for(int j = 0; j < thirdTitle.size(); j++){
-				String thiTitle = thirdTitle.get(j);
-				if(title.equals(thiTitle)){ // 遍历所有标题，寻找到三级标题
-					String content = "";
-					String contentPureText = "";
-					int begin = allTitleIndex.get(i);
-					int end = allTitleIndex.get(i+1);
-					Log.log(title + " ---> " + begin + "," + end);
-					for(int k = begin + 1; k < end; k++){
-						Element node = nodes.get(k);
-						if (node.text().length() > Config.TEXTLENGTH) {
-							content = node.html();
-							contentPureText = node.text();
-//						content = Config.converter.convert(content);
-							AssembleFragmentFuzhu assemble = new AssembleFragmentFuzhu(title, content, 3, contentPureText);
-							assembleList.add(assemble);
-							Log.log(node.text());
-						}
+	public static LinkedList<String> getFirstTitle(Document doc){
+		LinkedList<String> firstTitle = new LinkedList<String>();
+		Elements titles = doc.select("div#mw-content-text").select("h2");
+		if(titles.size() != 0){
+			for(int i = 0; i < titles.size(); i++){
+				Elements lel = titles.get(i).select("span.mw-headline");
+				if(lel.size() != 0){
+					String level1 = lel.get(0).text();
+					level1 = Config.converter.convert(level1);
+					Boolean flag = delTitle(level1);
+					if(!flag){
+						firstTitle.add(level1);
 					}
 				}
 			}
 		}
+		return firstTitle;
+	}
 
-		/**
-		 * 所有标题的最后一个标题是否为三级标题
-		 */
-		String title = allTitle.get(len - 1);
-		for(int j = 0; j < thirdTitle.size(); j++){
-			String thiTitle = thirdTitle.get(j);
-			if(title.equals(thiTitle)){ // 遍历所有标题，寻找到三级标题
-				String content = "";
-				String contentPureText = "";
-				int begin = allTitleIndex.get(len - 1);
-				Log.log(title + " ---> " + begin + "," + (nodes.size()-1));
-				for(int k = begin + 1; k < nodes.size(); k++){
-					Element node = nodes.get(k);
-					if (node.text().length() > Config.TEXTLENGTH) {
-						content = node.html();
-						contentPureText = node.text();
-//					content = Config.converter.convert(content);
-//					String imgTxt = "<img src=";
-//					if(imgTxt.contains(imgTxt)){
-//						content = content.substring(0, content.indexOf(imgTxt));
+	/**
+	 * 获取二级标题
+	 * @param doc
+	 * @return
+	 */
+	public static LinkedList<String> getSecondTitle(Document doc){
+		LinkedList<String> secondTitle = new LinkedList<String>();
+		Elements titles = doc.select("div#mw-content-text").select("h3");
+		if(titles.size() != 0){
+			for(int i = 0; i < titles.size(); i++){
+				String level2 = titles.get(i).select("span.mw-headline").get(0).text();
+				level2 = Config.converter.convert(level2);
+				Boolean flag = delTitle(level2);
+				if(!flag){
+					secondTitle.add(level2);
+				}
+			}
+		}
+		return secondTitle;
+	}
+
+
+
+	/**
+	 * 获取三级标题
+	 * @param doc
+	 * @return
+	 */
+	public static LinkedList<String> getThirdTitle(Document doc){
+		LinkedList<String> thirdTitle = new LinkedList<String>();
+		Elements titles = doc.select("div#mw-content-text").select("h4");
+		if(titles.size() != 0){
+			for(int i = 0; i < titles.size(); i++){
+				String level3 = titles.get(i).select("span.mw-headline").get(0).text();
+				level3 = Config.converter.convert(level3);
+				Boolean flag = delTitle(level3);
+				if(!flag){
+					thirdTitle.add(level3);
+				}
+			}
+		}
+		return thirdTitle;
+	}
+
+
+//	/**
+//	 * 网页没有一级或者二级标题，网页内容的获取
+//	 * @param doc
+//	 * @return
+//	 */
+//	public static List<AssembleFragmentFuzhu> getSpecialContent(Document doc){
+//		List<AssembleFragmentFuzhu> assembleList = new ArrayList<AssembleFragmentFuzhu>();
+//		Log.log("------------------ 页面所有内容 ----------------------");
+//		Elements para = doc.select("div#mw-content-text");
+//		if(para.size() != 0){
+//			String con = para.get(0).html();
+//			String conPureText = para.get(0).text();
+//			Log.log(conPureText);
+//			AssembleFragmentFuzhu assemble = new AssembleFragmentFuzhu("摘要", con, 1, conPureText);
+//			assembleList.add(assemble);
+//		}
+//		return assembleList;
+//	}
+//
+//	/**
+//	 * 获取介绍信息
+//	 * @param doc
+//	 * @return
+//	 */
+//	public static List<AssembleFragmentFuzhu> getSummary(Document doc) {
+//		List<AssembleFragmentFuzhu> assembleList = new ArrayList<AssembleFragmentFuzhu>();
+//		Log.log("------------------ 摘要内容 ----------------------");
+//		LinkedList<Element> list = getNodes(doc);
+//		String summary = "";
+//		String summaryPureText = "";
+//		int tocId = 0;
+//
+//		/**
+//		 * 获取summary的下标
+//		 */
+//		for (int i = 0; i < list.size(); i++) {
+//			Element child = list.get(i);
+//			Elements toc = child.select("div#toc");
+//			if (toc.size() != 0) {
+//				tocId = i;
+//				break;
+//			} else {
+//				Elements h = child.select("span.mw-headline");
+//				if(h.size()!=0){
+//					tocId = i;
+//					break;
+//				}
+//			}
+//		}
+//
+//		/**
+//		 * 获取summary内容
+//		 */
+//		for (int i = 0; i < tocId; i++) {
+//			Element child = list.get(i);
+//			if (!child.text().contains("本条目")) { // 不保存多余信息
+//				summary = child.html();
+//				summaryPureText = child.text();
+//				Log.log("摘要" + "--->" + child.text());
+//				AssembleFragmentFuzhu assemble = new AssembleFragmentFuzhu("摘要", summary, 1, summaryPureText);
+//				assembleList.add(assemble);
+//			}
+//		}
+//		return assembleList;
+//	}
+//
+//	/**
+//	 * 获取三级标题之间的内容
+//	 * @param doc
+//	 * @return
+//	 */
+//	public static List<AssembleFragmentFuzhu> getThirdContent(Document doc){
+//		List<AssembleFragmentFuzhu> assembleList = new ArrayList<AssembleFragmentFuzhu>();
+//		LinkedList<String> allTitle = getAllTitle(doc);
+//		LinkedList<String> thirdTitle = getThirdTitle(doc);
+//		LinkedList<Element> nodes = getNodes(doc);
+//
+//		/**
+//		 * 寻找一级和二级标题在节点链表的下标
+//		 */
+//		LinkedList<Integer> allTitleIndex = getTitleIndex(allTitle, nodes);
+//
+//		/**
+//		 * 比较标题链表和对应的下标链表的大小是否相同，原则上是相同的，不相同说明网页存在问题等。。。
+//		 */
+//		int len = allTitle.size();
+//		int indexLen = allTitleIndex.size();
+//		if(len > indexLen){
+//			len = indexLen;
+//		}
+//
+//		if (len == 0) {
+//			return null;
+//		}
+//
+//		Log.log("------------------ 三级标题内容 ----------------------");
+//		/**
+//		 * 获取每个三级标题的内容，为该标题与相邻标题下标之间的节点内容
+//		 */
+//		for(int i = 0; i < len - 1; i++){
+//			String title = allTitle.get(i);
+//			for(int j = 0; j < thirdTitle.size(); j++){
+//				String thiTitle = thirdTitle.get(j);
+//				if(title.equals(thiTitle)){ // 遍历所有标题，寻找到三级标题
+//					String content = "";
+//					String contentPureText = "";
+//					int begin = allTitleIndex.get(i);
+//					int end = allTitleIndex.get(i+1);
+//					Log.log(title + " ---> " + begin + "," + end);
+//					for(int k = begin + 1; k < end; k++){
+//						Element node = nodes.get(k);
+//						if (node.text().length() > Config.TEXTLENGTH) {
+//							content = node.html();
+//							contentPureText = node.text();
+////						content = Config.converter.convert(content);
+//							AssembleFragmentFuzhu assemble = new AssembleFragmentFuzhu(title, content, 3, contentPureText);
+//							assembleList.add(assemble);
+//							Log.log(node.text());
+//						}
 //					}
-						AssembleFragmentFuzhu assemble = new AssembleFragmentFuzhu(title, content, 3, contentPureText);
-						assembleList.add(assemble);
-						Log.log(node.text());
-					}
-				}
-			}
-		}
-		return assembleList;
-	}
-
-	/**
-	 * 获取二级标题之间的内容
-	 * @param doc
-	 * @return
-	 */
-	public static List<AssembleFragmentFuzhu> getSecondContent(Document doc){
-		List<AssembleFragmentFuzhu> assembleList = new ArrayList<AssembleFragmentFuzhu>();
-		LinkedList<String> allTitle = getAllTitle(doc);
-		LinkedList<String> secondTitle = getSecondTitle(doc);
-		LinkedList<Element> nodes = getNodes(doc);
-
-		/**
-		 * 寻找一级和二级标题在节点链表的下标
-		 */
-		LinkedList<Integer> allTitleIndex = getTitleIndex(allTitle, nodes);
-		
-		/**
-		 * 比较标题链表和对应的下标链表的大小是否相同，原则上是相同的，不相同说明网页存在问题等。。。
-		 */
-		int len = allTitle.size();
-		int indexLen = allTitleIndex.size();
-		if(len > indexLen){
-			len = indexLen;
-		}
-
-		if (len == 0) {
-			return null;
-		}
-
-		Log.log("------------------ 二级标题内容 ----------------------");
-		/**
-		 * 获取每个二级标题的内容，为该标题与相邻标题下标之间的节点内容
-		 */
-		for(int i = 0; i < len - 1; i++){
-			String title = allTitle.get(i);
-			for(int j = 0; j < secondTitle.size(); j++){
-				String secTitle = secondTitle.get(j);
-				if(title.equals(secTitle)){ // 遍历所有标题，寻找到二级标题
-					String content = "";
-					String contentPureText = "";
-					int begin = allTitleIndex.get(i);
-					int end = allTitleIndex.get(i+1);
-					Log.log(title + " ---> " + begin + "," + end);
-					for(int k = begin + 1; k < end; k++){
-						Element node = nodes.get(k);
-						if (node.text().length() > Config.TEXTLENGTH) {
-							content = node.html();
-							contentPureText = node.text();
-//						content = Config.converter.convert(content);
-							AssembleFragmentFuzhu assemble = new AssembleFragmentFuzhu(title, content, 2, contentPureText);
-							assembleList.add(assemble);
-							Log.log(node.text());
-						}
-					}
-				}
-			}
-		}
-		
-		/**
-		 * 所有标题的最后一个标题是否为二级标题
-		 */
-		String title = allTitle.get(len - 1);
-		for(int j = 0; j < secondTitle.size(); j++){
-			String secTitle = secondTitle.get(j);
-			if(title.equals(secTitle)){ // 遍历所有标题，寻找到二级标题
-				String content = "";
-				String contentPureText = "";
-				int begin = allTitleIndex.get(len - 1);
-				Log.log(title + " ---> " + begin + "," + (nodes.size()-1));
-				for(int k = begin + 1; k < nodes.size(); k++){
-					Element node = nodes.get(k);
-					if (node.text().length() > Config.TEXTLENGTH) {
-						content = node.html();
-						contentPureText = node.text();
-//					content = Config.converter.convert(content);
-//					String imgTxt = "<img src=";
-//					if(imgTxt.contains(imgTxt)){
-//						content = content.substring(0, content.indexOf(imgTxt));
+//				}
+//			}
+//		}
+//
+//		/**
+//		 * 所有标题的最后一个标题是否为三级标题
+//		 */
+//		String title = allTitle.get(len - 1);
+//		for(int j = 0; j < thirdTitle.size(); j++){
+//			String thiTitle = thirdTitle.get(j);
+//			if(title.equals(thiTitle)){ // 遍历所有标题，寻找到三级标题
+//				String content = "";
+//				String contentPureText = "";
+//				int begin = allTitleIndex.get(len - 1);
+//				Log.log(title + " ---> " + begin + "," + (nodes.size()-1));
+//				for(int k = begin + 1; k < nodes.size(); k++){
+//					Element node = nodes.get(k);
+//					if (node.text().length() > Config.TEXTLENGTH) {
+//						content = node.html();
+//						contentPureText = node.text();
+////					content = Config.converter.convert(content);
+////					String imgTxt = "<img src=";
+////					if(imgTxt.contains(imgTxt)){
+////						content = content.substring(0, content.indexOf(imgTxt));
+////					}
+//						AssembleFragmentFuzhu assemble = new AssembleFragmentFuzhu(title, content, 3, contentPureText);
+//						assembleList.add(assemble);
+//						Log.log(node.text());
 //					}
-						AssembleFragmentFuzhu assemble = new AssembleFragmentFuzhu(title, content, 2, contentPureText);
-						assembleList.add(assemble);
-						Log.log(node.text());
-					}
-				}
-			}
-		}
-		return assembleList;
-	}
-	
-	/**
-	 * 获取一级标题之间的内容
-	 * @param doc
-	 * @return
-	 */
-	public static List<AssembleFragmentFuzhu> getFirstContent(Document doc){
-		List<AssembleFragmentFuzhu> assembleList = new ArrayList<AssembleFragmentFuzhu>();
-		LinkedList<String> firstTitle = getFirstTitle(doc);
-		LinkedList<Element> nodes = getNodes(doc);
-		
-		/**
-		 * 寻找一级标题在节点链表的下标
-		 */
-		LinkedList<Integer> firstTitleIndex = getTitleIndex(firstTitle, nodes);
+//				}
+//			}
+//		}
+//		return assembleList;
+//	}
+//
+//	/**
+//	 * 获取二级标题之间的内容
+//	 * @param doc
+//	 * @return
+//	 */
+//	public static List<AssembleFragmentFuzhu> getSecondContent(Document doc){
+//		List<AssembleFragmentFuzhu> assembleList = new ArrayList<AssembleFragmentFuzhu>();
+//		LinkedList<String> allTitle = getAllTitle(doc);
+//		LinkedList<String> secondTitle = getSecondTitle(doc);
+//		LinkedList<Element> nodes = getNodes(doc);
+//
+//		/**
+//		 * 寻找一级和二级标题在节点链表的下标
+//		 */
+//		LinkedList<Integer> allTitleIndex = getTitleIndex(allTitle, nodes);
+//
+//		/**
+//		 * 比较标题链表和对应的下标链表的大小是否相同，原则上是相同的，不相同说明网页存在问题等。。。
+//		 */
+//		int len = allTitle.size();
+//		int indexLen = allTitleIndex.size();
+//		if(len > indexLen){
+//			len = indexLen;
+//		}
+//
+//		if (len == 0) {
+//			return null;
+//		}
+//
+//		Log.log("------------------ 二级标题内容 ----------------------");
+//		/**
+//		 * 获取每个二级标题的内容，为该标题与相邻标题下标之间的节点内容
+//		 */
+//		for(int i = 0; i < len - 1; i++){
+//			String title = allTitle.get(i);
+//			for(int j = 0; j < secondTitle.size(); j++){
+//				String secTitle = secondTitle.get(j);
+//				if(title.equals(secTitle)){ // 遍历所有标题，寻找到二级标题
+//					String content = "";
+//					String contentPureText = "";
+//					int begin = allTitleIndex.get(i);
+//					int end = allTitleIndex.get(i+1);
+//					Log.log(title + " ---> " + begin + "," + end);
+//					for(int k = begin + 1; k < end; k++){
+//						Element node = nodes.get(k);
+//						if (node.text().length() > Config.TEXTLENGTH) {
+//							content = node.html();
+//							contentPureText = node.text();
+////						content = Config.converter.convert(content);
+//							AssembleFragmentFuzhu assemble = new AssembleFragmentFuzhu(title, content, 2, contentPureText);
+//							assembleList.add(assemble);
+//							Log.log(node.text());
+//						}
+//					}
+//				}
+//			}
+//		}
+//
+//		/**
+//		 * 所有标题的最后一个标题是否为二级标题
+//		 */
+//		String title = allTitle.get(len - 1);
+//		for(int j = 0; j < secondTitle.size(); j++){
+//			String secTitle = secondTitle.get(j);
+//			if(title.equals(secTitle)){ // 遍历所有标题，寻找到二级标题
+//				String content = "";
+//				String contentPureText = "";
+//				int begin = allTitleIndex.get(len - 1);
+//				Log.log(title + " ---> " + begin + "," + (nodes.size()-1));
+//				for(int k = begin + 1; k < nodes.size(); k++){
+//					Element node = nodes.get(k);
+//					if (node.text().length() > Config.TEXTLENGTH) {
+//						content = node.html();
+//						contentPureText = node.text();
+////					content = Config.converter.convert(content);
+////					String imgTxt = "<img src=";
+////					if(imgTxt.contains(imgTxt)){
+////						content = content.substring(0, content.indexOf(imgTxt));
+////					}
+//						AssembleFragmentFuzhu assemble = new AssembleFragmentFuzhu(title, content, 2, contentPureText);
+//						assembleList.add(assemble);
+//						Log.log(node.text());
+//					}
+//				}
+//			}
+//		}
+//		return assembleList;
+//	}
+//
+//	/**
+//	 * 获取一级标题之间的内容
+//	 * @param doc
+//	 * @return
+//	 */
+//	public static List<AssembleFragmentFuzhu> getFirstContent(Document doc){
+//		List<AssembleFragmentFuzhu> assembleList = new ArrayList<AssembleFragmentFuzhu>();
+//		LinkedList<String> firstTitle = getFirstTitle(doc);
+//		LinkedList<Element> nodes = getNodes(doc);
+//
+//		/**
+//		 * 寻找一级标题在节点链表的下标
+//		 */
+//		LinkedList<Integer> firstTitleIndex = getTitleIndex(firstTitle, nodes);
+//
+//		/**
+//		 *  比较标题链表和对应的下标链表的大小是否相同，原则上是相同的，不相同说明网页存在问题等。。。
+//		 */
+//		int len = firstTitle.size();
+//		int indexLen = firstTitleIndex.size();
+//		Log.log("一级标题个数和一级标题下标个数：" + len + "," + indexLen);
+//		if(len > indexLen){
+//			len = indexLen;
+//		}
+//
+//		if (len == 0) {
+//			return null;
+//		}
+//
+//		Log.log("------------------ 一级标题内容 ----------------------");
+//
+//		/**
+//		 * 获取每个一级标题的内容，为该标题与相邻标题下标之间的节点内容
+//		 */
+//		for(int i = 0; i < len - 1; i++){
+//			String title = firstTitle.get(i);
+//			String content = "";
+//			String contentPureText = "";
+//			int begin = firstTitleIndex.get(i);
+//			int end = firstTitleIndex.get(i + 1);
+//			Log.log(title + " ---> " + begin + "," + end);
+//			for(int j = begin + 1; j < end; j++){
+//				Element node = nodes.get(j);
+//				if (node.text().length() > Config.TEXTLENGTH) {
+//					content = node.html();
+//					contentPureText = node.text();
+//					AssembleFragmentFuzhu assemble = new AssembleFragmentFuzhu(title, content, 1, contentPureText);
+//					assembleList.add(assemble);
+//					Log.log(node.text());
+//				}
+//			}
+//		}
+//
+//		/**
+//		 * 一级标题最后一个标题为该下标到节点最后
+//		 */
+//		String title = firstTitle.get(len - 1);
+//		String content = "";
+//		String contentPureText = "";
+//		int begin = firstTitleIndex.get(len - 1);
+//		Log.log(title + " ---> " + begin + "," + (nodes.size()-1));
+//		for(int j = begin + 1; j < nodes.size(); j++){
+//			Element node = nodes.get(j);
+//			if (node.text().length() > Config.TEXTLENGTH) {
+//				content = node.html();
+//				contentPureText = node.text();
+//				AssembleFragmentFuzhu assemble = new AssembleFragmentFuzhu(title, content, 1, contentPureText);
+//				assembleList.add(assemble);
+//				Log.log(node.text());
+//			}
+//		}
+//		return assembleList;
+//	}
 
-		/**
-		 *  比较标题链表和对应的下标链表的大小是否相同，原则上是相同的，不相同说明网页存在问题等。。。
-		 */
-		int len = firstTitle.size();
-		int indexLen = firstTitleIndex.size();
-		Log.log("一级标题个数和一级标题下标个数：" + len + "," + indexLen);
-		if(len > indexLen){
-			len = indexLen;
-		}
-
-		if (len == 0) {
-			return null;
-		}
-
-		Log.log("------------------ 一级标题内容 ----------------------");
-		
-		/**
-		 * 获取每个一级标题的内容，为该标题与相邻标题下标之间的节点内容
-		 */
-		for(int i = 0; i < len - 1; i++){
-			String title = firstTitle.get(i);
-			String content = "";
-			String contentPureText = "";
-			int begin = firstTitleIndex.get(i);
-			int end = firstTitleIndex.get(i + 1);
-			Log.log(title + " ---> " + begin + "," + end);
-			for(int j = begin + 1; j < end; j++){
-				Element node = nodes.get(j);
-				if (node.text().length() > Config.TEXTLENGTH) {
-					content = node.html();
-					contentPureText = node.text();
-					AssembleFragmentFuzhu assemble = new AssembleFragmentFuzhu(title, content, 1, contentPureText);
-					assembleList.add(assemble);
-					Log.log(node.text());
-				}
-			}
-		}
-		
-		/**
-		 * 一级标题最后一个标题为该下标到节点最后
-		 */
-		String title = firstTitle.get(len - 1);
-		String content = "";
-		String contentPureText = "";
-		int begin = firstTitleIndex.get(len - 1);
-		Log.log(title + " ---> " + begin + "," + (nodes.size()-1));
-		for(int j = begin + 1; j < nodes.size(); j++){
-			Element node = nodes.get(j);
-			if (node.text().length() > Config.TEXTLENGTH) {
-				content = node.html();
-				contentPureText = node.text();
-				AssembleFragmentFuzhu assemble = new AssembleFragmentFuzhu(title, content, 1, contentPureText);
-				assembleList.add(assemble);
-				Log.log(node.text());
-			}
-		}
-		return assembleList;
-	}
-	
 
 	/**
 	 * 寻找一级标题在节点链表的下标
@@ -430,71 +498,11 @@ public class FragmentExtract {
 		return allTitle;
 	}
 	
-	/**
-	 * 获取三级标题
-	 * @param doc
-	 * @return
-	 */
-	public static LinkedList<String> getThirdTitle(Document doc){
-		LinkedList<String> thirdTitle = new LinkedList<String>();
-		Elements titles = doc.select("div#mw-content-text").select("h4");
-		if(titles.size() != 0){
-			for(int i = 0; i < titles.size(); i++){
-				String level3 = titles.get(i).select("span.mw-headline").get(0).text();
-				level3 = Config.converter.convert(level3);
-				Boolean flag = delTitle(level3);
-				if(!flag){
-					thirdTitle.add(level3);
-				}
-			}
-		}
-		return thirdTitle;
-	}
+
 	
-	/**
-	 * 获取二级标题
-	 * @param doc
-	 * @return
-	 */
-	public static LinkedList<String> getSecondTitle(Document doc){
-		LinkedList<String> secondTitle = new LinkedList<String>();
-		Elements titles = doc.select("div#mw-content-text").select("h3");
-		if(titles.size() != 0){
-			for(int i = 0; i < titles.size(); i++){
-				String level2 = titles.get(i).select("span.mw-headline").get(0).text();
-				level2 = Config.converter.convert(level2);
-				Boolean flag = delTitle(level2);
-				if(!flag){
-					secondTitle.add(level2);
-				}
-			}
-		}
-		return secondTitle;
-	}
+
 	
-	/**
-	 * 获取一级标题
-	 * @param doc
-	 * @return
-	 */
-	public static LinkedList<String> getFirstTitle(Document doc){
-		LinkedList<String> firstTitle = new LinkedList<String>();
-		Elements titles = doc.select("div#mw-content-text").select("h2");
-		if(titles.size() != 0){
-			for(int i = 0; i < titles.size(); i++){
-				Elements lel = titles.get(i).select("span.mw-headline");
-				if(lel.size() != 0){
-					String level1 = lel.get(0).text();
-					level1 = Config.converter.convert(level1);
-					Boolean flag = delTitle(level1);
-					if(!flag){
-						firstTitle.add(level1);
-					}
-				}
-			}
-		}
-		return firstTitle;
-	}
+
 
 	/**
 	 * 将html内容中的所有子节点写到链表中

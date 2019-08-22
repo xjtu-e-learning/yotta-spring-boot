@@ -5,6 +5,7 @@ import com.xjtu.domain.domain.Domain;
 import com.xjtu.topic.domain.Term;
 import com.xjtu.topic.domain.LayerRelation;
 import com.xjtu.utils.Log;
+import org.apache.xmlbeans.impl.xb.xsdschema.Public;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -85,7 +86,7 @@ public class TopicCrawler {
 		int firstLayer = 1;
 		List<Term> topicFirst = TopicCrawlerDAO.topic(domain_url); // 得到第一层领域术语（不含子主题的那一部分）
 
-		//MysqlReadWriteDAO.storeDomainLayer(topicFirst, domainName, firstLayer); // 存储第一层领域术语（不含子主题）
+		MysqlReadWriteDAO.storeDomainLayer(topicFirst, domainName, firstLayer); // 存储第一层领域术语（不含子主题）
 		//MysqlReadWriteDAO.storeDomainLayerFuzhu(topicFirst, domainName, firstLayer, 0); // 存储第一层领域术语（不含子主题）
 		// 构造一个主题作为没有子主题的一级主题的父主题
 		//List<Term> terms = new ArrayList<>();
@@ -110,7 +111,7 @@ public class TopicCrawler {
 				String url = layer.getTermUrl();
 				List<Term> topicSecond = TopicCrawlerDAO.topic(url); // 得到第二层领域术语（不含子主题的那一部分）
 
-				//MysqlReadWriteDAO.storeDomainLayer(topicSecond, domainName, secondLayer); // 存储第二层领域术语（不含子主题）
+				MysqlReadWriteDAO.storeDomainLayer(topicSecond, domainName, secondLayer); // 存储第二层领域术语（不含子主题）
 				//MysqlReadWriteDAO.storeDomainLayerFuzhu(topicSecond, domainName, secondLayer, 0); // 存储第二层领域术语（不含子主题）
 				//MysqlReadWriteDAO.storeLayerRelation(layer.getTermName(), firstLayer, topicSecond, secondLayer, domainName); // 存储领域术语的上下位关系
 
@@ -129,7 +130,7 @@ public class TopicCrawler {
 						String url2 = layer2.getTermUrl();
 						List<Term> topicThird = TopicCrawlerDAO.topic(url2); // 得到第三层领域术语（不含子主题）
 
-						//MysqlReadWriteDAO.storeDomainLayer(topicThird, domainName, thirdLayer); // 存储第三层领域术语（不含子主题）
+						MysqlReadWriteDAO.storeDomainLayer(topicThird, domainName, thirdLayer); // 存储第三层领域术语（不含子主题）
 						//MysqlReadWriteDAO.storeDomainLayerFuzhu(topicThird, domainName, thirdLayer, 0); // 存储第三层领域术语（不含子主题）
 						//MysqlReadWriteDAO.storeLayerRelation(layer2.getTermName(), secondLayer, topicThird, thirdLayer, domainName); // 存储领域术语的上下位关系
 
@@ -158,13 +159,13 @@ public class TopicCrawler {
 		List<Term> topicSecond = MysqlReadWriteDAO.getDomainLayer(domainName, 2);
 		List<Term> topicThird = MysqlReadWriteDAO.getDomainLayer(domainName, 3);
 
-		List<Term> topicFirstFuzhu = MysqlReadWriteDAO.getDomainLayerFuzhu(domainName, 1, 0);
-		List<Term> topicSecondFuzhu = MysqlReadWriteDAO.getDomainLayerFuzhu(domainName, 2, 0);
-		List<Term> topicThirdFuzhu = MysqlReadWriteDAO.getDomainLayerFuzhu(domainName, 3, 0);
-
-		List<Term> topicFirstFuzhu2 = MysqlReadWriteDAO.getDomainLayerFuzhu(domainName, 1, 1);
-		List<Term> topicSecondFuzhu2 = MysqlReadWriteDAO.getDomainLayerFuzhu(domainName, 2, 1);
-		List<Term> topicThirdFuzhu2 = MysqlReadWriteDAO.getDomainLayerFuzhu(domainName, 3, 1);
+//		List<Term> topicFirstFuzhu = MysqlReadWriteDAO.getDomainLayerFuzhu(domainName, 1, 0);
+//		List<Term> topicSecondFuzhu = MysqlReadWriteDAO.getDomainLayerFuzhu(domainName, 2, 0);
+//		List<Term> topicThirdFuzhu = MysqlReadWriteDAO.getDomainLayerFuzhu(domainName, 3, 0);
+//
+//		List<Term> topicFirstFuzhu2 = MysqlReadWriteDAO.getDomainLayerFuzhu(domainName, 1, 1);
+//		List<Term> topicSecondFuzhu2 = MysqlReadWriteDAO.getDomainLayerFuzhu(domainName, 2, 1);
+//		List<Term> topicThirdFuzhu2 = MysqlReadWriteDAO.getDomainLayerFuzhu(domainName, 3, 1);
 
 		//List<LayerRelation> layerRelationList = MysqlReadWriteDAO.getDomainLayerRelation(domainName);
 
@@ -173,26 +174,29 @@ public class TopicCrawler {
 		 * 存储到 domain_topic表格中
 		 */
 		// 从 domain_layer 删除重复主题(含子主题)保存到 domain_topic
+
 		List<Set<Term>> topicList = TopicCrawlerDAO.getTopic(topicFirst, topicSecond, topicThird);
 		for(int i = 0; i < topicList.size(); i++){
 			Set<Term> topic = topicList.get(i);
 			int layer_ID = i + 1;
-			MysqlReadWriteDAO.storeDomainTopic(topic, domainName, layer_ID); // 存储第三层领域术语
+			MysqlReadWriteDAO.storeDomainTopic(topic, domainName, layer_ID); // 存储三层领域术语
 		}
-		// 从 domain_layer_fuzhu 删除重复主题(不含子主题)保存到 domain_layer_fuzhu2
-		List<Set<Term>> topicListFuzhu = TopicCrawlerDAO.getTopic(topicFirstFuzhu, topicSecondFuzhu, topicThirdFuzhu);
-		for(int i = 0; i < topicListFuzhu.size(); i++){
-			Set<Term> topic = topicListFuzhu.get(i);
-			int layer_ID = i + 1;
-			MysqlReadWriteDAO.storeDomainTopicFuzhu(topic, domainName, layer_ID, 0);
-		}
-		// 从 domain_layer_fuzhu 删除重复主题(含子主题)保存到 domain_layer_fuzhu2
-		List<Set<Term>> topicListFuzhu2 = TopicCrawlerDAO.getTopic(topicFirstFuzhu2, topicSecondFuzhu2, topicThirdFuzhu2);
-		for(int i = 0; i < topicListFuzhu2.size(); i++){
-			Set<Term> topic = topicListFuzhu2.get(i);
-			int layer_ID = i + 1;
-			MysqlReadWriteDAO.storeDomainTopicFuzhu(topic, domainName, layer_ID, 1);
-		}
+
+
+//		// 从 domain_layer_fuzhu 删除重复主题(不含子主题)保存到 domain_layer_fuzhu2
+//		List<Set<Term>> topicListFuzhu = TopicCrawlerDAO.getTopic(topicFirstFuzhu, topicSecondFuzhu, topicThirdFuzhu);
+//		for(int i = 0; i < topicListFuzhu.size(); i++){
+//			Set<Term> topic = topicListFuzhu.get(i);
+//			int layer_ID = i + 1;
+//			MysqlReadWriteDAO.storeDomainTopicFuzhu(topic, domainName, layer_ID, 0);
+//		}
+//		// 从 domain_layer_fuzhu 删除重复主题(含子主题)保存到 domain_layer_fuzhu2
+//		List<Set<Term>> topicListFuzhu2 = TopicCrawlerDAO.getTopic(topicFirstFuzhu2, topicSecondFuzhu2, topicThirdFuzhu2);
+//		for(int i = 0; i < topicListFuzhu2.size(); i++){
+//			Set<Term> topic = topicListFuzhu2.get(i);
+//			int layer_ID = i + 1;
+//			MysqlReadWriteDAO.storeDomainTopicFuzhu(topic, domainName, layer_ID, 1);
+//		}
 //		// 从 domain_layer_relation 删除重复主题关系保存到 domain_topic_relation
 //		Set<LayerRelation> layerRelationSet = new LinkedHashSet<LayerRelation>(layerRelationList);
 //		MysqlReadWriteDAO.storeDomainLayerRelation(layerRelationSet); // 存储 domain_layer_relation2
