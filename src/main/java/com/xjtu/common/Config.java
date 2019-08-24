@@ -92,7 +92,7 @@ public class Config {
     /**20190628新增
      * Mysql 配置
      */
-    public static String DBNAME = "yotta_create_test";
+    public static String DBNAME = "yotta_spring_boot_complete";
     //    public static String DBNAME = "yotta";
     public static String HOST = "localhost";
     public static String USERNAME = "root";

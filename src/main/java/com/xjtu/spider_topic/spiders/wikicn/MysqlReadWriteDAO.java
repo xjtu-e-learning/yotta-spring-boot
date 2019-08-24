@@ -97,7 +97,7 @@ public class MysqlReadWriteDAO {
 	public static Boolean judgeByClass1(String table,String table1, String domainName){
 		Boolean exist = false;
 		mysqlUtils mysql = new mysqlUtils();
-		String sql = "select topic.* " + "from " + table + "," + table1 + " where domainName=? and domain.domain_id=topic.domain_id";
+		String sql = "select topic.* " + "from " + table + "," + table1 + " where domain_name=? and domain.domain_id=topic.domain_id";
 		List<Object> params = new ArrayList<Object>();
 		params.add(domainName);
 		try {
