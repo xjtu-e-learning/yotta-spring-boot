@@ -1,6 +1,5 @@
 package com.xjtu.spider_Assemble.service;
 
-
 import com.xjtu.assemble.domain.Assemble;
 import com.xjtu.assemble.repository.AssembleRepository;
 import com.xjtu.assemble.service.AssembleService;

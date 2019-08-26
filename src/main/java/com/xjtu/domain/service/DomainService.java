@@ -111,6 +111,37 @@ public class DomainService {
         return insertDomain(domain);
     }
 
+    public Result findOrInsetDomainByDomainName(String subjectName, String domainName)
+    {
+        Subject subject = subjectRepository.findBySubjectName(subjectName);
+        Long subject_id = subject.getSubjectId();
+        //查询该课程是否存在
+
+        if (domainName == null || ("").equals(domainName) || domainName.length() == 0) {
+            logger.error("课程信息插入失败：课程名不存在或者为空");
+            return ResultUtil.error(ResultEnum.DOMAIN_INSERT_ERROR.getCode(), ResultEnum.DOMAIN_INSERT_ERROR.getMsg());
+        }
+        //课程不存在在数据库中
+        else if (domainRepository.findByDomainName(domainName) == null)
+        {
+            Domain domain = new Domain();
+            domain.setDomainName(domainName);
+            domain.setSubjectId(subject_id);
+            Domain domainInsert = domainRepository.save(domain);
+            if (domainInsert != null) {
+                return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "课程:" + domainName + "插入成功");
+            } else {
+                logger.error("课程信息插入失败：数据库插入语句失败");
+                return ResultUtil.error(ResultEnum.DOMAIN_INSERT_ERROR_2.getCode(), ResultEnum.DOMAIN_INSERT_ERROR_2.getMsg());
+            }
+        }
+
+        //课程已经在数据库中
+        logger.error("课程信息插入失败：课程已在数据库中");
+        return ResultUtil.success(ResultEnum.DOMAIN_GENERATE_ERROR.getCode(), ResultEnum.DOMAIN_GENERATE_ERROR.getMsg(), "课程构建失败：该课程已存在");
+
+       }
+
     /**
      * 删除课程：根据课程Id
      *
