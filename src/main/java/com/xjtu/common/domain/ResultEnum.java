@@ -114,6 +114,7 @@ public enum ResultEnum {
     Assemble_GENERATE_ERROR_2(207, "开始构建碎片"),
     Assemble_GENERATE_ERROR_3(208, "正在构建碎片"),
     Assemble_GENERATE_ERROR_4(209, "上个构建碎片任务尚未完成"),
+    Assemble_GENERATE_ERROR_5(211, "该课程已有课程碎片"),
 
 
 

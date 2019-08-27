@@ -50,7 +50,7 @@ public class SpiderAssembleService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private static int total_left;
+    private static int total_left = 0;
     private static Spider last_spider;
     private static String last_domainName = null;
 
@@ -92,16 +92,37 @@ public class SpiderAssembleService {
         Long domain_id = domain.getDomainId();
         Integer assemble_number = assembleRepository.countByDomainId(domain_id);
 
+        if (assemble_number == 0)//新课程，需构建碎片
+        {
+            if (last_domainName == null || total_left == 0)
+            {
+                last_spider = crawlAssembles(domainName);
+                last_domainName = domainName;
+                return ResultUtil.success(ResultEnum.Assemble_GENERATE_ERROR_2.getCode(), ResultEnum.Assemble_GENERATE_ERROR_2.getMsg(), "开始构建碎片");
+            }
+            else
+            {
+                myMonitor monitor = new myMonitor();
+                int last_leftCount = monitor.monitor(last_spider);
+                total_left = last_leftCount;
+                if(last_leftCount == 0)
+                {
+                    last_spider = crawlAssembles(domainName);
+                    last_domainName = domainName;
+                    return ResultUtil.success(ResultEnum.Assemble_GENERATE_ERROR_2.getCode(), ResultEnum.Assemble_GENERATE_ERROR_2.getMsg(), "开始构建碎片");
+                }
+                else
+                    return ResultUtil.success(ResultEnum.Assemble_GENERATE_ERROR_4.getCode(), ResultEnum.Assemble_GENERATE_ERROR_4.getMsg(), "上个构建碎片任务尚未完成");
 
-        if (assemble_number == 0)
-        {
-            last_spider = crawlAssembles(domainName);
-            last_domainName = domainName;
-            return ResultUtil.success(ResultEnum.Assemble_GENERATE_ERROR_2.getCode(), ResultEnum.Assemble_GENERATE_ERROR_2.getMsg(), "开始构建碎片");
+            }
         }
-        else
+        else//该课程已有碎片
         {
-            if (last_domainName.equals(domainName))
+            if (last_domainName == null)
+            {
+                return ResultUtil.success(ResultEnum.Assemble_GENERATE_ERROR_5.getCode(), ResultEnum.Assemble_GENERATE_ERROR_5.getMsg(), "该课程已有课程碎片");
+            }
+            else if (last_domainName.equals(domainName))//查询相同主题碎片爬取状态
             {
                 if (total_left == 0)
                 {
@@ -118,13 +139,11 @@ public class SpiderAssembleService {
                         return ResultUtil.success(ResultEnum.Assemble_GENERATE_ERROR_3.getCode(), ResultEnum.Assemble_GENERATE_ERROR_3.getMsg(), "正在构建碎片");
                 }
             }
-            else // last_domainName != domainName
+            else // last_domainName != domainName 查询不同主题碎片，且碎片数量不为零
             {
                 if (total_left == 0)
                 {
-                    last_spider = crawlAssembles(domainName);
-                    last_domainName = domainName;
-                    return ResultUtil.success(ResultEnum.Assemble_GENERATE_ERROR_2.getCode(), ResultEnum.Assemble_GENERATE_ERROR_2.getMsg(), "开始构建碎片");
+                    return ResultUtil.success(ResultEnum.Assemble_GENERATE_ERROR_5.getCode(), ResultEnum.Assemble_GENERATE_ERROR_5.getMsg(), "该课程已有课程碎片");
                 }
                 else
                 {
