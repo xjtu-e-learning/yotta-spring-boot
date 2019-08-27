@@ -28,7 +28,7 @@ public class SpiderAssembleController {
 
     @ApiOperation(value = "webmagic自动爬取课程碎片api", notes = "自动构建碎片，webmagic自动爬取课程碎片api")
     @PostMapping("/crawlAssemblesByDomainName")
-    public ResponseEntity crawlAssembles(@RequestParam(name = "domain name") String domainName) {
+    public ResponseEntity crawlAssembles(@RequestParam(name = "domainName") String domainName) {
         Result result = spiderService.startCrawlAssembles(domainName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
