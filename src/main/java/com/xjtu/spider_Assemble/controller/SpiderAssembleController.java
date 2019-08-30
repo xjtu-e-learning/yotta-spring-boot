@@ -35,4 +35,14 @@ public class SpiderAssembleController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
+    @ApiOperation(value = "统计课程碎片", notes = "统计课程碎片")
+    @GetMapping("/countAssemblesByDomainName")
+    public ResponseEntity countAssembles(@RequestParam(name = "domainName") String domainName){
+        Result result = spiderService.countAssembles(domainName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 }

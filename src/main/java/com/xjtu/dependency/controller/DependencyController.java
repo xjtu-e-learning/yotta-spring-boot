@@ -107,7 +107,7 @@ public class DependencyController {
     @ApiOperation(value = "自动构建主题依赖关系。通过课程名，生成该课程下主题依赖关系。需已有主题，碎片信息。并给出该课程是否为英文课程信息",
     notes = "自动构建主题依赖关系。通过课程名，生成该课程下主题依赖关系。需已有主题，碎片信息。并给出该课程是否为英文课程信息")
     public ResponseEntity generateDependencyByDomainName(@RequestParam(name = "domainName") String domainName
-    , @RequestParam(name = "isEnglish?(true or false)") boolean isEnglish)
+    , @RequestParam(name = "isEnglish") boolean isEnglish)
     {
         Result result = dependencyService.generateDependencyByDomainName(domainName, isEnglish);
         if(!result.getCode().equals(ResultEnum.SUCCESS.getCode()))
