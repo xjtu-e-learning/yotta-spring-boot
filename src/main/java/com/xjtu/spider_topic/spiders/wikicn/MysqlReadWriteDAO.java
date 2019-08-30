@@ -5,6 +5,7 @@ import com.xjtu.domain.domain.Domain;
 import com.xjtu.domain.repository.DomainRepository;
 import com.xjtu.facet.domain.FacetSimple;
 import com.xjtu.topic.domain.Term;
+import com.xjtu.topic.domain.Topic;
 import com.xjtu.utils.mysqlUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.*;
@@ -190,7 +191,35 @@ public class MysqlReadWriteDAO {
 		}
 		mysql.closeconnection();
 	}
-
+	/**
+	 * 读取domain_topic，得到所有主题（按照课程）
+	 * @return
+	 */
+	public static List<Topic> getDomainTopic(String domainName) throws Exception {
+		List<Topic> topicList = new ArrayList<Topic>();
+		mysqlUtils mysql = new mysqlUtils();
+		Domain domain = new Domain(domainName);
+		Long domainId = domain.getDomainId();
+		String sql = "select * from " + Config.TOPIC_TABLE + " where domain_id=?";
+		List<Object> params = new ArrayList<Object>();
+		params.add(domainId);
+		try {
+			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
+			for (int i = 0; i < results.size(); i++) {
+				Map<String, Object> result = results.get(i);
+				Long topicID = Long.parseLong(result.get("topic_id").toString());
+				String topicName = result.get("topic_name").toString();
+				String topicUrl = result.get("topic_url").toString();
+				Topic topic = new Topic(topicID, topicName, topicUrl);
+				topicList.add(topic);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			mysql.closeconnection();
+		}
+		return topicList;
+	}
 
 	/**
 	 * 张铎	2019.7

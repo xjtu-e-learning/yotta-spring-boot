@@ -30,6 +30,12 @@ public class Topic {
         this.domainId = domainId;
     }
 
+    public Topic(Long topicId, String topicName, String topicUrl)
+    {
+        this.topicId = topicId;
+        this.topicName = topicName;
+        this.topicUrl = topicUrl;
+    }
 
 
     @Override

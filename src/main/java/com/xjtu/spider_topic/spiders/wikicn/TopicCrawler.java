@@ -64,7 +64,7 @@ public class TopicCrawler {
 		Boolean existTopic = MysqlReadWriteDAO.judgeByClass1(Config.TOPIC_TABLE, Config.DOMAIN_TABLE, domainName);
 		if (!existTopic) {
 			topicExtract(domainName);
-			Log.log("该课程知识主题抽取完毕!!!");
+			Log.log("该课程知识主题抽取完毕===>>准备抽取分面!!!");
 		} else {
 			Log.log(domain + "：该课程知识主题已经存在");
 		}
