@@ -166,4 +166,17 @@ public class TopicController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @PostMapping("/getCompleteTopicByTopicName")
+    @ApiOperation(value = "根据主题名，获得给定主题的所有信息，用于构建分面树"
+            , notes = "根据主题名，获得给定主题的所有信息，用于构建分面树")
+    public ResponseEntity getCompleteTopicByTopicName(@RequestParam(name = "topicName") String topicName,
+                                                      @RequestParam(name = "hasFragment") String hasFragment)
+    {
+        Result result = topicService.getCompleteTopicByTopicName(topicName, hasFragment);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
 }
