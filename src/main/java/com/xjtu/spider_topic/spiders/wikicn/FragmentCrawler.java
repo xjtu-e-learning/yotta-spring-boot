@@ -1,6 +1,7 @@
 package com.xjtu.spider_topic.spiders.wikicn;
 
 import com.xjtu.common.Config;
+import com.xjtu.domain.domain.Domain;
 import com.xjtu.facet.domain.FacetRelation;
 import com.xjtu.facet.domain.FacetSimple;
 import com.xjtu.topic.domain.Topic;
@@ -29,12 +30,12 @@ public class FragmentCrawler {
 	@Autowired
 	private static TopicRepository topicRepository;
 
-	public static void storeKGByDomainName(String domainName) throws Exception {
+	public static void storeKGByDomainName(Domain domain) throws Exception {
 		
 		/**
 		 * 读取数据库表格topic，得到知识主题
 		 */
-		//测试：String domain = "数据结构";
+		String domainName = domain.getDomainName();
 		List<Topic> topicList = topicRepository.findByDomainName(domainName);
 		//对每一个主题，判断分面和分面层级是否存在，如不存在，则进行爬取
 
@@ -48,8 +49,6 @@ public class FragmentCrawler {
 			 * 判断数据是否已经存在
 			 */
 			Boolean existFacet = MysqlReadWriteDAO.judgeByClassAndTopic(Config.FACET_TABLE, domainName, topicName);
-			Boolean existFacetRelation = MysqlReadWriteDAO.judgeByClassAndTopic(Config.FACET_TABLE, domainName, topicName);
-			//Boolean existAssembleFragment = MysqlReadWriteDAO.judgeByClassAndTopic(Config.ASSEMBLE_FRAGMENT_TABLE, domainName, topicName);
 
 			/**
 			 * 判断该主题的信息是不是在所有表格中已经存在
@@ -62,15 +61,14 @@ public class FragmentCrawler {
 				 */
 				String topicHtml = SpiderUtils.seleniumWikiCN(topicUrl);
 				Document doc = JsoupDao.parseHtmlText(topicHtml);
-
 				// 获取并存储所有分面信息Facet
 				List<FacetSimple> facetSimpleList = FragmentCrawlerDAO.getFacet(doc);
 
 				if(!existFacet){
 					MysqlReadWriteDAO.storeFacet(domainName, topicID, facetSimpleList);
-					Log.log(domainName + "，" + topicName + "：分面爬取完毕");
+					Log.log(domainName + "，" + topicName + "：分面已经爬取完毕!!!");
 				} else {
-					Log.log(domainName + "， " + topicName + "：分面已经爬取");
+					Log.log(domainName + "， " + topicName + "：分面已经存在,无需爬取");
 				}
 
 				// 获取并存储各级分面之间的关系FacetRelation
