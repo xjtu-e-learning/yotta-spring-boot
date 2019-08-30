@@ -85,7 +85,7 @@ public class TopicCrawler {
 		 * 第一层领域术语
 		 */
 		//测试：String domain = "数据结构";
-		String domain_url = "https://zh.wikipedia.org/wiki/Category:" + URLEncoder.encode(domainName ,"UTF-8");//课程维基根目录
+		String domain_url = "https://en.wikipedia.org/wiki/Category:" + URLEncoder.encode(domainName ,"UTF-8");//课程维基根目录
 
 		int firstLayer = 1;
 		List<Term> topicFirst = TopicCrawlerDAO.topic(domain_url); // 得到第一层领域术语（不含子主题的那一部分）

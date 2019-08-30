@@ -25,14 +25,9 @@ public class FragmentExtract {
 
 	public static void main(String[] args) throws Exception {
 		String topicName = "DBSCAN";
-		String topicUrl = "https://zh.wikipedia.org/wiki/" + URLEncoder.encode(topicName);
+		String topicUrl = "https://en.wikipedia.org/wiki/" + URLEncoder.encode(topicName);
 		String topicHtml = SpiderUtils.seleniumWikiCN(topicUrl);
 		Document doc = JsoupDao.parseHtmlText(topicHtml);
-//		getSpecialContent(doc);
-//		getSummary(doc);
-//		getFirstContent(doc);
-//		getSecondContent(doc);
-//		getThirdContent(doc);
 	}
 
 
@@ -531,7 +526,15 @@ public class FragmentExtract {
 				|| title.equals("外部连结") || title.equals("相关条目")
 				|| title.equals("参见") || title.equals("另见")|| title.equals("参看")
 				|| title.equals("参考") || title.equals("参照") || title.equals("参阅")
-				|| title.equals("注释") || title.equals("延伸阅读"); // 判断标题是否为无用的
+				|| title.equals("注释") || title.equals("延伸阅读")||title.equalsIgnoreCase("see also") ||
+				title.equalsIgnoreCase("reference") ||
+				title.equalsIgnoreCase("external link") ||
+				title.equalsIgnoreCase("further reading") ||
+				title.equalsIgnoreCase("notes") ||
+				title.equalsIgnoreCase("citations") ||
+				title.equalsIgnoreCase("[edit]") ||
+				title.equalsIgnoreCase("Wikimedia") ||
+				title.equalsIgnoreCase("Wikibooks");; // 判断标题是否为无用的
 		return useless;
 	}
 

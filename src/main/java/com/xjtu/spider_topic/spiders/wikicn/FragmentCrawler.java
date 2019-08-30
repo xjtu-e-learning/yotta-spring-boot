@@ -27,8 +27,6 @@ public class FragmentCrawler {
 	 * @param domainName 课程名
 	 * @throws Exception
 	 */
-	@Autowired
-	private static TopicRepository topicRepository;
 
 	public static void storeKGByDomainName(Domain domain) throws Exception {
 		
@@ -36,6 +34,7 @@ public class FragmentCrawler {
 		 * 读取数据库表格topic，得到知识主题
 		 */
 		String domainName = domain.getDomainName();
+		Topic topic1 = new Topic();
 		List<Topic> topicList = topicRepository.findByDomainName(domainName);
 		//对每一个主题，判断分面和分面层级是否存在，如不存在，则进行爬取
 

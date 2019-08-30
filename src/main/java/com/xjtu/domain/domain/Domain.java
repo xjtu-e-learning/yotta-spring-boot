@@ -25,7 +25,7 @@ public class Domain {
 
     public Domain() {
     }
-
+    public Domain(String domainName){this.domainName = domainName;}
     public Domain(String domainName, Long subjectId) {
         this.domainName = domainName;
         this.subjectId = subjectId;
