@@ -237,6 +237,18 @@ public class SpiderAssembleService {
         return max_spider;
     }
 
+    public Result countAssembles(String domainName)
+    {
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("碎片查询失败：对应课程不存在");
+            return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR.getCode(), ResultEnum.Assemble_SEARCH_ERROR.getMsg(), "碎片查询失败：对应课程不存在");
+        }
+        Long domain_id = domain.getDomainId();
+        Integer assemble_number = assembleRepository.countByDomainId(domain_id);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), assemble_number);
+    }
+
     /**
      * 读取本地excel文件，获取课程和对应的学科信息
      *
