@@ -1,72 +1,23 @@
 package com.xjtu.spider_topic.spiders.wikicn;
 
-import app.Config;
-import assemble.bean.AssembleFragmentFuzhu;
+import com.xjtu.common.Config;
 import com.xjtu.facet.domain.Facet;
+import com.xjtu.facet.domain.FacetRelation;
 import com.xjtu.utils.JsoupDao;
 import com.xjtu.utils.SpiderUtils;
-import dependency.bean.Dependency;
-import dependency.ranktext.RankText;
-import dependency.ranktext.Term;
-import facet.bean.FacetRelation;
-import facet.bean.FacetSimple;
-import org.gephi.appearance.api.*;
-import org.gephi.appearance.plugin.PartitionElementColorTransformer;
-import org.gephi.appearance.plugin.RankingElementColorTransformer;
-import org.gephi.appearance.plugin.RankingLabelSizeTransformer;
-import org.gephi.appearance.plugin.RankingNodeSizeTransformer;
-import org.gephi.appearance.plugin.palette.Palette;
-import org.gephi.appearance.plugin.palette.PaletteManager;
-import org.gephi.filters.api.FilterController;
-import org.gephi.filters.api.Query;
-import org.gephi.filters.api.Range;
-import org.gephi.filters.plugin.graph.DegreeRangeBuilder;
-import org.gephi.graph.api.*;
-import org.gephi.io.database.drivers.MySQLDriver;
-import org.gephi.io.exporter.api.ExportController;
-import org.gephi.io.exporter.spi.CharacterExporter;
-import org.gephi.io.exporter.spi.Exporter;
-import org.gephi.io.importer.api.Container;
-import org.gephi.io.importer.api.EdgeDirectionDefault;
-import org.gephi.io.importer.api.ImportController;
-import org.gephi.io.importer.plugin.database.EdgeListDatabaseImpl;
-import org.gephi.io.importer.plugin.database.ImporterEdgeList;
-import org.gephi.io.processor.plugin.DefaultProcessor;
-import org.gephi.layout.plugin.AutoLayout;
-import org.gephi.layout.plugin.force.StepDisplacement;
-import org.gephi.layout.plugin.force.yifanHu.YifanHuLayout;
-import org.gephi.layout.plugin.forceAtlas.ForceAtlasLayout;
-import org.gephi.preview.api.PreviewController;
-import org.gephi.preview.api.PreviewModel;
-import org.gephi.preview.api.PreviewProperty;
-import org.gephi.preview.types.EdgeColor;
-import org.gephi.project.api.ProjectController;
-import org.gephi.project.api.Workspace;
-import org.gephi.statistics.plugin.GraphDistance;
-import org.gephi.statistics.plugin.Modularity;
+import com.xjtu.facet.domain.FacetSimple;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-import org.openide.util.Lookup;
-import utils.JsoupDao;
-import utils.Log;
-import utils.SpiderUtils;
-import utils.mysqlUtils;
-
-import java.awt.*;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringWriter;
+import com.xjtu.utils.*;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 实现中文维基百科知识森林数据集的构建
  * 将文本和图片存储到一个表格中
- * @author 郑元浩
+ * @author lynn
  *
  */
 public class FragmentCrawlerDAO {
@@ -79,12 +30,66 @@ public class FragmentCrawlerDAO {
 		Document doc = JsoupDao.parseHtmlText(topicHtml);
 
 		// 测试解析小程序
-//		List<FacetRelation> facetRelationList = getFacetRelation(doc);
-//		Log.logFacetRelation(facetRelationList);
+		//List<FacetRelation> facetRelationList = getFacetRelation(doc);
+		//Log.logFacetRelation(facetRelationList);
 
-		// 解析所有内容
-		getFragment(doc); // summary内容 + 一级/二级/三级标题内容
+		// 解析所有内容作为碎片存在
+		//getFragment(doc); // summary内容 + 一级/二级/三级标题内容
 	}
+
+
+	/**
+	 * 得到一个主题的所有分面及其分面级数
+	 * 1. 数据结构为: FacetSimple
+	 * @param doc
+	 * @return
+	 */
+	public static List<FacetSimple> getFacet(Document doc){
+		List<FacetSimple> facetList = new ArrayList<FacetSimple>();
+		List<String> firstTitle = FragmentExtract.getFirstTitle(doc);
+		List<String> secondTitle = FragmentExtract.getSecondTitle(doc);
+		List<String> thirdTitle = FragmentExtract.getThirdTitle(doc);
+
+		// 判断条件和内容函数保持一致
+		// facet中的分面与spider和assemble表格保持一致
+		Elements mainContents = doc.select("div#mw-content-text").select("span.mw-headline");
+		if(mainContents.size() == 0){ // 存在没有分面的情况
+			String facetName = "摘要";
+			int facetLayer = 1;
+			FacetSimple facetSimple = new FacetSimple(facetName, facetLayer);
+			facetList.add(facetSimple);
+		} else {
+			String facetNameZhai = "摘要";
+			int facetLayerZhai = 1;
+			FacetSimple facetSimpleZhai = new FacetSimple(facetNameZhai, facetLayerZhai);
+			facetList.add(facetSimpleZhai);
+			// 保存一级分面名及其分面级数
+			for(int i = 0; i < firstTitle.size(); i++){
+				String facetName = firstTitle.get(i);
+				int facetLayer = 1;
+				FacetSimple facetSimple = new FacetSimple(facetName, facetLayer);
+				facetList.add(facetSimple);
+			}
+			// 保存二级分面名及其分面级数
+			for(int i = 0; i < secondTitle.size(); i++){
+				String facetName = secondTitle.get(i);
+				int facetLayer = 2;
+				FacetSimple facetSimple = new FacetSimple(facetName, facetLayer);
+				facetList.add(facetSimple);
+			}
+			// 保存三级分面名及其分面级数
+			for(int i = 0; i < thirdTitle.size(); i++){
+				String facetName = thirdTitle.get(i);
+				int facetLayer = 3;
+				FacetSimple facetSimple = new FacetSimple(facetName, facetLayer);
+				facetList.add(facetSimple);
+			}
+		}
+
+		return facetList;
+
+	}
+
 
 	/**
 	 * 获取各级分面父子对应关系
@@ -97,7 +102,6 @@ public class FragmentCrawlerDAO {
 		List<FacetRelation> facetRelationList = new ArrayList<FacetRelation>();
 		
 		try {
-			
 			/**
 			 * 获取标题
 			 */
@@ -157,95 +161,76 @@ public class FragmentCrawlerDAO {
 	}
 
 	/**
-	 * 得到一个主题的所有分面及其分面级数
-	 * 1. 数据结构为: FacetSimple
-	 * @param doc
-	 * @return 
-	 */
-	public static List<Facet> getFacet(Document doc){
-		List<FacetSimple> facetList = new ArrayList<FacetSimple>();
-		List<String> firstTitle = FragmentExtract.getFirstTitle(doc);
-		List<String> secondTitle = FragmentExtract.getSecondTitle(doc);
-		List<String> thirdTitle = FragmentExtract.getThirdTitle(doc);
-
-		// 判断条件和内容函数保持一致
-		// facet中的分面与spider和assemble表格保持一致
-		Elements mainContents = doc.select("div#mw-content-text").select("span.mw-headline");
-		if(mainContents.size() == 0){ // 存在没有分面的情况
-			String facetName = "摘要";
-			int facetLayer = 1;
-			FacetSimple facetSimple = new FacetSimple(facetName, facetLayer);
-			facetList.add(facetSimple);
-		} else {
-			String facetNameZhai = "摘要";
-			int facetLayerZhai = 1;
-			FacetSimple facetSimpleZhai = new FacetSimple(facetNameZhai, facetLayerZhai);
-			facetList.add(facetSimpleZhai);
-			// 保存一级分面名及其分面级数
-			for(int i = 0; i < firstTitle.size(); i++){
-				String facetName = firstTitle.get(i);
-				int facetLayer = 1;
-				FacetSimple facetSimple = new FacetSimple(facetName, facetLayer);
-				facetList.add(facetSimple);
-			}
-			// 保存二级分面名及其分面级数
-			for(int i = 0; i < secondTitle.size(); i++){
-				String facetName = secondTitle.get(i);
-				int facetLayer = 2;
-				FacetSimple facetSimple = new FacetSimple(facetName, facetLayer);
-				facetList.add(facetSimple);
-			}
-			// 保存三级分面名及其分面级数
-			for(int i = 0; i < thirdTitle.size(); i++){
-				String facetName = thirdTitle.get(i);
-				int facetLayer = 3;
-				FacetSimple facetSimple = new FacetSimple(facetName, facetLayer);
-				facetList.add(facetSimple);
-			}
-		}
-
-		return facetList;
-
-	}
-
-	/**
-	 * 将从"摘要"到各级标题的所有分面内容全部存到一起
-	 * @param doc 解析网页文档
+	 * 判断分面内容是否包含最后一个多余的链接
 	 * @return
 	 */
-	public static List<AssembleFragmentFuzhu> getFragment(Document doc){
-		List<AssembleFragmentFuzhu> assembleList = new ArrayList<AssembleFragmentFuzhu>();
+//	public static Boolean judgeBadText(AssembleFragmentFuzhu assemble){
+//		Boolean exist = false;
+//		String facetContent = assemble.getFacetContentPureText();
+//		String badTxt1 = "本条目";
+//		String badTxt2 = "主条目";
+//		String badTxt3 = "目标页面不存在";
+//		String badTxt4 = "此章节未";
+//		String badTxt5 = "外部链接";
+//		String badTxt6 = "[隐藏]";
+//		String badTxt7 = "参考文献";
+//		String badTxt8 = "延伸阅读";
+//		String badTxt9 = "参见";
+//		String badTxt10 = "[显示]";
+//		String badTxt11 = "[编辑]";
+//		if (facetContent.contains(badTxt1) || facetContent.contains(badTxt2)
+//				|| facetContent.contains(badTxt3) || facetContent.contains(badTxt4)
+//				|| facetContent.contains(badTxt5) || facetContent.contains(badTxt6)
+//				|| facetContent.contains(badTxt7) || facetContent.contains(badTxt8)
+//				|| facetContent.contains(badTxt9) || facetContent.contains(badTxt10)
+//				|| facetContent.contains(badTxt11)) {
+//			exist = true;
+//		}
+//		return exist;
+//	}
 
-		Elements mainContents = doc.select("div#mw-content-text").select("span.mw-headline");
-		if(mainContents.size() == 0){
-			// 网页全部内容
-			List<AssembleFragmentFuzhu> specialContent = FragmentExtract.getSpecialContent(doc); // 没有目录栏的词条信息
-			assembleList.addAll(specialContent);
-		} else {
-			// 摘要信息
-			List<AssembleFragmentFuzhu> summaryContent = FragmentExtract.getSummary(doc); // 摘要内容
-			assembleList.addAll(summaryContent);
-			// flagFirst 为 true，保留一级分面数据
-			LinkedList<String> firstTitle = FragmentExtract.getFirstTitle(doc);
-			if(firstTitle.size() != 0){
-				List<AssembleFragmentFuzhu> firstContent = FragmentExtract.getFirstContent(doc); // 一级分面内容
-				if (firstContent != null) assembleList.addAll(firstContent);
-			}
-			// flagSecond 为 true，保留二级分面数据
-			LinkedList<String> secondTitle = FragmentExtract.getSecondTitle(doc);
-			if(secondTitle.size() != 0){
-				List<AssembleFragmentFuzhu> secondContent = FragmentExtract.getSecondContent(doc); // 二级分面内容
-				if (secondContent != null) assembleList.addAll(secondContent);
-			}
-			// flagThird 为 true，保留三级分面数据
-			LinkedList<String> thirdTitle = FragmentExtract.getThirdTitle(doc);
-			if(thirdTitle.size() != 0){
-				List<AssembleFragmentFuzhu> thirdContent = FragmentExtract.getThirdContent(doc); // 三级分面内容
-				if (thirdContent != null) assembleList.addAll(thirdContent);
-			}
-		}
-		return assembleList;
-	}
+
+//	/**
+//	 * 将从"摘要"到各级标题的所有分面内容全部存到一起
+//	 * @param doc 解析网页文档
+//	 * @return
+//	 */
+//	public static List<AssembleFragmentFuzhu> getFragment(Document doc){
+//		List<AssembleFragmentFuzhu> assembleList = new ArrayList<AssembleFragmentFuzhu>();
+//
+//		Elements mainContents = doc.select("div#mw-content-text").select("span.mw-headline");
+//		if(mainContents.size() == 0){
+//			// 网页全部内容
+//			List<AssembleFragmentFuzhu> specialContent = FragmentExtract.getSpecialContent(doc); // 没有目录栏的词条信息
+//			assembleList.addAll(specialContent);
+//		} else {
+//			// 摘要信息
+//			List<AssembleFragmentFuzhu> summaryContent = FragmentExtract.getSummary(doc); // 摘要内容
+//			assembleList.addAll(summaryContent);
+//			// flagFirst 为 true，保留一级分面数据
+//			LinkedList<String> firstTitle = FragmentExtract.getFirstTitle(doc);
+//			if(firstTitle.size() != 0){
+//				List<AssembleFragmentFuzhu> firstContent = FragmentExtract.getFirstContent(doc); // 一级分面内容
+//				if (firstContent != null) assembleList.addAll(firstContent);
+//			}
+//			// flagSecond 为 true，保留二级分面数据
+//			LinkedList<String> secondTitle = FragmentExtract.getSecondTitle(doc);
+//			if(secondTitle.size() != 0){
+//				List<AssembleFragmentFuzhu> secondContent = FragmentExtract.getSecondContent(doc); // 二级分面内容
+//				if (secondContent != null) assembleList.addAll(secondContent);
+//			}
+//			// flagThird 为 true，保留三级分面数据
+//			LinkedList<String> thirdTitle = FragmentExtract.getThirdTitle(doc);
+//			if(thirdTitle.size() != 0){
+//				List<AssembleFragmentFuzhu> thirdContent = FragmentExtract.getThirdContent(doc); // 三级分面内容
+//				if (thirdContent != null) assembleList.addAll(thirdContent);
+//			}
+//		}
+//		return assembleList;
+//	}
+
+
+
 
 	/**
 	 * 保存所有信息，如果某个分面含有子分面，那么这个分面下面应该没有碎片
@@ -257,21 +242,24 @@ public class FragmentCrawlerDAO {
 	 * @param doc 解析网页文档
 	 * @return
 	 */
-	public static List<AssembleFragmentFuzhu> getFragmentUseful(String domain, String topic, Document doc){
-		List<AssembleFragmentFuzhu> assembleResultList = new ArrayList<AssembleFragmentFuzhu>();
-		List<AssembleFragmentFuzhu> assembleList = getFragment(doc);
-		for(int i = 0; i < assembleList.size(); i++){
-			AssembleFragmentFuzhu assemble = assembleList.get(i);
-			Boolean exist = MysqlReadWriteDAO.judgeFacetRelation(assemble, domain, topic); // 判断该文本碎片对应的分面是否包含子分面
-			Boolean badText = judgeBadText(assemble); // 判断该文本碎片为那个不需要的文本
-			Boolean badLength = FragmentExtract.getContentLen(assemble.getFacetContentPureText()) > Config.TEXTLENGTH; // 去除长度很短且无意义的文本碎片
-			if (!exist && !badText && badLength) {
-				assembleResultList.add(assemble);
-			}
-		}
-		return assembleResultList;
-	}
-	
+//	public static List<AssembleFragmentFuzhu> getFragmentUseful(String domain, String topic, Document doc){
+//		List<AssembleFragmentFuzhu> assembleResultList = new ArrayList<AssembleFragmentFuzhu>();
+//		List<AssembleFragmentFuzhu> assembleList = getFragment(doc);
+//		for(int i = 0; i < assembleList.size(); i++){
+//			AssembleFragmentFuzhu assemble = assembleList.get(i);
+//			Boolean exist = MysqlReadWriteDAO.judgeFacetRelation(assemble, domain, topic); // 判断该文本碎片对应的分面是否包含子分面
+//			Boolean badText = judgeBadText(assemble); // 判断该文本碎片为那个不需要的文本
+//			Boolean badLength = FragmentExtract.getContentLen(assemble.getFacetContentPureText()) > Config.TEXTLENGTH; // 去除长度很短且无意义的文本碎片
+//			if (!exist && !badText && badLength) {
+//				assembleResultList.add(assemble);
+//			}
+//		}
+//		return assembleResultList;
+//	}
+
+
+
+
 //	/**
 //	 * 根据领域名生成认知关系
 //	 * @param ClassName 领域名
@@ -357,6 +345,11 @@ public class FragmentCrawlerDAO {
 //		return success;
 //	}
 //
+
+
+
+
+
 //	/**
 //	 * 根据课程名，读取dependency表格，生成对应认知关系的gephi文件供认知关系页面调用
 //	 * @param ClassName 课程名
@@ -558,35 +551,6 @@ public class FragmentCrawlerDAO {
 //			}
 //		}
 //	}
-
-	/**
-	 * 判断分面内容是否包含最后一个多余的链接
-	 * @return
-	 */
-	public static Boolean judgeBadText(AssembleFragmentFuzhu assemble){
-		Boolean exist = false;
-		String facetContent = assemble.getFacetContentPureText();
-		String badTxt1 = "本条目";
-		String badTxt2 = "主条目";
-		String badTxt3 = "目标页面不存在";
-		String badTxt4 = "此章节未";
-		String badTxt5 = "外部链接";
-		String badTxt6 = "[隐藏]";
-		String badTxt7 = "参考文献";
-		String badTxt8 = "延伸阅读";
-		String badTxt9 = "参见";
-		String badTxt10 = "[显示]";
-		String badTxt11 = "[编辑]";
-		if (facetContent.contains(badTxt1) || facetContent.contains(badTxt2)
-			|| facetContent.contains(badTxt3) || facetContent.contains(badTxt4)
-			|| facetContent.contains(badTxt5) || facetContent.contains(badTxt6)
-			|| facetContent.contains(badTxt7) || facetContent.contains(badTxt8)
-			|| facetContent.contains(badTxt9) || facetContent.contains(badTxt10)
-			|| facetContent.contains(badTxt11)) {
-			exist = true;
-		}
-		return exist;
-	}
 
 }
 

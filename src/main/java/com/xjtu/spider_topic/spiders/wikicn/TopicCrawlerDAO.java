@@ -46,7 +46,7 @@ public class TopicCrawlerDAO {
 	}
 	
 	/**
-	 * 领域术语抽取：获取知识主题
+	 * 领域术语抽取：抽取知识主题
 	 * 判断三层节点中存在的重复元素并进行处理，得到知识主题（测试程序）
 	 * @param topicFirst
 	 * @param topicSecond

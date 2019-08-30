@@ -25,13 +25,13 @@ public class Config {
     public final static String SUBJECT_TABLE = "subject";
     public final static String DOMAIN_TABLE = "domain";
     public static String DOMAIN_LAYER_TABLE = "domain_layer";
-    public static String DOMAIN_LAYER_FUZHU_TABLE = "domain_layer_fuzhu";
-    public static String DOMAIN_LAYER_FUZHU2_TABLE = "domain_layer_fuzhu2";
-    public static String DOMAIN_TOPIC_RELATION_TABLE = "domain_topic_relation";
-    public static String DOMAIN_LAYER_RELATION_TABLE = "domain_layer_relation";
+//    public static String DOMAIN_LAYER_FUZHU_TABLE = "domain_layer_fuzhu";
+//    public static String DOMAIN_LAYER_FUZHU2_TABLE = "domain_layer_fuzhu2";
+//    public static String DOMAIN_TOPIC_RELATION_TABLE = "domain_topic_relation";
+//    public static String DOMAIN_LAYER_RELATION_TABLE = "domain_layer_relation";
     public final static String TOPIC_TABLE = "topic";
     public final static String FACET_TABLE = "facet";
-    public static String FACET_RELATION_TABLE = "facet_relation";
+ //   public static String FACET_RELATION_TABLE = "facet_relation";
     public final static String ASSEMBLE_TABLE = "assemble";
 
     /**
@@ -92,7 +92,7 @@ public class Config {
     /**20190628新增
      * Mysql 配置
      */
-    public static String DBNAME = "yotta_create_test";
+    public static String DBNAME = "yotta_spring_boot_complete";
     //    public static String DBNAME = "yotta";
     public static String HOST = "localhost";
     public static String USERNAME = "root";
@@ -102,11 +102,11 @@ public class Config {
     public static String MYSQL_URL = "jdbc:mysql://" + HOST + ":" + PORT + "/" + DBNAME + "?user=" + USERNAME + "&password=" + PASSWD + "&characterEncoding=UTF8"; // 阿里云服务器：域名+http端口
 
 //   public static String MYSQL_URL = "jdbc:mysql://localhost:3306/yotta_create_test?user=root&password=root&characterEncoding=UTF8"; // 阿里云服务器：域名+http端口
-
-    public static String IP1 = "http://202.117.54.39:666"; // 跨域访问控制：域名+apache端口
-    public static String IP2 = "http://202.117.54.39:8081/Yotta"; // 阿里云服务器：域名+http端口
-    public static String SWAGGERHOST = "202.117.54.39:8081"; // swagger主机
-    public static String SWAGGERBASEPATH = "/Yotta"; //swagger根路径
+//
+//    public static String IP1 = "http://202.117.54.39:666"; // 跨域访问控制：域名+apache端口
+//    public static String IP2 = "http://202.117.54.39:8081/Yotta"; // 阿里云服务器：域名+http端口
+//    public static String SWAGGERHOST = "202.117.54.39:8081"; // swagger主机
+//    public static String SWAGGERBASEPATH = "/Yotta"; //swagger根路径
 
     /**
      * 爬虫
