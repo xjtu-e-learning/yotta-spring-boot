@@ -5,6 +5,7 @@ import com.xjtu.domain.domain.Domain;
 import com.xjtu.domain.repository.DomainRepository;
 import com.xjtu.facet.domain.FacetSimple;
 import com.xjtu.topic.domain.Term;
+import com.xjtu.topic.domain.Topic;
 import com.xjtu.utils.mysqlUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.*;
@@ -30,12 +31,6 @@ import java.util.*;
  * @date 2016年11月29日
  */
 public class MysqlReadWriteDAO {
-	@Autowired
-	private static Domain domain;
-
-	@Autowired
-	private static DomainRepository domainRepository;
-
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
@@ -157,8 +152,8 @@ public class MysqlReadWriteDAO {
 			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
 			for (int i = 0; i < results.size(); i++) {
 				Map<String, Object> result = results.get(i);
-				String termName = result.get("TermName").toString();
-				String termUrl = result.get("TermUrl").toString();
+				String termName = result.get("term_name").toString();
+				String termUrl = result.get("term_url").toString();
 				Term termLayer = new Term(termName, termUrl);
 				termList.add(termLayer);
 			}
@@ -178,7 +173,7 @@ public class MysqlReadWriteDAO {
 	 */
 	public static void storeDomainTopic(Set<Term> termList, String domainName, int layer){
 		mysqlUtils mysql = new mysqlUtils();
-		Domain domain = domainRepository.findByDomainName(domainName);
+		Domain domain = new Domain(domainName);
 		Long domainId = domain.getDomainId();
 		String sql = "insert into " + Config.TOPIC_TABLE + " (domain_id, topic_layer, topic_name, topic_url)"
 				+ " VALUES(?, ?, ?, ?);";
@@ -196,7 +191,35 @@ public class MysqlReadWriteDAO {
 		}
 		mysql.closeconnection();
 	}
-
+	/**
+	 * 读取domain_topic，得到所有主题（按照课程）
+	 * @return
+	 */
+	public static List<Topic> getDomainTopic(String domainName) throws Exception {
+		List<Topic> topicList = new ArrayList<Topic>();
+		mysqlUtils mysql = new mysqlUtils();
+		Domain domain = new Domain(domainName);
+		Long domainId = domain.getDomainId();
+		String sql = "select * from " + Config.TOPIC_TABLE + " where domain_id=?";
+		List<Object> params = new ArrayList<Object>();
+		params.add(domainId);
+		try {
+			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
+			for (int i = 0; i < results.size(); i++) {
+				Map<String, Object> result = results.get(i);
+				Long topicID = Long.parseLong(result.get("topic_id").toString());
+				String topicName = result.get("topic_name").toString();
+				String topicUrl = result.get("topic_url").toString();
+				Topic topic = new Topic(topicID, topicName, topicUrl);
+				topicList.add(topic);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			mysql.closeconnection();
+		}
+		return topicList;
+	}
 
 	/**
 	 * 张铎	2019.7
@@ -262,33 +285,6 @@ public class MysqlReadWriteDAO {
 		return exist;
 	}
 
-	/**
-	 * 判断表格，判断某门课程下某个数据源的数据是否已经在这个数据表中存在
-	 * 适用表格：assemble_fragment
-	 * @param table
-	 * @param domain
-	 * @param sourceName
-	 * @return true表示该领域已经爬取
-	 */
-//	public static Boolean judgeByClassAndSourceName(String table, String domain, String sourceName){
-//		Boolean exist = false;
-//		mysqlUtils mysql = new mysqlUtils();
-//		String sql = "select * from " + table + " where ClassName=? and SourceName=?";
-//		List<Object> params = new ArrayList<Object>();
-//		params.add(domain);
-//		params.add(sourceName);
-//		try {
-//			List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
-//			if (results.size()!=0) {
-//				exist = true;
-//			}
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		} finally {
-//			mysql.closeconnection();
-//		}
-//		return exist;
-//	}
 
 	/**
 	 * 判断表格，判断某一级分面在分面关系表的"父分面"中是否存在

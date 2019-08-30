@@ -4,6 +4,7 @@ import com.xjtu.common.Config;
 import com.xjtu.domain.domain.Domain;
 import com.xjtu.facet.domain.FacetRelation;
 import com.xjtu.facet.domain.FacetSimple;
+import com.xjtu.topic.domain.Term;
 import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.repository.TopicRepository;
 import org.jsoup.nodes.Document;
@@ -11,6 +12,8 @@ import com.xjtu.utils.JsoupDao;
 import com.xjtu.utils.Log;
 import com.xjtu.utils.SpiderUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,11 +27,9 @@ public class FragmentCrawler {
 
 	/**
 	 * 将领域术语页面的内容按照分面存储到数据库
-	 * @param domainName 课程名
+	 * @param domain 课程名
 	 * @throws Exception
 	 */
-	@Autowired
-	private static TopicRepository topicRepository;
 
 	public static void storeKGByDomainName(Domain domain) throws Exception {
 		
@@ -36,7 +37,8 @@ public class FragmentCrawler {
 		 * 读取数据库表格topic，得到知识主题
 		 */
 		String domainName = domain.getDomainName();
-		List<Topic> topicList = topicRepository.findByDomainName(domainName);
+
+		List<Topic> topicList = MysqlReadWriteDAO.getDomainTopic(domainName);
 		//对每一个主题，判断分面和分面层级是否存在，如不存在，则进行爬取
 
 		for(int i = 0; i < topicList.size(); i++){
