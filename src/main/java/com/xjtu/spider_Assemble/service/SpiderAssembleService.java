@@ -35,10 +35,7 @@ import us.codecraft.webmagic.Spider;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 根据课程名自动爬取碎片，
@@ -51,6 +48,7 @@ public class SpiderAssembleService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static int total_left = 0;
+    private static int all_assemble = 0;
     private static Spider last_spider;
     private static String last_domainName = null;
 
@@ -105,6 +103,8 @@ public class SpiderAssembleService {
                 myMonitor monitor = new myMonitor();
                 int last_leftCount = monitor.monitor(last_spider);
                 total_left = last_leftCount;
+                if (total_left > all_assemble)
+                    all_assemble = total_left;
                 if(last_leftCount == 0)
                 {
                     last_spider = crawlAssembles(domainName);
@@ -112,7 +112,12 @@ public class SpiderAssembleService {
                     return ResultUtil.success(ResultEnum.Assemble_GENERATE_ERROR_2.getCode(), ResultEnum.Assemble_GENERATE_ERROR_2.getMsg(), "开始构建碎片");
                 }
                 else
-                    return ResultUtil.success(ResultEnum.Assemble_GENERATE_ERROR_4.getCode(), ResultEnum.Assemble_GENERATE_ERROR_4.getMsg(), "上个构建碎片任务尚未完成");
+                {
+                    if (last_domainName.equals(domainName))
+                        return ResultUtil.success(ResultEnum.Assemble_GENERATE_ERROR_3.getCode(), ResultEnum.Assemble_GENERATE_ERROR_3.getMsg(), "正在构建碎片");
+                    else
+                        return ResultUtil.success(ResultEnum.Assemble_GENERATE_ERROR_4.getCode(), ResultEnum.Assemble_GENERATE_ERROR_4.getMsg(), "上个构建碎片任务尚未完成");
+                }
 
             }
         }
@@ -133,6 +138,8 @@ public class SpiderAssembleService {
                     myMonitor monitor = new myMonitor();
                     int last_leftCount = monitor.monitor(last_spider);
                     total_left = last_leftCount;
+                    if (total_left > all_assemble)
+                        all_assemble = total_left;
                     if(last_leftCount == 0)
                         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "碎片构建完成");
                     else
@@ -233,6 +240,7 @@ public class SpiderAssembleService {
 
 
         total_left = baiduZhidao_leftCount + csdn_leftCount + toutiao_leftCount + zhihu_leftCount;
+        all_assemble = total_left;
 
         return max_spider;
     }
@@ -246,7 +254,10 @@ public class SpiderAssembleService {
         }
         Long domain_id = domain.getDomainId();
         Integer assemble_number = assembleRepository.countByDomainId(domain_id);
-        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), assemble_number);
+        Map<String, Integer> assembleMap = new HashMap<>();
+        assembleMap.put("exist", assemble_number);
+        assembleMap.put("allNumber", all_assemble);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), assembleMap);
     }
 
     /**
