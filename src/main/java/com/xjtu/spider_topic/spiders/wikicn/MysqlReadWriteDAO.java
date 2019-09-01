@@ -2,12 +2,10 @@ package com.xjtu.spider_topic.spiders.wikicn;
 
 import com.xjtu.common.Config;
 import com.xjtu.domain.domain.Domain;
-import com.xjtu.domain.repository.DomainRepository;
 import com.xjtu.facet.domain.FacetSimple;
 import com.xjtu.topic.domain.Term;
 import com.xjtu.topic.domain.Topic;
 import com.xjtu.utils.mysqlUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import java.util.*;
 
 
