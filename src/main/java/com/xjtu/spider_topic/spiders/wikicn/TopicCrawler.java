@@ -46,7 +46,7 @@ public class TopicCrawler {
 		 * 将所有领域术语存储到damain_layer表格中
 		 */
 		String domainName = domain.getDomainName();
-
+		Long domainId = domain.getDomainId();
 		/**
 		 * 判断该课程领域术语是否已经爬取
 		 */
@@ -63,7 +63,7 @@ public class TopicCrawler {
 		 */
 		Boolean existTopic = MysqlReadWriteDAO.judgeByClass1(Config.TOPIC_TABLE, Config.DOMAIN_TABLE, domainName);
 		if (!existTopic) {
-			topicExtract(domainName);
+			topicExtract(domainName,domainId);
 			Log.log("该课程知识主题抽取完毕===>>准备抽取分面!!!");
 		} else {
 			Log.log(domain + "：该课程知识主题已经存在");
@@ -134,7 +134,7 @@ public class TopicCrawler {
 	 * 利用算法抽取三层知识主题（某门课程所有领域术语中的主题）
 	 * @throws Exception
 	 */
-	public static void topicExtract(String domainName) throws Exception{
+	public static void topicExtract(String domainName,Long domainId) throws Exception{
 		
 		List<Term> topicFirst = MysqlReadWriteDAO.getDomainLayer(domainName, 1);
 		List<Term> topicSecond = MysqlReadWriteDAO.getDomainLayer(domainName, 2);
@@ -150,7 +150,7 @@ public class TopicCrawler {
 		for(int i = 0; i < topicList.size(); i++){
 			Set<Term> topic = topicList.get(i);
 			int layer_ID = i + 1;
-			MysqlReadWriteDAO.storeDomainTopic(topic, domainName, layer_ID); // 存储三层领域术语
+			MysqlReadWriteDAO.storeDomainTopic(topic, domainId, layer_ID); // 存储三层领域术语
 		}
 
 	}
