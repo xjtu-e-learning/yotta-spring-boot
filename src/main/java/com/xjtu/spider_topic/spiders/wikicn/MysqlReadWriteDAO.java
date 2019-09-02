@@ -2,6 +2,7 @@ package com.xjtu.spider_topic.spiders.wikicn;
 
 import com.xjtu.common.Config;
 import com.xjtu.domain.domain.Domain;
+import com.xjtu.facet.domain.FacetRelation;
 import com.xjtu.facet.domain.FacetSimple;
 import com.xjtu.topic.domain.Term;
 import com.xjtu.topic.domain.Topic;
@@ -166,13 +167,11 @@ public class MysqlReadWriteDAO {
 	/**
 	 * 存储domain_topic，存储第n层领域术语到数据库 domain_topic 表格（Set）
 	 * @param termList
-	 * @param domainName
+	 * @param domainId
 	 * @param layer
 	 */
-	public static void storeDomainTopic(Set<Term> termList, String domainName, int layer){
+	public static void storeDomainTopic(Set<Term> termList, Long domainId, int layer){
 		mysqlUtils mysql = new mysqlUtils();
-		Domain domain = new Domain(domainName);
-		Long domainId = domain.getDomainId();
 		String sql = "insert into " + Config.TOPIC_TABLE + " (domain_id, topic_layer, topic_name, topic_url)"
 				+ " VALUES(?, ?, ?, ?);";
 		for (Term term : termList) {
@@ -193,11 +192,9 @@ public class MysqlReadWriteDAO {
 	 * 读取domain_topic，得到所有主题（按照课程）
 	 * @return
 	 */
-	public static List<Topic> getDomainTopic(String domainName) throws Exception {
+	public static List<Topic> getDomainTopic(Long domainId) throws Exception {
 		List<Topic> topicList = new ArrayList<Topic>();
 		mysqlUtils mysql = new mysqlUtils();
-		Domain domain = new Domain(domainName);
-		Long domainId = domain.getDomainId();
 		String sql = "select * from " + Config.TOPIC_TABLE + " where domain_id=?";
 		List<Object> params = new ArrayList<Object>();
 		params.add(domainId);
@@ -249,6 +246,42 @@ public class MysqlReadWriteDAO {
 	}
 
 
+	/**
+	 * 存储facet_Relation，按照领域进行存储
+	 * @return
+	 */
+	public static void storeFacetRelation(String domain, int topicID, String topicName,
+										  List<FacetRelation> facetRelationList) throws Exception {
+
+		for (int i = 0; i < facetRelationList.size(); i++) {
+			mysqlUtils mysql = new mysqlUtils();
+			String sql = "insert into " + Config.FACET_RELATION_TABLE
+					+ "(ChildFacet, ChildLayer, ParentFacet, ParentLayer, TermID, TermName, ClassName) "
+					+ "values(?, ?, ?, ?, ?, ?, ?)";
+			FacetRelation facetRelation = facetRelationList.get(i);
+			String childFacet = facetRelation.getChildFacet();
+			int childLayer = facetRelation.getChildLayer();
+			String parentFacet = facetRelation.getParentFacet();
+			int parentLayer = facetRelation.getParentLayer();
+			List<Object> params = new ArrayList<>();
+			params.add(childFacet);
+			params.add(childLayer);
+			params.add(parentFacet);
+			params.add(parentLayer);
+			params.add(topicID);
+			params.add(topicName);
+			params.add(domain);
+			try {
+				mysql.addDeleteModify(sql, params);
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				mysql.closeconnection();
+			}
+		}
+
+	}
+
 
 
 
@@ -266,7 +299,7 @@ public class MysqlReadWriteDAO {
 	public static Boolean judgeByClassAndTopic(String table, String domain, String topic){
 		Boolean exist = false;
 		mysqlUtils mysql = new mysqlUtils();
-		String sql = "select * from " + table + ",topic,domain where domain.domain_name=? and topic.topic_name=? and domain.domain_id=topic.domain_id and topic.topic_id=facet.facet_id";
+		String sql = "select * from " + table + ",topic,domain where domain.domain_name=? and topic.topic_name=? and domain.domain_id=topic.domain_id and topic.topic_id=facet.topic_id";
 		List<Object> params = new ArrayList<Object>();
 		params.add(domain);
 		params.add(topic);

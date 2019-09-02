@@ -12,6 +12,7 @@ public class FacetSimple {
 
     public String facetName;
     public int facetLayer;
+    //public Long parentFacetId
 
     public String getFacetName() {
         return facetName;

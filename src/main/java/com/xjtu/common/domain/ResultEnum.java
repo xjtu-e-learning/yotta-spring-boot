@@ -157,7 +157,9 @@ public enum ResultEnum {
     COURSEWANGYUAN_SEARCH_ERROR_1(196, "网院课程查询失败：不存在对应网院课程的维基课程"),
 
     //知识主题分面树构建爬虫
-    TSPIDER_ERROR(197,"课程已存在，该课程爬取失败，请直接查看课程内容"),
+    TSPIDER_ERROR(197,"该课程的知识主题分面树已开始构建...."),
+    TSPIDER_ERROR1(198,"正在爬取主题中.....请稍候!"),
+    TSPIDER_ERROR2(199,"正在爬取分面中.....请稍候!"),
     ;
 
     private Integer code;
