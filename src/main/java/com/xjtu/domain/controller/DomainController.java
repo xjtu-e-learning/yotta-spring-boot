@@ -7,10 +7,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * api:处理domain课程数据
@@ -118,6 +115,18 @@ public class DomainController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @PostMapping("/generateDomain")
+    @ApiOperation(value = "构建一门课程，用于自动构建", notes = "构建一门课程，用于自动构建")
+    public ResponseEntity generateDomain(@RequestParam(name = "subjectName") String subjectName,
+                                         @RequestParam(name = "domainName") String domainName)
+    {
+        Result result = domainService.findOrInsetDomainByDomainName(subjectName, domainName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
     @GetMapping("/countDomains")
     @ApiOperation(value = "统计课程数量", notes = "统计课程数量")
     public ResponseEntity countDomains() {
@@ -157,6 +166,7 @@ public class DomainController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
 
 
 }

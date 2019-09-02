@@ -43,7 +43,7 @@ public class TopicExtract {
 		if(len != 0) {
 			Log.log("该术语第一层候选主题共有" + len + "个");
 			for (int i = 0; i < mwPages.size(); i++) {
-				String url = "https://zh.wikipedia.org" + mwPages.get(i).select("a").attr("href");
+				String url = "https://en.wikipedia.org" + mwPages.get(i).select("a").attr("href");
 				String topic = mwPages.get(i).text();
 				topic = converter.convert(topic);
 				Log.log("The " + (i + 1) + " topic is : " + topic + ", url is : " + url);

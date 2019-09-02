@@ -488,6 +488,100 @@ public class TopicService {
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicInformation);
     }
 
+    /**
+     * 根据主题名，获得主题的所有信息，用于构建分面树
+     * @param topicName
+     * @param hasFragment
+     * @return
+     */
+    public Result getCompleteTopicByTopicName(String topicName, String hasFragment)
+    {
+        List<Topic> topicList = topicRepository.findByTopicName(topicName);
+        if(topicList.size() == 0)
+        {
+            logger.error("主题查询失败：没有指定主题");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR.getCode(), ResultEnum.TOPIC_SEARCH_ERROR.getMsg());
+        }
+
+        Topic topic = topicList.get(0);
+        List<Facet> firstLayerFacets = facetRepository.findByTopicIdAndFacetLayer(topic.getTopicId(), 1);
+        List<Facet> secondLayerFacets = facetRepository.findByTopicIdAndFacetLayer(topic.getTopicId(), 2);
+        List<Assemble> assembles = assembleRepository.findAllAssemblesByTopicId(topic.getTopicId());
+        //初始化Topic
+        TopicContainFacet topicContainFacet = new TopicContainFacet();
+        topicContainFacet.setTopic(topic);
+        topicContainFacet.setChildrenNumber(firstLayerFacets.size());
+
+        //firstLayerFacets一级分面列表，将二级分面挂到对应一级分面下
+        List<Facet> firstLayerFacetContainAssembles = new ArrayList<>();
+        for (Facet firstLayerFacet : firstLayerFacets) {
+            if (firstLayerFacet.getFacetName().equals("匿名分面")) {
+                continue;
+            }
+            FacetContainAssemble firstLayerFacetContainAssemble = new FacetContainAssemble();
+            firstLayerFacetContainAssemble.setFacet(firstLayerFacet);
+            firstLayerFacetContainAssemble.setType("branch");
+            //设置一级分面的子节点（二级分面）
+            List<Object> secondLayerFacetContainAssembles = new ArrayList<>();
+            for (Facet secondLayerFacet : secondLayerFacets) {
+                //一级分面下的二级分面
+                if (secondLayerFacet.getParentFacetId().equals(firstLayerFacet.getFacetId())) {
+                    FacetContainAssemble secondLayerFacetContainAssemble = new FacetContainAssemble();
+                    secondLayerFacetContainAssemble.setFacet(secondLayerFacet);
+                    List<Object> assembleContainTypes = new ArrayList<>();
+                    for (Assemble assemble : assembles) {
+                        //二级分面下的碎片
+                        if (assemble.getFacetId().equals(secondLayerFacet.getFacetId())) {
+                            AssembleContainType assembleContainType = new AssembleContainType();
+                            if ("emptyAssembleContent".equals(hasFragment)) {
+                                assemble.setAssembleContent("");
+                            }
+                            assembleContainType.setAssemble(assemble);
+                            String ip = HttpUtil.getIp();
+                            assembleContainType.setUrl(ip + ":" + port + "/assemble/getAssembleContentById?assembleId=" + assemble.getAssembleId());
+                            assembleContainTypes.add(assembleContainType);
+                        }
+                    }
+                    secondLayerFacetContainAssemble.setChildren(assembleContainTypes);
+                    secondLayerFacetContainAssemble.setChildrenNumber(assembleContainTypes.size());
+                    secondLayerFacetContainAssembles.add(secondLayerFacetContainAssemble);
+                }
+            }
+            //一级分面有二级分面
+            if (secondLayerFacetContainAssembles.size() > 0) {
+                firstLayerFacetContainAssemble.setChildren(secondLayerFacetContainAssembles);
+                firstLayerFacetContainAssemble.setChildrenNumber(secondLayerFacetContainAssembles.size());
+                firstLayerFacetContainAssemble.setContainChildrenFacet(true);
+            }
+            //一级分面没有二级分面
+            else {
+                firstLayerFacetContainAssemble.setContainChildrenFacet(false);
+                List<Object> assembleContainTypes = new ArrayList<>();
+                for (Assemble assemble : assembles) {
+                    //一级分面下的碎片
+                    if (assemble.getFacetId().equals(firstLayerFacet.getFacetId())) {
+                        AssembleContainType assembleContainType = new AssembleContainType();
+                        if ("emptyAssembleContent".equals(hasFragment)) {
+                            assemble.setAssembleContent("");
+                        }
+                        assembleContainType.setAssemble(assemble);
+                        String ip = HttpUtil.getIp();
+                        assembleContainType.setUrl(ip + ":" + port + "/assemble/getAssembleContentById?assembleId=" + assemble.getAssembleId());
+
+                        assembleContainTypes.add(assembleContainType);
+                    }
+                }
+                firstLayerFacetContainAssemble.setChildren(assembleContainTypes);
+                firstLayerFacetContainAssemble.setChildrenNumber(assembleContainTypes.size());
+            }
+            firstLayerFacetContainAssembles.add(firstLayerFacetContainAssemble);
+        }
+        topicContainFacet.setChildren(firstLayerFacetContainAssembles);
+        topicContainFacet.setChildrenNumber(firstLayerFacetContainAssembles.size());
+
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicContainFacet);
+    }
+
     public static void main(String[] args) {
         TopicService topicService = new TopicService();
         topicService.deleteTopicByNameAndDomainName("诺基亚操作系统", "Java");

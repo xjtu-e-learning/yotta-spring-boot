@@ -171,4 +171,5 @@ public interface TopicRepository extends JpaRepository<Topic, Long>, JpaSpecific
     @Transactional(rollbackFor = Exception.class)
     @Query("select new map(t.topicName,d.domainName) from Topic t, Domain d where t.domainId = d.domainId and t.topicName like %?1%")
     List<Map<String, Object>> findTopicInformationByKeyword(String keyword);
+
 }

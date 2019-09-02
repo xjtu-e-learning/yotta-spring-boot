@@ -32,5 +32,6 @@ hs_err_pid*
 
 src/main/resources/phantomjs
 target
-/src/main/resources/static/
-/src/main/resources/
+src/main/resources/static/
+src/main/resources/
+src/main/java/com/xjtu/common/fomain/config.java

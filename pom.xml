@@ -43,6 +43,22 @@
             <groupId>us.codecraft</groupId>
             <artifactId>webmagic-core</artifactId>
             <version>0.7.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>us.codecraft</groupId>
+            <artifactId>webmagic-selenium</artifactId>
+            <version>0.7.3</version>
+        </dependency>
+        <dependency>
+            <groupId>us.codecraft</groupId>
+            <artifactId>webmagic-extension</artifactId>
+            <version>0.7.3</version>
         </dependency>
         <dependency>
             <groupId>com.spreada.utils</groupId>
@@ -54,6 +70,8 @@
             <artifactId>jxl</artifactId>
             <version>2.6.12</version>
         </dependency>
+
+
         <!--爬虫依赖结束-->
 
 
@@ -75,8 +93,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-undertow</artifactId>
         </dependency>
-
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -108,17 +124,6 @@
             <artifactId>jsoup</artifactId>
             <version>1.10.3</version>
         </dependency>
-
-
-        <!--简繁体中文转换包-->
-        <!--<dependency>-->
-        <!--&lt;!&ndash;<groupId>my.ZHConverter</groupId>&ndash;&gt;-->
-        <!--&lt;!&ndash;<artifactId>ZHConverter</artifactId>&ndash;&gt;-->
-        <!--&lt;!&ndash;<version>1.0</version>&ndash;&gt;-->
-        <!--<groupId>com.spreada.utils</groupId>-->
-        <!--<artifactId>ZHConverter</artifactId>-->
-        <!--<version>2.6.12</version>-->
-        <!--</dependency>-->
 
         <!--io包指定版本为2.4, 1.x版本不支持图片操作-->
         <dependency>
@@ -166,42 +171,20 @@
 
         <!--爬虫需要的依赖-->
         <!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
-        <dependency>
-            <groupId>org.jsoup</groupId>
-            <artifactId>jsoup</artifactId>
-            <version>1.9.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.5.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.seleniumhq.selenium</groupId>
-            <artifactId>selenium-java</artifactId>
-            <version>2.33.0</version>
-        </dependency>
-        <dependency>
-            <groupId>us.codecraft</groupId>
-            <artifactId>webmagic-core</artifactId>
-            <version>0.7.3</version>
-        </dependency>
-        <dependency>
-            <groupId>net.sourceforge.jexcelapi</groupId>
-            <artifactId>jxl</artifactId>
-            <version>2.6.12</version>
-        </dependency>
-        <dependency>
-            <groupId>us.codecraft</groupId>
-            <artifactId>webmagic-selenium</artifactId>
-            <version>0.7.3</version>
-        </dependency>
     </dependencies>
 
 
     <build>
         <finalName>yotta</finalName>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>

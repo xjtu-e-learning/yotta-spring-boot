@@ -21,12 +21,22 @@ public class Topic {
     public Topic() {
     }
 
-    public Topic(String topicName, String topicUrl, Long topicLayer, Long domainId) {
+
+    public Topic(String topicName, String topicUrl, Long topicLayer, Long domainId)
+    {
         this.topicName = topicName;
         this.topicUrl = topicUrl;
         this.topicLayer = topicLayer;
         this.domainId = domainId;
     }
+
+    public Topic(Long topicId, String topicName, String topicUrl)
+    {
+        this.topicId = topicId;
+        this.topicName = topicName;
+        this.topicUrl = topicUrl;
+    }
+
 
     @Override
     public String toString() {

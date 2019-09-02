@@ -41,6 +41,7 @@ public enum ResultEnum {
     DOMAIN_SEARCH_ERROR(122, "课程查询失败：没有课程信息记录"),
     DOMAIN_SEARCH_ERROR_1(123, "课程分页查询失败：没有课程信息记录"),
     DOMAIN_SEARCH_ERROR_2(124, "课程分页查询失败：查询的页数超过最大页数"),
+    DOMAIN_GENERATE_ERROR(210, "课程构建失败：该课程已存在"),
 
     //主题
     TOPIC_INSERT_ERROR(125, "主题信息插入失败：主题名不存在或者为空"),
@@ -108,6 +109,13 @@ public enum ResultEnum {
     Assemble_DELETE_ERROR(175, "碎片删除失败：删除语句执行失败"),
     IMAGE_UPLOAD_ERROR(203, "图片上传失败：图片为空"),
     IMAGE_UPLOAD_ERROR_1(204, "图片上传失败：图片保存失败"),
+    Assemble_GENERATE_ERROR(205, "碎片构建失败： 无分面信息"),
+    Assemble_GENERATE_ERROR_1(206, "碎片构建失败： 课程不存在"),
+    Assemble_GENERATE_ERROR_2(207, "开始构建碎片"),
+    Assemble_GENERATE_ERROR_3(208, "正在构建碎片"),
+    Assemble_GENERATE_ERROR_4(209, "上个构建碎片任务尚未完成"),
+    Assemble_GENERATE_ERROR_5(211, "该课程已有课程碎片"),
+
 
 
     //用户登录
@@ -127,6 +135,10 @@ public enum ResultEnum {
     DEPENDENCY_DELETE_ERROR(186, "主题依赖关系删除失败:没有课程信息记录"),
     DEPENDENCY_DELETE_ERROR_1(187, "主题依赖关系删除失败：删除语句执行失败"),
 
+    DEPENDENCY_GENERATE_ERROR(197, "主题依赖关系生成失败：没有课程信息记录"),
+    DEPENDENCY_GENERATE_ERROR_1(198, "主题依赖关系生成失败：主题不存在"),
+    DEPENDENCY_GENERATE_ERROR_2(199, "主题依赖关系生成失败：主题碎片内容为空"),
+
     //课程数据统计
     STATISTICS_SEARCH_ERROR(188, "词频查询失败：中文分词失败"),
 
@@ -145,7 +157,9 @@ public enum ResultEnum {
     COURSEWANGYUAN_SEARCH_ERROR_1(196, "网院课程查询失败：不存在对应网院课程的维基课程"),
 
     //知识主题分面树构建爬虫
-    TSPIDER_ERROR(197,"课程已存在，该课程爬取失败，请直接查看课程内容"),
+    TSPIDER_ERROR(197,"该课程的知识主题分面树已开始构建...."),
+    TSPIDER_ERROR1(198,"正在爬取主题中.....请稍候!"),
+    TSPIDER_ERROR2(199,"正在爬取分面中.....请稍候!"),
     ;
 
     private Integer code;

@@ -9,6 +9,7 @@ import com.xjtu.facet.domain.FacetSimple;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import com.xjtu.utils.*;
+
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -17,153 +18,154 @@ import java.util.List;
 /**
  * 实现中文维基百科知识森林数据集的构建
  * 将文本和图片存储到一个表格中
- * @author lynn
  *
+ * @author lynn
  */
 public class FragmentCrawlerDAO {
 
-	public static void main(String[] args) throws Exception {
-		// 设置解析参数
-		String topicName = "数据库"; // 链表  跳跃列表  数据结构与算法列表
-		String topicUrl = "https://zh.wikipedia.org/wiki/" + URLEncoder.encode(topicName);
-		String topicHtml = SpiderUtils.seleniumWikiCN(topicUrl);
-		Document doc = JsoupDao.parseHtmlText(topicHtml);
+    public static void main(String[] args) throws Exception {
+        // 设置解析参数
+        String topicName = "数据库"; // 链表  跳跃列表  数据结构与算法列表
+        String topicUrl = "https://zh.wikipedia.org/wiki/" + URLEncoder.encode(topicName);
+        String topicHtml = SpiderUtils.seleniumWikiCN(topicUrl);
+        Document doc = JsoupDao.parseHtmlText(topicHtml);
 
-		// 测试解析小程序
-		//List<FacetRelation> facetRelationList = getFacetRelation(doc);
-		//Log.logFacetRelation(facetRelationList);
+        // 测试解析小程序
+        //List<FacetRelation> facetRelationList = getFacetRelation(doc);
+        //Log.logFacetRelation(facetRelationList);
 
-		// 解析所有内容作为碎片存在
-		//getFragment(doc); // summary内容 + 一级/二级/三级标题内容
-	}
-
-
-	/**
-	 * 得到一个主题的所有分面及其分面级数
-	 * 1. 数据结构为: FacetSimple
-	 * @param doc
-	 * @return
-	 */
-	public static List<FacetSimple> getFacet(Document doc){
-		List<FacetSimple> facetList = new ArrayList<FacetSimple>();
-		List<String> firstTitle = FragmentExtract.getFirstTitle(doc);
-		List<String> secondTitle = FragmentExtract.getSecondTitle(doc);
-		List<String> thirdTitle = FragmentExtract.getThirdTitle(doc);
-
-		// 判断条件和内容函数保持一致
-		// facet中的分面与spider和assemble表格保持一致
-		Elements mainContents = doc.select("div#mw-content-text").select("span.mw-headline");
-		if(mainContents.size() == 0){ // 存在没有分面的情况
-			String facetName = "摘要";
-			int facetLayer = 1;
-			FacetSimple facetSimple = new FacetSimple(facetName, facetLayer);
-			facetList.add(facetSimple);
-		} else {
-			String facetNameZhai = "摘要";
-			int facetLayerZhai = 1;
-			FacetSimple facetSimpleZhai = new FacetSimple(facetNameZhai, facetLayerZhai);
-			facetList.add(facetSimpleZhai);
-			// 保存一级分面名及其分面级数
-			for(int i = 0; i < firstTitle.size(); i++){
-				String facetName = firstTitle.get(i);
-				int facetLayer = 1;
-				FacetSimple facetSimple = new FacetSimple(facetName, facetLayer);
-				facetList.add(facetSimple);
-			}
-			// 保存二级分面名及其分面级数
-			for(int i = 0; i < secondTitle.size(); i++){
-				String facetName = secondTitle.get(i);
-				int facetLayer = 2;
-				FacetSimple facetSimple = new FacetSimple(facetName, facetLayer);
-				facetList.add(facetSimple);
-			}
-			// 保存三级分面名及其分面级数
-			for(int i = 0; i < thirdTitle.size(); i++){
-				String facetName = thirdTitle.get(i);
-				int facetLayer = 3;
-				FacetSimple facetSimple = new FacetSimple(facetName, facetLayer);
-				facetList.add(facetSimple);
-			}
-		}
-
-		return facetList;
-
-	}
+        // 解析所有内容作为碎片存在
+        //getFragment(doc); // summary内容 + 一级/二级/三级标题内容
+    }
 
 
-	/**
-	 * 获取各级分面父子对应关系
-	 * @param doc
-	 * @return 
-	 */
-	public static List<FacetRelation> getFacetRelation(Document doc){
-		LinkedList<String> indexs = new LinkedList<String>();// 标题前面的下标
-		LinkedList<String> facets = new LinkedList<String>();// 各级标题的名字
-		List<FacetRelation> facetRelationList = new ArrayList<FacetRelation>();
-		
-		try {
-			/**
-			 * 获取标题
-			 */
-			Elements titles = doc.select("div#toc").select("li");
-			Log.log(titles.size());
-			if(titles.size()!=0){
-				for(int i = 0; i < titles.size(); i++){
-					String index = titles.get(i).child(0).child(0).text();
-					String text = titles.get(i).child(0).child(1).text();
-					text = Config.converter.convert(text);
-					Log.log(index + " " + text);
-					indexs.add(index);
-					facets.add(text);
-				}
+    /**
+     * 得到一个主题的所有分面及其分面级数
+     * 1. 数据结构为: FacetSimple
+     *
+     * @param doc
+     * @return
+     */
+    public static List<FacetSimple> getFacet(Document doc) {
+        List<FacetSimple> facetList = new ArrayList<FacetSimple>();
+        List<String> firstTitle = FragmentExtract.getFirstTitle(doc);
+        List<String> secondTitle = FragmentExtract.getSecondTitle(doc);
+        List<String> thirdTitle = FragmentExtract.getThirdTitle(doc);
 
-				/**
-				 * 将二级/三级标题全部匹配到对应的父标题
-				 */
-				Log.log("--------------------------------------------");
-				for(int i = 0; i < indexs.size(); i++){
-					String index = indexs.get(i);
-					if(index.lastIndexOf(".") == 1){ // 二级分面
+        // 判断条件和内容函数保持一致
+        // facet中的分面与spider和assemble表格保持一致
+        Elements mainContents = doc.select("div#mw-content-text").select("span.mw-headline");
+//		if(mainContents.size() == 0){ // 存在没有分面的情况
+//			String facetName = "摘要";
+//			int facetLayer = 1;
+//			FacetSimple facetSimple = new FacetSimple(facetName, facetLayer);
+//			facetList.add(facetSimple);
+//		} else {
+//        String facetNameZhai = "摘要";
+//        int facetLayerZhai = 1;
+//        FacetSimple facetSimpleZhai = new FacetSimple(facetNameZhai, facetLayerZhai);
+//        facetList.add(facetSimpleZhai);
+        // 保存一级分面名及其分面级数
+        for (int i = 0; i < firstTitle.size(); i++) {
+            String facetName = firstTitle.get(i);
+            int facetLayer = 1;
+            FacetSimple facetSimple = new FacetSimple(facetName, facetLayer);
+            facetList.add(facetSimple);
+        }
+        // 保存二级分面名及其分面级数
+        for (int i = 0; i < secondTitle.size(); i++) {
+            String facetName = secondTitle.get(i);
+            int facetLayer = 2;
+            FacetSimple facetSimple = new FacetSimple(facetName, facetLayer);
+            facetList.add(facetSimple);
+        }
+        // 保存三级分面名及其分面级数
+        for (int i = 0; i < thirdTitle.size(); i++) {
+            String facetName = thirdTitle.get(i);
+            int facetLayer = 3;
+            FacetSimple facetSimple = new FacetSimple(facetName, facetLayer);
+            facetList.add(facetSimple);
+        }
+        //}
+
+        return facetList;
+
+    }
+
+
+    /**
+     * 获取各级分面父子对应关系
+     *
+     * @param doc
+     * @return
+     */
+    public static List<FacetRelation> getFacetRelation(Document doc) {
+        LinkedList<String> indexs = new LinkedList<String>();// 标题前面的下标
+        LinkedList<String> facets = new LinkedList<String>();// 各级标题的名字
+        List<FacetRelation> facetRelationList = new ArrayList<FacetRelation>();
+
+        try {
+            /**
+             * 获取标题
+             */
+            Elements titles = doc.select("div#toc").select("li");
+            Log.log(titles.size());
+            if (titles.size() != 0) {
+                for (int i = 0; i < titles.size(); i++) {
+                    String index = titles.get(i).child(0).child(0).text();
+                    String text = titles.get(i).child(0).child(1).text();
+                    text = Config.converter.convert(text);
+                    Log.log(index + " " + text);
+                    indexs.add(index);
+                    facets.add(text);
+                }
+
+                /**
+                 * 将二级/三级标题全部匹配到对应的父标题
+                 */
+                Log.log("--------------------------------------------");
+                for (int i = 0; i < indexs.size(); i++) {
+                    String index = indexs.get(i);
+                    if (index.lastIndexOf(".") == 1) { // 二级分面
 //						Log.log("二级标题");
-						String facetSecond = facets.get(i);
-						for(int j = i - 1; j >= 0; j--){
-							String index2 = indexs.get(j);
-							if(index2.lastIndexOf(".") == -1){
-								String facetOne = facets.get(j);
-								FacetRelation facetRelation = new FacetRelation(facetSecond, 2, facetOne, 1);
-								facetRelationList.add(facetRelation);
-								break;
-							}
-						}
-					} 
-					else if (index.lastIndexOf(".") == 3) { // 三级分面
+                        String facetSecond = facets.get(i);
+                        for (int j = i - 1; j >= 0; j--) {
+                            String index2 = indexs.get(j);
+                            if (index2.lastIndexOf(".") == -1) {
+                                String facetOne = facets.get(j);
+                                FacetRelation facetRelation = new FacetRelation(facetSecond, 2, facetOne, 1);
+                                facetRelationList.add(facetRelation);
+                                break;
+                            }
+                        }
+                    } else if (index.lastIndexOf(".") == 3) { // 三级分面
 //						Log.log("三级标题");
-						String facetThird = facets.get(i);
-						for(int j = i - 1; j >= 0; j--){
-							String index2 = indexs.get(j);
-							if(index2.lastIndexOf(".") == 1){
-								String facetSecond = facets.get(j);
-								FacetRelation facetRelation = new FacetRelation(facetThird, 3, facetSecond, 2);
-								facetRelationList.add(facetRelation) ;
-								break;
-							}
-						}
-					}
-				}
+                        String facetThird = facets.get(i);
+                        for (int j = i - 1; j >= 0; j--) {
+                            String index2 = indexs.get(j);
+                            if (index2.lastIndexOf(".") == 1) {
+                                String facetSecond = facets.get(j);
+                                FacetRelation facetRelation = new FacetRelation(facetThird, 3, facetSecond, 2);
+                                facetRelationList.add(facetRelation);
+                                break;
+                            }
+                        }
+                    }
+                }
 
-			}   else {
-				Log.log("该主题没有目录，不是目录结构，直接爬取 -->摘要<-- 信息");
-			}
-		} catch (Exception e) {
-			Log.log("this is not a normal page...");
-		}
-		return facetRelationList;
-	}
+            } else {
+                Log.log("该主题没有目录，不是目录结构，直接爬取 -->摘要<-- 信息");
+            }
+        } catch (Exception e) {
+            Log.log("this is not a normal page...");
+        }
+        return facetRelationList;
+    }
 
-	/**
-	 * 判断分面内容是否包含最后一个多余的链接
-	 * @return
-	 */
+    /**
+     * 判断分面内容是否包含最后一个多余的链接
+     * @return
+     */
 //	public static Boolean judgeBadText(AssembleFragmentFuzhu assemble){
 //		Boolean exist = false;
 //		String facetContent = assemble.getFacetContentPureText();
@@ -230,18 +232,16 @@ public class FragmentCrawlerDAO {
 //	}
 
 
-
-
-	/**
-	 * 保存所有信息，如果某个分面含有子分面，那么这个分面下面应该没有碎片
-	 * 1. 判断该文本碎片对应的分面是否包含子分面
-	 * 2. 判断该文本碎片为那个不需要的文本
-	 * 3. 去除长度很短且无意义的文本碎片
-	 * @param domain 领域名
-	 * @param topic 主题名
-	 * @param doc 解析网页文档
-	 * @return
-	 */
+    /**
+     * 保存所有信息，如果某个分面含有子分面，那么这个分面下面应该没有碎片
+     * 1. 判断该文本碎片对应的分面是否包含子分面
+     * 2. 判断该文本碎片为那个不需要的文本
+     * 3. 去除长度很短且无意义的文本碎片
+     * @param domain 领域名
+     * @param topic 主题名
+     * @param doc 解析网页文档
+     * @return
+     */
 //	public static List<AssembleFragmentFuzhu> getFragmentUseful(String domain, String topic, Document doc){
 //		List<AssembleFragmentFuzhu> assembleResultList = new ArrayList<AssembleFragmentFuzhu>();
 //		List<AssembleFragmentFuzhu> assembleList = getFragment(doc);
@@ -256,8 +256,6 @@ public class FragmentCrawlerDAO {
 //		}
 //		return assembleResultList;
 //	}
-
-
 
 
 //	/**
@@ -345,9 +343,6 @@ public class FragmentCrawlerDAO {
 //		return success;
 //	}
 //
-
-
-
 
 
 //	/**
