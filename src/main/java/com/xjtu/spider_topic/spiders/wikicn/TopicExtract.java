@@ -68,9 +68,9 @@ public class TopicExtract {
 		} else {
 			Elements mwPages = doc.select("#mw-subcategories").select("li");
 			int len = mwPages.size();
-			Log.log("该术语下共有"+len+"层子分类");
+			Log.log("该术语下共有"+len+"个子分类");
 			for (int i = 0; i < mwPages.size(); i++) {
-				String url = "https://zh.wikipedia.org" + mwPages.get(i).select("a").attr("href");
+				String url = "https://en.wikipedia.org" + mwPages.get(i).select("a").attr("href");
 				String layer = mwPages.get(i).select("a").text();
 				layer = converter.convert(layer);
 				Log.log("The "+(i+1)+" Layer is : " + layer + "  url is : " + url);

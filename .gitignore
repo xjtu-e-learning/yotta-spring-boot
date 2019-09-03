@@ -34,4 +34,4 @@ src/main/resources/phantomjs
 target
 src/main/resources/static/
 src/main/resources/
-src/main/java/com/xjtu/common/fomain/config.java
+src/main/java/com/xjtu/common/domain/config.java
