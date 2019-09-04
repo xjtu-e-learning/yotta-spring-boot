@@ -68,13 +68,14 @@ public class FragmentCrawler {
 //                List<FacetRelation> facetRelationList = FragmentCrawlerDAO.getFacetRelation(doc);
 //                MysqlReadWriteDAO.storeFacetRelation(domainName, topicID, topicName, facetRelationList);
             } else {
-                Log.log("课程 " + domainName + "，主题 " + topicName + " 下的分面与分面关系已经存在,无需爬取!!!");
+                Log.log("==========课程 " + domainName + "，主题 " + topicName + " 下的分面与分面关系已经存在,无需爬取==========");
             }
         }
         for (int i = 0; i < topicList.size(); i++) {
             MysqlReadWriteDAO.storeFacet(domainName,topicList.get(i).getTopicId(), facetSimples.get(i));
-            Log.log("课程 " + domainName + "，主题 " + topicList.get(i).getTopicName() + " 下的分面与分面关系已经爬取完毕!!!");
+            Log.log("==========课程 " + domainName + "，主题 " + topicList.get(i).getTopicName() + " 下的分面与分面关系已经抽取完毕==========");
         }
+        Log.log("\n\n\n==========该课程的知识主题分面树已经构建完成==========");
     }
 
 }
