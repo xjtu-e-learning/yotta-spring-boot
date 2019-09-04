@@ -113,17 +113,18 @@ public class DomainService {
 
     public Result findOrInsetDomainByDomainName(String subjectName, String domainName)
     {
-        Subject subject = subjectRepository.findBySubjectName(subjectName);
-        Long subject_id = subject.getSubjectId();
+
         //查询该课程是否存在
 
-        if (domainName == null || ("").equals(domainName) || domainName.length() == 0) {
+        if (subjectName == null || domainName == null || ("").equals(domainName) || domainName.length() == 0) {
             logger.error("课程信息插入失败：课程名不存在或者为空");
             return ResultUtil.error(ResultEnum.DOMAIN_INSERT_ERROR.getCode(), ResultEnum.DOMAIN_INSERT_ERROR.getMsg());
         }
         //课程不存在在数据库中
         else if (domainRepository.findByDomainName(domainName) == null)
         {
+            Subject subject = subjectRepository.findBySubjectName(subjectName);
+            Long subject_id = subject.getSubjectId();
             Domain domain = new Domain();
             domain.setDomainName(domainName);
             domain.setSubjectId(subject_id);
