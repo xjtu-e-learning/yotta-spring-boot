@@ -38,7 +38,7 @@ public class TSpiderService {
         List<Topic> topics = topicRepository.findByDomainName(domainName);
         List<Facet> facets = facetRepository.findByDomainName(domainName);
         if (domain == null) {
-            Log.log("==========知识森林里还没有这门课程，开始爬取课程：" + domainName);
+            Log.log("==========知识森林里还没有这门课程，开始爬取课程：" + domainName+"==========");
             Result result = domainService.insertDomainByName(domainName);
             Domain domain_new = domainRepository.findByDomainName(domainName);
             Runnable runnable=new SpiderRunnable(domain_new);
