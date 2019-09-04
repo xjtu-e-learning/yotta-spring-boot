@@ -53,7 +53,7 @@ public class TopicCrawler {
 		Boolean existLayer = MysqlReadWriteDAO.judgeByClass1(Config.TOPIC_TABLE, Config.DOMAIN_TABLE, domainName);
 		if (!existLayer) {
 			layerExtract(domainName);
-			Log.log("该课程领域术语爬取完毕===>>>准备开始抽取知识主题!!!");
+			Log.log("==========该课程领域术语爬取完毕===>>>准备开始抽取知识主题==========");
 		} else {
 			Log.log(domain + "：该课程领域术语已经爬取");
 		}
@@ -64,7 +64,7 @@ public class TopicCrawler {
 		Boolean existTopic = MysqlReadWriteDAO.judgeByClass1(Config.TOPIC_TABLE, Config.DOMAIN_TABLE, domainName);
 		if (!existTopic) {
 			topicExtract(domainName,domainId);
-			Log.log("该课程知识主题抽取完毕===>>准备抽取分面!!!");
+			Log.log("==========该课程知识主题抽取完毕===>>准备抽取分面==========");
 		} else {
 			Log.log(domain + "：该课程知识主题已经存在");
 		}

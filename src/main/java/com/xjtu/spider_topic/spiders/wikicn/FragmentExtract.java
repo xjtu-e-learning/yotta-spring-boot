@@ -526,12 +526,13 @@ public class FragmentExtract {
 				|| title.equals("外部连结") || title.equals("相关条目")
 				|| title.equals("参见") || title.equals("另见")|| title.equals("参看")
 				|| title.equals("参考") || title.equals("参照") || title.equals("参阅")
-				|| title.equals("注释") || title.equals("延伸阅读")||title.equalsIgnoreCase("see also") ||
-				title.equalsIgnoreCase("reference") ||
-				title.equalsIgnoreCase("external link") ||
-				title.equalsIgnoreCase("further reading") ||
-				title.equalsIgnoreCase("notes") ||
-				title.equalsIgnoreCase("citations") ||
+				|| title.equals("注释") || title.equals("延伸阅读")||title.equalsIgnoreCase("See also") ||
+				title.equalsIgnoreCase("References") ||
+				title.equalsIgnoreCase("External links") ||
+				title.equalsIgnoreCase("Further reading") ||
+				title.equalsIgnoreCase("Footnotes") ||
+				title.equalsIgnoreCase("Notes") ||
+				title.equalsIgnoreCase("Citations") ||
 				title.equalsIgnoreCase("[edit]") ||
 				title.equalsIgnoreCase("Wikimedia") ||
 				title.equalsIgnoreCase("Wikibooks");; // 判断标题是否为无用的
