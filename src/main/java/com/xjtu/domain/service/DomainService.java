@@ -18,6 +18,7 @@ import com.xjtu.subject.domain.SubjectContainDomain;
 import com.xjtu.subject.repository.SubjectRepository;
 import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.repository.TopicRepository;
+import com.xjtu.utils.Log;
 import com.xjtu.utils.ResultUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +70,6 @@ public class DomainService {
     private PermissionRepository permissionRepository;
 
 
-
     /**
      * 插入课程信息
      *
@@ -111,20 +111,17 @@ public class DomainService {
         return insertDomain(domain);
     }
 
-    public Result findOrInsetDomainByDomainName(String subjectName, String domainName)
-    {
-
+    public Result findOrInsetDomainByDomainName(String subjectName, String domainName) {
+        Subject subject = subjectRepository.findBySubjectName(subjectName);
+        Long subject_id = subject.getSubjectId();
         //查询该课程是否存在
 
-        if (subjectName == null || domainName == null || ("").equals(domainName) || domainName.length() == 0) {
+        if (domainName == null || ("").equals(domainName) || domainName.length() == 0) {
             logger.error("课程信息插入失败：课程名不存在或者为空");
             return ResultUtil.error(ResultEnum.DOMAIN_INSERT_ERROR.getCode(), ResultEnum.DOMAIN_INSERT_ERROR.getMsg());
         }
         //课程不存在在数据库中
-        else if (domainRepository.findByDomainName(domainName) == null)
-        {
-            Subject subject = subjectRepository.findBySubjectName(subjectName);
-            Long subject_id = subject.getSubjectId();
+        else if (domainRepository.findByDomainName(domainName) == null) {
             Domain domain = new Domain();
             domain.setDomainName(domainName);
             domain.setSubjectId(subject_id);
@@ -141,7 +138,7 @@ public class DomainService {
         logger.error("课程信息插入失败：课程已在数据库中");
         return ResultUtil.success(ResultEnum.DOMAIN_GENERATE_ERROR.getCode(), ResultEnum.DOMAIN_GENERATE_ERROR.getMsg(), "课程构建失败：该课程已存在");
 
-       }
+    }
 
     /**
      * 删除课程：根据课程Id
@@ -491,34 +488,31 @@ public class DomainService {
     /**
      * 加入带权限控制的课程查询
      * 张铎 2019/06/04
+     *
      * @return 学科与课程列表
      */
-    public Result findSubjectsAndDomainsByUserId(String userName){
+    public Result findSubjectsAndDomainsByUserId(String userName) {
         List<SubjectContainDomain> subjectContainDomains = new ArrayList<>();
 
         //添加示范课程学科数据
         Subject subject_typical = subjectRepository.findBySubjectName("示范课程");
-        if(subject_typical == null)
-        {
+        if (subject_typical == null) {
             logger.error("学科查询失败：没有示范课程学科信息记录");
             return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
         }
         List<Domain> domains_typical = domainRepository.findBySubjectId(subject_typical.getSubjectId());
-        SubjectContainDomain subjectContainDomain_typical = new SubjectContainDomain(subject_typical.getSubjectId(),subject_typical.getSubjectName(), subject_typical.getNote(), domains_typical);
+        SubjectContainDomain subjectContainDomain_typical = new SubjectContainDomain(subject_typical.getSubjectId(), subject_typical.getSubjectName(), subject_typical.getNote(), domains_typical);
         subjectContainDomains.add(subjectContainDomain_typical);
 
         //添加每个用户权限下所能看到的学科课程数据
         List<Permission> permissionOfSubjectId = permissionRepository.findSubjectIdByUserName(userName);
         Set<Long> subject_id_set = new HashSet<>();
-        for(Permission p : permissionOfSubjectId)
-        {
+        for (Permission p : permissionOfSubjectId) {
             subject_id_set.add(p.getSubjectId());
 
         }
-        if(subject_id_set.size()>0)
-        {
-            for (Long subjectId : subject_id_set)
-            {
+        if (subject_id_set.size() > 0) {
+            for (Long subjectId : subject_id_set) {
                 Subject subject = subjectRepository.findBySubjectId(subjectId);
                 if (subject == null) {
                     logger.error("学科查询失败：没有学科信息记录");
@@ -526,10 +520,8 @@ public class DomainService {
                 }
                 List<Permission> permissionOfDomainId = permissionRepository.findDomainIdByUserName(userName);
                 List<Domain> domains = new ArrayList<>();
-                for(Permission pd : permissionOfDomainId)
-                {
-                    if(pd.getSubjectId().equals(subjectId))
-                    {
+                for (Permission pd : permissionOfDomainId) {
+                    if (pd.getSubjectId().equals(subjectId)) {
                         Domain domain = domainRepository.findOne(pd.getDomainId());
                         if (domain == null) {
                             logger.error("课程查询失败：没有课程信息记录");
@@ -538,7 +530,7 @@ public class DomainService {
                         domains.add(domain);
                     }
                 }
-                SubjectContainDomain subjectContainDomain = new SubjectContainDomain(subject.getSubjectId(),subject.getSubjectName(),subject.getNote(),domains);
+                SubjectContainDomain subjectContainDomain = new SubjectContainDomain(subject.getSubjectId(), subject.getSubjectName(), subject.getNote(), domains);
                 subjectContainDomains.add(subjectContainDomain);
             }
         }
