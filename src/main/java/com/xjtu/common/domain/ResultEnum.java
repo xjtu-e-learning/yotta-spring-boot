@@ -124,6 +124,7 @@ public enum ResultEnum {
     //依赖关系
     DEPENDENCY_SEARCH_ERROR(177, "主题依赖关系查询失败：没有课程信息记录"),
     DEPENDENCY_SEARCH_ERROR_1(178, "主题依赖关系查询失败：该课程下没有主题依赖关系记录"),
+    DEPENDENCY_SEARCH_ERROR_5(212, "主体依赖关系查询失败： 没有指定课程"),
     DEPENDENCY_SEARCH_ERROR_2(179, "主题依赖关系生成失败：gexf文件生成失败"),
     DEPENDENCY_SEARCH_ERROR_3(180, "主题依赖关系生成失败：起始或终止主题不存在"),
     DEPENDENCY_SEARCH_ERROR_4(181, "主题依赖关系查询失败：查询语句执行失败"),

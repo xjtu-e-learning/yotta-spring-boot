@@ -213,11 +213,16 @@ public class DependencyService {
      * @return
      */
     public Result findDependenciesByDomainName(String domainName) {
+        if (domainName == null)
+        {
+            logger.error("主题依赖关系查询失败：没有指定课程");
+            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR_5.getCode(), ResultEnum.DEPENDENCY_SEARCH_ERROR_5.getMsg(), "主题依赖关系查询失败：没有指定课程");
+        }
         Domain domain = domainRepository.findByDomainName(domainName);
         //查询错误
         if (domain == null) {
             logger.error("主题依赖关系查询失败：没有课程信息记录");
-            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR.getCode(), ResultEnum.DEPENDENCY_SEARCH_ERROR.getMsg());
+            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR.getCode(), ResultEnum.DEPENDENCY_SEARCH_ERROR.getMsg(), "主题依赖关系查询失败：没有课程信息记录");
         }
         Long domainId = domain.getDomainId();
         List<Dependency> dependencies = dependencyRepository.findByDomainId(domainId);
@@ -241,7 +246,7 @@ public class DependencyService {
         //查询错误
         if (domain == null) {
             logger.error("主题依赖关系查询失败：没有课程信息记录");
-            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR.getCode(), ResultEnum.DEPENDENCY_SEARCH_ERROR.getMsg());
+            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR.getCode(), ResultEnum.DEPENDENCY_SEARCH_ERROR.getMsg(), "主题依赖关系查询失败：没有课程信息记录");
         }
         Long domainId = domain.getDomainId();
 
@@ -464,6 +469,13 @@ public class DependencyService {
      */
     public Result generateDependencyByDomainName(String domainName, Boolean isEnglish)
     {
+
+        if (domainName == null)
+        {
+            logger.error("主题依赖关系查询失败：没有指定课程");
+            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR_5.getCode(), ResultEnum.DEPENDENCY_SEARCH_ERROR_5.getMsg());
+        }
+
         Domain domain = domainRepository.findByDomainName(domainName);
         //查询错误
         if (domain == null) {
