@@ -32,5 +32,5 @@ hs_err_pid*
 
 
 target
-src/main/resources/application-ceshi.properties
-src/main/java/com/xjtu/common/domain/config.java
+src/main/resources/
+src/main/java/com/xjtu/common/Config.java
