@@ -8,10 +8,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 /**
@@ -27,7 +24,7 @@ public class TSpiderController {
     @Autowired
     private TSpiderService tSpiderService;
 
-    @GetMapping("/spiderTopicFacetByDomainName")
+    @PostMapping("/spiderTopicFacetByDomainName")
     @ApiOperation(value = "爬虫程序爬取指定课程的主题、分面信息并存入数据库", notes = "爬虫程序爬取指定学科的主题、分面信息并存入数据库")
     public ResponseEntity spiderTopicFacetByDomainName(@RequestParam(name = "domainName") String domainName) throws Exception {
         Result result = tSpiderService.TSpider(domainName);
