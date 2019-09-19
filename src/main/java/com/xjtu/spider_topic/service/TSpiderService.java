@@ -16,6 +16,7 @@ import com.xjtu.utils.Log;
 import com.xjtu.utils.ResultUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 @Service
@@ -38,24 +39,22 @@ public class TSpiderService {
         List<Topic> topics = topicRepository.findByDomainName(domainName);
         List<Facet> facets = facetRepository.findByDomainName(domainName);
         if (domain == null) {
-            Log.log("==========知识森林里还没有这门课程，开始爬取课程：" + domainName+"==========");
+            Log.log("==========知识森林里还没有这门课程，开始爬取课程：" + domainName + "==========");
             Result result = domainService.insertDomainByName(domainName);
             Domain domain_new = domainRepository.findByDomainName(domainName);
-            Runnable runnable=new SpiderRunnable(domain_new);
-            Thread thread=new Thread(runnable);
+            Runnable runnable = new SpiderRunnable(domain_new);
+            Thread thread = new Thread(runnable);
             thread.start();
-            return ResultUtil.error(ResultEnum.TSPIDER_ERROR.getCode(),ResultEnum.TSPIDER_ERROR.getMsg());
-        } else if(domain != null && (topics == null||topics.size()==0) && (facets == null||facets.size()==0))
-        {
-            return ResultUtil.error(ResultEnum.TSPIDER_ERROR1.getCode(),ResultEnum.TSPIDER_ERROR1.getMsg());
-        } else if(domain != null && (topics != null && topics.size()!=0) && (facets == null||facets.size()==0))
-        {
-            return ResultUtil.error(ResultEnum.TSPIDER_ERROR2.getCode(),ResultEnum.TSPIDER_ERROR2.getMsg());
-        }
-        else {
+            return ResultUtil.error(ResultEnum.TSPIDER_ERROR.getCode(), ResultEnum.TSPIDER_ERROR.getMsg(), "课程 " + domainName + " 准备开始构建");
+        } else if (domain != null && (topics == null || topics.size() == 0) && (facets == null || facets.size() == 0)) {
+            return ResultUtil.error(ResultEnum.TSPIDER_ERROR1.getCode(), ResultEnum.TSPIDER_ERROR1.getMsg());
+        } else if (domain != null && (topics != null && topics.size() != 0) && (facets == null || facets.size() == 0)) {
+            return ResultUtil.error(ResultEnum.TSPIDER_ERROR2.getCode(), ResultEnum.TSPIDER_ERROR2.getMsg());
+        } else {
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "==========该课程的知识主题分面树已成功构建==========");
         }
     }
+
     /**
      * 爬取一门课程：主题、分面、分面关系
      *

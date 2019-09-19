@@ -227,11 +227,24 @@ public class DependencyService {
         Long domainId = domain.getDomainId();
         List<Dependency> dependencies = dependencyRepository.findByDomainId(domainId);
         List<DependencyContainName> dependencyContainNames = new ArrayList<>();
+
         for (Dependency dependency : dependencies) {
             DependencyContainName dependencyContainName = new DependencyContainName(dependency);
             //获取主题名
-            String startTopicName = topicRepository.findOne(dependency.getStartTopicId()).getTopicName();
-            String endTopicName = topicRepository.findOne(dependency.getEndTopicId()).getTopicName();
+            Topic startTopic = topicRepository.findOne(dependency.getStartTopicId());
+            String startTopicName;
+            if (startTopic != null)
+                startTopicName = startTopic.getTopicName();
+            else
+                continue;
+            Topic endTopic = topicRepository.findOne(dependency.getEndTopicId());
+            String endTopicName;
+            if (endTopic != null)
+                endTopicName = endTopic.getTopicName();
+            else
+                continue;
+            // String startTopicName = topicRepository.findOne(dependency.getStartTopicId()).getTopicName();
+            // String endTopicName = topicRepository.findOne(dependency.getEndTopicId()).getTopicName();
             //设置主题名
             dependencyContainName.setStartTopicName(startTopicName);
             dependencyContainName.setEndTopicName(endTopicName);
