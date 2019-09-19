@@ -57,6 +57,20 @@ public class TopicController {
 
     /**
      * API
+     * 根据主题ID删除主题
+     */
+    @GetMapping("/deleteTopicByTopicId")
+    @ApiOperation(value = "根据主题ID删除主题", notes = "根据给出的主题ID进行主题及其下相关内容删除")
+    public ResponseEntity deleteTopicByTopicId(@RequestParam(name = "topicId") Long topicId) {
+        Result result = topicService.deleteTopicByTopicId(topicId);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    /**
+     * API
      * 更新主题名
      * 根据旧主题名进行更新
      */
