@@ -1149,4 +1149,30 @@ public class AssembleService {
         }
     }
 
+    public Result countUpdateAssemble(String domainName)
+    {
+        if (domainName == null || domainName.equals("") || domainName.length() == 0)
+        {
+            logger.error("碎片查询失败，课程名为空");
+            return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR.getCode(), ResultEnum.Assemble_SEARCH_ERROR.getMsg(),"碎片查询失败：对应课程不存在");
+        }
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null)
+        {
+            logger.error("碎片查询失败，课程不存在");
+            return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR.getCode(), ResultEnum.Assemble_SEARCH_ERROR.getMsg(),"碎片查询失败：对应课程不存在");
+        }
+        Long domainId = domain.getDomainId();
+        //设置日期格式
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        // 获取当前系统时间，也可使用当前时间戳
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.DATE, calendar.get(Calendar.DATE) - 30);//当前系统时间一个月前
+        Date date = calendar.getTime();
+        String localdate = df.format(date);
+        Long updateAssembleNumber = assembleRepository.countUpdateAssembleByDomainIdAndAssembleScratchTime(localdate, domainId);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), updateAssembleNumber);
+    }
+
 }
