@@ -73,9 +73,8 @@ public class TimeTaskSpiderAssembleService {
     QuestionRepository questionRepository;
 
 
-
-//    @Scheduled(cron = "0 0 0 L * ?")
-    @Scheduled(cron = "0 5/5 * * * ?")
+    @Scheduled(cron = "0 0 0 L * ?")
+//    @Scheduled(cron = "0 5/5 * * * ?")
     public void crawlAssembles() {
 
         for (Long subjectId = 1L; subjectId<=15; subjectId++)
