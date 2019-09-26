@@ -159,8 +159,8 @@ public enum ResultEnum {
 
     //知识主题分面树构建爬虫
     TSPIDER_ERROR(197,"该课程的知识主题分面树已开始构建...."),
-    TSPIDER_ERROR1(198,"正在爬取主题中.....请稍候!"),
-    TSPIDER_ERROR2(199,"正在爬取分面中.....请稍候!"),
+    TSPIDER_ERROR1(198,"正在爬取主题中, "),
+    TSPIDER_ERROR2(199,"正在爬取分面中, "),
     ;
 
     private Integer code;

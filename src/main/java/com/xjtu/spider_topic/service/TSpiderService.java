@@ -47,9 +47,9 @@ public class TSpiderService {
             thread.start();
             return ResultUtil.error(ResultEnum.TSPIDER_ERROR.getCode(), ResultEnum.TSPIDER_ERROR.getMsg(), "课程 " + domainName + " 准备开始构建");
         } else if (domain != null && (topics == null || topics.size() == 0) && (facets == null || facets.size() == 0)) {
-            return ResultUtil.error(ResultEnum.TSPIDER_ERROR1.getCode(), ResultEnum.TSPIDER_ERROR1.getMsg());
+            return ResultUtil.error(ResultEnum.TSPIDER_ERROR1.getCode(), ResultEnum.TSPIDER_ERROR1.getMsg(), "已经爬取的主题数目为 " + TopicCrawler.getCountTopicCrawled());
         } else if (domain != null && (topics != null && topics.size() != 0) && (facets == null || facets.size() == 0)) {
-            return ResultUtil.error(ResultEnum.TSPIDER_ERROR2.getCode(), ResultEnum.TSPIDER_ERROR2.getMsg());
+            return ResultUtil.error(ResultEnum.TSPIDER_ERROR2.getCode(), ResultEnum.TSPIDER_ERROR2.getMsg(), "已经爬取的分面数目为 " + FragmentCrawler.getCountFacetCrawled());
         } else {
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "==========该课程的知识主题分面树已成功构建==========");
         }
