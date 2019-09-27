@@ -73,7 +73,7 @@ public class TimeTaskSpiderAssembleService {
     QuestionRepository questionRepository;
 
 
-    @Scheduled(cron = "0 0 1 1 * ?")
+    @Scheduled(cron = "0 0 1 1 * ?")//每个月1号1点启动
     public void crawlAssembles() {
 
         for (Long subjectId = 1L; subjectId<=15; subjectId++)
