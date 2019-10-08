@@ -26,8 +26,10 @@ public class TSpiderController {
 
     @PostMapping("/spiderTopicFacetByDomainName")
     @ApiOperation(value = "爬虫程序爬取指定课程的主题、分面信息并存入数据库", notes = "爬虫程序爬取指定学科的主题、分面信息并存入数据库")
-    public ResponseEntity spiderTopicFacetByDomainName(@RequestParam(name = "domainName") String domainName) throws Exception {
-        Result result = tSpiderService.TSpider(domainName);
+    public ResponseEntity spiderTopicFacetByDomainName(@RequestParam(name = "subjectName") String subjectName,
+                                                       @RequestParam(name = "domainName") String domainName,
+                                                       @RequestParam(name = "isChineseOrNot") Boolean isChineseOrNot) throws Exception {
+        Result result = tSpiderService.TSpider(subjectName, domainName, isChineseOrNot);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }

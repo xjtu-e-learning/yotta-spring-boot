@@ -2,6 +2,7 @@ package com.xjtu.spider_topic.spiders.wikicn;
 
 import com.xjtu.common.Config;
 import com.xjtu.domain.domain.Domain;
+import com.xjtu.spider_topic.service.TSpiderService;
 import com.xjtu.topic.domain.Term;
 import com.xjtu.topic.domain.LayerRelation;
 import com.xjtu.utils.Log;
@@ -23,6 +24,9 @@ import java.util.Set;
 public class TopicCrawler {
 
     private static int countTopicCrawled = 0;
+    private static String domain_url0;
+    private static String domain_url1 = "https://zh.wikipedia.org/wiki/Category:";
+    private static String domain_url2 = "https://en.wikipedia.org/wiki/Category:";
 
     /**
      * 返回count值，来获取已爬取的主题数；
@@ -33,19 +37,32 @@ public class TopicCrawler {
         return countTopicCrawled;
     }
 
+
     /**
-     * 1.根据课程名，判断存不存在该课程，若不存在，则存储课程名
+     * 根据课程的中英文状态确定爬虫爬取哪个网站
      *
-     * @param domain 课程
-     * @return true 表示已经爬取
+     * @param
+     * @return
      */
-    public static void storeDomain(Domain domain) {
-        List<Domain> list = new ArrayList<>();
-        list.add(domain);
-        if (!MysqlReadWriteDAO.judgeByClass(Config.DOMAIN_TABLE, domain.getDomainName())) {
-            MysqlReadWriteDAO.storeDomain(list);
-        }
+    public static void setDomainLanguage() {
+        if (TSpiderService.getDomainFlag()) {domain_url0 = domain_url1;}
+        else domain_url0 = domain_url2;
     }
+
+
+//    /**
+//     * 1.根据课程名，判断存不存在该课程，若不存在，则存储课程名
+//     *
+//     * @param domain 课程
+//     * @return true 表示已经爬取
+//     */
+//    public static void storeDomain(Domain domain) {
+//        List<Domain> list = new ArrayList<>();
+//        list.add(domain);
+//        if (!MysqlReadWriteDAO.judgeByClass(Config.DOMAIN_TABLE, domain.getDomainName())) {
+//            MysqlReadWriteDAO.storeDomain(list);
+//        }
+//    }
 
     /**
      * 2.根据课程名，判断该课程知识主题是否已经爬取，显示结果
@@ -61,6 +78,7 @@ public class TopicCrawler {
          */
         String domainName = domain.getDomainName();
         Long domainId = domain.getDomainId();
+        setDomainLanguage();
         /**
          * 判断该课程领域术语是否已经爬取
          */
@@ -100,7 +118,7 @@ public class TopicCrawler {
          * 第一层领域术语
          */
         //测试：String domain = "数据结构";
-        String domain_url = "https://en.wikipedia.org/wiki/Category:" + URLEncoder.encode(domainName, "UTF-8");//课程维基根目录
+        String domain_url = domain_url0 + URLEncoder.encode(domainName, "UTF-8");//课程维基根目录
 
         int firstLayer = 1;
         List<Term> topicFirst = TopicCrawlerDAO.topic(domain_url); // 得到第一层领域术语（不含子主题的那一部分）

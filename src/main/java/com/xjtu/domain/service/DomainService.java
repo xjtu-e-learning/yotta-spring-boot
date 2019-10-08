@@ -120,29 +120,29 @@ public class DomainService {
             logger.error("课程信息插入失败：课程名不存在或者为空");
             return ResultUtil.error(ResultEnum.DOMAIN_INSERT_ERROR.getCode(), ResultEnum.DOMAIN_INSERT_ERROR.getMsg());
         }
-        //课程不存在在数据库中
-//        else if (domainRepository.findByDomainName(domainName) == null)
-//        {
-//            Subject subject = subjectRepository.findBySubjectName(subjectName);
-//            Long subject_id = subject.getSubjectId();
-//            Domain domain = new Domain();
-//            domain.setDomainName(domainName);
-//            domain.setSubjectId(subject_id);
-//            Domain domainInsert = domainRepository.save(domain);
-//            if (true) {   //domainInsert != null
-//                return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "课程:" + domainName + "插入成功");
-//            } else {
-//                logger.error("课程信息插入失败：数据库插入语句失败");
-//                return ResultUtil.error(ResultEnum.DOMAIN_INSERT_ERROR_2.getCode(), ResultEnum.DOMAIN_INSERT_ERROR_2.getMsg());
-//            }
-//        }
-
-        //课程已经在数据库中
-        else if(domainRepository.findByDomainName(domainName) != null)
+       // 课程不存在在数据库中
+        else if (domainRepository.findByDomainName(domainName) == null)
         {
-            logger.error("课程信息插入失败：课程已在数据库中");
-            return ResultUtil.success(ResultEnum.DOMAIN_GENERATE_ERROR.getCode(), ResultEnum.DOMAIN_GENERATE_ERROR.getMsg(), "课程构建失败：该课程已存在");
+            Subject subject = subjectRepository.findBySubjectName(subjectName);
+            Long subject_id = subject.getSubjectId();
+            Domain domain = new Domain();
+            domain.setDomainName(domainName);
+            domain.setSubjectId(subject_id);
+            Domain domainInsert = domainRepository.save(domain);
+            if (true) {   //domainInsert != null
+                return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "课程:" + domainName + "插入成功");
+            } else {
+                logger.error("课程信息插入失败：数据库插入语句失败");
+                return ResultUtil.error(ResultEnum.DOMAIN_INSERT_ERROR_2.getCode(), ResultEnum.DOMAIN_INSERT_ERROR_2.getMsg());
+            }
         }
+
+//     修改后，不存在这种情况：   //课程已经在数据库中
+//        else if(domainRepository.findByDomainName(domainName) != null)
+//        {
+//            logger.error("课程信息插入失败：课程已在数据库中");
+//            return ResultUtil.success(ResultEnum.DOMAIN_GENERATE_ERROR.getCode(), ResultEnum.DOMAIN_GENERATE_ERROR.getMsg(), "课程构建失败：该课程已存在");
+//        }
         else {
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "课程:" + domainName + "插入成功");
         }

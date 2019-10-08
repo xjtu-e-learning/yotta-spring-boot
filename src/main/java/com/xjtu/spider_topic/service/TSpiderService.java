@@ -21,6 +21,8 @@ import java.util.List;
 
 @Service
 public class TSpiderService {
+    private static Boolean domainFlag;
+
     @Autowired
     private DomainRepository domainRepository;
 
@@ -34,21 +36,28 @@ public class TSpiderService {
     private FacetRepository facetRepository;
 
     // 中文网站爬虫
-    public Result TSpider(String domainName) throws Exception {
+    public Result TSpider(String subjectName, String domainName, Boolean isChineseOrNot) throws Exception {
         Domain domain = domainRepository.findByDomainName(domainName);
         List<Topic> topics = topicRepository.findByDomainName(domainName);
         List<Facet> facets = facetRepository.findByDomainName(domainName);
         if (domain == null) {
+            if (isChineseOrNot) domainFlag = true; else domainFlag = false;
             Log.log("==========知识森林里还没有这门课程，开始爬取课程：" + domainName + "==========");
-            Result result = domainService.insertDomainByName(domainName);
-            Domain domain_new = domainRepository.findByDomainName(domainName);
-            Runnable runnable = new SpiderRunnable(domain_new);
-            Thread thread = new Thread(runnable);
-            thread.start();
-            return ResultUtil.error(ResultEnum.TSPIDER_ERROR.getCode(), ResultEnum.TSPIDER_ERROR.getMsg(), "课程 " + domainName + " 准备开始构建");
+            Result result = domainService.findOrInsetDomainByDomainName(subjectName, domainName);
+            if (result.getCode() == 116) {
+                return ResultUtil.error(ResultEnum.DOMAIN_INSERT_ERROR.getCode(), ResultEnum.DOMAIN_INSERT_ERROR.getMsg());
+            } else if (result.getCode() == 118) {
+                return ResultUtil.error(ResultEnum.DOMAIN_INSERT_ERROR_2.getCode(), ResultEnum.DOMAIN_INSERT_ERROR_2.getMsg());
+            } else {
+                Domain domain_new = domainRepository.findByDomainName(domainName);
+                Runnable runnable = new SpiderRunnable(domain_new);
+                Thread thread = new Thread(runnable);
+                thread.start();
+                return ResultUtil.error(ResultEnum.TSPIDER_ERROR.getCode(), ResultEnum.TSPIDER_ERROR.getMsg(), "课程 " + domainName + " 准备开始构建");
+            }
         } else if (domain != null && (topics == null || topics.size() == 0) && (facets == null || facets.size() == 0)) {
             return ResultUtil.error(ResultEnum.TSPIDER_ERROR1.getCode(), ResultEnum.TSPIDER_ERROR1.getMsg(), "已经爬取的主题数目为 " + TopicCrawler.getCountTopicCrawled());
-        } else if (domain != null && (topics != null && topics.size() != 0) && (facets == null || facets.size() == 0)) {
+        } else if (domain != null && (topics != null && topics.size() != 0) && (facets == null && facets.size() == 0)) {
             return ResultUtil.error(ResultEnum.TSPIDER_ERROR2.getCode(), ResultEnum.TSPIDER_ERROR2.getMsg(), "已经爬取的分面数目为 " + FragmentCrawler.getCountFacetCrawled());
         } else {
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "==========该课程的知识主题分面树已成功构建==========");
@@ -65,6 +74,14 @@ public class TSpiderService {
         TopicCrawler.storeTopic(domain);
         // 爬取并存储知识主题对应的分面，形成知识主题分面树（不含碎片信息及知识主题间的认知关系）
         FragmentCrawler.storeKGByDomainName(domain);
+    }
+
+    /**
+     * 获取课程的中英文状态
+     *
+     */
+    public static boolean getDomainFlag(){
+        return domainFlag;
     }
 
 }
