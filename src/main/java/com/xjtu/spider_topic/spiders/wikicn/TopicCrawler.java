@@ -49,23 +49,8 @@ public class TopicCrawler {
         else domain_url0 = domain_url2;
     }
 
-
-//    /**
-//     * 1.根据课程名，判断存不存在该课程，若不存在，则存储课程名
-//     *
-//     * @param domain 课程
-//     * @return true 表示已经爬取
-//     */
-//    public static void storeDomain(Domain domain) {
-//        List<Domain> list = new ArrayList<>();
-//        list.add(domain);
-//        if (!MysqlReadWriteDAO.judgeByClass(Config.DOMAIN_TABLE, domain.getDomainName())) {
-//            MysqlReadWriteDAO.storeDomain(list);
-//        }
-//    }
-
     /**
-     * 2.根据课程名，判断该课程知识主题是否已经爬取，显示结果
+     * 根据课程名，判断该课程知识主题是否已经爬取，显示结果
      * 否则，获取三层领域术语和知识主题（某门课程）
      *
      * @param domain 课程
