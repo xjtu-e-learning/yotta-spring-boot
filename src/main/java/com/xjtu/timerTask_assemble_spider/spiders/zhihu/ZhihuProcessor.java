@@ -87,8 +87,12 @@ public class ZhihuProcessor implements PageProcessor {
         for (String url : urls) {
             Request request = new Request();
             //如果链接中不包含字符串“zhihu”，可以断定是相对路径
-            if (!url.contains("zhihu")) {
-                request.setUrl("https://www.zhihu.com" + url);
+            if (!url.contains("http"))
+            {
+                if (!url.contains("zhihu"))
+                    request.setUrl("https://www.zhihu.com" + url);
+                else
+                    request.setUrl("https:" + url);
             } else {
                 request.setUrl(url);
             }

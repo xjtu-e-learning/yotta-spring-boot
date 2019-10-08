@@ -73,7 +73,7 @@ public class TimeTaskSpiderAssembleService {
     QuestionRepository questionRepository;
 
 
-    @Scheduled(cron = "0 0 1 1 * ?")//每个月1号1点启动
+    @Scheduled(cron = "0 0 1 9 * ?")//每个月9号1点启动
     public void crawlAssembles() {
 
         for (Long subjectId = 1L; subjectId<=15; subjectId++)
@@ -107,7 +107,7 @@ public class TimeTaskSpiderAssembleService {
         logger.info("CSDN碎片开始爬取 当前课程：" + domainName);
         CSDNProcessor csdnProcessor = new CSDNProcessor(this);
         csdnProcessor.CSDNAnswerCrawl(domainName, assembleRepository);
-//
+
 
         logger.info("知乎碎片开始爬取 当前课程：" + domainName);
         ZhihuProcessor zhihuProcessor = new ZhihuProcessor(this);
