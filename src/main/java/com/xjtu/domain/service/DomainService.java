@@ -550,5 +550,70 @@ public class DomainService {
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), subjectContainDomains);
     }
 
+    /**
+     * 提供给获得一门课程下（主题，分面，碎片）的RDF信息
+     * @param domainName
+     * @return
+     */
+    public Result getDomainDetailAsRDF(String domainName)
+    {
+        if (domainName == null || ("").equals(domainName) || domainName.length() == 0)
+            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR_3.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR_3.getMsg(), "课程查询失败：没有课程信息记录");
+
+        Domain domain = domainRepository.findByDomainName(domainName);
+        Long domainId = domain.getDomainId();
+        Map<String, Object> resultMap = new HashMap<>();
+        List<Topic> topics = topicRepository.findByDomainId(domainId);
+        for (Topic topic: topics) {
+            String topicName = topic.getTopicName();
+            Long topicId = topic.getTopicId();
+            //一级分面
+            List<Facet> firstLayerFacets = facetRepository.findByTopicIdAndFacetLayer(topicId, 1);
+            Map<Facet, Object> firstLayerFacetAssemble = new HashMap<>();
+            for (Facet facet: firstLayerFacets)
+            {
+                //二级分面
+                List<Facet> secondLayerFacets = facetRepository.findByParentFacetId(facet.getFacetId());
+                //二级分面不为空，说明该分面存在二级分面
+                if (!secondLayerFacets.isEmpty())
+                {
+                    //每一个二级分面
+                    Map<Facet, Object> secondLayerFacetAssemble = new HashMap<>();
+                    for (Facet secondLayerFacet: secondLayerFacets)
+                    {
+                        List<Facet> thirdLayerFacets = facetRepository.findByParentFacetId(secondLayerFacet.getFacetId());
+                        //三级分面不为空，说明该二级分面存在三级分面
+                        if (!thirdLayerFacets.isEmpty())
+                        {
+                            Map<Facet, Object> thirdLayerFacetAssemble = new HashMap<>();
+                            for (Facet thirdLayerFacet: thirdLayerFacets)
+                            {
+                                //寻找三级分面对应的碎片
+                                List<Assemble> thirdLayerAssemble = assembleRepository.findByFacetId(thirdLayerFacet.getFacetId());
+                                thirdLayerFacetAssemble.put(thirdLayerFacet, thirdLayerAssemble);
+                            }
+                            secondLayerFacetAssemble.put(secondLayerFacet, thirdLayerFacetAssemble);
+                        }
+                        //不存在三级分面，则直接寻找二级分面对应的碎片
+                        else
+                        {
+                            List<Assemble> secondLayerAssemble = assembleRepository.findByFacetId(secondLayerFacet.getFacetId());
+                            secondLayerFacetAssemble.put(secondLayerFacet, secondLayerAssemble);
+                        }
+                    }
+                    firstLayerFacetAssemble.put(facet, secondLayerFacetAssemble);
+                }
+                //不存在二级分面，直接寻找一级分面对应的碎片
+                else
+                {
+                    List<Assemble> firstLayerAssemble = assembleRepository.findByFacetId(facet.getFacetId());
+                    firstLayerFacetAssemble.put(facet, firstLayerAssemble);
+                }
+
+            }
+            resultMap.put(topicName, firstLayerFacetAssemble);
+        }
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), resultMap);
+    }
 
 }
