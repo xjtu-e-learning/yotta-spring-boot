@@ -561,6 +561,8 @@ public class DomainService {
             return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR_3.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR_3.getMsg(), "课程查询失败：没有课程信息记录");
 
         Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain==null)
+            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR_3.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR_3.getMsg(), "课程查询失败：没有课程信息记录");
         Long domainId = domain.getDomainId();
         Map<String, Object> resultMap = new HashMap<>();
         List<Topic> topics = topicRepository.findByDomainId(domainId);
