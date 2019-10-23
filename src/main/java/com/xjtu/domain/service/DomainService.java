@@ -569,7 +569,7 @@ public class DomainService {
             Long topicId = topic.getTopicId();
             //一级分面
             List<Facet> firstLayerFacets = facetRepository.findByTopicIdAndFacetLayer(topicId, 1);
-            Map<Facet, Object> firstLayerFacetAssemble = new HashMap<>();
+            Map<String, Object> firstLayerFacetAssemble = new HashMap<>();
             for (Facet facet: firstLayerFacets)
             {
                 //二级分面
@@ -578,36 +578,36 @@ public class DomainService {
                 if (!secondLayerFacets.isEmpty())
                 {
                     //每一个二级分面
-                    Map<Facet, Object> secondLayerFacetAssemble = new HashMap<>();
+                    Map<String, Object> secondLayerFacetAssemble = new HashMap<>();
                     for (Facet secondLayerFacet: secondLayerFacets)
                     {
                         List<Facet> thirdLayerFacets = facetRepository.findByParentFacetId(secondLayerFacet.getFacetId());
                         //三级分面不为空，说明该二级分面存在三级分面
                         if (!thirdLayerFacets.isEmpty())
                         {
-                            Map<Facet, Object> thirdLayerFacetAssemble = new HashMap<>();
+                            Map<String, Object> thirdLayerFacetAssemble = new HashMap<>();
                             for (Facet thirdLayerFacet: thirdLayerFacets)
                             {
                                 //寻找三级分面对应的碎片
                                 List<Assemble> thirdLayerAssemble = assembleRepository.findByFacetId(thirdLayerFacet.getFacetId());
-                                thirdLayerFacetAssemble.put(thirdLayerFacet, thirdLayerAssemble);
+                                thirdLayerFacetAssemble.put(thirdLayerFacet.getFacetName(), thirdLayerAssemble);
                             }
-                            secondLayerFacetAssemble.put(secondLayerFacet, thirdLayerFacetAssemble);
+                            secondLayerFacetAssemble.put(secondLayerFacet.getFacetName(), thirdLayerFacetAssemble);
                         }
                         //不存在三级分面，则直接寻找二级分面对应的碎片
                         else
                         {
                             List<Assemble> secondLayerAssemble = assembleRepository.findByFacetId(secondLayerFacet.getFacetId());
-                            secondLayerFacetAssemble.put(secondLayerFacet, secondLayerAssemble);
+                            secondLayerFacetAssemble.put(secondLayerFacet.getFacetName(), secondLayerAssemble);
                         }
                     }
-                    firstLayerFacetAssemble.put(facet, secondLayerFacetAssemble);
+                    firstLayerFacetAssemble.put(facet.getFacetName(), secondLayerFacetAssemble);
                 }
                 //不存在二级分面，直接寻找一级分面对应的碎片
                 else
                 {
                     List<Assemble> firstLayerAssemble = assembleRepository.findByFacetId(facet.getFacetId());
-                    firstLayerFacetAssemble.put(facet, firstLayerAssemble);
+                    firstLayerFacetAssemble.put(facet.getFacetName(), firstLayerAssemble);
                 }
 
             }
