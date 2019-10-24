@@ -566,7 +566,7 @@ public class DomainService {
         Long domainId = domain.getDomainId();
         Map<String, Object> resultMap = new HashMap<>();
         List<Topic> topics = topicRepository.findByDomainId(domainId);
-        List<Assemble> allAssemble = assembleRepository.findAllAssemblesByDomainId(domainId);
+        List<Assemble> allAssemble = assembleRepository.findAssemblesByDomainId(domainId);
         Map<Long, List<Assemble>> allAssembleMap = new HashMap<>();
         for (Assemble assemble : allAssemble)
         {
@@ -608,27 +608,28 @@ public class DomainService {
             {
                 //二级分面
                 List<Facet> secondLayerFacets = new ArrayList<>();
-                //二级分面不为空，说明该分面存在二级分面
-                if (!tempSecondLayerFacets.isEmpty())
+                for (Facet facet1: tempSecondLayerFacets)
                 {
-                    for (Facet facet1: tempSecondLayerFacets)
-                    {
-                        if (facet1.getParentFacetId() == facet.getFacetId())
-                            secondLayerFacets.add(facet1);
-                    }
+                    if (facet1.getParentFacetId() == facet.getFacetId())
+                        secondLayerFacets.add(facet1);
+                }
+                //二级分面不为空，说明该分面存在二级分面
+                if (!secondLayerFacets.isEmpty())
+                {
+
                     //每一个二级分面
                     Map<String, Object> secondLayerFacetAssemble = new HashMap<>();
                     for (Facet secondLayerFacet: secondLayerFacets)
                     {
                         List<Facet> thirdLayerFacets = new ArrayList<>();
-                        //三级分面不为空，说明该二级分面存在三级分面
-                        if (!tempThirdLayerFacets.isEmpty())
+                        for (Facet facet1: tempThirdLayerFacets)
                         {
-                            for (Facet facet1: tempThirdLayerFacets)
-                            {
-                                if (facet1.getParentFacetId() == secondLayerFacet.getFacetId())
-                                    thirdLayerFacets.add(facet1);
-                            }
+                            if (facet1.getParentFacetId() == secondLayerFacet.getFacetId())
+                                thirdLayerFacets.add(facet1);
+                        }
+                        //三级分面不为空，说明该二级分面存在三级分面
+                        if (!thirdLayerFacets.isEmpty())
+                        {
                             Map<String, Object> thirdLayerFacetAssemble = new HashMap<>();
                             for (Facet thirdLayerFacet: thirdLayerFacets)
                             {
