@@ -566,32 +566,76 @@ public class DomainService {
         Long domainId = domain.getDomainId();
         Map<String, Object> resultMap = new HashMap<>();
         List<Topic> topics = topicRepository.findByDomainId(domainId);
+        List<Assemble> allAssemble = assembleRepository.findAllAssemblesByDomainId(domainId);
+        Map<Long, List<Assemble>> allAssembleMap = new HashMap<>();
+        for (Assemble assemble : allAssemble)
+        {
+            Long facetId = assemble.getFacetId();
+            if (allAssembleMap.containsKey(facetId))
+            {
+                List<Assemble> assembleList = allAssembleMap.get(facetId);
+                assembleList.add(assemble);
+                allAssembleMap.put(facetId, assembleList);
+            }
+            else
+            {
+                List<Assemble> assembleList = new ArrayList<>();
+                assembleList.add(assemble);
+                allAssembleMap.put(facetId, assembleList);
+            }
+        }
+
         for (Topic topic: topics) {
+
             String topicName = topic.getTopicName();
             Long topicId = topic.getTopicId();
+            List<Facet> allFacet = facetRepository.findByTopicId(topicId);
             //一级分面
-            List<Facet> firstLayerFacets = facetRepository.findByTopicIdAndFacetLayer(topicId, 1);
+            List<Facet> firstLayerFacets = new ArrayList<>();
+            List<Facet> tempSecondLayerFacets = new ArrayList<>();
+            List<Facet> tempThirdLayerFacets = new ArrayList<>();
+            for (Facet facet: allFacet)
+            {
+                if (facet.getFacetLayer() == 1)
+                    firstLayerFacets.add(facet);
+                if (facet.getFacetLayer() == 2)
+                    tempSecondLayerFacets.add(facet);
+                if (facet.getFacetLayer() == 3)
+                    tempThirdLayerFacets.add(facet);
+            }
             Map<String, Object> firstLayerFacetAssemble = new HashMap<>();
             for (Facet facet: firstLayerFacets)
             {
                 //二级分面
-                List<Facet> secondLayerFacets = facetRepository.findByParentFacetId(facet.getFacetId());
+                List<Facet> secondLayerFacets = new ArrayList<>();
                 //二级分面不为空，说明该分面存在二级分面
-                if (!secondLayerFacets.isEmpty())
+                if (!tempSecondLayerFacets.isEmpty())
                 {
+                    for (Facet facet1: tempSecondLayerFacets)
+                    {
+                        if (facet1.getParentFacetId() == facet.getFacetId())
+                            secondLayerFacets.add(facet1);
+                    }
                     //每一个二级分面
                     Map<String, Object> secondLayerFacetAssemble = new HashMap<>();
                     for (Facet secondLayerFacet: secondLayerFacets)
                     {
-                        List<Facet> thirdLayerFacets = facetRepository.findByParentFacetId(secondLayerFacet.getFacetId());
+                        List<Facet> thirdLayerFacets = new ArrayList<>();
                         //三级分面不为空，说明该二级分面存在三级分面
-                        if (!thirdLayerFacets.isEmpty())
+                        if (!tempThirdLayerFacets.isEmpty())
                         {
+                            for (Facet facet1: tempThirdLayerFacets)
+                            {
+                                if (facet1.getParentFacetId() == secondLayerFacet.getFacetId())
+                                    thirdLayerFacets.add(facet1);
+                            }
                             Map<String, Object> thirdLayerFacetAssemble = new HashMap<>();
                             for (Facet thirdLayerFacet: thirdLayerFacets)
                             {
                                 //寻找三级分面对应的碎片
-                                List<Assemble> thirdLayerAssemble = assembleRepository.findByFacetId(thirdLayerFacet.getFacetId());
+                                List<Assemble> thirdLayerAssemble = new ArrayList<>();
+                                if (allAssembleMap.containsKey(thirdLayerFacet.getFacetId()))
+                                    thirdLayerAssemble = allAssembleMap.get(thirdLayerFacet.getFacetId());
                                 thirdLayerFacetAssemble.put(thirdLayerFacet.getFacetName(), thirdLayerAssemble);
                             }
                             secondLayerFacetAssemble.put(secondLayerFacet.getFacetName(), thirdLayerFacetAssemble);
@@ -599,7 +643,9 @@ public class DomainService {
                         //不存在三级分面，则直接寻找二级分面对应的碎片
                         else
                         {
-                            List<Assemble> secondLayerAssemble = assembleRepository.findByFacetId(secondLayerFacet.getFacetId());
+                            List<Assemble> secondLayerAssemble = new ArrayList<>();
+                            if (allAssembleMap.containsKey(secondLayerFacet.getFacetId()))
+                                secondLayerAssemble = allAssembleMap.get(secondLayerFacet.getFacetId());
                             secondLayerFacetAssemble.put(secondLayerFacet.getFacetName(), secondLayerAssemble);
                         }
                     }
@@ -608,7 +654,9 @@ public class DomainService {
                 //不存在二级分面，直接寻找一级分面对应的碎片
                 else
                 {
-                    List<Assemble> firstLayerAssemble = assembleRepository.findByFacetId(facet.getFacetId());
+                    List<Assemble> firstLayerAssemble = new ArrayList<>();
+                    if (allAssembleMap.containsKey(facet.getFacetId()))
+                        firstLayerAssemble = allAssembleMap.get(facet.getFacetId());
                     firstLayerFacetAssemble.put(facet.getFacetName(), firstLayerAssemble);
                 }
 
