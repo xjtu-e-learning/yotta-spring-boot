@@ -566,7 +566,7 @@ public class DomainService {
         Long domainId = domain.getDomainId();
         Map<String, Object> resultMap = new HashMap<>();
         List<Topic> topics = topicRepository.findByDomainId(domainId);
-        List<Assemble> allAssemble = assembleRepository.findAssemblesByDomainId(domainId);
+        List<Assemble> allAssemble = assembleRepository.findByDomainId(domainId);
         Map<Long, List<Assemble>> allAssembleMap = new HashMap<>();
         for (Assemble assemble : allAssemble)
         {

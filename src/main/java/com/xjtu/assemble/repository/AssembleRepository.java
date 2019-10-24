@@ -77,8 +77,9 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
     @Transactional(rollbackFor = Exception.class)
     List<Assemble> findByFacetId(Long facetId);
 
+
     @Transactional(rollbackFor = Exception.class)
-    List<Assemble> findAssemblesByDomainId(Long domainId);
+    List<Assemble> findByDomainId(Long domainId);
 
 
     /**
