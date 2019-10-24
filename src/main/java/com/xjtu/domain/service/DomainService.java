@@ -610,7 +610,7 @@ public class DomainService {
                 List<Facet> secondLayerFacets = new ArrayList<>();
                 for (Facet facet1: tempSecondLayerFacets)
                 {
-                    if (facet1.getParentFacetId() == facet.getFacetId())
+                    if (facet1.getParentFacetId().equals(facet.getFacetId()))
                         secondLayerFacets.add(facet1);
                 }
                 //二级分面不为空，说明该分面存在二级分面
@@ -624,7 +624,7 @@ public class DomainService {
                         List<Facet> thirdLayerFacets = new ArrayList<>();
                         for (Facet facet1: tempThirdLayerFacets)
                         {
-                            if (facet1.getParentFacetId() == secondLayerFacet.getFacetId())
+                            if (facet1.getParentFacetId().equals(secondLayerFacet.getFacetId()))
                                 thirdLayerFacets.add(facet1);
                         }
                         //三级分面不为空，说明该二级分面存在三级分面
