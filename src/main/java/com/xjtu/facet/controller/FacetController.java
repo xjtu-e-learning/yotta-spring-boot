@@ -331,5 +331,16 @@ public class FacetController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @ApiOperation(value = "根据分面id，查询分面名及父分面id、父分面名", notes = "根据分面id，查询分面名及父分面id、父分面名")
+    @GetMapping("/getFacetNameAndParentFacetNameByFacetId")
+    public ResponseEntity getFacetNameAndParentFacetNameByFacetId(@RequestParam(name = "facetId") Long facetId)
+    {
+        Result result = facetService.getFacetNameAndParentFacetNameByFacetId(facetId);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
 
 }

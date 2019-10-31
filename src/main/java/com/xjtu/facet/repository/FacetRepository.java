@@ -366,4 +366,7 @@ public interface FacetRepository extends JpaRepository<Facet, Long>, JpaSpecific
     @Query("select new map(f.facetName,f.facetLayer,t.topicName,d.domainName) from Facet f, Topic t, Domain d where f.topicId = t.topicId and t.domainId = d.domainId and f.facetName like %?1%")
     List<Map<String, Object>> findFacetInformationByKeyword(String keyword);
 
+    @Transactional(rollbackFor = Exception.class)
+    Facet findByFacetId(Long facetId);
+
 }
