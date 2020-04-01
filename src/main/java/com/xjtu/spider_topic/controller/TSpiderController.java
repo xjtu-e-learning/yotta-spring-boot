@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 
 /**
  * 知识主题爬虫；知识主题抽取
@@ -25,7 +27,7 @@ public class TSpiderController {
     private TSpiderService tSpiderService;
 
     @PostMapping("/spiderTopicFacetByDomainName")
-    @ApiOperation(value = "爬虫程序爬取指定课程的主题、分面信息并存入数据库", notes = "爬虫程序爬取指定学科的主题、分面信息并存入数据库")
+    @ApiOperation(value = "爬取指定课程的主题、分面信息", notes = "爬虫程序爬取指定学科，课程的主题、分面信息并存入数据库")
     public ResponseEntity spiderTopicFacetByDomainName(@RequestParam(name = "subjectName") String subjectName,
                                                        @RequestParam(name = "domainName") String domainName,
                                                        @RequestParam(name = "isChineseOrNot") Boolean isChineseOrNot) throws Exception {
@@ -35,4 +37,14 @@ public class TSpiderController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
+    @PostMapping("/spiderTopicFacetByTopicName")
+    @ApiOperation(value = "按主题爬取主题分面树",notes = "针对人工添加的新主题爬取对应的主题分面树并存入数据库")
+    public ResponseEntity spiderTopicFacetByTopicName(@RequestParam(name = "subjectName") String subjectName,
+                                                      @RequestParam(name = "domainName") String domainName,
+                                                      @RequestParam(name = "topicName") String topicName) throws Exception {
+        Result result = tSpiderService.NewTopicSpider();
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
 }

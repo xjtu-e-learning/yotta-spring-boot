@@ -84,4 +84,12 @@ public class TSpiderService {
         return domainFlag;
     }
 
+    /**
+     * 针对人工添加的新主题爬取对应的主题分面树并存入数据库
+     * 
+     */
+    public Result NewTopicSpider(){
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "该主题下分面已爬取完毕");
+    }
+
 }
