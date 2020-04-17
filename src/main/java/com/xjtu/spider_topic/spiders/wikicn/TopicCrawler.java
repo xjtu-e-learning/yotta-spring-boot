@@ -2,15 +2,12 @@ package com.xjtu.spider_topic.spiders.wikicn;
 
 import com.xjtu.common.Config;
 import com.xjtu.domain.domain.Domain;
-import com.xjtu.spider_topic.service.TSpiderService;
+import com.xjtu.spider_topic.service.TFSpiderService;
 import com.xjtu.topic.domain.Term;
-import com.xjtu.topic.domain.LayerRelation;
 import com.xjtu.utils.Log;
-import org.apache.xmlbeans.impl.xb.xsdschema.Public;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -45,7 +42,7 @@ public class TopicCrawler {
      * @return
      */
     public static void setDomainLanguage() {
-        if (TSpiderService.getDomainFlag()) {domain_url0 = domain_url1;}
+        if (TFSpiderService.getDomainFlag()) {domain_url0 = domain_url1;}
         else domain_url0 = domain_url2;
     }
 
@@ -93,6 +90,9 @@ public class TopicCrawler {
      * @param domainName 课程名
      * @throws Exception
      */
+    private static List<Term> topicFirstAll = new ArrayList<>();
+    private static List<Term> topicSecondAll = new ArrayList<>();
+    private static List<Term> topicThirdAll = new ArrayList<>();
     public static void layerExtract(String domainName) throws Exception {
 
         /**
@@ -105,33 +105,33 @@ public class TopicCrawler {
         //测试：String domain = "数据结构";
         String domain_url = domain_url0 + URLEncoder.encode(domainName, "UTF-8");//课程维基根目录
 
-        int firstLayer = 1;
-        List<Term> topicFirst = TopicCrawlerDAO.topic(domain_url); // 得到第一层领域术语（不含子主题的那一部分）
-        countTopicCrawled += topicFirst.size();
-        MysqlReadWriteDAO.storeDomainLayer(topicFirst, domainName, firstLayer); // 存储第一层领域术语（不含子主题）
+        //int firstLayer = 1;
+        topicFirstAll = TopicCrawlerDAO.topic(domain_url); // 得到第一层领域术语（不含子主题的那一部分）
+        countTopicCrawled += topicFirstAll.size();
+        //添加到术语集
+        //MysqlReadWriteDAO.storeDomainLayer(topicFirst, domainName, firstLayer); // 存储第一层领域术语（不含子主题）
 
         /**
          * 第二层领域术语
          */
-        int secondLayer = 2;
+        //int secondLayer = 2;
         List<Term> Subcategory = TopicCrawlerDAO.layer(domain_url); // 获取第一层子分类（含子主题的那一部分）
-        List<Term> topicSecondAll = new ArrayList<Term>(); // 保存所有第二层的领域术语
+        //List<Term> topicSecondAll = new ArrayList<Term>(); // 保存所有第二层的领域术语
         if (Subcategory.size() != 0) {
             for (int i = 0; i < Subcategory.size(); i++) {
                 Term layer = Subcategory.get(i);
                 String url = layer.getTermUrl();
                 List<Term> topicSecond = TopicCrawlerDAO.topic(url); // 得到第二层领域术语（不含子主题的那一部分）
                 countTopicCrawled += topicSecond.size();
-                //存储第二层领域术语
-                MysqlReadWriteDAO.storeDomainLayer(topicSecond, domainName, secondLayer); // 存储第二层领域术语（不含子主题）
+                //存储第二层领域术语 4-16日屏蔽
+                //MysqlReadWriteDAO.storeDomainLayer(topicSecond, domainName, secondLayer); // 存储第二层领域术语（不含子主题）
                 topicSecondAll.addAll(topicSecond); // 合并所有第二层领域术语
-
                 /**
                  * 第三层领域术语
                  */
-                int thirdLayer = 3;
+                //int thirdLayer = 3;
                 List<Term> SubcategorySecond = TopicCrawlerDAO.layer(url); // 得到第三层领域术语（含子主题的那一部分）
-                List<Term> topicThirdAll = new ArrayList<Term>(); // 保存所有第三层的领域术语
+                //List<Term> topicThirdAll = new ArrayList<Term>(); // 保存所有第三层的领域术语
                 if (SubcategorySecond.size() != 0) {
                     for (int j = 0; j < SubcategorySecond.size(); j++) {
                         Term layer2 = SubcategorySecond.get(j);
@@ -139,7 +139,7 @@ public class TopicCrawler {
                         List<Term> topicThird = TopicCrawlerDAO.topic(url2); // 得到第三层领域术语（不含子主题）
                         countTopicCrawled += topicThird.size();
                         // 存储第三层领域术语
-                        MysqlReadWriteDAO.storeDomainLayer(topicThird, domainName, thirdLayer); // 存储第三层领域术语（不含子主题）
+                        //MysqlReadWriteDAO.storeDomainLayer(topicThird, domainName, thirdLayer); // 存储第三层领域术语（不含子主题）
                         topicThirdAll.addAll(topicThird); // 合并所有第三层领域术语
                     }
                 } else {
@@ -157,10 +157,9 @@ public class TopicCrawler {
      * @throws Exception
      */
     public static void topicExtract(String domainName, Long domainId) throws Exception {
-
-        List<Term> topicFirst = MysqlReadWriteDAO.getDomainLayer(domainName, 1);
-        List<Term> topicSecond = MysqlReadWriteDAO.getDomainLayer(domainName, 2);
-        List<Term> topicThird = MysqlReadWriteDAO.getDomainLayer(domainName, 3);
+//        List<Term> topicFirst = MysqlReadWriteDAO.getDomainLayer(domainName, 1);
+//        List<Term> topicSecond = MysqlReadWriteDAO.getDomainLayer(domainName, 2);
+//        List<Term> topicThird = MysqlReadWriteDAO.getDomainLayer(domainName, 3);
 
         /**
          * 知识主题筛选：抽取算法获取知识主题
@@ -168,14 +167,15 @@ public class TopicCrawler {
          */
         // 从 domain_layer 删除重复主题(含子主题)保存到 domain_topic
 
-        List<Set<Term>> topicList = TopicCrawlerDAO.getTopic(topicFirst, topicSecond, topicThird);
+        List<Set<Term>> topicList = TopicCrawlerDAO.getTopic(topicFirstAll, topicSecondAll, topicThirdAll);
         for (int i = 0; i < topicList.size(); i++) {
             Set<Term> topic = topicList.get(i);
             int layer_ID = i + 1;
+            Log.log("开始存储知识主题");
             MysqlReadWriteDAO.storeDomainTopic(topic, domainId, layer_ID); // 存储三层领域术语
-            countTopicCrawled = 0;
+            Log.log("存储知识主题完毕");
         }
-
+        countTopicCrawled = 0;
     }
 
 }

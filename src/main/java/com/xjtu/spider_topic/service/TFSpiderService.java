@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class TSpiderService {
+public class TFSpiderService {
     private static Boolean domainFlag;
 
     @Autowired
@@ -36,7 +36,7 @@ public class TSpiderService {
     private FacetRepository facetRepository;
 
     // 中文网站爬虫
-    public Result TSpider(String subjectName, String domainName, Boolean isChineseOrNot) throws Exception {
+    public Result TFSpider(String subjectName, String domainName, Boolean isChineseOrNot) throws Exception {
         Domain domain = domainRepository.findByDomainName(domainName);
         List<Topic> topics = topicRepository.findByDomainName(domainName);
         List<Facet> facets = facetRepository.findByDomainName(domainName);
@@ -57,13 +57,21 @@ public class TSpiderService {
             }
         } else if (domain != null && (topics == null || topics.size() == 0) && (facets == null || facets.size() == 0)) {
             return ResultUtil.error(ResultEnum.TSPIDER_ERROR1.getCode(), ResultEnum.TSPIDER_ERROR1.getMsg(), "已经爬取的主题数目为 " + TopicCrawler.getCountTopicCrawled());
-        } else if (domain != null && (topics != null && topics.size() != 0) && (facets == null && facets.size() == 0)) {
-            return ResultUtil.error(ResultEnum.TSPIDER_ERROR2.getCode(), ResultEnum.TSPIDER_ERROR2.getMsg(), "已经爬取的分面数目为 " + FragmentCrawler.getCountFacetCrawled());
+        } else if (domain != null && (topics != null && topics.size() != 0) && (facets == null || !FragmentCrawler.getisCompleted())) {
+            return ResultUtil.error(ResultEnum.TSPIDER_ERROR2.getCode(), ResultEnum.TSPIDER_ERROR2.getMsg(),
+                    "已经爬取的分面数目为 " + FragmentCrawler.getCountFacetCrawled()+ "已经爬取的分面数目为 " + FragmentCrawler.getCountFacetRelationCrawled());
         } else {
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "==========该课程的知识主题分面树已成功构建==========");
         }
     }
 
+    /**
+     * 获取课程的中英文状态
+     *
+     */
+    public static boolean getDomainFlag(){
+        return domainFlag;
+    }
     /**
      * 爬取一门课程：主题、分面、分面关系
      *
@@ -76,13 +84,17 @@ public class TSpiderService {
         FragmentCrawler.storeKGByDomainName(domain);
     }
 
-    /**
-     * 获取课程的中英文状态
-     *
-     */
-    public static boolean getDomainFlag(){
-        return domainFlag;
+    public Result FSpider(String domainName) throws Exception{
+        try {
+            Domain domain = domainRepository.findByDomainName(domainName);
+            FragmentCrawler.storeKGByDomainName(domain);
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "该课程的分面树与分面关系已成功构建");
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return ResultUtil.error(ResultEnum.TSPIDER_ERROR.getCode(), ResultEnum.TSPIDER_ERROR.getMsg(), "课程 " + domainName + " 分面构建出错");
     }
+
 
     /**
      * 针对人工添加的新主题爬取对应的主题分面树并存入数据库

@@ -1,11 +1,9 @@
 package com.xjtu.spider_topic.spiders.wikicn;
 
 import com.spreada.utils.chinese.ZHConverter;
-import com.xjtu.spider_topic.service.TSpiderService;
+import com.xjtu.spider_topic.service.TFSpiderService;
 import com.xjtu.topic.domain.Term;
-import com.xjtu.utils.JsoupDao;
 import com.xjtu.utils.Log;
-import com.xjtu.utils.SpiderUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
@@ -32,7 +30,7 @@ public class TopicExtract {
 	 * @return
 	 */
 	public static void setLanguage() {
-		if (TSpiderService.getDomainFlag()) {domain_url0 = domain_url1;}
+		if (TFSpiderService.getDomainFlag()) {domain_url0 = domain_url1;}
 		else domain_url0 = domain_url2;
 	}
 
