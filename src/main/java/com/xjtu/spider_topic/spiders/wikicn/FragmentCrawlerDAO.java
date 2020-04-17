@@ -54,7 +54,7 @@ public class FragmentCrawlerDAO {
 
         // 判断条件和内容函数保持一致
         // facet中的分面与spider和assemble表格保持一致
-        Elements mainContents = doc.select("div#mw-content-text").select("span.mw-headline");
+//        Elements mainContents = doc.select("div#mw-content-text").select("span.mw-headline");
 //		if(mainContents.size() == 0){ // 存在没有分面的情况
 //			String facetName = "摘要";
 //			int facetLayer = 1;
@@ -112,6 +112,7 @@ public class FragmentCrawlerDAO {
             Log.log(titles.size());
             if (titles.size() != 0) {
                 for (int i = 0; i < titles.size(); i++) {
+                    Log.log("一级标题");
                     String index = titles.get(i).child(0).child(0).text();
                     String text = titles.get(i).child(0).child(1).text();
                     text = Config.converter.convert(text);
@@ -127,7 +128,7 @@ public class FragmentCrawlerDAO {
                 for (int i = 0; i < indexs.size(); i++) {
                     String index = indexs.get(i);
                     if (index.lastIndexOf(".") == 1) { // 二级分面
-//						Log.log("二级标题");
+						Log.log("二级标题");
                         String facetSecond = facets.get(i);
                         for (int j = i - 1; j >= 0; j--) {
                             String index2 = indexs.get(j);
@@ -139,7 +140,7 @@ public class FragmentCrawlerDAO {
                             }
                         }
                     } else if (index.lastIndexOf(".") == 3) { // 三级分面
-//						Log.log("三级标题");
+						Log.log("三级标题");
                         String facetThird = facets.get(i);
                         for (int j = i - 1; j >= 0; j--) {
                             String index2 = indexs.get(j);
@@ -157,7 +158,7 @@ public class FragmentCrawlerDAO {
                 Log.log("该主题没有目录，不是目录结构，直接爬取 -->摘要<-- 信息");
             }
         } catch (Exception e) {
-            Log.log("this is not a normal page...");
+            Log.log("该页面内容格式不正确，请检查链接格式");
         }
         return facetRelationList;
     }

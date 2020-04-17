@@ -173,6 +173,45 @@ public class DependencyService {
     }
 
     /**
+     * 通过主课程名，起始、终止主题id删除依赖关系
+     *
+     * @param domainName   课程名
+     * @param startTopicName  开始主题名
+     * @param endTopicName   终止主题名
+     * @return
+     */
+    public Result deleteDependencyByTopicName(String domainName, String startTopicName, String endTopicName) {
+        Domain domain = domainRepository.findByDomainName(domainName);
+        //查询课程错误
+        if (domain == null) {
+            logger.error("主题依赖关系删除失败：没有课程信息记录");
+            return ResultUtil.error(ResultEnum.DEPENDENCY_DELETE_ERROR.getCode(), ResultEnum.DEPENDENCY_DELETE_ERROR.getMsg());
+        }
+        if (startTopicName == null || startTopicName.length() == 0 || endTopicName == null || endTopicName.length() == 0)
+        {
+            logger.error("主题依赖关系删除失败：主题为空");
+            return ResultUtil.error(ResultEnum.DEPENDENCY_DELETE_ERROR_2.getCode(), ResultEnum.DEPENDENCY_DELETE_ERROR_2.getMsg());
+        }
+        Topic startTopic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(), startTopicName);
+        Topic endTopic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(), endTopicName);
+        if (startTopic == null || endTopic == null)
+        {
+            logger.error("主题依赖关系删除失败：主题不存在");
+            return ResultUtil.error(ResultEnum.DEPENDENCY_DELETE_ERROR_2.getCode(), ResultEnum.DEPENDENCY_DELETE_ERROR_2.getMsg());
+        }
+        try {
+            Long startTopicId = startTopic.getTopicId();
+            Long endTopicId = endTopic.getTopicId();
+            dependencyRepository.deleteByDomainIdAndStartTopicIdAndEndTopicId(domain.getDomainId(), startTopicId, endTopicId);
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "主题依赖关系删除成功");
+        } catch (Exception exception) {
+            logger.error("主题依赖关系删除失败：删除语句执行失败", exception);
+            return ResultUtil.error(ResultEnum.DEPENDENCY_DELETE_ERROR_1.getCode(), ResultEnum.DEPENDENCY_DELETE_ERROR_1.getMsg());
+        }
+
+    }
+
+    /**
      * 通过课程名和关键词，获取该课程下的主题依赖关系
      *
      * @param domainName

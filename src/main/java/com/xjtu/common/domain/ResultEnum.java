@@ -42,6 +42,7 @@ public enum ResultEnum {
     DOMAIN_SEARCH_ERROR_1(123, "课程分页查询失败：没有课程信息记录"),
     DOMAIN_SEARCH_ERROR_2(124, "课程分页查询失败：查询的页数超过最大页数"),
     DOMAIN_GENERATE_ERROR(210, "课程构建失败：该课程已存在"),
+    DOMAIN_SEARCH_ERROR_3(213, "课程查询失败：没有课程信息记录"),
 
     //主题
     TOPIC_INSERT_ERROR(125, "主题信息插入失败：主题名不存在或者为空"),
@@ -135,6 +136,7 @@ public enum ResultEnum {
     DEPENDENCY_INSERT_ERROR_4(201, "主题依赖关系插入失败:起始和终止主题重名"),
     DEPENDENCY_DELETE_ERROR(186, "主题依赖关系删除失败:没有课程信息记录"),
     DEPENDENCY_DELETE_ERROR_1(187, "主题依赖关系删除失败：删除语句执行失败"),
+    DEPENDENCY_DELETE_ERROR_2(212, "主体依赖关系删除失败：主题为空或不存在"),
 
     DEPENDENCY_GENERATE_ERROR(197, "主题依赖关系生成失败：没有课程信息记录"),
     DEPENDENCY_GENERATE_ERROR_1(198, "主题依赖关系生成失败：主题不存在"),
@@ -159,8 +161,8 @@ public enum ResultEnum {
 
     //知识主题分面树构建爬虫
     TSPIDER_ERROR(197,"该课程的知识主题分面树已开始构建...."),
-    TSPIDER_ERROR1(198,"正在爬取主题中.....请稍候!"),
-    TSPIDER_ERROR2(199,"正在爬取分面中.....请稍候!"),
+    TSPIDER_ERROR1(198,"正在爬取主题中, "),
+    TSPIDER_ERROR2(199,"正在爬取分面中, "),
     ;
 
     private Integer code;

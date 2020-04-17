@@ -78,6 +78,10 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
     List<Assemble> findByFacetId(Long facetId);
 
 
+    @Transactional(rollbackFor = Exception.class)
+    List<Assemble> findByDomainId(Long domainId);
+
+
     /**
      * 根据课程名查询碎片
      *
@@ -261,5 +265,8 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
             " where assembleId=?1")
     void updateAssemble(Long assembleId, String assembleContent, String assembleText
             , String assembleScratchTime, Long sourceId, String url);
+
+    @Query("select count(assembleId) from Assemble where assembleScratchTime > ?1 and domainId = ?2")
+    Long countUpdateAssembleByDomainIdAndAssembleScratchTime(String localTime, Long domainId);
 
 }
