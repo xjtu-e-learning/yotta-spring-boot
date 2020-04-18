@@ -36,14 +36,6 @@ public class TopicExtract {
 
 	private static ZHConverter converter = ZHConverter.getInstance(ZHConverter.SIMPLIFIED);// 转化为简体中文
 
-	public static void main(String[] args) throws Exception {
-//		String url = "https://zh.wikipedia.org/wiki/Category:";
-//		String html = SpiderUtils.seleniumWikiCN(url);
-//		Document doc = JsoupDao.parseHtmlText(html);
-//		getTopic(doc);
-//		getLayer(doc);
-	}
-	
 	/**
 	 * 1.解析得到Category中的页面领域术语
 	 * @param doc

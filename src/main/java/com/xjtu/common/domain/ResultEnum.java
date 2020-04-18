@@ -163,6 +163,8 @@ public enum ResultEnum {
     TSPIDER_ERROR(197,"该课程的知识主题分面树已开始构建...."),
     TSPIDER_ERROR1(198,"正在爬取主题中, "),
     TSPIDER_ERROR2(199,"正在爬取分面中, "),
+    TSPIDER_ERROR3(203,"分面树构建失败"),
+    TSPIDER_ERROR4(204,"该主题的分面已存在，无需构建"),
     ;
 
     private Integer code;

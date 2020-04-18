@@ -8,6 +8,7 @@ import com.xjtu.facet.domain.FacetSimple;
 import com.xjtu.facet.repository.FacetRepository;
 import com.xjtu.topic.domain.Term;
 import com.xjtu.topic.domain.Topic;
+import com.xjtu.utils.Log;
 import com.xjtu.utils.mysqlUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -30,17 +31,10 @@ import java.util.*;
  * 7. assemble_text: 文本碎片装配，将知识主题下的文本知识碎片挂载到对应的每一级分面上
  * 8. assemble_image: 图片碎片装配，将知识主题下的图片知识碎片挂载到对应的每一级分面上
  *
- * @author 郑元浩
- * @date 2016年11月29日
+ * @author 张铎
+ * @date 2020年2月29日
  */
 public class MysqlReadWriteDAO {
-    @Autowired
-    private static FacetRepository facetRepository;
-//    public static void main(String[] args) {
-//        // TODO Auto-generated method stub
-//
-//    }
-
 
     /**
      * 判断表格，判断某门课程的数据是否已经在这个数据表中存在
@@ -248,7 +242,6 @@ public class MysqlReadWriteDAO {
             params.add(topicID);
             params.add(facetName);
             params.add(facetLayer);
-            //params.add(domain);
             try {
                 mysql.addDeleteModify(sql, params);
             } catch (Exception e) {
@@ -266,29 +259,24 @@ public class MysqlReadWriteDAO {
      *
      * @return
      */
-    public static void storeFacetRelation(Long topicID,
-                                          List<FacetRelation> facetRelationList) throws Exception {
+    public static void storeFacetRelation(Long topicID, List<FacetRelation> facetRelationList) throws Exception {
         for (int i = 0; i < facetRelationList.size(); i++) {
             mysqlUtils mysql = new mysqlUtils();
             String sql = "update " + Config.FACET_TABLE
                     + " set parent_facet_id=? " + "where facet_id=?";
             FacetRelation facetRelation = facetRelationList.get(i);
-            String childFacetName = facetRelation.getChildFacet();
-
-            //int childLayer = facetRelation.getChildLayer();
+            Log.log("该主题的分面关系为" + facetRelation.toString());
             //获取子分面ID
-            Facet childFacet = facetRepository.findByTopicIdAndFacetName(topicID,childFacetName);
-            Long childID = childFacet.getFacetId();
-
-            String parentFacetName = facetRelation.getParentFacet();
+            String childFacetName = facetRelation.getChildFacet();
+            Long childFacetID = findByTopicIdAndFacetName(topicID, childFacetName);
             //获取父分面的ID
-            Facet parentFacet = facetRepository.findByTopicIdAndFacetName(topicID,parentFacetName);
-            Long parentFacetID = parentFacet.getFacetId();
+            String parentFacetName = facetRelation.getParentFacet();
+            Long parentFacetID = findByTopicIdAndFacetName(topicID, parentFacetName);
+            Log.log("取出的子分面ID和父分面ID为：" + childFacetID + " " + parentFacetID);
 
             List<Object> params = new ArrayList<>();
             params.add(parentFacetID);
-            params.add(childID);
-            //params.add(parentFacet);
+            params.add(childFacetID);
             try {
                 mysql.addDeleteModify(sql, params);
             } catch (Exception e) {
@@ -297,6 +285,28 @@ public class MysqlReadWriteDAO {
                 mysql.closeconnection();
             }
         }
+
+    }
+
+    public static Long findByTopicIdAndFacetName(Long topicID, String parentFcetName) {
+        mysqlUtils mysql = new mysqlUtils();
+        String sql = "select * from " + Config.FACET_TABLE + " where topic_id=? and facet_name=?";
+        List<Object> params = new ArrayList<Object>();
+        params.add(topicID);
+        params.add(parentFcetName);
+        Long facetID = -1l;
+        try {
+            List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
+            if (results.size() != 0) {
+                Map<String, Object> map = results.get(0);
+                facetID = (Long) map.get("facet_id");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            mysql.closeconnection();
+        }
+        return facetID;
 
     }
 

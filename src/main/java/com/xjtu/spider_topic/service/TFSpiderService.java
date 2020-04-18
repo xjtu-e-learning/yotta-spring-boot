@@ -12,6 +12,7 @@ import com.xjtu.spider_topic.spiders.wikicn.FragmentCrawler;
 import com.xjtu.spider_topic.spiders.wikicn.TopicCrawler;
 import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.repository.TopicRepository;
+import com.xjtu.topic.service.TopicService;
 import com.xjtu.utils.Log;
 import com.xjtu.utils.ResultUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,9 @@ public class TFSpiderService {
 
     @Autowired
     private TopicRepository topicRepository;
+
+    @Autowired
+    private TopicService topicService;
 
     @Autowired
     private FacetRepository facetRepository;
@@ -59,7 +63,7 @@ public class TFSpiderService {
             return ResultUtil.error(ResultEnum.TSPIDER_ERROR1.getCode(), ResultEnum.TSPIDER_ERROR1.getMsg(), "已经爬取的主题数目为 " + TopicCrawler.getCountTopicCrawled());
         } else if (domain != null && (topics != null && topics.size() != 0) && (facets == null || !FragmentCrawler.getisCompleted())) {
             return ResultUtil.error(ResultEnum.TSPIDER_ERROR2.getCode(), ResultEnum.TSPIDER_ERROR2.getMsg(),
-                    "已经爬取的分面数目为 " + FragmentCrawler.getCountFacetCrawled()+ "已经爬取的分面数目为 " + FragmentCrawler.getCountFacetRelationCrawled());
+                    "已经爬取的一级分面数目为 " + FragmentCrawler.getCountFacetCrawled()+ " 二、三级分面数目为 " + FragmentCrawler.getCountFacetRelationCrawled());
         } else {
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "==========该课程的知识主题分面树已成功构建==========");
         }
@@ -84,6 +88,12 @@ public class TFSpiderService {
         FragmentCrawler.storeKGByDomainName(domain);
     }
 
+    /**
+     * 按照课程名爬取该课程的所有分面与分面关系，用于爬取完主题之后爬取分面
+     * @param domainName
+     * @return
+     * @throws Exception
+     */
     public Result FSpider(String domainName) throws Exception{
         try {
             Domain domain = domainRepository.findByDomainName(domainName);
@@ -92,7 +102,7 @@ public class TFSpiderService {
         }catch (Exception e){
             e.printStackTrace();
         }
-        return ResultUtil.error(ResultEnum.TSPIDER_ERROR.getCode(), ResultEnum.TSPIDER_ERROR.getMsg(), "课程 " + domainName + " 分面构建出错");
+        return ResultUtil.error(ResultEnum.TSPIDER_ERROR3.getCode(), ResultEnum.TSPIDER_ERROR3.getMsg(), "课程 " + domainName + " 分面构建出错");
     }
 
 
@@ -100,8 +110,18 @@ public class TFSpiderService {
      * 针对人工添加的新主题爬取对应的主题分面树并存入数据库
      * 
      */
-    public Result NewTopicSpider(){
-        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "该主题下分面已爬取完毕");
-    }
+    public Result TSpider(String domainName, String topicName) {
+        try {
+            Domain domain = domainRepository.findByDomainName(domainName);
+            if(topicService.findTopicsByDomainId(domain.getDomainId()).getCode() == 200) return ResultUtil.error(ResultEnum.TSPIDER_ERROR4.getCode(),ResultEnum.TSPIDER_ERROR4.getMsg(),"主题分面已存在，无需构建分面");
+            Result result = topicService.insertTopicByNameAndDomainName(domainName,topicName);
+            Topic topic = topicRepository.findByTopicName(topicName).get(0);
+            FragmentCrawler.storeFacetTreeByTopicName(domain,topic);
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "该主题下分面已爬取完毕");
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return ResultUtil.error(ResultEnum.TSPIDER_ERROR3.getCode(), ResultEnum.TSPIDER_ERROR3.getMsg(), "主题 " + topicName + " 分面构建出错");
 
+    }
 }
