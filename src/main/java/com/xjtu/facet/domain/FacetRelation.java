@@ -60,4 +60,13 @@ public class FacetRelation {
         this.parentLayer = parentLayer;
     }
 
+    @Override
+    public String toString() {
+        return "FacetRelation{" +
+                "childFacet='" + childFacet + '\'' +
+                ", childLayer=" + childLayer +
+                ", parentFacet='" + parentFacet + '\'' +
+                ", parentLayer=" + parentLayer +
+                '}';
+    }
 }
