@@ -113,15 +113,13 @@ public class TFSpiderService {
     public Result TSpider(String domainName, String topicName) {
         try {
             Domain domain = domainRepository.findByDomainName(domainName);
-            if(topicService.findTopicsByDomainId(domain.getDomainId()).getCode() == 200) return ResultUtil.error(ResultEnum.TSPIDER_ERROR4.getCode(),ResultEnum.TSPIDER_ERROR4.getMsg(),"主题分面已存在，无需构建分面");
-            Result result = topicService.insertTopicByNameAndDomainName(domainName,topicName);
+            topicService.insertTopicByNameAndDomainName(domainName,topicName);
             Topic topic = topicRepository.findByTopicName(topicName).get(0);
             FragmentCrawler.storeFacetTreeByTopicName(domain,topic);
-            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "该主题下分面已爬取完毕");
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "该主题下分面与分面关系已构建完毕");
         }catch (Exception e){
             e.printStackTrace();
         }
         return ResultUtil.error(ResultEnum.TSPIDER_ERROR3.getCode(), ResultEnum.TSPIDER_ERROR3.getMsg(), "主题 " + topicName + " 分面构建出错");
-
     }
 }
