@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.xjtu.spider_topic.spiders.wikicn.FragmentExtract.delTitle;
+
 /**
  * 实现中文维基百科知识森林数据集的构建
  * 将文本和图片存储到一个表格中
@@ -22,23 +24,6 @@ import java.util.List;
  * @author lynn
  */
 public class FragmentCrawlerDAO {
-
-    public static void main(String[] args) throws Exception {
-        // 设置解析参数
-        String topicName = "数据库"; // 链表  跳跃列表  数据结构与算法列表
-        String topicUrl = "https://zh.wikipedia.org/wiki/" + URLEncoder.encode(topicName);
-        String topicHtml = SpiderUtils.seleniumWikiCN(topicUrl);
-        Document doc = JsoupDao.parseHtmlText(topicHtml);
-
-        // 测试解析小程序
-        //List<FacetRelation> facetRelationList = getFacetRelation(doc);
-        //Log.logFacetRelation(facetRelationList);
-
-        // 解析所有内容作为碎片存在
-        //getFragment(doc); // summary内容 + 一级/二级/三级标题内容
-    }
-
-
     /**
      * 得到一个主题的所有分面及其分面级数
      * 1. 数据结构为: FacetSimple
@@ -109,18 +94,20 @@ public class FragmentCrawlerDAO {
              * 获取标题
              */
             Elements titles = doc.select("div#toc").select("li");
-            Log.log(titles.size());
+            Log.log("分面数目为" + titles.size());
             if (titles.size() != 0) {
+                Log.log("维基百科下该词条分面关系表如下：");
                 for (int i = 0; i < titles.size(); i++) {
-                    Log.log("一级标题");
                     String index = titles.get(i).child(0).child(0).text();
                     String text = titles.get(i).child(0).child(1).text();
                     text = Config.converter.convert(text);
-                    Log.log(index + " " + text);
-                    indexs.add(index);
-                    facets.add(text);
+                    Boolean flag = delTitle(text);
+                    if (!flag) {
+                        indexs.add(index);
+                        facets.add(text);
+                        Log.log(index + " " + text);
+                    }
                 }
-
                 /**
                  * 将二级/三级标题全部匹配到对应的父标题
                  */
@@ -128,7 +115,6 @@ public class FragmentCrawlerDAO {
                 for (int i = 0; i < indexs.size(); i++) {
                     String index = indexs.get(i);
                     if (index.lastIndexOf(".") == 1) { // 二级分面
-						Log.log("二级标题");
                         String facetSecond = facets.get(i);
                         for (int j = i - 1; j >= 0; j--) {
                             String index2 = indexs.get(j);
@@ -136,11 +122,11 @@ public class FragmentCrawlerDAO {
                                 String facetOne = facets.get(j);
                                 FacetRelation facetRelation = new FacetRelation(facetSecond, 2, facetOne, 1);
                                 facetRelationList.add(facetRelation);
+                                Log.log("一级分面" + facetOne + "下的二级分面" + facetSecond + "已抽取");
                                 break;
                             }
                         }
                     } else if (index.lastIndexOf(".") == 3) { // 三级分面
-						Log.log("三级标题");
                         String facetThird = facets.get(i);
                         for (int j = i - 1; j >= 0; j--) {
                             String index2 = indexs.get(j);
@@ -148,6 +134,7 @@ public class FragmentCrawlerDAO {
                                 String facetSecond = facets.get(j);
                                 FacetRelation facetRelation = new FacetRelation(facetThird, 3, facetSecond, 2);
                                 facetRelationList.add(facetRelation);
+                                Log.log("二级分面" + facetSecond + "下的三级分面" + facetThird + "已抽取");
                                 break;
                             }
                         }

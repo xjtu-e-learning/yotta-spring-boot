@@ -248,7 +248,6 @@ public class MysqlReadWriteDAO {
             params.add(topicID);
             params.add(facetName);
             params.add(facetLayer);
-            //params.add(domain);
             try {
                 mysql.addDeleteModify(sql, params);
             } catch (Exception e) {
@@ -266,8 +265,7 @@ public class MysqlReadWriteDAO {
      *
      * @return
      */
-    public static void storeFacetRelation(Long topicID,
-                                          List<FacetRelation> facetRelationList) throws Exception {
+    public static void storeFacetRelation(Long topicID, List<FacetRelation> facetRelationList) throws Exception {
         for (int i = 0; i < facetRelationList.size(); i++) {
             mysqlUtils mysql = new mysqlUtils();
             String sql = "update " + Config.FACET_TABLE
@@ -275,8 +273,6 @@ public class MysqlReadWriteDAO {
             FacetRelation facetRelation = facetRelationList.get(i);
             String childFacetName = facetRelation.getChildFacet();
 
-            //int childLayer = facetRelation.getChildLayer();
-            //获取子分面ID
             Facet childFacet = facetRepository.findByTopicIdAndFacetName(topicID,childFacetName);
             Long childID = childFacet.getFacetId();
 
@@ -288,7 +284,6 @@ public class MysqlReadWriteDAO {
             List<Object> params = new ArrayList<>();
             params.add(parentFacetID);
             params.add(childID);
-            //params.add(parentFacet);
             try {
                 mysql.addDeleteModify(sql, params);
             } catch (Exception e) {
