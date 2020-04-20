@@ -33,7 +33,7 @@ public class SpiderUtils {
      * @return 网页源码
      * @throws Exception
      */
-    public static String seleniumWikiCN(String url) throws Exception {
+    public static String seleniumWiki(String url) throws Exception {
 //		System.setProperty("webdriver.chrome.driver", Config.CHROME_PATH);
         System.setProperty("webdriver.ie.driver", Config.IE_PATH);
 //		System.setProperty("phantomjs.binary.path", Config.PHANTOMJS_PATH);
@@ -68,7 +68,7 @@ public class SpiderUtils {
         return html;
     }
 
-    public static String httpWikiEN(String url) {
+    public static String httpWiki(String url) {
         String web = "";
         try {
             //创建client实例
@@ -82,7 +82,6 @@ public class SpiderUtils {
             //获取网页内容，指定编码
             web = EntityUtils.toString(entity, "UTF-8");
             //输出网页
-            //System.out.println(web);
 
         } catch (IOException e) {
             e.printStackTrace();

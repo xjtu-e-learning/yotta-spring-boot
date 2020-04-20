@@ -3,7 +3,7 @@ package com.xjtu.spider_topic.common;
 import com.xjtu.domain.domain.Domain;
 import com.xjtu.utils.Log;
 
-import static com.xjtu.spider_topic.service.TFSpiderService.constructKGByDomainName;
+import static com.xjtu.spider_topic.service.TFSpiderService.constructTopicFacetTreeByDomainName;
 
 public class SpiderRunnable implements Runnable {
     private Domain domain;
@@ -15,7 +15,7 @@ public class SpiderRunnable implements Runnable {
     @Override
     public void run(){
         try {
-            constructKGByDomainName(this.domain);
+            constructTopicFacetTreeByDomainName(this.domain);
         }
         catch (Exception e){
             Log.log(""+e.toString());

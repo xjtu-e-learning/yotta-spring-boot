@@ -26,7 +26,7 @@ public class TopicCrawlerDAO {
 	 * @throws Exception
 	 */
 	public static List<Term> topic(String url) throws Exception{
-		String html = SpiderUtils.seleniumWikiCN(url); // Selenium方式获取
+		String html = SpiderUtils.seleniumWiki(url); // Selenium方式获取
 		Document doc = JsoupDao.parseHtmlText(html);
 		List<Term> termList = TopicExtract.getTopic(doc); // 解析没有子分类的术语
 		return termList;
@@ -39,7 +39,7 @@ public class TopicCrawlerDAO {
 	 * @throws Exception
 	 */
 	public static List<Term> layer(String url) throws Exception{
-		String html = SpiderUtils.seleniumWikiCN(url); // Selenium方式获取
+		String html = SpiderUtils.seleniumWiki(url); // Selenium方式获取
 		Document doc = JsoupDao.parseHtmlText(html);
 		List<Term> termList = TopicExtract.getLayer(doc); // 解析有子分类的术语
 		return termList;
