@@ -54,6 +54,18 @@ public class DependencyController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @PostMapping("/deleteDependencyByTopicName")
+    @ApiOperation(value = "通过主课程名，起始、终止主题名删除依赖关系", notes = "通过主课程名，起始、终止主题名删除依赖关系")
+    public ResponseEntity deleteDependencyByTopicName(@RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "startTopicName") String startTopicName
+            , @RequestParam(name = "endTopicName") String endTopicName) {
+        Result result = dependencyService.deleteDependencyByTopicName(domainName, startTopicName, endTopicName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
     /**
      * API
      * 通过课程名和关键词，获取该课程下的主题依赖关系

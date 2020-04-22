@@ -111,8 +111,7 @@ public class DomainService {
         return insertDomain(domain);
     }
 
-    public Result findOrInsetDomainByDomainName(String subjectName, String domainName)
-    {
+    public Result findOrInsetDomainByDomainName(String subjectName, String domainName) {
 
         //查询该课程是否存在
 
@@ -120,27 +119,24 @@ public class DomainService {
             logger.error("课程信息插入失败，原因：①学科未选择；②课程名不存在或者为空");
             return ResultUtil.error(ResultEnum.DOMAIN_INSERT_ERROR.getCode(), ResultEnum.DOMAIN_INSERT_ERROR.getMsg(), "课程名为空或不存在");
         }
-        //课程不存在在数据库中
-        else if (domainRepository.findByDomainName(domainName) == null)
-        {
+        // 课程不存在在数据库中
+        else if (domainRepository.findByDomainName(domainName) == null) {
             Subject subject = subjectRepository.findBySubjectName(subjectName);
             Long subject_id = subject.getSubjectId();
             Domain domain = new Domain();
             domain.setDomainName(domainName);
             domain.setSubjectId(subject_id);
             Domain domainInsert = domainRepository.save(domain);
-            if (domainInsert != null) {
+            if (true) {   //domainInsert != null
                 return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "课程:" + domainName + "插入成功");
             } else {
                 logger.error("课程信息插入失败：数据库插入语句失败");
                 return ResultUtil.error(ResultEnum.DOMAIN_INSERT_ERROR_2.getCode(), ResultEnum.DOMAIN_INSERT_ERROR_2.getMsg());
             }
         }
-
-        //课程已经在数据库中
-        logger.error("课程信息插入失败：课程已在数据库中");
-        return ResultUtil.success(ResultEnum.DOMAIN_GENERATE_ERROR.getCode(), ResultEnum.DOMAIN_GENERATE_ERROR.getMsg(), "课程构建失败：该课程已存在");
-
+        else {
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "课程:" + domainName + "插入成功");
+        }
     }
 
     /**
@@ -540,5 +536,107 @@ public class DomainService {
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), subjectContainDomains);
     }
 
+    /**
+     * 提供给获得一门课程下（主题，分面，碎片）的RDF信息
+     *
+     * @param domainName
+     * @return
+     */
+    public Result getDomainDetailAsRDF(String domainName) {
+        if (domainName == null || ("").equals(domainName) || domainName.length() == 0)
+            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR_3.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR_3.getMsg(), "课程查询失败：没有课程信息记录");
+
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null)
+            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR_3.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR_3.getMsg(), "课程查询失败：没有课程信息记录");
+        Long domainId = domain.getDomainId();
+        Map<String, Object> resultMap = new HashMap<>();
+        List<Topic> topics = topicRepository.findByDomainId(domainId);
+        List<Assemble> allAssemble = assembleRepository.findByDomainId(domainId);
+        Map<Long, List<Assemble>> allAssembleMap = new HashMap<>();
+        for (Assemble assemble : allAssemble) {
+            Long facetId = assemble.getFacetId();
+            if (allAssembleMap.containsKey(facetId)) {
+                List<Assemble> assembleList = allAssembleMap.get(facetId);
+                assembleList.add(assemble);
+                allAssembleMap.put(facetId, assembleList);
+            } else {
+                List<Assemble> assembleList = new ArrayList<>();
+                assembleList.add(assemble);
+                allAssembleMap.put(facetId, assembleList);
+            }
+        }
+
+        for (Topic topic : topics) {
+
+            String topicName = topic.getTopicName();
+            Long topicId = topic.getTopicId();
+            List<Facet> allFacet = facetRepository.findByTopicId(topicId);
+            //一级分面
+            List<Facet> firstLayerFacets = new ArrayList<>();
+            List<Facet> tempSecondLayerFacets = new ArrayList<>();
+            List<Facet> tempThirdLayerFacets = new ArrayList<>();
+            for (Facet facet : allFacet) {
+                if (facet.getFacetLayer() == 1)
+                    firstLayerFacets.add(facet);
+                if (facet.getFacetLayer() == 2)
+                    tempSecondLayerFacets.add(facet);
+                if (facet.getFacetLayer() == 3)
+                    tempThirdLayerFacets.add(facet);
+            }
+            Map<String, Object> firstLayerFacetAssemble = new HashMap<>();
+            for (Facet facet : firstLayerFacets) {
+                //二级分面
+                List<Facet> secondLayerFacets = new ArrayList<>();
+                for (Facet facet1 : tempSecondLayerFacets) {
+                    if (facet1.getParentFacetId().equals(facet.getFacetId()))
+                        secondLayerFacets.add(facet1);
+                }
+                //二级分面不为空，说明该分面存在二级分面
+                if (!secondLayerFacets.isEmpty()) {
+
+                    //每一个二级分面
+                    Map<String, Object> secondLayerFacetAssemble = new HashMap<>();
+                    for (Facet secondLayerFacet : secondLayerFacets) {
+                        List<Facet> thirdLayerFacets = new ArrayList<>();
+                        for (Facet facet1 : tempThirdLayerFacets) {
+                            if (facet1.getParentFacetId().equals(secondLayerFacet.getFacetId()))
+                                thirdLayerFacets.add(facet1);
+                        }
+                        //三级分面不为空，说明该二级分面存在三级分面
+                        if (!thirdLayerFacets.isEmpty()) {
+                            Map<String, Object> thirdLayerFacetAssemble = new HashMap<>();
+                            for (Facet thirdLayerFacet : thirdLayerFacets) {
+                                //寻找三级分面对应的碎片
+                                List<Assemble> thirdLayerAssemble = new ArrayList<>();
+                                if (allAssembleMap.containsKey(thirdLayerFacet.getFacetId()))
+                                    thirdLayerAssemble = allAssembleMap.get(thirdLayerFacet.getFacetId());
+                                thirdLayerFacetAssemble.put(thirdLayerFacet.getFacetName(), thirdLayerAssemble);
+                            }
+                            secondLayerFacetAssemble.put(secondLayerFacet.getFacetName(), thirdLayerFacetAssemble);
+                        }
+                        //不存在三级分面，则直接寻找二级分面对应的碎片
+                        else {
+                            List<Assemble> secondLayerAssemble = new ArrayList<>();
+                            if (allAssembleMap.containsKey(secondLayerFacet.getFacetId()))
+                                secondLayerAssemble = allAssembleMap.get(secondLayerFacet.getFacetId());
+                            secondLayerFacetAssemble.put(secondLayerFacet.getFacetName(), secondLayerAssemble);
+                        }
+                    }
+                    firstLayerFacetAssemble.put(facet.getFacetName(), secondLayerFacetAssemble);
+                }
+                //不存在二级分面，直接寻找一级分面对应的碎片
+                else {
+                    List<Assemble> firstLayerAssemble = new ArrayList<>();
+                    if (allAssembleMap.containsKey(facet.getFacetId()))
+                        firstLayerAssemble = allAssembleMap.get(facet.getFacetId());
+                    firstLayerFacetAssemble.put(facet.getFacetName(), firstLayerAssemble);
+                }
+
+            }
+            resultMap.put(topicName, firstLayerFacetAssemble);
+        }
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), resultMap);
+    }
 
 }

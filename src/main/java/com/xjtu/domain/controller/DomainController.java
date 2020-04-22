@@ -167,6 +167,20 @@ public class DomainController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    /**
+     * 提供给获得一门课程下（主题，分面，碎片）的RDF信息，主题，分面，碎片以树形结构组织
+     */
+    @GetMapping("/getDomainDetailAsRDF")
+    @ApiOperation(value = "获得一门课程下详细信息，以树形结构组织，用于生成RDF格式数据", notes = "获得一门课程下详细信息，以树形结构组织，用于生成RDF格式数据")
+    public ResponseEntity getDomainDetailAsRDF(String domainName)
+    {
+        Result result = domainService.getDomainDetailAsRDF(domainName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
 
 
 }

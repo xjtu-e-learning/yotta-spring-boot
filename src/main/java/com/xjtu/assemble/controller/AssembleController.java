@@ -341,5 +341,14 @@ public class AssembleController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-
+    @GetMapping("/countUpdateAssemble")
+    @ApiOperation(value = "根据课程名统计近一个月更新碎片数量", notes = "根据课程名统计近一个月更新碎片数量")
+    public ResponseEntity countUpdateAssembleByDomainName(@RequestParam(value = "domainName") String domainName)
+    {
+        Result result = assembleService.countUpdateAssemble(domainName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 }

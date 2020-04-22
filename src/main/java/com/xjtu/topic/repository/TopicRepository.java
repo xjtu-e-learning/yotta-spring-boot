@@ -116,6 +116,15 @@ public interface TopicRepository extends JpaRepository<Topic, Long>, JpaSpecific
     List<Topic> findByDomainName(String domainName);
 
     /**
+     * 根据主题ID，查询课程下的所有主题
+     *
+     * @param topicId 主题ID
+     * @return Topic
+     */
+    @Transactional(rollbackFor = Exception.class)
+    Topic findByTopicId(Long topicId);
+
+    /**
      * 根据主题名，查询课程下的所有主题
      *
      * @param topicName 主题名

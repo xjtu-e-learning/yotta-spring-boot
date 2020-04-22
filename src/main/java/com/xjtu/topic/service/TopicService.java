@@ -138,6 +138,40 @@ public class TopicService {
         }
     }
 
+
+    /**
+     * 辅助之后两个分别按照主题名课程名、按照主题ID删除主题的函数，负责具体删除功能。
+     *
+     */
+    public void deleteTopicContent(Long topicId){
+        //删除主题表中该主题
+        topicRepository.delete(topicId);
+        //删除分面表中主题下的分面
+        facetRepository.deleteByTopicId(topicId);
+        //删除碎片
+        assembleRepository.deleteByTopicId(topicId);
+
+        //先删除子主题对应上下位关系
+        relationRepository.deleteByChildTopicId(topicId);
+        //递归删除父主题对应上下位关系
+        //先找到父主题对应的关系
+        List<Relation> relations = relationRepository.findByParentTopicId(topicId);
+        //删除父主题对应的关系
+        relationRepository.deleteByParentTopicId(topicId);
+        while ((relations.size() != 0) && (relations != null)) {
+            List<Relation> childRelations = new ArrayList<>();
+            for (Relation relation : relations) {
+                //循环找到对应的下位主题
+                childRelations.addAll(relationRepository.findByParentTopicId(relation.getChildTopicId()));
+                //删除父主题对应的关系
+                relationRepository.deleteByParentTopicId(relation.getChildTopicId());
+            }
+            relations = childRelations;
+        }
+        //删除依赖关系
+        dependencyRepository.deleteByStartTopicIdOrEndTopicId(topicId, topicId);
+    }
+
     /**
      * 删除某门课程的主题信息：根据课程名和主题名进行删除(注：删除过程的事务一致性问题未解决)
      *
@@ -159,32 +193,9 @@ public class TopicService {
                 return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR_2.getCode(), ResultEnum.TOPIC_DELETE_ERROR_2.getMsg());
             }
             Long topicId = topic.getTopicId();
-            //删除主题表中的对应主题
-            topicRepository.delete(topicId);
-            //删除分面表中主题下的分面
-            facetRepository.deleteByTopicId(topicId);
-            //删除碎片
-            assembleRepository.deleteByTopicId(topicId);
-
-            //先删除子主题对应上下位关系
-            relationRepository.deleteByChildTopicId(topicId);
-            //递归删除父主题对应上下位关系
-            //先找到父主题对应的关系
-            List<Relation> relations = relationRepository.findByParentTopicId(topicId);
-            //删除父主题对应的关系
-            relationRepository.deleteByParentTopicId(topicId);
-            while ((relations.size() != 0) && (relations != null)) {
-                List<Relation> childRelations = new ArrayList<>();
-                for (Relation relation : relations) {
-                    //循环找到对应的下位主题
-                    childRelations.addAll(relationRepository.findByParentTopicId(relation.getChildTopicId()));
-                    //删除父主题对应的关系
-                    relationRepository.deleteByParentTopicId(relation.getChildTopicId());
-                }
-                relations = childRelations;
-            }
-            //删除依赖关系
-            dependencyRepository.deleteByStartTopicIdOrEndTopicId(topicId, topicId);
+            //具体负责删除的代码部分
+            deleteTopicContent(topicId);
+            //删除对应的课程gexf文件
             File gexfFile = new File(gexfPath + "\\" + domainName + ".gexf");
             gexfFile.delete();
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "主题删除成功");
@@ -194,6 +205,30 @@ public class TopicService {
             return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR.getCode(), ResultEnum.TOPIC_DELETE_ERROR.getMsg());
         }
     }
+
+    /**
+     * 根据主题ID删除该主题的所有信息
+     *
+     * @param topicId
+     * @return
+     */
+    public Result deleteTopicByTopicId(Long topicId){
+        try {
+            Topic topic = topicRepository.findByTopicId(topicId);
+            if (topic == null) {
+                logger.error("主题删除失败：主题数据不存在");
+                return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR_2.getCode(), ResultEnum.TOPIC_DELETE_ERROR_2.getMsg());
+            }
+            //具体负责删除的代码部分
+            deleteTopicContent(topicId);
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "主题删除成功");
+        } catch (Exception exception) {
+            logger.error("错误：" + exception);
+            logger.error("主题名删除失败：删除语句执行失败");
+            return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR.getCode(), ResultEnum.TOPIC_DELETE_ERROR.getMsg());
+        }
+    }
+
 
 
     /**

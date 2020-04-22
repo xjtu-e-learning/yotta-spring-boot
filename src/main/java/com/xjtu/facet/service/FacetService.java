@@ -1045,4 +1045,30 @@ public class FacetService {
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), facetPage);
     }
 
+    /*
+    根据facetId获得Facet.
+    参数：facetId
+    返回值：facetName, parent_facet_id, parent_facet_name
+     */
+    public Result getFacetNameAndParentFacetNameByFacetId(Long facetId)
+    {
+        if (facetId==null)
+            return ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR_8.getCode(), ResultEnum.FACET_SEARCH_ERROR_8.getMsg());
+        Facet facet = facetRepository.findByFacetId(facetId);
+        if (facet == null)
+            return ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR_8.getCode(), ResultEnum.FACET_SEARCH_ERROR_8.getMsg());
+        Map<String, Object> result = new HashMap<>();
+        result.put("facetName", facet.getFacetName());
+        result.put("parentFacetId", facet.getParentFacetId());
+        if (facet.getParentFacetId()!=null)
+        {
+            Facet parentFacet = facetRepository.findByFacetId(facet.getParentFacetId());
+            if (parentFacet!=null)
+                result.put("parentFacetName", parentFacet.getFacetName());
+        }
+        else
+            result.put("parentFacetName", null);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), result);
+    }
+
 }
