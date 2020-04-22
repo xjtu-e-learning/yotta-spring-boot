@@ -18,6 +18,7 @@ import com.xjtu.subject.domain.SubjectContainDomain;
 import com.xjtu.subject.repository.SubjectRepository;
 import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.repository.TopicRepository;
+import com.xjtu.utils.Log;
 import com.xjtu.utils.ResultUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,8 +116,8 @@ public class DomainService {
         //查询该课程是否存在
 
         if (subjectName == null || domainName == null || ("").equals(domainName) || domainName.length() == 0) {
-            logger.error("课程信息插入失败：课程名不存在或者为空");
-            return ResultUtil.error(ResultEnum.DOMAIN_INSERT_ERROR.getCode(), ResultEnum.DOMAIN_INSERT_ERROR.getMsg());
+            logger.error("课程信息插入失败，原因：①学科未选择；②课程名不存在或者为空");
+            return ResultUtil.error(ResultEnum.DOMAIN_INSERT_ERROR.getCode(), ResultEnum.DOMAIN_INSERT_ERROR.getMsg(), "课程名为空或不存在");
         }
         // 课程不存在在数据库中
         else if (domainRepository.findByDomainName(domainName) == null) {
@@ -133,13 +134,6 @@ public class DomainService {
                 return ResultUtil.error(ResultEnum.DOMAIN_INSERT_ERROR_2.getCode(), ResultEnum.DOMAIN_INSERT_ERROR_2.getMsg());
             }
         }
-
-//     修改后，不存在这种情况：   //课程已经在数据库中
-//        else if(domainRepository.findByDomainName(domainName) != null)
-//        {
-//            logger.error("课程信息插入失败：课程已在数据库中");
-//            return ResultUtil.success(ResultEnum.DOMAIN_GENERATE_ERROR.getCode(), ResultEnum.DOMAIN_GENERATE_ERROR.getMsg(), "课程构建失败：该课程已存在");
-//        }
         else {
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "课程:" + domainName + "插入成功");
         }
