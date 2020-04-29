@@ -238,7 +238,6 @@ public class SpiderAssembleService {
             max_spider = toutiaoSpider;
         }
 
-
         total_left = baiduZhidao_leftCount + csdn_leftCount + toutiao_leftCount + zhihu_leftCount;
         all_assemble = total_left;
 

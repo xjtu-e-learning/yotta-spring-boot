@@ -6,6 +6,7 @@ import com.xjtu.spider_Assemble.service.SpiderAssembleService;
 import com.xjtu.spider_Assemble.spiders.webmagic.bean.Assembles;
 import com.xjtu.spider_Assemble.spiders.webmagic.pipeline.SqlPipeline;
 import com.xjtu.spider_Assemble.spiders.webmagic.spider.spiderCreate;
+import sun.security.provider.ConfigFile;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
@@ -69,6 +70,23 @@ public class BaiduZhidaoProcessor implements PageProcessor {
 //        if (facets == null || facets.size() == 0) {
 //            return;
 //        }
+        Spider baiduzhidaoSpider = startCrawl(facets);
+        return baiduzhidaoSpider;
+    }
+
+    /**
+     * 只爬取新增的分面下的碎片
+     * @param facets：包含课程名、主题名、分面名
+     * @return
+     */
+    public Spider increasedBaiduAnswerCrawl(List<Map<String, Object>> facets) {
+        //只爬取新增加的分面的碎片
+        Spider spider = startCrawl(facets);
+        return spider;
+    }
+
+    public Spider startCrawl(List<Map<String, Object>> facets)
+    {
         //2.添加连接请求，根据课程名，主题名，分面名爬取内容
         List<Request> requests = new ArrayList<>();
         for (Map<String, Object> facet : facets) {

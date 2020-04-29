@@ -94,6 +94,23 @@ public class ToutiaoProcessor implements PageProcessor {
 //        if (facets == null || facets.size() == 0) {
 //            return;
 //        }
+        Spider toutiaoSpider  = startCrawl(facets);
+        return toutiaoSpider;
+    }
+
+    /**
+     * 只爬取新增的分面下的碎片
+     * @param facets：包含课程名、主题名、分面名
+     * @return
+     */
+    public Spider increasedCrawl(List<Map<String, Object>> facets)
+    {
+        Spider toutiaoSpider = startCrawl(facets);
+        return toutiaoSpider;
+    }
+
+    public Spider startCrawl(List<Map<String, Object>> facets)
+    {
         //2.添加连接请求
         List<Request> requests = new ArrayList<>();
         for (Map<String, Object> facet : facets) {
@@ -115,7 +132,7 @@ public class ToutiaoProcessor implements PageProcessor {
                 .setDownloader(new SeleniumDownloader("D:\\spiderProject\\webMagicProject\\chromedriver/chromedriver.exe"))
                 .thread(Config.THREAD)
                 .addPipeline(new SqlPipeline(this.spiderService));
-                //.addPipeline(new ConsolePipeline())
+        //.addPipeline(new ConsolePipeline())
 
         toutiaoSpider.runAsync();
         return toutiaoSpider;

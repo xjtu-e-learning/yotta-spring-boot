@@ -93,6 +93,24 @@ public class ZhihuProcessor implements PageProcessor {
 //        if (facets == null || facets.size() == 0) {
 //            return;
 //        }
+        Spider zhihuSpider  = startCrawl(facets);
+
+        return zhihuSpider;
+    }
+
+    /**
+     * 只爬取新增的分面下的碎片
+     * @param facets：包含课程名、主题名、分面名
+     * @return
+     */
+    public Spider increasedCrawl(List<Map<String, Object>> facets)
+    {
+        Spider zhihuSpider = startCrawl(facets);
+        return zhihuSpider;
+    }
+
+    public Spider startCrawl(List<Map<String, Object>> facets)
+    {
         //2.添加连接请求
         List<Request> requests = new ArrayList<>();
         for (Map<String, Object> facet : facets) {
@@ -111,42 +129,7 @@ public class ZhihuProcessor implements PageProcessor {
                 .thread(Config.THREAD)
                 .addPipeline(new SqlPipeline(this.spiderService))
                 .addPipeline(new ConsolePipeline());
-//        SpiderMonitor spiderMonitor = new SpiderMonitor(){
-//            @Override
-//            protected SpiderStatusMXBean getSpiderStatusMBean(Spider spider, MonitorSpiderListener monitorSpiderListener){
-//                return new SpiderStatus(spider, monitorSpiderListener);
-//            }
-//        };
-//        try {
-//            spiderMonitor.register(zhihuSpider);
-//        } catch (JMException e) {
-//            e.printStackTrace();
-//        }
-//        try {
-//            SpiderMonitor.instance().register(zhihuSpider);
-//        } catch (JMException e) {
-//            e.printStackTrace();
-//        }
         zhihuSpider.runAsync();
-
-//        List<SpiderListener> spiderListeners = zhihuSpider.getSpiderListeners();
-//        while (true)
-//        {
-//            for(SpiderListener spiderListener : spiderListeners)
-//            {
-//                if(spiderListener instanceof MonitorSpiderListener)
-//                {
-//                    MonitorSpiderListener monitorSpiderListener = (MonitorSpiderListener) spiderListener;
-//                    SpiderStatus spiderStatus = new SpiderStatus(zhihuSpider, monitorSpiderListener);
-//                    int leftCount = spiderStatus.getLeftPageCount();
-//                    if(leftCount == 0)
-//                    {
-//                        break;
-//                    }
-//                    System.out.println("left page count: " + leftCount);
-//                }
-//            }
-//        }
 
         return zhihuSpider;
     }
