@@ -6,6 +6,7 @@ import com.xjtu.spider_Assemble.service.SpiderAssembleService;
 import com.xjtu.spider_Assemble.spiders.webmagic.bean.Assembles;
 import com.xjtu.spider_Assemble.spiders.webmagic.pipeline.SqlPipeline;
 import com.xjtu.spider_Assemble.spiders.webmagic.spider.spiderCreate;
+import sun.security.provider.ConfigFile;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
@@ -66,6 +67,22 @@ public class CSDNProcessor implements PageProcessor {
 //        if (facets == null || facets.size() == 0) {
 //            return;
 //        }
+        Spider csdnSpider = startCrawl(facets);
+        return csdnSpider;
+    }
+
+    /**
+     * 只爬取新增的分面下的碎片
+     * @param facets：包含课程名、主题名、分面名
+     * @return
+     */
+    public Spider increasedCrawl(List<Map<String, Object>> facets)
+    {
+        Spider csdnSpider = startCrawl(facets);
+        return csdnSpider;
+    }
+    public Spider startCrawl(List<Map<String, Object>> facets)
+    {
         //2.添加连接请求
         List<Request> requests = new ArrayList<Request>();
         for (Map<String, Object> facet : facets) {

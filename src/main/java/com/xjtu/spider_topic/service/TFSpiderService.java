@@ -23,6 +23,10 @@ import java.util.List;
 @Service
 public class TFSpiderService {
     private static Boolean domainFlag;
+    //获取课程的中英文状态
+    public static boolean getDomainFlag(){
+        return domainFlag;
+    }
 
     @Autowired
     private DomainRepository domainRepository;
@@ -40,12 +44,16 @@ public class TFSpiderService {
     private FacetRepository facetRepository;
 
     // 中文网站爬虫
-    public Result TFSpider(String subjectName, String domainName, Boolean isChineseOrNot) throws Exception {
+    public Result TopicFacetTreeSpider(String subjectName, String domainName, Boolean isChineseOrNot) throws Exception {
         Domain domain = domainRepository.findByDomainName(domainName);
         List<Topic> topics = topicRepository.findByDomainName(domainName);
         List<Facet> facets = facetRepository.findByDomainName(domainName);
         if (domain == null) {
-            if (isChineseOrNot) domainFlag = true; else domainFlag = false;
+            if (isChineseOrNot) {
+                domainFlag = true;
+            } else {
+                domainFlag = false;
+            }
             Log.log("==========知识森林里还没有这门课程，开始爬取课程：" + domainName + "==========");
             Result result = domainService.findOrInsetDomainByDomainName(subjectName, domainName);
             if (result.getCode() == 116) {
@@ -69,23 +77,17 @@ public class TFSpiderService {
         }
     }
 
-    /**
-     * 获取课程的中英文状态
-     *
-     */
-    public static boolean getDomainFlag(){
-        return domainFlag;
-    }
+
     /**
      * 爬取一门课程：主题、分面、分面关系
      *
      * @param domain 课程
      */
-    public static void constructKGByDomainName(Domain domain) throws Exception {
+    public static void constructTopicFacetTreeByDomainName(Domain domain) throws Exception {
         // 爬取并存储知识主题
         TopicCrawler.storeTopic(domain);
         // 爬取并存储知识主题对应的分面，形成知识主题分面树（不含碎片信息及知识主题间的认知关系）
-        FragmentCrawler.storeKGByDomainName(domain);
+        FragmentCrawler.storeFacetTreeByDomainName(domain);
     }
 
     /**
@@ -94,10 +96,11 @@ public class TFSpiderService {
      * @return
      * @throws Exception
      */
-    public Result FSpider(String domainName) throws Exception{
+    public Result FacetTreeSpider(String domainName) throws Exception{
         try {
             Domain domain = domainRepository.findByDomainName(domainName);
-            FragmentCrawler.storeKGByDomainName(domain);
+            FragmentCrawler.storeFacetTreeByDomainName(domain);
+            Log.log("\n\n\n==========该课程的分面与分面关系已经构建完成==========");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "该课程的分面树与分面关系已成功构建");
         }catch (Exception e){
             e.printStackTrace();
@@ -110,18 +113,17 @@ public class TFSpiderService {
      * 针对人工添加的新主题爬取对应的主题分面树并存入数据库
      * 
      */
-    public Result TSpider(String domainName, String topicName) {
+    public Result SingleTopicFacetTreeSpider(String domainName, String topicName) {
         try {
             Domain domain = domainRepository.findByDomainName(domainName);
-            if(topicService.findTopicsByDomainId(domain.getDomainId()).getCode() == 200) return ResultUtil.error(ResultEnum.TSPIDER_ERROR4.getCode(),ResultEnum.TSPIDER_ERROR4.getMsg(),"主题分面已存在，无需构建分面");
-            Result result = topicService.insertTopicByNameAndDomainName(domainName,topicName);
+            topicService.insertTopicByNameAndDomainName(domainName,topicName);
             Topic topic = topicRepository.findByTopicName(topicName).get(0);
             FragmentCrawler.storeFacetTreeByTopicName(domain,topic);
-            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "该主题下分面已爬取完毕");
+            Log.log("\n\n\n==========该主题的分面与分面关系已经构建完成==========");
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "该主题下分面与分面关系已构建完毕");
         }catch (Exception e){
             e.printStackTrace();
         }
         return ResultUtil.error(ResultEnum.TSPIDER_ERROR3.getCode(), ResultEnum.TSPIDER_ERROR3.getMsg(), "主题 " + topicName + " 分面构建出错");
-
     }
 }

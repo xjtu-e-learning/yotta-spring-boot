@@ -8,10 +8,8 @@ import org.jsoup.select.Elements;
 import com.xjtu.utils.*;
 
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 
 /**
  * 解析中文维基百科页面（保存碎片标签到fragment表格中）
@@ -26,7 +24,7 @@ public class FragmentExtract {
     public static void main(String[] args) throws Exception {
         String topicName = "DBSCAN";
         String topicUrl = "https://en.wikipedia.org/wiki/" + URLEncoder.encode(topicName);
-        String topicHtml = SpiderUtils.seleniumWikiCN(topicUrl);
+        String topicHtml = SpiderUtils.seleniumWiki(topicUrl);
         Document doc = JsoupDao.parseHtmlText(topicHtml);
     }
 

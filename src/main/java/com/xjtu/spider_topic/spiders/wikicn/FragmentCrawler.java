@@ -48,7 +48,7 @@ public class FragmentCrawler {
      * @param domain 课程名
      * @throws Exception
      */
-    public static void storeKGByDomainName(Domain domain) throws Exception {
+    public static void storeFacetTreeByDomainName(Domain domain) throws Exception {
 
         /**
          * 读取数据库表格topic，得到知识主题
@@ -89,7 +89,7 @@ public class FragmentCrawler {
                 /**
                  * selenium解析网页
                  */
-                String topicHtml = SpiderUtils.seleniumWikiCN(topicUrl);
+                String topicHtml = SpiderUtils.seleniumWiki(topicUrl);
                 Document doc = JsoupDao.parseHtmlText(topicHtml);
 
                 // 获取并存储所有分面信息Facet
@@ -153,7 +153,7 @@ public class FragmentCrawler {
             /**
              * selenium解析网页
              */
-            String topicHtml = SpiderUtils.seleniumWikiCN(topicUrl);
+            String topicHtml = SpiderUtils.seleniumWiki(topicUrl);
             Document doc = JsoupDao.parseHtmlText(topicHtml);
 
             // 获取并存储所有分面信息Facet

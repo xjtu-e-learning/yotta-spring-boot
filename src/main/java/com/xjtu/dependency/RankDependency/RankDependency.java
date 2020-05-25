@@ -55,8 +55,7 @@ public class RankDependency {
         Collections.sort(infoIds, (o1, o2) -> o2.getValue().compareTo(o1.getValue()));
         logger.info("Finish ranking!");
         logger.info("Start printing...");
-
-
+        
         int end = MAX;
         if (infoIds.size() < end) end = infoIds.size();
         logger.info("end:" + end);

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * 碎片类，包含了碎片类型（type:leaf;flag:fragment），主要用于API生成分面树
- *
+ *          包含了碎片内容类型（assembleType: text; video)
  * @author yangkuan
  * @date 2018/03/16 19:00
  */
@@ -13,6 +13,15 @@ public class AssembleContainType extends Assemble {
     String type = "leaf";
     String flag = "fragment";
     String url = "";
+    String assembleType = "text";
+
+    public String getAssembleType() {
+        return assembleType;
+    }
+
+    public void setAssembleType(String assembleType) {
+        this.assembleType = assembleType;
+    }
 
     public AssembleContainType() {
     }
@@ -29,6 +38,7 @@ public class AssembleContainType extends Assemble {
                 ", assembleScratchTime='" + assembleScratchTime + '\'' +
                 ", facetId=" + facetId +
                 ", sourceId=" + sourceId +
+                ", assemble=" + assembleType +
                 '}';
     }
 
@@ -65,6 +75,7 @@ public class AssembleContainType extends Assemble {
         setAssembleText(assemble.getAssembleText());
         setAssembleScratchTime(assemble.getAssembleScratchTime());
         setFacetId(assemble.getFacetId());
+        setAssembleType(assemble.getType());
     }
 
 }
