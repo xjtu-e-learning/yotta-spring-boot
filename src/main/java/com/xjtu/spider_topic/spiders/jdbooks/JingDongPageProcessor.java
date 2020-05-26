@@ -10,6 +10,7 @@ import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import us.codecraft.webmagic.downloader.selenium.SeleniumDownloader;
+import us.codecraft.webmagic.pipeline.JsonFilePipeline;
 import us.codecraft.webmagic.processor.PageProcessor;
 
 import java.util.List;
@@ -24,20 +25,27 @@ public class JingDongPageProcessor implements PageProcessor {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    TFSpiderService tfSpiderService;
+    private static int bookCount = 0;
+
+    private TFSpiderService tfSpiderService;
+
 
     public static final String URL_LIST = "https://search(.*?)";
 
     public static final String URL_CONTENT = "https://item(.*?)";
 
-//    public JingDongPageProcessor(TFSpiderService tfSpiderService){
-//        this.tfSpiderService = tfSpiderService;
-//    }
+    public JingDongPageProcessor() {
+    }
+
+    public JingDongPageProcessor(TFSpiderService tfSpiderService) {
+        this.tfSpiderService = tfSpiderService;
+    }
+
 
     private Site site = Site.me()
             .setRetrySleepTime(Config.retrySleepTime)
             .setRetryTimes(Config.retryTimes)
-            .setSleepTime(Config.sleepTime)
+            .setSleepTime(100)
             .setTimeOut(Config.timeOut)
             .addHeader("User-Agent", Config.userAgent)
             .addHeader("Accept", "*/*");
@@ -47,12 +55,17 @@ public class JingDongPageProcessor implements PageProcessor {
         return site;
     }
 
+    /**
+     * 重写为加同步锁的形式，保证书目ID自增有序
+     * @param page
+     */
     @Override
     public void process(Page page) {
         if (page.getUrl().regex(URL_LIST).match()) {
             //获取书籍目录
             List<String> books = page.getHtml().xpath("//*[@id=\"J_goodsList\"]//ul//li/@data-sku").all();
             page.putField("书籍id集合", books);
+            logger.info("已获取该课程书目ID集合，准备开始爬取每本书的目录");
             for (String book : books) {
                 System.out.println("书籍id为 " + book);
                 Request request = new Request();
@@ -60,22 +73,30 @@ public class JingDongPageProcessor implements PageProcessor {
                 page.addTargetRequest(request);
             }
         } else if (page.getUrl().regex(URL_CONTENT).match()) {
-            List<String> bookContent = page.getHtml().xpath("//*[@id=\"detail-tag-id-6\"]/div[2]/div/tidyText()").all();
- //           String bookContent = page.getHtml().toString();
-            page.putField("content", bookContent);
+            //page.getHtml().xpath("/html/head/title/text()").regex("(.*?)\\【$").get();
+            String bookContent = page.getHtml().xpath("//*[@id=\"detail-tag-id-6\"]/div[2]/div/tidyText()").get();
+            if (!bookContent.isEmpty()) {
+                synchronized (this){
+                    String bookTitle = ++bookCount + "";
+                    page.putField(bookTitle, bookContent);
+                }
+            }
+        } else {
+            logger.error("链接出错，请检查爬虫设置是否正确");
         }
 
     }
 
     public static void main(String[] args) {
         String domainName = "数据结构";
-        System.setProperty("selenuim_config","D:\\Yotta\\config.ini");
+        System.setProperty("selenuim_config", "D:\\Yotta\\config.ini");
         Spider.create(new JingDongPageProcessor())
                 .addUrl("https://search.jd.com/Search?keyword=" + domainName + "&wq=" + domainName + "&psort=3&click=0")
-                //new HttpClientDownloader()
                 .setDownloader(new SeleniumDownloader("D:\\Yotta\\chromedriver.exe"))
+                //.addPipeline(new JsonFilePipeline("D:\\Yotta\\"))
+                .addPipeline(new JingDongPipeline())
                 .thread(3)
-                .run();
+                .runAsync();
     }
 
 }

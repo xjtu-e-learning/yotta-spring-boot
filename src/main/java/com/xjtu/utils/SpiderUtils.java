@@ -8,6 +8,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,12 +35,12 @@ public class SpiderUtils {
      * @throws Exception
      */
     public static String seleniumWiki(String url) throws Exception {
-//		System.setProperty("webdriver.chrome.driver", Config.CHROME_PATH);
-        System.setProperty("webdriver.ie.driver", Config.IE_PATH);
+		System.setProperty("webdriver.chrome.driver", Config.CHROME_PATH);
+//        System.setProperty("webdriver.ie.driver", Config.IE_PATH);
 //		System.setProperty("phantomjs.binary.path", Config.PHANTOMJS_PATH);
 
-//		WebDriver driver = new ChromeDriver();
-        WebDriver driver = new InternetExplorerDriver();
+		WebDriver driver = new ChromeDriver();
+//        WebDriver driver = new InternetExplorerDriver();
 //		WebDriver driver = new PhantomJSDriver();
 
         int m = 1;

@@ -126,4 +126,20 @@ public class TFSpiderService {
         }
         return ResultUtil.error(ResultEnum.TSPIDER_ERROR3.getCode(), ResultEnum.TSPIDER_ERROR3.getMsg(), "主题 " + topicName + " 分面构建出错");
     }
+
+    /**
+     * 保存主题列表
+     * @param topics
+     */
+    public void saveTopics(List<Topic> topics){
+        topicRepository.save(topics);
+    }
+
+    /**
+     * 保存分面列表
+     * @param facets
+     */
+    public void saveFacets(List<Facet> facets){
+        facetRepository.save(facets);
+    }
 }
