@@ -89,10 +89,10 @@ public class JingDongPageProcessor implements PageProcessor {
 
     public static void main(String[] args) {
         String domainName = "数据结构";
-        System.setProperty("selenuim_config", "D:\\Yotta\\config.ini");
+        System.setProperty("selenuim_config", Config.SELENIUM_CONFIG);
         Spider.create(new JingDongPageProcessor())
                 .addUrl("https://search.jd.com/Search?keyword=" + domainName + "&wq=" + domainName + "&psort=3&click=0")
-                .setDownloader(new SeleniumDownloader("D:\\Yotta\\chromedriver.exe"))
+                .setDownloader(new SeleniumDownloader(Config.CHROME_PATH))
                 //.addPipeline(new JsonFilePipeline("D:\\Yotta\\"))
                 .addPipeline(new JingDongPipeline())
                 .thread(3)

@@ -119,10 +119,10 @@ public class ToutiaoProcessor implements PageProcessor {
             requests.add(request.setUrl(url).setExtras(facet));
         }
         //3.创建ToutiaoProcessor
-        System.setProperty("selenuim_config", "D:\\spiderProject\\webMagicProject\\chromedriver/config.ini");
+        System.setProperty("selenuim_config", Config.SELENIUM_CONFIG);
         Spider toutiaoSpider = spiderCreate.create(new ToutiaoProcessor(this.spiderService))
                 .addRequests(requests)
-                .setDownloader(new SeleniumDownloader("D:\\spiderProject\\webMagicProject\\chromedriver/chromedriver.exe"))
+                .setDownloader(new SeleniumDownloader(Config.CHROME_PATH))
                 .thread(Config.THREAD)
                 .addPipeline(new SqlPipeline(this.spiderService, assembleRepository));
                 //.addPipeline(new ConsolePipeline())
