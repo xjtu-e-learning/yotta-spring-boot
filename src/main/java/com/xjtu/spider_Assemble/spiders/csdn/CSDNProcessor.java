@@ -6,7 +6,6 @@ import com.xjtu.spider_Assemble.service.SpiderAssembleService;
 import com.xjtu.spider_Assemble.spiders.webmagic.bean.Assembles;
 import com.xjtu.spider_Assemble.spiders.webmagic.pipeline.SqlPipeline;
 import com.xjtu.spider_Assemble.spiders.webmagic.spider.spiderCreate;
-import sun.security.provider.ConfigFile;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;

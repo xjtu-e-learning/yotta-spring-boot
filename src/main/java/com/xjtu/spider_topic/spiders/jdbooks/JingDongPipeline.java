@@ -2,8 +2,6 @@ package com.xjtu.spider_topic.spiders.jdbooks;
 
 import com.xjtu.spider_topic.service.TFSpiderService;
 import com.xjtu.topic.domain.Topic;
-import jdk.nashorn.internal.runtime.UnwarrantedOptimismException;
-import org.apache.poi.ss.formula.functions.T;
 import us.codecraft.webmagic.ResultItems;
 import us.codecraft.webmagic.Task;
 import us.codecraft.webmagic.pipeline.Pipeline;
