@@ -3,6 +3,7 @@ package com.xjtu.spider_topic.spiders.jdbooks;
 import com.xjtu.spider_topic.service.TFSpiderService;
 import com.xjtu.topic.domain.Topic;
 import jdk.nashorn.internal.runtime.UnwarrantedOptimismException;
+import org.apache.poi.ss.formula.functions.T;
 import us.codecraft.webmagic.ResultItems;
 import us.codecraft.webmagic.Task;
 import us.codecraft.webmagic.pipeline.Pipeline;
@@ -52,6 +53,9 @@ public class JingDongPipeline implements Pipeline {
         String bookContent = bookContentRaw.replaceAll("\n|出版者的话|译者序|前言|致谢|作者简介|第\\d+版"," ");
         bookContent = bookContent.replaceAll("．",".");
         System.out.println(bookContent);
+        String[] topic_set = null;
+        
+        Topic topic = new Topic();
         return topics;
     }
 }

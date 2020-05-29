@@ -32,6 +32,6 @@ gen### Java template
 hs_err_pid*
 
 
-target
-src/main/resources/
-src/main/java/com/xjtu/common/Config.java
+/target
+/src/main/java/com/xjtu/common/Config.java
+/src/main/resources/
