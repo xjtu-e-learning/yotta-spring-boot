@@ -26,10 +26,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 处理topic主题数据
@@ -141,9 +138,8 @@ public class TopicService {
 
     /**
      * 辅助之后两个分别按照主题名课程名、按照主题ID删除主题的函数，负责具体删除功能。
-     *
      */
-    public void deleteTopicContent(Long topicId){
+    public void deleteTopicContent(Long topicId) {
         //删除主题表中该主题
         topicRepository.delete(topicId);
         //删除分面表中主题下的分面
@@ -212,7 +208,7 @@ public class TopicService {
      * @param topicId
      * @return
      */
-    public Result deleteTopicByTopicId(Long topicId){
+    public Result deleteTopicByTopicId(Long topicId) {
         try {
             Topic topic = topicRepository.findByTopicId(topicId);
             if (topic == null) {
@@ -228,7 +224,6 @@ public class TopicService {
             return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR.getCode(), ResultEnum.TOPIC_DELETE_ERROR.getMsg());
         }
     }
-
 
 
     /**
@@ -277,6 +272,49 @@ public class TopicService {
         }
         Long domainId = domain.getDomainId();
         return findTopicsByDomainId(domainId);
+    }
+
+
+    /**
+     * @param domainName
+     * @return
+     */
+    public Result findSelectedTopicsByDomainName(String domainName) {
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("主题查询失败：没有指定课程");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_2.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_2.getMsg());
+        }
+        Long domainId = domain.getDomainId();
+        List<Topic> results = new ArrayList<>();
+        List<Topic> topicRaw = topicRepository.findByDomainName(domainName);
+        for (Topic topic : topicRaw) {
+            String a = topic.getTopicName();
+            if (a.length() <= 21 && a.length()>=3) {
+                boolean fliter = false;
+                fliter = !a.contains("Template:") && !a.contains("/") && !a.contains("(")
+                        && !a.contains("（") && !a.contains(".") && !a.contains(":")
+                        && !a.contains("：") && !a.contains("·") && !a.contains("_")
+                        && !a.contains("V") && !a.contains("!") && !a.contains("~")
+                        && !a.contains(",") && !a.contains("，") && !a.contains("#")
+                        && !a.contains("^") && !a.contains("$") && !a.contains("@")
+                        && !a.contains("&") && !a.contains("%") && !a.contains(";")
+                        && !a.contains("?") && !a.contains("、") && !a.contains("[")
+                        && !a.contains("*")  && !a.contains("+") ;
+                boolean computerNameFilter = false;
+                computerNameFilter = fliter && !a.contains("Microsoft") && !a.contains("AX") && !a.contains(".NET")
+                        && !a.contains("SIG") && !a.contains("ASCII") && !a.contains("User") && !a.contains("IBM")
+                        && !a.contains("Amazon") && !a.contains("Berkeley") && !a.contains("Adobe") && !a.contains("Alpha")
+                        && !a.contains("AMD") && !a.contains("Apache") && !a.contains("Mark") && !a.contains("XML")
+                        && !a.contains("Swift") && !a.contains("AJAX\n") && !a.contains("Wiki") && !a.contains("Google")
+                        && !a.contains("Atom") && !a.contains("国家") && !a.contains("党") && !a.contains("Portal")
+                        && !a.contains("升阳") && !a.contains("章") && !a.contains("GUI") && !a.contains("网络");
+                if(computerNameFilter) {
+                    results.add(topic);
+                }
+            }
+        }
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), results);
     }
 
     /**
@@ -525,15 +563,14 @@ public class TopicService {
 
     /**
      * 根据主题名，获得主题的所有信息，用于构建分面树
+     *
      * @param topicName
      * @param hasFragment
      * @return
      */
-    public Result getCompleteTopicByTopicName(String topicName, String hasFragment)
-    {
+    public Result getCompleteTopicByTopicName(String topicName, String hasFragment) {
         List<Topic> topicList = topicRepository.findByTopicName(topicName);
-        if(topicList.size() == 0)
-        {
+        if (topicList.size() == 0) {
             logger.error("主题查询失败：没有指定主题");
             return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR.getCode(), ResultEnum.TOPIC_SEARCH_ERROR.getMsg());
         }

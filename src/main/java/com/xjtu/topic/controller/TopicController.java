@@ -97,6 +97,16 @@ public class TopicController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @GetMapping("/getSelectedTopicsByDomainName")
+    @ApiOperation(value = "获得算法过滤抽取后的知识主题", notes = "输入课程名，获得课程下抽取得到的主题信息")
+    public ResponseEntity getSelectedTopicsByDomainName(@RequestParam(name = "domainName") String domainName) {
+        Result result = topicService.findSelectedTopicsByDomainName(domainName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
     @GetMapping("/getTopicsByDomainId")
     @ApiOperation(value = "获得主题信息", notes = "输入课程id，获得课程下主题信息")
     public ResponseEntity getTopicsByDomainId(@RequestParam(name = "domainId") Long domainId) {
