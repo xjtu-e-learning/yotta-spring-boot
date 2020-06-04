@@ -128,4 +128,17 @@ public class DependencyController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
+    @GetMapping("/LearningPathWeb")
+    @ApiOperation(value = "智慧教育系统获得推荐路径", notes = "智慧教育系统获得推荐路径")
+    public ResponseEntity getLearningPath(@RequestParam(name = "domainId") Long domainId
+    , @RequestParam(name = "userId") Long userId)
+    {
+        Result result = dependencyService.getLearningPath(domainId, userId);
+        if(!result.getCode().equals(ResultEnum.SUCCESS.getCode()))
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 }

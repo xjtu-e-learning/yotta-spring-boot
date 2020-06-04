@@ -3,6 +3,7 @@ package com.xjtu.dependency.service;
 
 import com.xjtu.assemble.domain.Assemble;
 import com.xjtu.assemble.repository.AssembleRepository;
+import com.xjtu.common.Config;
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
 import com.xjtu.dependency.RankDependency.RankDependency;
@@ -62,6 +63,9 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -618,6 +622,32 @@ public class DependencyService {
             dependencyContainNames.add(dependencyContainName);
         }
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), dependencyContainNames);
+
+    }
+
+    /**
+     * 智慧教育系统获得推荐路径，访问教育大数据组提供的war包
+     * @param domainId
+     * @param userId
+     * @return
+     */
+    public Result getLearningPath(Long domainId, Long userId)
+    {
+        String userAgent = Config.userAgent;
+        try {
+            String url = "http://localhost:9218/LearningPathWeb/Path/LearningPath/allLearningPath?domainId=" + domainId + "&userId=" + userId;
+            HttpURLConnection connection = (HttpURLConnection)new URL(url).openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("User-Agent", userAgent);
+            String learningPath = connection.getResponseMessage();
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), learningPath);
+
+        }catch (Exception e)
+        {
+            System.out.println("发送get请求出现异常" + e);
+            e.printStackTrace();
+        }
+        return ResultUtil.error(ResultEnum.DEPENDENCY_LEARNING_PATH_ERROR.getCode(), ResultEnum.DEPENDENCY_LEARNING_PATH_ERROR.getMsg());
 
     }
 
