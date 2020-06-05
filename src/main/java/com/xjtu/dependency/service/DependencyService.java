@@ -631,9 +631,41 @@ public class DependencyService {
      */
     public Result getLearningPath(Long domainId, Long userId)
     {
+        String url = "http://localhost:9218/LearningPathWeb/Path/LearningPath/allLearningPath?domainId=" + domainId + "&userId=" + userId;
+
+        Result result = getRequestRespose(url);
+        return result;
+    }
+
+    /**
+     * 智慧教育系统学习路径：更新用户状态
+     * @param domainId
+     * @param userId
+     * @return
+     */
+    public Result learningPath_updateUserStates(Long domainId, Long userId)
+    {
+        String url = "http://localhost:9218/LearningPathWeb/Path/States/updateUserStates?domainId=" + domainId + "&userId=" + userId;
+        Result result = getRequestRespose(url);
+        return result;
+    }
+
+    public Result learningPath_defineLearningPath(Long domainId, Long userId, Long termId)
+    {
+        String url = "http://localhost:9218/LearningPathWeb/Path/LearningPath/defineLearningPath?domainId=" + domainId + "&userId=" + userId + "&termId=" + termId;
+        Result result = getRequestRespose(url);
+        return result;
+    }
+
+    /**
+     * 向给定url发起请求，获得请求内容并返回, GET方式请求
+     * @param url
+     * @return
+     */
+    public Result getRequestRespose(String url)
+    {
         String userAgent = Config.userAgent;
         try {
-            String url = "http://localhost:9218/LearningPathWeb/Path/LearningPath/allLearningPath?domainId=" + domainId + "&userId=" + userId;
             HttpURLConnection connection = (HttpURLConnection)new URL(url).openConnection();
             connection.setRequestMethod("GET");
             connection.setRequestProperty("User-Agent", userAgent);
@@ -661,7 +693,6 @@ public class DependencyService {
             e.printStackTrace();
         }
         return ResultUtil.error(ResultEnum.DEPENDENCY_LEARNING_PATH_ERROR.getCode(), ResultEnum.DEPENDENCY_LEARNING_PATH_ERROR.getMsg());
-
     }
 
     public static void main(String[] args) {

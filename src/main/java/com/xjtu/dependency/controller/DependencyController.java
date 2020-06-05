@@ -141,4 +141,31 @@ public class DependencyController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
+    @GetMapping("/LearningPathWeb/updateUserStates")
+    @ApiOperation(value = "智慧教育系统学习路径，更新用户状态", notes = "智慧教育系统学习路径，更新用户状态")
+    public ResponseEntity learningPath_updateUserStates(@RequestParam(name = "domainId") Long domainId
+    , @RequestParam(name = "userId") Long userId)
+    {
+        Result result = dependencyService.learningPath_updateUserStates(domainId, userId);
+        if(!result.getCode().equals(ResultEnum.SUCCESS.getCode()))
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @GetMapping("/LearningPath/defineLearningPath")
+    @ApiOperation(value = "智慧教育系统学习路径，定义学习路径", notes = "智慧教育系统学习路径，定义学习路径")
+    public ResponseEntity learningPath_defineLearningPath(@RequestParam(name = "domainId") Long domainId
+    , @RequestParam(name = "userId") Long userId
+    , @RequestParam(name = "termId") Long termId)
+    {
+        Result result = dependencyService.learningPath_defineLearningPath(domainId, userId, termId);
+        if(!result.getCode().equals(ResultEnum.SUCCESS.getCode()))
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 }
