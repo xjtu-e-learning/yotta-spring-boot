@@ -632,9 +632,39 @@ public class DependencyService {
     public Result getLearningPath(Long domainId, Long userId)
     {
         String url = "http://localhost:9218/LearningPathWeb/Path/LearningPath/allLearningPath?domainId=" + domainId + "&userId=" + userId;
+//
+//        Result result = getRequestRespose(url);
+//        return result;
+        String userAgent = Config.userAgent;
+        try {
+            //String url = "http://localhost:9218/LearningPathWeb/Path/LearningPath/allLearningPath?domainId=" + domainId + "&userId=" + userId;
+            HttpURLConnection connection = (HttpURLConnection)new URL(url).openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("User-Agent", userAgent);
+            connection.connect();
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK)
+            {
+                InputStream inputStream = connection.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                StringBuffer learningPath = new StringBuffer();
+                String inputLine;
+                while ((inputLine = reader.readLine()) != null)
+                {
+                    learningPath.append(inputLine);
+                }
+                reader.close();
+                connection.disconnect();
+                return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), learningPath.toString());
+            }
+            return ResultUtil.error(ResultEnum.DEPENDENCY_LEARNING_PATH_ERROR.getCode(), ResultEnum.DEPENDENCY_LEARNING_PATH_ERROR.getMsg());
 
-        Result result = getRequestRespose(url);
-        return result;
+        }catch (Exception e)
+        {
+            System.out.println("发送get请求出现异常" + e);
+            e.printStackTrace();
+        }
+        return ResultUtil.error(ResultEnum.DEPENDENCY_LEARNING_PATH_ERROR.getCode(), ResultEnum.DEPENDENCY_LEARNING_PATH_ERROR.getMsg());
     }
 
     /**
@@ -685,6 +715,7 @@ public class DependencyService {
                 connection.disconnect();
                 return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), learningPath.toString());
             }
+            connection.disconnect();
             return ResultUtil.error(ResultEnum.DEPENDENCY_LEARNING_PATH_ERROR.getCode(), ResultEnum.DEPENDENCY_LEARNING_PATH_ERROR.getMsg());
 
         }catch (Exception e)
