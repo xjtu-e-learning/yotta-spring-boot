@@ -48,7 +48,7 @@ public class JingDongPipeline implements Pipeline {
 
     public static List<Topic> generateTopics(String bookContentRaw){
         List<Topic> topics = new ArrayList<>();
-        String bookContent = bookContentRaw.replaceAll("\n|出版者的话|译者序|前言|致谢|作者简介|第\\d+版"," ");
+        String bookContent = bookContentRaw.replaceAll("\n|出版者的话|目录|译者序|前言|致谢|作者简介|第\\d+版"," ");
         bookContent = bookContent.replaceAll("．",".");
         System.out.println(bookContent);
         String[] topic_set = null;
