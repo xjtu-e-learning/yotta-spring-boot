@@ -15,6 +15,7 @@ import com.xjtu.source.domain.Source;
 import com.xjtu.source.repository.SourceRepository;
 import com.xjtu.spider_Assemble.spiders.baiduzhidao.BaiduZhidaoProcessor;
 import com.xjtu.spider_Assemble.spiders.csdn.CSDNProcessor;
+import com.xjtu.spider_Assemble.spiders.jianshu.JianshuProcessor;
 import com.xjtu.spider_Assemble.spiders.toutiao.ToutiaoProcessor;
 import com.xjtu.spider_Assemble.spiders.zhihu.ZhihuProcessor;
 import com.xjtu.subject.domain.Subject;
@@ -168,6 +169,7 @@ public class SpiderAssembleService {
         int max_leftCount;
         Spider max_spider;
 
+
         logger.info("百度知道碎片开始爬取 当前课程：" + domainName);
         BaiduZhidaoProcessor baiduZhidaoProcessor = new BaiduZhidaoProcessor(this);
         Spider baiduZhidaoSpider = baiduZhidaoProcessor.baiduAnswerCrawl(domainName);
@@ -221,11 +223,26 @@ public class SpiderAssembleService {
             max_leftCount = zhihu_leftCount;
             max_spider = zhihuSpider;
         }
+
+
+
+        logger.info("简书碎片开始爬取 当前课程：" + domainName);
+        JianshuProcessor jianshuProcessor = new JianshuProcessor(this);
+        Spider jianshuSpider = jianshuProcessor.JianshuAnswerCrawl(domainName);
+        myMonitor jianshuMonitor = new myMonitor();
+        jianshuMonitor.register(jianshuSpider);
+        int jianshu_leftCount = jianshuMonitor.monitor(jianshuSpider);
+
+        if (max_leftCount < jianshu_leftCount)
+        {
+            max_leftCount = jianshu_leftCount;
+            max_spider = jianshuSpider;
+        }
 //        System.out.println("left page: "+ zhihu_leftCount);
 
 //        logger.info("知乎碎片爬取完成");
 
-
+/**
         logger.info("今日头条碎片开始爬取 当前课程：" + domainName);
         ToutiaoProcessor toutiaoProcessor = new ToutiaoProcessor(this);
         Spider toutiaoSpider = toutiaoProcessor.toutiaoAnswerCrawl(domainName);
@@ -237,10 +254,9 @@ public class SpiderAssembleService {
             max_leftCount = toutiao_leftCount;
             max_spider = toutiaoSpider;
         }
-
-        total_left = baiduZhidao_leftCount + csdn_leftCount + toutiao_leftCount + zhihu_leftCount;
+*/
+        total_left = baiduZhidao_leftCount + csdn_leftCount + jianshu_leftCount + zhihu_leftCount;
         all_assemble = total_left;
-
         return max_spider;
     }
 

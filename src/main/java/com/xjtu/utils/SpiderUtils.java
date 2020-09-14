@@ -7,8 +7,12 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeDriverService;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.html5.Location;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,14 +39,22 @@ public class SpiderUtils {
      * @throws Exception
      */
     public static String seleniumWiki(String url) throws Exception {
-		System.setProperty("webdriver.chrome.driver", Config.CHROME_PATH);
+//        System.setProperty(ChromeDriverService.CHROME_DRIVER_SILENT_OUTPUT_PROPERTY,"true");
+
+        System.setProperty("webdriver.chrome.driver", Config.CHROME_PATH);
 //        System.setProperty("webdriver.ie.driver", Config.IE_PATH);
 //		System.setProperty("phantomjs.binary.path", Config.PHANTOMJS_PATH);
 
-		WebDriver driver = new ChromeDriver();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("headless");
+        options.addArguments("no-sandbox");
+		WebDriver driver = new ChromeDriver(options);
+
+//		((ChromeDriver) driver).setLocation(new Location(0,0,10));
+        driver.manage().window().setSize(new Dimension(100, 100));
+       // driver.manage().window().maximize();
 //        WebDriver driver = new InternetExplorerDriver();
 //		WebDriver driver = new PhantomJSDriver();
-
         int m = 1;
         driver.manage().timeouts().pageLoadTimeout(1000, TimeUnit.SECONDS);
         while (m < 4) {
@@ -89,5 +101,4 @@ public class SpiderUtils {
         }
         return web;
     }
-
 }

@@ -9,6 +9,7 @@ import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
+import us.codecraft.webmagic.downloader.selenium.SeleniumDownloader;
 import us.codecraft.webmagic.pipeline.ConsolePipeline;
 import us.codecraft.webmagic.processor.PageProcessor;
 
@@ -97,8 +98,11 @@ public class BaiduZhidaoProcessor implements PageProcessor {
             facet.put("sourceName", "百度知道");
             requests.add(request.setUrl(url).setExtras(facet));
         }
+        //System.setProperty("selenuim_config", Config.SELENIUM_CONFIG);
+
         Spider baiduzhidaoSpider = spiderCreate.create(new com.xjtu.spider_Assemble.spiders.baiduzhidao.BaiduZhidaoProcessor(this.spiderService))
                 .addRequests(requests)
+                //.setDownloader(new SeleniumDownloader(Config.CHROME_PATH))
                 .thread(Config.THREAD)
                 .addPipeline(new SqlPipeline(this.spiderService))
                 .addPipeline(new ConsolePipeline());

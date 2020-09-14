@@ -37,6 +37,7 @@ public class SqlPipeline implements Pipeline {
                 //构建碎片
                 // 分面信息
                 Map<String, Object> facetMap = resultItems.getRequest().getExtras();
+
                 facetMap = spiderService.getFacet(facetMap);
                 //时间
                 //设置日期格式

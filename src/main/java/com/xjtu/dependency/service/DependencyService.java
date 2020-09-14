@@ -583,9 +583,13 @@ public class DependencyService {
             List<Assemble> assembleList = assembleRepository.findAllAssemblesByTopicId(temp_topic.getTopicId());
             if(assembleList.size() < 1)
             {
+                System.out.print("该主题没有依赖碎片！"+temp_topic.getTopicId());
+                continue;
+                /**
                 System.out.print(temp_topic.getTopicId());
                 logger.error("主体依赖关系生成失败：碎片内容为空");
                 return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR_2.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR_2.getMsg());
+                 */
             }
             String text = "";
             for(int j = 0; j<assembleList.size(); j++)

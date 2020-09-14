@@ -32,7 +32,7 @@ public class BaiduZhidaoProcessor implements PageProcessor {
     private Site site = Site.me()
             .setRetryTimes(Config.retryTimes)
             .setRetrySleepTime(Config.retrySleepTime)
-            .setSleepTime(Config.sleepTime)
+            .setSleepTime(Config.sleepTime+10000)
             .setTimeOut(Config.timeOut)
             .addHeader("User-Agent", Config.userAgent)
             .addHeader("Accept", "*/*");
