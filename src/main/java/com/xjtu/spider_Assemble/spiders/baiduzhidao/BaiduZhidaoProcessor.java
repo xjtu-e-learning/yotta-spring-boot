@@ -44,8 +44,8 @@ public class BaiduZhidaoProcessor implements PageProcessor {
 
     @Override
     public void process(Page page) {
-        List<String> assembleContents = page.getHtml().xpath("//div[@class='best-text mb-10']").all();
-        List<String> assembleTexts = page.getHtml().xpath("//div[@class='best-text mb-10']/tidyText()").all();
+        List<String> assembleContents = page.getHtml().xpath("//div[@class='bd answer']").all();
+        List<String> assembleTexts = page.getHtml().xpath("//div[@class='bd answer']/tidyText()").all();
         Assembles assembles = new Assembles(assembleContents, assembleTexts);
         page.putField("assembles", assembles);   //保存碎片信息
         //爬取碎片

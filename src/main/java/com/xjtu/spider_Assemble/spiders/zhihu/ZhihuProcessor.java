@@ -62,7 +62,7 @@ public class ZhihuProcessor implements PageProcessor {
 
         List<String> urls;
         // urls = page.getHtml().xpath("dl[@class='search-list J_search']/dd[@class='search-link']/a/@href").all();
-        urls = page.getHtml().xpath("div[@class='result c-container ']/h3/a/@href").all();
+        urls = page.getHtml().xpath("div[@class='result c-container new-pmd']/h3/a/@href").all();
 
         if(urls.size()==0) {
             List<String> assembleContentsTemp = page.getHtml().xpath("div[@class='RichContent-inner']/span[@class='RichText ztext CopyrightRichText-richText']").all();

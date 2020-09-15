@@ -46,7 +46,7 @@ public class JianshuProcessor implements PageProcessor {
         //爬取碎片
         List<String> urls;
         // urls = page.getHtml().xpath("dl[@class='search-list J_search']/dd[@class='search-link']/a/@href").all();
-        urls = page.getHtml().xpath("div[@class='result c-container ']/h3/a/@href").all();
+        urls = page.getHtml().xpath("div[@class='result c-container new-pmd']/h3/a/@href").all();
         if(urls.size()==0){
             List<String> assembleContents = page.getHtml().xpath("div[@id=\"__next\"]//div[@class=\"_gp-ck\"]/section[1]").all();
             if(assembleContents.size()==0){

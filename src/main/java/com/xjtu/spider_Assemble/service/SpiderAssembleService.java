@@ -169,7 +169,7 @@ public class SpiderAssembleService {
         int max_leftCount;
         Spider max_spider;
 
-
+/**
         logger.info("百度知道碎片开始爬取 当前课程：" + domainName);
         BaiduZhidaoProcessor baiduZhidaoProcessor = new BaiduZhidaoProcessor(this);
         Spider baiduZhidaoSpider = baiduZhidaoProcessor.baiduAnswerCrawl(domainName);
@@ -178,13 +178,15 @@ public class SpiderAssembleService {
         int baiduZhidao_leftCount = baiduZhidaoMonitor.monitor(baiduZhidaoSpider);
         max_leftCount = baiduZhidao_leftCount;
         max_spider = baiduZhidaoSpider;
-
+**/
         logger.info("CSDN碎片开始爬取 当前课程：" + domainName);
         CSDNProcessor csdnProcessor = new CSDNProcessor(this);
         Spider csdnSpider = csdnProcessor.CSDNAnswerCrawl(domainName);
         myMonitor csdnMonitor = new myMonitor();
         csdnMonitor.register(csdnSpider);
         int csdn_leftCount = csdnMonitor.monitor(csdnSpider);
+        max_leftCount = csdn_leftCount;
+        max_spider = csdnSpider;
         if (max_leftCount < csdn_leftCount)
         {
             max_leftCount = csdn_leftCount;
@@ -255,7 +257,8 @@ public class SpiderAssembleService {
             max_spider = toutiaoSpider;
         }
 */
-        total_left = baiduZhidao_leftCount + csdn_leftCount + jianshu_leftCount + zhihu_leftCount;
+//        total_left = baiduZhidao_leftCount + csdn_leftCount + jianshu_leftCount + zhihu_leftCount;
+        total_left = csdn_leftCount + jianshu_leftCount + zhihu_leftCount;
         all_assemble = total_left;
         return max_spider;
     }

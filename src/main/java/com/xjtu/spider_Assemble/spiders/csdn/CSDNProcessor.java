@@ -46,16 +46,21 @@ public class CSDNProcessor implements PageProcessor {
         List<String> assembleTexts = page.getHtml().xpath("div[@id='article_content']/tidyText()").all();
         Assembles assembles = new Assembles(assembleContents, assembleTexts);
 
-       // System.out.println("网页的url为："+page.getUrl()+"爬取到的内容为："+assembles.toString());
+        // System.out.println("网页的url为："+page.getUrl()+"爬取到的内容为："+assembles.toString());
         page.putField("assembles", assembles);
 
         //爬取碎片
         List<String> urls;
-       // urls = page.getHtml().xpath("dl[@class='search-list J_search']/dd[@class='search-link']/a/@href").all();
-        urls = page.getHtml().xpath("dl[@class='search-list J_search']/dt/div[@class='limit_width']/a/@href").all();
+        // urls = page.getHtml().xpath("dl[@class='search-list J_search']/dd[@class='search-link']/a/@href").all();
+        urls = page.getHtml().xpath("dl[@class='search-list J_search']//a/@href").all();
         //System.out.println("链接数: "+urls.size()+" "+urls.get(0));
         //此处应该添加请求的附加信息，extras
+        int count = 0;
         for (String url : urls) {
+            if (count > 10)
+                break;
+            else
+                count++;
             Request request = new Request();
             request.setUrl(url);
             //System.out.println(url);
@@ -76,16 +81,16 @@ public class CSDNProcessor implements PageProcessor {
 
     /**
      * 只爬取新增的分面下的碎片
+     *
      * @param facets：包含课程名、主题名、分面名
      * @return
      */
-    public Spider increasedCrawl(List<Map<String, Object>> facets)
-    {
+    public Spider increasedCrawl(List<Map<String, Object>> facets) {
         Spider csdnSpider = startCrawl(facets);
         return csdnSpider;
     }
-    public Spider startCrawl(List<Map<String, Object>> facets)
-    {
+
+    public Spider startCrawl(List<Map<String, Object>> facets) {
         //2.添加连接请求
         List<Request> requests = new ArrayList<Request>();
         for (Map<String, Object> facet : facets) {
