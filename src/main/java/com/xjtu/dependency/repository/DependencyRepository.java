@@ -167,4 +167,14 @@ public interface DependencyRepository extends JpaRepository<Dependency, Long>, J
     List<Dependency> findDependenciesByDomainIdAndKeyword(Long domainId, String keyword);
 
 
+    /**
+     * 通过课程ID，删除课程ID下的所有依赖关系
+     *
+     * @param domainId
+     * @Author Qi Jingchao
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Modifying(clearAutomatically = true)
+    @Query(value = "delete from dependency where domain_id = ?1", nativeQuery = true)
+    void deleteDependenciesByDomainId(Long domainId);
 }
