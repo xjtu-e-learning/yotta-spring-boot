@@ -1,5 +1,7 @@
 package com.xjtu.utils;
 
+import com.xjtu.common.Config;
+
 import javax.servlet.http.HttpServletRequest;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -37,6 +39,9 @@ public class HttpUtil {
             InetAddress address = InetAddress.getLocalHost();
             //获取本机ip
             ip = address.getHostAddress().toString();
+            if(ip.startsWith("192")){
+                ip = Config.ipAddress;
+            }
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
