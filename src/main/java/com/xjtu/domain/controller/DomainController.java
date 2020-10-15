@@ -181,7 +181,7 @@ public class DomainController {
 
     @PostMapping("/deleteCompleteDomainByDomainName")
     @ApiOperation(value = "根据课程名，递归地依次删除碎片、分面、主题及课程本身，请谨慎操作！", notes = "根据课程名，递归地依次删除碎片、分面、主题及课程本身，请谨慎操作！")
-    public ResponseEntity deleteDomainByDomainName(String domainName) {
+    public ResponseEntity deleteCompleteDomainByDomainName(@RequestParam(name = "domainName") String domainName) {
         Result result = domainService.deleteDomainByDomainName(domainName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
@@ -191,7 +191,7 @@ public class DomainController {
 
     @PostMapping("/deleteCompleteDomainByDomainId")
     @ApiOperation(value = "根据课程ID，递归地依次删除碎片、分面、主题及课程本身，请谨慎操作！", notes = "根据课程ID，递归地依次删除碎片、分面、主题及课程本身，请谨慎操作！")
-    public ResponseEntity deleteCompleteDomainByDomainId(Long domainId) {
+    public ResponseEntity deleteCompleteDomainByDomainId(@RequestParam(name = "domainId") Long domainId) {
         Result result = domainService.deleteDomainByDomainId(domainId);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
