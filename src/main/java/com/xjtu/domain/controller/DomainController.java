@@ -118,8 +118,7 @@ public class DomainController {
     @PostMapping("/generateDomain")
     @ApiOperation(value = "构建一门课程，用于自动构建", notes = "构建一门课程，用于自动构建")
     public ResponseEntity generateDomain(@RequestParam(name = "subjectName") String subjectName,
-                                         @RequestParam(name = "domainName") String domainName)
-    {
+                                         @RequestParam(name = "domainName") String domainName) {
         Result result = domainService.findOrInsetDomainByDomainName(subjectName, domainName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
@@ -155,7 +154,7 @@ public class DomainController {
 
     /**
      * 加入权限控制，根据用户ID确认其可访问的学科与课程
-     *2019/06/04 张铎
+     * 2019/06/04 张铎
      */
     @GetMapping("/getDomainsAndSubjectsByUseId")
     @ApiOperation(value = "根据用户ID获得其所能访问的学科和课程信息，不包含主题信息", notes = "根据用户ID获得其所能访问的学科和课程信息，不包含主题信息")
@@ -172,8 +171,7 @@ public class DomainController {
      */
     @GetMapping("/getDomainDetailAsRDF")
     @ApiOperation(value = "获得一门课程下详细信息，以树形结构组织，用于生成RDF格式数据", notes = "获得一门课程下详细信息，以树形结构组织，用于生成RDF格式数据")
-    public ResponseEntity getDomainDetailAsRDF(String domainName)
-    {
+    public ResponseEntity getDomainDetailAsRDF(String domainName) {
         Result result = domainService.getDomainDetailAsRDF(domainName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
@@ -181,6 +179,23 @@ public class DomainController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @PostMapping("/deleteCompleteDomainByDomainName")
+    @ApiOperation(value = "根据课程名，递归地依次删除碎片、分面、主题及课程本身，请谨慎操作！", notes = "根据课程名，递归地依次删除碎片、分面、主题及课程本身，请谨慎操作！")
+    public ResponseEntity deleteDomainByDomainName(String domainName) {
+        Result result = domainService.deleteDomainByDomainName(domainName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 
-
+    @PostMapping("/deleteCompleteDomainByDomainId")
+    @ApiOperation(value = "根据课程ID，递归地依次删除碎片、分面、主题及课程本身，请谨慎操作！", notes = "根据课程ID，递归地依次删除碎片、分面、主题及课程本身，请谨慎操作！")
+    public ResponseEntity deleteCompleteDomainByDomainId(Long domainId) {
+        Result result = domainService.deleteDomainByDomainId(domainId);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 }

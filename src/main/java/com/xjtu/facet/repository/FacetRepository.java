@@ -40,6 +40,19 @@ public interface FacetRepository extends JpaRepository<Facet, Long>, JpaSpecific
     @Transactional(rollbackFor = Exception.class)
     void deleteByFacetIdAndFacetLayer(Long facetId, Integer facetLayer);
 
+
+    /**
+     * 根据分面ID删除分面
+     *【！】请不要单独执行此功能，应首先确保分面所属的碎片已依次清空
+     * @param   facetId
+     * @Author  Qi Jingchao
+     */
+    @Modifying(clearAutomatically = true)
+    @Transactional(rollbackFor = Exception.class)
+    void deleteByFacetId(Long facetId);
+
+
+
     /**
      * 指定主题Id，查找分面
      *

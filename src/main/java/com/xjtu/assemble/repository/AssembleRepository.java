@@ -41,6 +41,19 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
     @Transactional(rollbackFor = Exception.class)
     void deleteByFacetId(Long facetId);
 
+
+    /**
+     * 根据课程ID，删除课程下的所有碎片
+     *
+     * @param   domainId
+     * @Author  Qi Jingchao
+     */
+    @Modifying(clearAutomatically = true)
+    @Transactional(rollbackFor = Exception.class)
+    void deleteByDomainId(Long domainId);
+
+
+
     /**
      * 根据分面id，查询分面下的所有碎片
      *
@@ -49,6 +62,7 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
     @Transactional(rollbackFor = Exception.class)
     @Query("select a from Assemble as a where a.facetId in ?1")
     List<Assemble> findByFacetIdIn(Collection<Long> facetIds);
+
 
     /**
      * 根据主题id，删除主题下的所有碎片

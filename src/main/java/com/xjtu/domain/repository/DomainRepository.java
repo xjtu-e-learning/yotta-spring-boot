@@ -23,6 +23,15 @@ public interface DomainRepository extends JpaRepository<Domain, Long>, JpaSpecif
     Domain findByDomainName(String domainName);
 
     /**
+     * 根据课程ID查询课程
+     *
+     * @param domainId
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    Domain findByDomainId(Long domainId);
+
+    /**
      * 根据课程id和课程名查询课程
      *
      * @param domainId
@@ -74,5 +83,17 @@ public interface DomainRepository extends JpaRepository<Domain, Long>, JpaSpecif
     @Transactional(rollbackFor = Exception.class)
     @Query("select d from Domain d where d.domainName like %?1%")
     List<Domain> findByKeyword(String keyword);
+
+
+    /**
+     * 根据课程ID删除课程
+     * 【！】请不要单独执行此功能，应首先确保课程所属的碎片-分面-主题已依次清空
+     *
+     * @param DomainId
+     * @Author Qi Jingchao
+     */
+    @Modifying(clearAutomatically = true)
+    @Transactional(rollbackFor = Exception.class)
+    void deleteByDomainId(Long DomainId);
 
 }
