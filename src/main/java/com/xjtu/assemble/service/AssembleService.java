@@ -1057,6 +1057,50 @@ public class AssembleService {
         }
     }
 
+
+    /**
+     * 根据课程ID，删除课程下的所有碎片
+     * @param domainId
+     * @return
+     */
+    public Result deleteAssembleByDomainId(Long domainId) {
+        List<Assemble> assembleList = assembleRepository.findByDomainId(domainId);
+        if (assembleList == null) {
+            logger.error("指定课程的碎片不存在，未执行删除操作");
+            return ResultUtil.error(ResultEnum.DOMAIN_DELETE_ERROR.getCode(), ResultEnum.DOMAIN_DELETE_ERROR.getMsg(), "指定课程不存在");
+        }
+        try {
+            assembleRepository.deleteByDomainId(domainId);
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "碎片删除成功");
+        } catch (Exception exception) {
+            logger.error("删除碎片失败");
+            return ResultUtil.error(ResultEnum.Assemble_DELETE_ERROR.getCode(), ResultEnum.Assemble_DELETE_ERROR.getMsg());
+        }
+    }
+
+
+    /**
+     * 根据课程名，删除课程下的所有碎片
+     * @param domainName
+     * @return
+     */
+    public Result deleteAssembleByDomainName(String domainName) {
+        Domain domain = domainRepository.findByDomainName(domainName);
+        List<Assemble> assembleList = assembleRepository.findByDomainId(domain.getDomainId());
+        if (assembleList == null) {
+            logger.error("指定课程的碎片不存在，未执行删除操作");
+            return ResultUtil.error(ResultEnum.DOMAIN_DELETE_ERROR.getCode(), ResultEnum.DOMAIN_DELETE_ERROR.getMsg(), "指定课程不存在");
+        }
+        try {
+            assembleRepository.deleteByDomainId(domain.getDomainId());
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "碎片删除成功");
+        } catch (Exception exception) {
+            logger.error("删除碎片失败");
+            return ResultUtil.error(ResultEnum.Assemble_DELETE_ERROR.getCode(), ResultEnum.Assemble_DELETE_ERROR.getMsg());
+        }
+    }
+
+
     public Map<String, Object> uploadImage(MultipartFile image) {
         Map<String, Object> result = new HashMap<>();
         List<String> imageUrls = new ArrayList<>();

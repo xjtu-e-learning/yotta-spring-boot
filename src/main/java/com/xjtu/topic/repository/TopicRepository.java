@@ -159,7 +159,7 @@ public interface TopicRepository extends JpaRepository<Topic, Long>, JpaSpecific
      * 根据课程ID，删除课程下所有主题
      * 【！】请不要单独执行此功能，应首先确保课程所属的碎片-分面已依次清空
      * @param   domainId
-     * @Author  Qi Jingchao
+     * @author  Qi Jingchao
      */
     @Modifying(clearAutomatically = true)
     @Transactional(rollbackFor = Exception.class)

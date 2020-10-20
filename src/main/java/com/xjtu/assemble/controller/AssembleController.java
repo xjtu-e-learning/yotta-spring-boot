@@ -317,6 +317,40 @@ public class AssembleController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    /**
+     * 根据课程ID，从碎片表中删除碎片
+     * @param   domainId
+     * @return
+     * @author  Qi Jingchao
+     */
+    @GetMapping("/deleteAssembleByDomainId")
+    @ApiOperation(value = "根据课程ID，从碎片表中删除碎片", notes = "根据课程ID，从碎片表中删除碎片")
+    public ResponseEntity deleteAssembleByDomainId(@RequestParam(name = "domainId") Long domainId) {
+        Result result = assembleService.deleteAssembleByDomainId(domainId);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
+    /**
+     * 根据课程名，从碎片表中删除碎片
+     * @param   domainName
+     * @return
+     * @author  Qi Jingchao
+     */
+    @GetMapping("/deleteAssembleByDomainName")
+    @ApiOperation(value = "根据课程名，从碎片表中删除碎片", notes = "根据课程名，从碎片表中删除碎片")
+    public ResponseEntity deleteAssembleByDomainName(@RequestParam(name = "domainName") String domainName) {
+        Result result = assembleService.deleteAssembleByDomainName(domainName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
     @PostMapping("/uploadImageWithId")
     @ApiOperation(value = "上传图片到服务器"
             , notes = "上传图片到服务器")

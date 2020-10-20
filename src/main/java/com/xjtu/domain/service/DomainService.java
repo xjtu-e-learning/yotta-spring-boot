@@ -101,11 +101,11 @@ public class DomainService {
 
 
     /**
-     * 根据课程名，递归地依次删除碎片、分面、主题及课程本身，请谨慎操作！
+     * 根据课程名，递归地依次删除主题依赖关系、碎片、分面、主题及课程本身，请谨慎操作！
      *
      * @param domainName
      * @return
-     * @Author Qi Jingchao
+     * @author  Qi Jingchao
      */
     public Result deleteDomainByDomainName(String domainName) {
         Domain domain = domainRepository.findByDomainName(domainName);
@@ -113,6 +113,9 @@ public class DomainService {
             logger.error("指定课程不存在，未执行删除操作");
             return ResultUtil.error(ResultEnum.DOMAIN_DELETE_ERROR.getCode(), ResultEnum.DOMAIN_DELETE_ERROR.getMsg(), "指定课程不存在");
         } else {
+            logger.info("开始删除 " + domain.getDomainName() + " 课程的主题依赖关系");
+            dependencyRepository.deleteDependenciesByDomainId(domain.getDomainId());
+            logger.info("删除 " + domain.getDomainName() + " 课程的主题依赖关系完成");
             logger.info("开始删除 " + domain.getDomainName() + " 课程的碎片");
             assembleRepository.deleteByDomainId(domain.getDomainId());
             logger.info("删除 " + domain.getDomainName() + " 课程碎片完成");
@@ -133,11 +136,11 @@ public class DomainService {
     }
 
     /**
-     * 根据课程ID，递归地依次删除碎片、分面、主题及课程本身，请谨慎操作！
+     * 根据课程ID，递归地依次删除主题依赖关系、碎片、分面、主题及课程本身，请谨慎操作！
      *
      * @param domainId
      * @return
-     * @Author Qi Jingchao
+     * @author  Qi Jingchao
      */
     public Result deleteDomainByDomainId(Long domainId) {
         Domain domain = domainRepository.findByDomainId(domainId);
@@ -145,6 +148,9 @@ public class DomainService {
             logger.error("指定课程不存在，未执行删除操作");
             return ResultUtil.error(ResultEnum.DOMAIN_DELETE_ERROR.getCode(), ResultEnum.DOMAIN_DELETE_ERROR.getMsg(), "指定课程不存在");
         } else {
+            logger.info("开始删除 " + domain.getDomainName() + " 课程的主题依赖关系");
+            dependencyRepository.deleteDependenciesByDomainId(domain.getDomainId());
+            logger.info("删除 " + domain.getDomainName() + " 课程的主题依赖关系完成");
             logger.info("开始删除 " + domain.getDomainName() + " 课程的碎片");
             assembleRepository.deleteByDomainId(domain.getDomainId());
             logger.info("删除 " + domain.getDomainName() + " 课程碎片完成");

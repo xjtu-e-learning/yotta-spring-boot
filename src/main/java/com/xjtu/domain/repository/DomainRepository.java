@@ -90,7 +90,7 @@ public interface DomainRepository extends JpaRepository<Domain, Long>, JpaSpecif
      * 【！】请不要单独执行此功能，应首先确保课程所属的碎片-分面-主题已依次清空
      *
      * @param DomainId
-     * @Author Qi Jingchao
+     * @author  Qi Jingchao
      */
     @Modifying(clearAutomatically = true)
     @Transactional(rollbackFor = Exception.class)

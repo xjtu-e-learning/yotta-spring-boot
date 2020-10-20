@@ -57,6 +57,7 @@ public enum ResultEnum {
     TOPIC_SEARCH_ERROR_2(134, "主题查询失败：没有指定课程"),
     TOPIC_DELETE_ERROR_1(135, "主题删除失败:没有主题对应的课程"),
     TOPIC_DELETE_ERROR_2(136, "主题删除失败:主题数据不存在"),
+    TOPIC_DELETE_ERROR_3(214, "主题删除失败：指定课程ID不存在"),
     TOPIC_UPDATE_ERROR_3(137, "主题更新失败：原主题不存在"),
     TOPIC_INSERT_ERROR_3(138, "主题信息插入失败：没有对应的课程"),
 

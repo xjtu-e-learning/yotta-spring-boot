@@ -46,7 +46,7 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
      * 根据课程ID，删除课程下的所有碎片
      *
      * @param   domainId
-     * @Author  Qi Jingchao
+     * @author  Qi Jingchao
      */
     @Modifying(clearAutomatically = true)
     @Transactional(rollbackFor = Exception.class)
@@ -105,6 +105,17 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
     @Transactional(rollbackFor = Exception.class)
     @Query(value = "select a from Assemble a,Domain d where d.domainName=?1 and d.domainId=a.domainId")
     List<Assemble> findByDomainName(String domainName);
+
+
+    /**
+     * 获取所有碎片所属课程ID的列表
+     * @return
+     * @author  Qi Jingchao
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "select distinct domain_id from assemble where domain_id is not NULL", nativeQuery = true)
+    List<BigInteger> findDistinctDomainId();
+
 
     /**
      * 指定分面id，统计对应分面下的碎片

@@ -170,8 +170,8 @@ public interface DependencyRepository extends JpaRepository<Dependency, Long>, J
     /**
      * 通过课程ID，删除课程ID下的所有依赖关系
      *
-     * @param domainId
-     * @Author Qi Jingchao
+     * @param   domainId
+     * @author  Qi Jingchao
      */
     @Transactional(rollbackFor = Exception.class)
     @Modifying(clearAutomatically = true)

@@ -177,9 +177,9 @@ public class DependencyService {
 
     /**
      * 通过课程名删除课程下所有主题依赖关系
-     * @param domainName    课程名
+     * @param   domainName    课程名
      * @return
-     * @Author  Qi Jingchao
+     * @author  Qi Jingchao
      */
     public Result deleteDependenciesByDomainName(String domainName) {
         Domain domain = domainRepository.findByDomainName(domainName);

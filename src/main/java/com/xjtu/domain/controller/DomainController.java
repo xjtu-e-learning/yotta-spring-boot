@@ -180,7 +180,7 @@ public class DomainController {
     }
 
     @PostMapping("/deleteCompleteDomainByDomainName")
-    @ApiOperation(value = "根据课程名，递归地依次删除碎片、分面、主题及课程本身，请谨慎操作！", notes = "根据课程名，递归地依次删除碎片、分面、主题及课程本身，请谨慎操作！")
+    @ApiOperation(value = "根据课程名，递归地依次删除主题依赖关系、碎片、分面、主题及课程本身，请谨慎操作！", notes = "根据课程名，递归地依次删除碎片、分面、主题及课程本身，请谨慎操作！")
     public ResponseEntity deleteCompleteDomainByDomainName(@RequestParam(name = "domainName") String domainName) {
         Result result = domainService.deleteDomainByDomainName(domainName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
@@ -190,7 +190,7 @@ public class DomainController {
     }
 
     @PostMapping("/deleteCompleteDomainByDomainId")
-    @ApiOperation(value = "根据课程ID，递归地依次删除碎片、分面、主题及课程本身，请谨慎操作！", notes = "根据课程ID，递归地依次删除碎片、分面、主题及课程本身，请谨慎操作！")
+    @ApiOperation(value = "根据课程ID，递归地依次删除主题依赖关系、碎片、分面、主题及课程本身，请谨慎操作！", notes = "根据课程ID，递归地依次删除碎片、分面、主题及课程本身，请谨慎操作！")
     public ResponseEntity deleteCompleteDomainByDomainId(@RequestParam(name = "domainId") Long domainId) {
         Result result = domainService.deleteDomainByDomainId(domainId);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
