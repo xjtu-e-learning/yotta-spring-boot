@@ -1060,6 +1060,7 @@ public class AssembleService {
 
     /**
      * 根据课程ID，删除课程下的所有碎片
+     *
      * @param domainId
      * @return
      */
@@ -1081,6 +1082,7 @@ public class AssembleService {
 
     /**
      * 根据课程名，删除课程下的所有碎片
+     *
      * @param domainName
      * @return
      */
@@ -1193,18 +1195,15 @@ public class AssembleService {
         }
     }
 
-    public Result countUpdateAssemble(String domainName)
-    {
-        if (domainName == null || domainName.equals("") || domainName.length() == 0)
-        {
+    public Result countUpdateAssemble(String domainName) {
+        if (domainName == null || domainName.equals("") || domainName.length() == 0) {
             logger.error("碎片查询失败，课程名为空");
-            return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR.getCode(), ResultEnum.Assemble_SEARCH_ERROR.getMsg(),"碎片查询失败：对应课程不存在");
+            return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR.getCode(), ResultEnum.Assemble_SEARCH_ERROR.getMsg(), "碎片查询失败：对应课程不存在");
         }
         Domain domain = domainRepository.findByDomainName(domainName);
-        if (domain == null)
-        {
+        if (domain == null) {
             logger.error("碎片查询失败，课程不存在");
-            return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR.getCode(), ResultEnum.Assemble_SEARCH_ERROR.getMsg(),"碎片查询失败：对应课程不存在");
+            return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR.getCode(), ResultEnum.Assemble_SEARCH_ERROR.getMsg(), "碎片查询失败：对应课程不存在");
         }
         Long domainId = domain.getDomainId();
         //设置日期格式
@@ -1217,6 +1216,46 @@ public class AssembleService {
         String localdate = df.format(date);
         Long updateAssembleNumber = assembleRepository.countUpdateAssembleByDomainIdAndAssembleScratchTime(localdate, domainId);
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), updateAssembleNumber);
+    }
+
+
+    /**
+     * 修复域名迁移造成的图片失效问题，根据碎片ID和内容更新碎片assembleContent字段内容，注意：这不会改变assembleText。
+     *
+     * @param domainName
+     * @return
+     * @author Qi Jingchao
+     */
+    public Result fixAssembleImageByDomainName(String domainName) {
+        if (domainName == null || domainName.equals("")) {
+            logger.error("碎片查询失败，课程名为空");
+            return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR.getCode(), ResultEnum.Assemble_SEARCH_ERROR.getMsg(), "碎片查询失败：对应课程不存在");
+        }
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("碎片查询失败，课程不存在");
+            return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR.getCode(), ResultEnum.Assemble_SEARCH_ERROR.getMsg(), "碎片查询失败：对应课程不存在");
+        }
+        List<Assemble> assembleList = assembleRepository.findByDomainName(domain.getDomainName());
+        long fixCounter = 0;
+        for (int i = 0; i < assembleList.size(); i++) {
+            if (i <= 3) {
+                Assemble currentAassemble = new Assemble();
+//            logger.info(new String(assembleRepository.findByAssembleId(assembleList.get(i).getAssembleId()).getAssembleText()));
+                currentAassemble = assembleRepository.findByAssembleId(assembleList.get(i).getAssembleId());
+//                logger.info(String.valueOf(currentAassemble.getAssembleId()));
+//                logger.info(String.valueOf(currentAassemble.getAssembleContent()));
+                String oldAssembleContent = String.valueOf(currentAassemble.getAssembleContent());
+                if (oldAssembleContent.contains("yotta.xjtushilei.com")) {
+//                    logger.info("Broken assemble found!");
+                    String newAssembleContent = oldAssembleContent.replace("yotta.xjtushilei.com", "zscl.xjtudlc.com");
+                    assembleRepository.updateAssembleContentByAssembleIdAndAssembleContent(currentAassemble.getAssembleId(), newAssembleContent);
+                    fixCounter++;
+                }
+            }
+        }
+        logger.info("共修复" + fixCounter + "个图片损坏的碎片");
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "共修复" + fixCounter + "个图片损坏的碎片");
     }
 
 }

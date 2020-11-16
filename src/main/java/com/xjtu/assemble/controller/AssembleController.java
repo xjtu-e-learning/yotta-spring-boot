@@ -319,9 +319,10 @@ public class AssembleController {
 
     /**
      * 根据课程ID，从碎片表中删除碎片
-     * @param   domainId
+     *
+     * @param domainId
      * @return
-     * @author  Qi Jingchao
+     * @author Qi Jingchao
      */
     @GetMapping("/deleteAssembleByDomainId")
     @ApiOperation(value = "根据课程ID，从碎片表中删除碎片", notes = "根据课程ID，从碎片表中删除碎片")
@@ -336,9 +337,10 @@ public class AssembleController {
 
     /**
      * 根据课程名，从碎片表中删除碎片
-     * @param   domainName
+     *
+     * @param domainName
      * @return
-     * @author  Qi Jingchao
+     * @author Qi Jingchao
      */
     @GetMapping("/deleteAssembleByDomainName")
     @ApiOperation(value = "根据课程名，从碎片表中删除碎片", notes = "根据课程名，从碎片表中删除碎片")
@@ -377,9 +379,26 @@ public class AssembleController {
 
     @GetMapping("/countUpdateAssemble")
     @ApiOperation(value = "根据课程名统计近一个月更新碎片数量", notes = "根据课程名统计近一个月更新碎片数量")
-    public ResponseEntity countUpdateAssembleByDomainName(@RequestParam(value = "domainName") String domainName)
-    {
+    public ResponseEntity countUpdateAssembleByDomainName(@RequestParam(value = "domainName") String domainName) {
         Result result = assembleService.countUpdateAssemble(domainName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
+    /**
+     * 修复域名迁移造成的图片失效问题，根据碎片ID和内容更新碎片assembleContent字段内容，注意：这不会改变assembleText。
+     *
+     * @param   domainName
+     * @return
+     * @author  Qi Jingchao
+     */
+    @PostMapping("/fixAssembleImageByDomainName")
+    @ApiOperation(value = "修复域名迁移造成的图片失效问题", notes = "修复域名迁移造成的图片失效问题")
+    public ResponseEntity fixAssembleImageByDomainName(@RequestParam(value = "domainName") String domainName) {
+        Result result = assembleService.fixAssembleImageByDomainName(domainName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
