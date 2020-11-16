@@ -1239,19 +1239,17 @@ public class AssembleService {
         List<Assemble> assembleList = assembleRepository.findByDomainName(domain.getDomainName());
         long fixCounter = 0;
         for (int i = 0; i < assembleList.size(); i++) {
-            if (i <= 3) {
-                Assemble currentAassemble = new Assemble();
+            Assemble currentAassemble = new Assemble();
 //            logger.info(new String(assembleRepository.findByAssembleId(assembleList.get(i).getAssembleId()).getAssembleText()));
-                currentAassemble = assembleRepository.findByAssembleId(assembleList.get(i).getAssembleId());
+            currentAassemble = assembleRepository.findByAssembleId(assembleList.get(i).getAssembleId());
 //                logger.info(String.valueOf(currentAassemble.getAssembleId()));
 //                logger.info(String.valueOf(currentAassemble.getAssembleContent()));
-                String oldAssembleContent = String.valueOf(currentAassemble.getAssembleContent());
-                if (oldAssembleContent.contains("yotta.xjtushilei.com")) {
+            String oldAssembleContent = String.valueOf(currentAassemble.getAssembleContent());
+            if (oldAssembleContent.contains("yotta.xjtushilei.com")) {
 //                    logger.info("Broken assemble found!");
-                    String newAssembleContent = oldAssembleContent.replace("yotta.xjtushilei.com", "zscl.xjtudlc.com");
-                    assembleRepository.updateAssembleContentByAssembleIdAndAssembleContent(currentAassemble.getAssembleId(), newAssembleContent);
-                    fixCounter++;
-                }
+                String newAssembleContent = oldAssembleContent.replace("yotta.xjtushilei.com", "zscl.xjtudlc.com");
+                assembleRepository.updateAssembleContentByAssembleIdAndAssembleContent(currentAassemble.getAssembleId(), newAssembleContent);
+                fixCounter++;
             }
         }
         logger.info("共修复" + fixCounter + "个图片损坏的碎片");
