@@ -149,6 +149,24 @@ public class SubjectService {
         }
     }
 
+
+    /**
+     * 根据学科名查询学科实例
+     * @param subjectName
+     * @return
+     * @author Qi Jingchao
+     */
+    public Result findSubjectByName(String subjectName) {
+        try {
+            Subject subject = subjectRepository.findBySubjectName(subjectName);
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), subject);
+        } catch (Exception e) {
+            logger.error("学科查询失败：没有学科信息记录");
+            return ResultUtil.error(ResultEnum.SUBJECT_SEARCH_ERROR.getCode(), ResultEnum.SUBJECT_SEARCH_ERROR.getMsg());
+        }
+    }
+
+
     /**
      * 获取分页学科数据，按照学科Id排序 (不带查询条件)
      *
