@@ -74,6 +74,49 @@ public class SpiderUtils {
         driver.quit();
         return html;
     }
+    /**
+     * 返回简书页面加载结果的HTML源码
+     * 拖动页面一次
+     *
+     * @param url 网页链接
+     * @return 网页源码
+     * @throws Exception
+     */
+
+    public static String seleniumJianshu(String url) throws Exception {
+        System.setProperty("webdriver.chrome.driver", Config.CHROME_PATH);
+
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("headless");
+        options.addArguments("no-sandbox");
+        WebDriver driver = new ChromeDriver(options);
+        logger.info("正在打开简书网页");
+        int m = 1;
+        //driver.manage().window().setSize(new Dimension(100, 100));
+        driver.manage().timeouts().pageLoadTimeout(1000, TimeUnit.SECONDS);
+        while (m < 4) {
+            try {
+                driver.get(url);
+            } catch (Exception e) {
+                logger.info("第" + m + "次重载页面...");
+                m++;
+                driver.quit();
+                driver = new ChromeDriver();
+
+                driver.manage().timeouts().pageLoadTimeout(1000, TimeUnit.SECONDS);
+                continue;
+            }
+            break;
+        }
+        logger.info("Page title is: " + driver.getTitle());
+        Thread.sleep(1);
+        String html1 = driver.getPageSource();
+        Thread.sleep(1000);
+        String html = driver.getPageSource();
+        driver.quit();
+
+        return html;
+    }
 
     public static String httpWiki(String url) {
         String web = "";

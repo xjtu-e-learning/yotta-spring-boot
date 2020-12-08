@@ -28,6 +28,10 @@ public class TFSpiderService {
     public static boolean getDomainFlag() {
         return domainFlag;
     }
+    //设置课程的中英文状态
+    public static void setDomainFlag(Boolean Flag){
+        domainFlag=Flag;
+    }
 
     @Autowired
     private DomainRepository domainRepository;
