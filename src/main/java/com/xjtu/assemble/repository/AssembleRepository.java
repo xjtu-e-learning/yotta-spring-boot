@@ -45,13 +45,12 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
     /**
      * 根据课程ID，删除课程下的所有碎片
      *
-     * @param   domainId
-     * @author  Qi Jingchao
+     * @param domainId
+     * @author Qi Jingchao
      */
     @Modifying(clearAutomatically = true)
     @Transactional(rollbackFor = Exception.class)
     void deleteByDomainId(Long domainId);
-
 
 
     /**
@@ -96,6 +95,10 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
     List<Assemble> findByDomainId(Long domainId);
 
 
+    @Transactional(rollbackFor = Exception.class)
+    Assemble findByAssembleId(Long assembleId);
+
+
     /**
      * 根据课程名查询碎片
      *
@@ -109,8 +112,9 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
 
     /**
      * 获取所有碎片所属课程ID的列表
+     *
      * @return
-     * @author  Qi Jingchao
+     * @author Qi Jingchao
      */
     @Transactional(rollbackFor = Exception.class)
     @Query(value = "select distinct domain_id from assemble where domain_id is not NULL", nativeQuery = true)
@@ -294,4 +298,15 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
     @Query("select count(assembleId) from Assemble where assembleScratchTime > ?1 and domainId = ?2")
     Long countUpdateAssembleByDomainIdAndAssembleScratchTime(String localTime, Long domainId);
 
+
+    /**
+     * 根据碎片ID和内容更新碎片assembleContent字段内容，注意：这不会改变assembleText。
+     * @param   assembleId
+     * @param   assembleContent
+     * @author  Qi Jingchao
+     */
+    @Modifying(clearAutomatically = true)
+    @Transactional(rollbackFor = Exception.class)
+    @Query("update Assemble set assembleContent=?2 where assembleId=?1")
+    void updateAssembleContentByAssembleIdAndAssembleContent(Long assembleId, String assembleContent);
 }

@@ -122,6 +122,8 @@ public enum ResultEnum {
 
     //用户登录
     LOGIN_ERROR(176, "登录失败：用户不存在"),
+    USER_DOMAIN_LIST_ERROR_1(215, "用户对应课程查询失败：信息不存在"),
+    USER_SUBJECT_LIST_ERROR_1(216, "用户可见学科查询失败：信息不存在"),
 
     //依赖关系
     DEPENDENCY_SEARCH_ERROR(177, "主题依赖关系查询失败：没有课程信息记录"),

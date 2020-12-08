@@ -22,5 +22,6 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     @Transactional(rollbackFor = Exception.class)
     User findByUserNameAndPassword(String userName, String password);
 
-
+    @Transactional(rollbackFor = Exception.class)
+    User findByUserName(String userName);
 }

@@ -304,7 +304,7 @@ public class TopicService {
 
 
     /**
-     * 依次递归删除所有课程已不存在的依赖、分面、主题（未完成）
+     * 依次递归删除所有课程已不存在的主题依赖、碎片、分面、主题（未完成）
      *
      * @return
      * @author Qi Jingchao
