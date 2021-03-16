@@ -228,6 +228,45 @@ public class TopicService {
 
 
     /**
+     * 根据课程和主题名字，递归地依次删除该主题下的主题依赖关系、碎片、分面，请谨慎操作！
+     * @param domainName
+     * @return
+     */
+    public Result deleteTopicCompleteByDomainNameAndTopicName(String domainName,String topicName) {
+        try {
+            Domain domain = domainRepository.findByDomainName(domainName);
+            if (domain == null) {
+                logger.error("主题删除失败：指定课程不存在");
+                return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR_1.getCode(), ResultEnum.TOPIC_DELETE_ERROR_1.getMsg());
+            }
+            Topic topic =topicRepository.findByDomainIdAndTopicName(domain.getDomainId(),topicName);
+            if (topic == null) {
+                logger.error("主题删除失败：此课程下不存在该主题");
+                return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR_2.getCode(), ResultEnum.TOPIC_DELETE_ERROR_2.getMsg());
+            }
+            Long topicId = topic.getTopicId();
+            logger.info("开始删除 " +domain.getDomainName() +"课程下"+topicName+"主题的依赖关系");
+            dependencyRepository.deleteByStartTopicIdOrEndTopicId(topicId,topicId);
+            logger.info("删除 " +domain.getDomainName() +"课程下"+topicName+"主题的依赖关系完成");
+            logger.info("开始删除 " +topicName + " 主题的碎片");
+            assembleRepository.deleteByTopicId(topicId);
+            logger.info("删除 " + topicName + " 主题的碎片完成");
+            logger.info("开始删除 " + topicName + " 主题的分面");
+            facetRepository.deleteByTopicId(topicId);
+            logger.info("删除 " + topicName + " 主题的分面完成");
+            logger.info("开始删除该主题信息");
+            topicRepository.deleteByDomainIdAndTopicName(domain.getDomainId(),topicName);
+            logger.info("删除该主题信息完成！"+ topicName+ " 主题下的所有主题依赖关系-分面-碎片已完全删除。");
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "主题 " + topicName + " 下的所有主题依赖关系-分面-碎片已完全删除。");
+        } catch (Exception excepetion) {
+            logger.error("错误：" + excepetion);
+            logger.error("主题完整删除失败：删除语句执行失败");
+            return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR.getCode(), ResultEnum.TOPIC_DELETE_ERROR.getMsg());
+        }
+    }
+
+
+    /**
      * 根据课程ID，递归地依次删除该课程下的主题依赖关系、碎片、分面、主题，请谨慎操作！
      *
      * @param domainId

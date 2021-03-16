@@ -353,6 +353,9 @@ public class AssembleController {
     }
 
 
+
+
+
     @PostMapping("/uploadImageWithId")
     @ApiOperation(value = "上传图片到服务器"
             , notes = "上传图片到服务器")

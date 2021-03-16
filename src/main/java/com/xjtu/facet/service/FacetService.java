@@ -171,6 +171,65 @@ public class FacetService {
                 , 3, secondLayerFacet.getFacetId());
     }
 
+
+
+
+
+    /**
+     * 根据facetId删除该分面及其子分面
+     * @param
+     * @return
+     */
+    public Result deleteFacetAndChildrenFacetComplete(String domainName,String topicName,
+                                                      String facetName) {
+
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("分面信息删除失败：对应课程不存在");
+            return ResultUtil.error(ResultEnum.FACET_DELETE_ERROR_2.getCode(), ResultEnum.FACET_DELETE_ERROR_2.getMsg());
+        }
+        Long domainId = domain.getDomainId();
+
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
+        if (topic == null) {
+            logger.error("分面信息删除失败：对应主题不存在");
+            return ResultUtil.error(ResultEnum.FACET_DELETE_ERROR_3.getCode(), ResultEnum.FACET_DELETE_ERROR_3.getMsg());
+        }
+        Long topicId = topic.getTopicId();
+
+        Facet facet = facetRepository.findByTopicIdAndFacetName(topicId, facetName);
+        if (facet == null) {
+            logger.error("分面信息删除失败：对应分面不存在");
+            return ResultUtil.error(ResultEnum.FACET_DELETE_ERROR.getCode(), ResultEnum.FACET_DELETE_ERROR.getMsg());
+        }
+        Long facetId = facet.getFacetId();
+
+        Integer facetLayer = facet.getFacetLayer();
+        List<Facet> childrenFacet = facetRepository.findByParentFacetId(facetId);
+        if(childrenFacet !=null && childrenFacet.size()>0){
+            logger.info("分面 "+facetName+" 下共有"+childrenFacet.size()+" 个子分面");
+            for(int i=childrenFacet.size()-1;i>=facetLayer-1;--i){
+                Facet childFacet = childrenFacet.get(i);
+                logger.info("开始删除分面 "+facetName+" 的子分面 "+childFacet.getFacetName()+" 下的碎片信息");
+                assembleRepository.deleteByFacetId(childFacet.getFacetId());
+                logger.info("删除分面 "+facetName+" 的子分面 "+childFacet.getFacetName()+" 下的碎片信息完成");
+                logger.info("开始删除分面 "+facetName+" 的子分面 "+childFacet.getFacetName()+" 的信息");
+                facetRepository.deleteByFacetId(childFacet.getFacetId());
+                logger.info("删除分面 "+facetName+" 的子分面 "+childFacet.getFacetName()+" 的信息完成");
+            }
+        }else {
+            logger.info("该分面下不存在子分面");
+        }
+            logger.info("开始删除分面 "+facetName+" 下的碎片信息");
+            assembleRepository.deleteByFacetId(facetId);
+            logger.info("删除分面 "+facetName+" 下的碎片信息完成");
+            logger.info("开始删除分面 "+facetName+" 信息");
+            facetRepository.deleteByFacetId(facetId);
+            logger.info("删除分面 "+facetName+" 信息完成");
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "分面信息及对应的碎片删除成功");
+    }
+
+
     /**
      * 删除分面信息
      *
@@ -251,6 +310,7 @@ public class FacetService {
         }
         return result;
     }
+
 
     /**
      * 指定课程、主题和一级分面，删除一级分面
@@ -1070,5 +1130,6 @@ public class FacetService {
             result.put("parentFacetName", null);
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), result);
     }
+
 
 }

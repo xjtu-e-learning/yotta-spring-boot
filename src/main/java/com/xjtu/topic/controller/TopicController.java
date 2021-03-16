@@ -212,6 +212,18 @@ public class TopicController {
     }
 
 
+    @PostMapping("/deleteTopicCompleteByDomainNameAndTopicName")
+    @ApiOperation(value = "根据课程名和主题名，递归地依次删除该课程对应主题下的主题依赖关系、碎片、分面、主题，请谨慎操作！", notes = "根据课程名和主题名，递归地依次删除该课程对应主题下的主题依赖关系、碎片、分面、主题，请谨慎操作！")
+    public ResponseEntity deleteTopicCompleteByDomainNameAndTopicName(@RequestParam(name = "domainName") String domainName,
+                                                              @RequestParam(name = "topicName") String topicName) {
+        Result result = topicService.deleteTopicCompleteByDomainNameAndTopicName(domainName,topicName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
     @PostMapping("/deleteCompleteTopicByDomainId")
     @ApiOperation(value = "根据课程ID，递归地依次删除该课程下的主题依赖关系、碎片、分面、主题，请谨慎操作！", notes = "根据课程名，递归地依次删除该课程下的主题依赖关系、碎片、分面、主题，请谨慎操作！")
     public ResponseEntity deleteCompleteTopicByDoaminName(@RequestParam(name = "domainId") Long domainId) {
