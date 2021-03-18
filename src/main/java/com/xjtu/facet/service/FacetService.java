@@ -1071,4 +1071,12 @@ public class FacetService {
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), result);
     }
 
+    public List<Facet> getFacetsByDomainIdAndTopicName(Long domainId, String topicName) {
+        return facetRepository.findAllFacetsByDomainIdAndTopicName(domainId, topicName);
+    }
+
+    public List<Facet> getFacetsByDomainId (Long domainId) {
+        return facetRepository.findAllFacetsByDomainId(domainId);
+    }
+
 }

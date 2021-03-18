@@ -25,14 +25,11 @@ public class AssembleCrawler {
 
     private static List<Topic> topicList;
 
-    public static List<Facet> facets;
+    public static List<Facet> certainTopicfacets;
+
+    public static List<Facet> allFactes;
 
     public static int visitedFacets;
-
-    /**
-     * 所有的主题下的所有分面总数
-     */
-    public static int allFacetCount;
 
     /**
      * 根据课程名、主题名爬取碎片
@@ -49,12 +46,13 @@ public class AssembleCrawler {
          * 只要有一个不存在就需要再次爬取（再次模拟加载浏览器）
          */
 
-        facets = MysqlReadWriteDAO.getTopicFacet(topic.getTopicId());
+        certainTopicfacets = MysqlReadWriteDAO.getTopicFacet(topic.getTopicId());
+//        certainTopicfacets = facetService.getFacetsByDomainIdAndTopicName(domain.getDomainId(), topicName);
 
         /**
          * selenium解析wiki网页
          */
-        if (facets.isEmpty())//分面为空的情况
+        if (certainTopicfacets.isEmpty())//分面为空的情况
         {
             Log.log("==========课程 " + domainName + "，主题 " + topicName + " 下无分面，无法爬碎片==========");
         } else {
@@ -62,7 +60,7 @@ public class AssembleCrawler {
             Document wikiDoc = JsoupDao.parseHtmlText(topicHtml);
 
             // 以下两个遍历facets列表其实可以合并
-            for (Facet facet : facets) {
+            for (Facet facet : certainTopicfacets) {
                 String facetName = facet.getFacetName();
                 String assembleContent = "";
                 String assembleText = "";
@@ -83,11 +81,10 @@ public class AssembleCrawler {
             /**
              * 简书网页爬碎片*/
 
-            for (Facet facet : facets) {
+            for (Facet facet : certainTopicfacets) {
                 /**
                  * selenium解析简书网页
                  */
-                visitedFacets++;
 
                 String jianshuSearchUrl = "https://www.jianshu.com/search?q=" + topicName + facet.getFacetName() + "&page=1&type=note";
                 try {
@@ -120,6 +117,7 @@ public class AssembleCrawler {
                 } catch (Exception e) {
                     Log.log("\n简书碎片列表地址获取失败\n链接地址：" + jianshuSearchUrl);
                 }
+                visitedFacets++;
             }
             Log.log("==========课程 " + domainName + "，主题 " + topicName + " 下的碎片已经爬取==========");
         }
@@ -139,7 +137,7 @@ public class AssembleCrawler {
          * 只要有一个不存在就需要再次爬取（再次模拟加载浏览器）
          */
 
-        List<Facet> facets = com.xjtu.spider_dynamic_output.spiders.wikicn.MysqlReadWriteDAO.getTopicFacet(topic.getTopicId());
+        List<Facet> facets = MysqlReadWriteDAO.getTopicFacet(topic.getTopicId());
 
         /**
          * selenium解析wiki网页
@@ -197,15 +195,21 @@ public class AssembleCrawler {
     public static String getAssembleContent(Document doc, String facetName) {
         Element element = doc.getElementById(facetName);
         Element parentElement = element.parent();
-        Element nextElement = parentElement.nextElementSibling();
-        StringBuffer stringBuffer = new StringBuffer();
-        while (nextElement.tagName() != "h1" && nextElement.tagName() != "h2" && nextElement.tagName() != "h3") {
-            Element currentElement = nextElement;
-            String currentContent = currentElement.toString();
-            stringBuffer.append(currentContent);
-            nextElement = currentElement.nextElementSibling();
+        if (parentElement != null) {
+            Element nextElement = parentElement.nextElementSibling();
+            StringBuffer stringBuffer = new StringBuffer();
+            if (nextElement != null) {
+                while (nextElement.tagName() != "h1" && nextElement.tagName() != "h2" && nextElement.tagName() != "h3") {
+                    Element currentElement = nextElement;
+                    String currentContent = currentElement.toString();
+                    stringBuffer.append(currentContent);
+                    nextElement = currentElement.nextElementSibling();
+                }
+                return stringBuffer.toString();
+            }
         }
-        return stringBuffer.toString();
+
+        return null;
     }
 
     /**
@@ -239,6 +243,8 @@ public class AssembleCrawler {
          * 获取该课程的主题列表
          */
         topicList = MysqlReadWriteDAO.getDomainTopic(domainId);
+//        topicList = topicService.getTopicList(domainId);
+//        allFactes = facetService.getFacetsByDomainId(domainId);
 
         for (Topic topic : topicList) {
             storeAssembleByTopicName(domain, topic);
@@ -247,36 +253,24 @@ public class AssembleCrawler {
         setCompleted(true);
     }
 
-    /**
-     * 根据课程获取该课程下所有主题的所有分面数量
-     * @param domain
-     * @return
-     */
-    public static void getFacetCountFromTopic(Domain domain) throws Exception {
-        // 计算一次就行了，若分面总数已计算过了则无需再算
-        if (allFacetCount == 0) {
-            Long domainId = domain.getDomainId();
-            /**
-             * 获取该课程的主题列表
-             */
-            topicList = MysqlReadWriteDAO.getDomainTopic(domainId);
-
-            for (Topic topic : topicList) {
-
-                List<Facet> facetList = MysqlReadWriteDAO.getTopicFacet(topic.getTopicId());
-                allFacetCount += facetList.size();
-            }
-        }
-    }
 
     /**
      * 进度计算方法：访问过的分面 / 分面总数
-     * @param domain
+     * @param domainId
      * @return
      * @throws Exception
      */
-    public static double getProgress(Domain domain) throws Exception {
-        getFacetCountFromTopic(domain);
+    public static double getProgress(Long domainId) throws Exception {
+        int allFacetCount = 0;
+
+        topicList = MysqlReadWriteDAO.getDomainTopic(domainId);
+//        topicList = topicService.getTopicList(domainId);
+//        allFactes = facetService.getFacetsByDomainId(domainId);
+
+        for (Topic topic : topicList) {
+            allFacetCount += MysqlReadWriteDAO.getTopicFacet(topic.getTopicId()).size();
+        }
+
         return (double)visitedFacets / (double)allFacetCount ;
     }
 

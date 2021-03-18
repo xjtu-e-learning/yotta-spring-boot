@@ -98,7 +98,7 @@ public class NewSpiderService {
 //                    " 已经爬取的一级分面数目为 " + FragmentCrawler.getCountFacetCrawled() + " 二、三级分面数目为 " + FragmentCrawler.getCountFacetRelationCrawled()
                     new ProgressResult(topicRepository.findByDomainName(domainName).size(),
                     FragmentCrawler.getCountFacetCrawled() + FragmentCrawler.getCountFacetRelationCrawled(),
-                            FragmentCrawler.getProgress() / 2));
+                            FragmentCrawler.getProgress(domain.getDomainId()) / 2));
         } else if ((domain != null)
                 && (topics != null && topics.size() != 0)
                 && (facets != null && facets.size() != 0)
@@ -110,7 +110,7 @@ public class NewSpiderService {
                     new ProgressResult(topicRepository.findByDomainName(domainName).size(),
                     facetRepository.findByDomainName(domainName).size(),
                     AssembleCrawler.getAssembleCount(),
-                    AssembleCrawler.getProgress(domain) / 2 + 0.5));
+                    AssembleCrawler.getProgress(domain.getDomainId()) / 2 + 0.5));
         } else {
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(),
                     "==========该课程的知识主题分面树已成功构建，且碎片爬取完毕==========");

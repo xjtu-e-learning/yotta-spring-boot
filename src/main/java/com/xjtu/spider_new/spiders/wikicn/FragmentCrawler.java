@@ -79,6 +79,9 @@ public class FragmentCrawler {
          * 获取该课程的主题列表
          */
         topicList = MysqlReadWriteDAO.getDomainTopic(domainId);
+//        topicService = new TopicService();
+//        topicList = topicService.getTopicList(domainId);
+        visitedTopics = 0;
         //对每一个主题，判断分面和分面层级是否存在，如不存在，则进行爬取
 
         //设置为未爬取状态
@@ -197,9 +200,17 @@ public class FragmentCrawler {
         return visitedTopics;
     }
 
-    public static double getProgress() {
+    public static double getProgress(Long domainId) {
+
+        int toplicNum = 0;
+        try {
+            toplicNum = MysqlReadWriteDAO.getDomainTopic(domainId).size();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         if (topicList == null)
             return 0;
-        return (double)visitedTopics / (double)topicList.size();
+        return (double)visitedTopics / (double)toplicNum;
     }
 }

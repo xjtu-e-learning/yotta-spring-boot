@@ -814,6 +814,10 @@ public class TopicService {
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicContainFacet);
     }
 
+    public List<Topic> getTopicList(Long domainId) {
+        return topicRepository.findByDomainId(domainId);
+    }
+
     public static void main(String[] args) {
         TopicService topicService = new TopicService();
         topicService.deleteTopicByNameAndDomainName("诺基亚操作系统", "Java");
