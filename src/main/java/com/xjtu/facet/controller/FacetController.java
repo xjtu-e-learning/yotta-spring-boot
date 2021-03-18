@@ -73,7 +73,25 @@ public class FacetController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-    @ApiOperation(value = "指定课程、主题和一级分面，删除一级分面"
+    @ApiOperation(value = "指定课程、主题和分面名字，删除该分面、该分面的子分面以及对应分面下的碎片信息"
+            , notes = "指定课程、主题和分面名字，删除该分面、该分面的子分面以及对应分面下的碎片信息")
+    @GetMapping("/deleteFacetCompleteByDomainNameAndTopicNameAndFacetName")
+    public ResponseEntity deleteFacetCompleteByDomainNameAndTopicNameAndFacetName(
+            @RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "topicName") String topicName
+            , @RequestParam(name = "facetName") String facetName) {
+
+
+        Result result = facetService.deleteFacetAndChildrenFacetComplete(domainName, topicName, facetName);
+
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
+    @ApiOperation(value = "指定课程名、主题名和一级分面，删除一级分面"
             , notes = "指定课程、主题和一级分面，删除一级分面")
     @GetMapping("/deleteFirstLayerFacet")
     public ResponseEntity deleteFirstLayerFacet(@RequestParam(name = "domainName") String domainName
@@ -85,6 +103,11 @@ public class FacetController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
+
+
+
+
 
     @ApiOperation(value = "指定课程、主题、分面层和分面id，删除分面"
             , notes = "指定课程、主题、分面层和分面id，删除分面")
