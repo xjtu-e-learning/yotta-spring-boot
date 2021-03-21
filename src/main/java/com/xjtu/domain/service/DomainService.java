@@ -566,14 +566,14 @@ public class DomainService {
         List<SubjectContainDomain> subjectContainDomains = new ArrayList<>();
 
         //添加示范课程学科数据
-        Subject subject_typical = subjectRepository.findBySubjectName("示范课程");
-        if (subject_typical == null) {
-            logger.error("学科查询失败：没有示范课程学科信息记录");
-            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
-        }
-        List<Domain> domains_typical = domainRepository.findBySubjectId(subject_typical.getSubjectId());
-        SubjectContainDomain subjectContainDomain_typical = new SubjectContainDomain(subject_typical.getSubjectId(), subject_typical.getSubjectName(), subject_typical.getNote(), domains_typical);
-        subjectContainDomains.add(subjectContainDomain_typical);
+//        Subject subject_typical = subjectRepository.findBySubjectName("示范课程");
+//        if (subject_typical == null) {
+//            logger.error("学科查询失败：没有示范课程学科信息记录");
+//            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
+//        }
+//        List<Domain> domains_typical = domainRepository.findBySubjectId(subject_typical.getSubjectId());
+//        SubjectContainDomain subjectContainDomain_typical = new SubjectContainDomain(subject_typical.getSubjectId(), subject_typical.getSubjectName(), subject_typical.getNote(), domains_typical);
+//        subjectContainDomains.add(subjectContainDomain_typical);
 
         //添加每个用户权限下所能看到的学科课程数据
         List<Permission> permissionOfSubjectId = permissionRepository.findSubjectIdByUserName(userName);

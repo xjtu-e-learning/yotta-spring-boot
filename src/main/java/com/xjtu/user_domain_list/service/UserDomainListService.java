@@ -38,6 +38,12 @@ public class UserDomainListService {
             UserDomainList userDomainList = userDomainListRepository.findByUserIdAndSubjectId(userId, subjectId);
             String domainList = userDomainList.getDomainList();
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), domainList);
+
+            /**
+             *             String[] tempList = domainList.split(",");
+             *             List<Map<String, String>> result = new ArrayList<>();
+             *             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), userDomainList);
+             */
         } catch (Exception e) {
             logger.error("用户可见课程查询失败：没有信息记录");
             return ResultUtil.error(ResultEnum.USER_DOMAIN_LIST_ERROR_1.getCode(), ResultEnum.USER_DOMAIN_LIST_ERROR_1.getMsg());
