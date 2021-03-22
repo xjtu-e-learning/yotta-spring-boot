@@ -168,6 +168,13 @@
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.netbeans.api/org-openide-util -->
 
+        <!--利用HanLP计算文本相似度-->
+        <dependency>
+            <groupId>com.hankcs</groupId>
+            <artifactId>hanlp</artifactId>
+            <version>portable-1.3.4</version>
+        </dependency>
+
 
         <!--爬虫需要的依赖-->
         <!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
