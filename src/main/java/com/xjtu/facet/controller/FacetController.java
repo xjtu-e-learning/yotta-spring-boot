@@ -3,6 +3,7 @@ package com.xjtu.facet.controller;
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
 import com.xjtu.facet.service.FacetService;
+import com.xjtu.topic.service.TopicService;
 import com.xjtu.utils.ResultUtil;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
@@ -72,6 +73,21 @@ public class FacetController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
+    @ApiOperation(value = "指定分面id，删除该分面、该分面的子分面以及对应分面下的碎片信息"
+            , notes = "指定分面id，删除该分面、该分面的子分面以及对应分面下的碎片信息")
+    @GetMapping("/deleteFacetCompleteByFacetId")
+    public ResponseEntity deleteFacetCompleteByFacetId(@RequestParam(name = "facetId") Long facetId) {
+
+
+        Result result = facetService.deleteFacetAndChildrenFacetCompleteByFacetId(facetId);
+
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
 
     @ApiOperation(value = "指定课程、主题和分面名字，删除该分面、该分面的子分面以及对应分面下的碎片信息"
             , notes = "指定课程、主题和分面名字，删除该分面、该分面的子分面以及对应分面下的碎片信息")

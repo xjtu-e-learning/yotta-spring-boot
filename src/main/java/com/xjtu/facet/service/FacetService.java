@@ -1132,4 +1132,35 @@ public class FacetService {
     }
 
 
+    public Result deleteFacetAndChildrenFacetCompleteByFacetId(Long facetId) {
+        Facet facet = facetRepository.findByFacetId(facetId);
+        if (facet == null) {
+            logger.error("分面信息删除失败：对应分面不存在");
+            return ResultUtil.error(ResultEnum.FACET_DELETE_ERROR.getCode(), ResultEnum.FACET_DELETE_ERROR.getMsg());
+        }
+        String facetName = facet.getFacetName();
+        Integer facetLayer = facet.getFacetLayer();
+        List<Facet> childrenFacet = facetRepository.findByParentFacetId(facetId);
+        if(childrenFacet !=null && childrenFacet.size()>0){
+            logger.info("分面 "+facetName+" 下共有"+childrenFacet.size()+" 个子分面");
+            for(int i=childrenFacet.size()-1;i>=facetLayer-1;--i){
+                Facet childFacet = childrenFacet.get(i);
+                logger.info("开始删除分面 "+facetName+" 的子分面 "+childFacet.getFacetName()+" 下的碎片信息");
+                assembleRepository.deleteByFacetId(childFacet.getFacetId());
+                logger.info("删除分面 "+facetName+" 的子分面 "+childFacet.getFacetName()+" 下的碎片信息完成");
+                logger.info("开始删除分面 "+facetName+" 的子分面 "+childFacet.getFacetName()+" 的信息");
+                facetRepository.deleteByFacetId(childFacet.getFacetId());
+                logger.info("删除分面 "+facetName+" 的子分面 "+childFacet.getFacetName()+" 的信息完成");
+            }
+        }else {
+            logger.info("该分面下不存在子分面");
+        }
+        logger.info("开始删除分面 "+facetName+" 下的碎片信息");
+        assembleRepository.deleteByFacetId(facetId);
+        logger.info("删除分面 "+facetName+" 下的碎片信息完成");
+        logger.info("开始删除分面 "+facetName+" 信息");
+        facetRepository.deleteByFacetId(facetId);
+        logger.info("删除分面 "+facetName+" 信息完成");
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "分面信息及对应的碎片删除成功");
+    }
 }
