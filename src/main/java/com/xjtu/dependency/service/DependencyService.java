@@ -6,6 +6,7 @@ import com.xjtu.assemble.repository.AssembleRepository;
 import com.xjtu.common.Config;
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
+import com.xjtu.dependency.RankDependency.GetAsymmetry;
 import com.xjtu.dependency.RankDependency.RankDependency;
 import com.xjtu.dependency.domain.Dependency;
 import com.xjtu.dependency.domain.DependencyContainName;
@@ -621,8 +622,15 @@ public class DependencyService {
         /**
          * 根据主题内容，调用算法得到主题认知关系
          */
-        RankDependency rankDependency = new RankDependency();
-        List<Dependency> generated_dependencies = rankDependency.rankText(topicContainAssembleTexts, topicContainAssembleTexts.size(), isEnglish);
+        //2021/3/22 老方法包装入主题数大于1000的情况中
+        List<Dependency> generated_dependencies = new ArrayList<>();
+        if(topicList.size() > 1000){
+            RankDependency rankDependency = new RankDependency();
+            generated_dependencies = rankDependency.rankText(topicContainAssembleTexts, topicContainAssembleTexts.size(), isEnglish);
+        }else{
+            GetAsymmetry getAsymmetry = new GetAsymmetry();
+            generated_dependencies = getAsymmetry.AsyDependency(topicList, topicContainAssembleTexts);
+        }
 
         //保存自动构建的依赖关系，存到数据库
         dependencyRepository.save(generated_dependencies);

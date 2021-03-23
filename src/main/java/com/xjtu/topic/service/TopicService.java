@@ -16,6 +16,7 @@ import com.xjtu.relation.repository.RelationRepository;
 import com.xjtu.topic.dao.TopicDAO;
 import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.domain.TopicContainFacet;
+import com.xjtu.topic.extraction.TopicSelect;
 import com.xjtu.topic.repository.TopicRepository;
 import com.xjtu.utils.HttpUtil;
 import com.xjtu.utils.ResultUtil;
@@ -452,6 +453,7 @@ public class TopicService {
 
 
     /**
+     * 根据主题筛选算法获取处理后的知识主题
      * @param domainName
      * @return
      */
@@ -461,58 +463,18 @@ public class TopicService {
             logger.error("主题查询失败：没有指定课程");
             return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_2.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_2.getMsg());
         }
-        Long domainId = domain.getDomainId();
-        List<Topic> results = new ArrayList<>();
+        List<Topic> results = null;
         List<Topic> topicRaw = topicRepository.findByDomainName(domainName);
-        for (Topic topic : topicRaw) {
-            String a = topic.getTopicName();
-            if (a.length() <= 10 && a.length() >= 2) {
-                boolean fliter = false;
-                fliter = !a.contains("Template:") && !a.contains("/") && !a.contains(" ")
-                        && !a.contains("（") && !a.contains(".") && !a.contains(":")
-                        && !a.contains("：") && !a.contains("·") && !a.contains("_")
-                        && !a.contains("V") && !a.contains("!") && !a.contains("~")
-                        && !a.contains(",") && !a.contains("，") && !a.contains("#")
-                        && !a.contains("^") && !a.contains("$") && !a.contains("@")
-                        && !a.contains("&") && !a.contains("%") && !a.contains(";")
-                        && !a.contains("?") && !a.contains("、") && !a.contains("[")
-                        && !a.contains("*") && !a.contains("+") && !a.contains("(")
-                        && !a.contains("！") && !a.contains("I") && !a.contains("！");
-                boolean computerNameFilter = false;
-                computerNameFilter = fliter && !a.contains("Microsoft") && !a.contains("AX") && !a.contains(".NET")
-                        && !a.contains("SIG") && !a.contains("ASCII") && !a.contains("User") && !a.contains("IBM")
-                        && !a.contains("Intel") && !a.contains("CAD") && !a.contains("IBM") && !a.contains("IBM")
-                        && !a.contains("Amazon") && !a.contains("Berkeley") && !a.contains("Adobe") && !a.contains("Alpha")
-                        && !a.contains("AMD") && !a.contains("Apache") && !a.contains("Mark") && !a.contains("XML")
-                        && !a.contains("Swift") && !a.contains("AJAX\n") && !a.contains("Wiki") && !a.contains("Google")
-                        && !a.contains("Atom") && !a.contains("Eclipse") && !a.contains("Portal") && !a.contains("AWT")
-                        && !a.contains("升阳") && !a.contains("章") && !a.contains("GUI") && !a.contains("网络")
-                        && !a.contains("Qt") && !a.contains("国家") && !a.contains("游戏") && !a.contains("引擎")
-                        && !a.contains("3D") && !a.contains("异次元") && !a.contains("国际") && !a.contains("互联网")
-                        && !a.contains("Oracle") && !a.contains("商业") && !a.contains("基金") && !a.contains("雅虎")
-                        && !a.contains("艺术") && !a.contains("资料库") && !a.contains("成人") && !a.contains("世界")
-                        && !a.contains("生命") && !a.contains("Power") && !a.contains("SPSS") && !a.contains("化学")
-                        && !a.contains("以利亚") && !a.contains("Web") && !a.contains("SHA") && !a.contains("与")
-                        && !a.contains("zip") && !a.contains("MD") && !a.contains("叛变") && !a.contains("智慧")
-                        && !a.contains("OS") && !a.contains("性爱") && !a.contains("实验室") && !a.contains("电脑")
-                        && !a.contains("驾驶") && !a.contains("的") && !a.contains("机器人") && !a.contains("棋")
-                        && !a.contains("妖精") && !a.contains("刺客") && !a.contains("ABBYY") && !a.contains("怎样")
-                        && !a.contains("政治") && !a.contains("华硕") && !a.contains("英雄") && !a.contains("中华")
-                        && !a.contains("电影") && !a.contains("Online") && !a.contains("王国") && !a.contains("台北")
-                        && !a.contains("浏览器") && !a.contains("公安") && !a.contains("历史") && !a.contains("性幻想")
-                        && !a.contains("黑客") && !a.contains("审查") && !a.contains("魔幻") && !a.contains("富翁")
-                        && !a.contains("大赛") && !a.contains("计划") && !a.contains("系列") && !a.contains("联合国")
-                        && !a.contains("愤怒") && !a.contains("年会") && !a.contains("微软") && !a.contains("杀")
-                        && !a.contains("卡内基") && !a.contains("虚拟") && !a.contains("魅族") && !a.contains("Windows")
-                        && !a.contains("CSS") && !a.contains("飞行") && !a.contains("Wii") && !a.contains("魅蓝")
-                        && !a.contains("引擎") && !a.contains("基金会") && !a.contains("直播") && !a.contains("广告")
-                        && !a.contains("输入法") && !a.contains("微博") && !a.contains("联盟") && !a.contains("山寨")
-                        && !a.contains("争霸") && !a.contains("电视") && !a.contains("性交") && !a.contains("数码");
-                if (computerNameFilter) {
-                    results.add(topic);
-                }
-            }
+
+        if (topicRaw.size()<=0){
+            logger.error("主题查询失败：该课程主题数目为0");
+            return ResultUtil.success(ResultEnum.TOPIC_SEARCH_ERROR_1.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_1.getMsg() + "该课程主题数目为0", results);
         }
+
+        TopicSelect topicSelect = new TopicSelect();
+        results = topicSelect.filterAlgorithm(topicRaw);
+
+        logger.info("课程主题抽取成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg() + "抽取到主题个数为" + results.size(), results);
     }
 
@@ -851,6 +813,10 @@ public class TopicService {
         topicContainFacet.setChildrenNumber(firstLayerFacetContainAssembles.size());
 
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicContainFacet);
+    }
+
+    public List<Topic> getTopicList(Long domainId) {
+        return topicRepository.findByDomainId(domainId);
     }
 
     public static void main(String[] args) {

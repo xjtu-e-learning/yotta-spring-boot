@@ -47,6 +47,9 @@ public class UserService {
         }
         UserLog userLog = new UserLog(userName, password, ip, place, date);
         userLogRepository.save(userLog);
+//        String userPermission = "Normal user";
+//        if(user.getUserId() == 109) userPermission = "Admin user";
+//        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), userPermission);
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "用户登录成功");
     }
 
