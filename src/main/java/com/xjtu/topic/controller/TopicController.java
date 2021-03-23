@@ -117,6 +117,16 @@ public class TopicController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @GetMapping("/getSelectedTopicsByDomainId")
+    @ApiOperation(value = "获得算法过滤抽取后的知识主题", notes = "输入课程Id，获得课程下抽取得到的主题信息")
+    public ResponseEntity getSelectedTopicsByDomainId(@RequestParam(name = "domainId") Long domainId) {
+        Result result = topicService.findSelectedTopicsByDomainId(domainId);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
     /**
      * API
      * 获得指定课程、指定主题的所有信息

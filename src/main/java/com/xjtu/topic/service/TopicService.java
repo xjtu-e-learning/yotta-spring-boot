@@ -15,7 +15,9 @@ import com.xjtu.relation.domain.Relation;
 import com.xjtu.relation.repository.RelationRepository;
 import com.xjtu.topic.dao.TopicDAO;
 import com.xjtu.topic.domain.Topic;
+import com.xjtu.topic.domain.TopicContainAssembleText;
 import com.xjtu.topic.domain.TopicContainFacet;
+import com.xjtu.topic.extraction.TopicExtraction;
 import com.xjtu.topic.extraction.TopicSelect;
 import com.xjtu.topic.repository.TopicRepository;
 import com.xjtu.utils.HttpUtil;
@@ -230,34 +232,35 @@ public class TopicService {
 
     /**
      * 根据课程和主题名字，递归地依次删除该主题下的主题依赖关系、碎片、分面，请谨慎操作！
+     *
      * @param domainName
      * @return
      */
-    public Result deleteTopicCompleteByDomainNameAndTopicName(String domainName,String topicName) {
+    public Result deleteTopicCompleteByDomainNameAndTopicName(String domainName, String topicName) {
         try {
             Domain domain = domainRepository.findByDomainName(domainName);
             if (domain == null) {
                 logger.error("主题删除失败：指定课程不存在");
                 return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR_1.getCode(), ResultEnum.TOPIC_DELETE_ERROR_1.getMsg());
             }
-            Topic topic =topicRepository.findByDomainIdAndTopicName(domain.getDomainId(),topicName);
+            Topic topic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(), topicName);
             if (topic == null) {
                 logger.error("主题删除失败：此课程下不存在该主题");
                 return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR_2.getCode(), ResultEnum.TOPIC_DELETE_ERROR_2.getMsg());
             }
             Long topicId = topic.getTopicId();
-            logger.info("开始删除 " +domain.getDomainName() +"课程下"+topicName+"主题的依赖关系");
-            dependencyRepository.deleteByStartTopicIdOrEndTopicId(topicId,topicId);
-            logger.info("删除 " +domain.getDomainName() +"课程下"+topicName+"主题的依赖关系完成");
-            logger.info("开始删除 " +topicName + " 主题的碎片");
+            logger.info("开始删除 " + domain.getDomainName() + "课程下" + topicName + "主题的依赖关系");
+            dependencyRepository.deleteByStartTopicIdOrEndTopicId(topicId, topicId);
+            logger.info("删除 " + domain.getDomainName() + "课程下" + topicName + "主题的依赖关系完成");
+            logger.info("开始删除 " + topicName + " 主题的碎片");
             assembleRepository.deleteByTopicId(topicId);
             logger.info("删除 " + topicName + " 主题的碎片完成");
             logger.info("开始删除 " + topicName + " 主题的分面");
             facetRepository.deleteByTopicId(topicId);
             logger.info("删除 " + topicName + " 主题的分面完成");
             logger.info("开始删除该主题信息");
-            topicRepository.deleteByDomainIdAndTopicName(domain.getDomainId(),topicName);
-            logger.info("删除该主题信息完成！"+ topicName+ " 主题下的所有主题依赖关系-分面-碎片已完全删除。");
+            topicRepository.deleteByDomainIdAndTopicName(domain.getDomainId(), topicName);
+            logger.info("删除该主题信息完成！" + topicName + " 主题下的所有主题依赖关系-分面-碎片已完全删除。");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "主题 " + topicName + " 下的所有主题依赖关系-分面-碎片已完全删除。");
         } catch (Exception excepetion) {
             logger.error("错误：" + excepetion);
@@ -453,7 +456,9 @@ public class TopicService {
 
 
     /**
+     * 查询主题：根据课程名
      * 根据主题筛选算法获取处理后的知识主题
+     *
      * @param domainName
      * @return
      */
@@ -463,16 +468,107 @@ public class TopicService {
             logger.error("主题查询失败：没有指定课程");
             return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_2.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_2.getMsg());
         }
-        List<Topic> results = null;
-        List<Topic> topicRaw = topicRepository.findByDomainName(domainName);
 
-        if (topicRaw.size()<=0){
-            logger.error("主题查询失败：该课程主题数目为0");
+        List<Topic> topicRaw = topicRepository.findByDomainName(domainName);
+        List<Topic> results = null;
+
+        if (topicRaw.size() <= 0) {
+            logger.error("主题抽取失败：该课程主题数目为0");
             return ResultUtil.success(ResultEnum.TOPIC_SEARCH_ERROR_1.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_1.getMsg() + "该课程主题数目为0", results);
         }
 
         TopicSelect topicSelect = new TopicSelect();
-        results = topicSelect.filterAlgorithm(topicRaw);
+        results = topicSelect.filterAlgorithm(domain.getDomainId(), topicRaw);
+        Map<Long, Integer> assembleCounts = topicDAO.countAssemblesByDomainIdGroupByTopicId(domain.getDomainId());
+
+        // 获得topicContainAssembleText List，即每个主题对应的碎片文本，获得主题内容信息
+        List<TopicContainAssembleText> topicContainAssembleTexts = new ArrayList<>();
+        for (int i = 0; i < results.size(); i++) {
+            Topic tmpTopic = results.get(i);
+            TopicContainAssembleText tmpText = new TopicContainAssembleText(tmpTopic);
+            tmpText.setTopicId(tmpTopic.getTopicId());
+
+            //查询主题碎片信息
+            List<Assemble> assembleList = assembleRepository.findAllAssemblesByTopicId(tmpTopic.getTopicId());
+            if (assembleList.size() <= 0) {
+                System.out.println("该主题没有碎片知识 - TopicId:" + tmpTopic.getTopicId());
+                continue;
+            }
+            String text = "";
+            for (int j = 0; j < assembleList.size(); j++) {
+                text = text + assembleList.get(j).getAssembleText() + " ";
+            }
+            tmpText.setText(text);
+            topicContainAssembleTexts.add(tmpText);
+        }
+
+        TopicExtraction topicExtraction = new TopicExtraction();
+        // 对主题进行算法处理
+        results = topicExtraction.extractAlgorithm(results, topicContainAssembleTexts, assembleCounts);
+
+        if (results.size() <= 0) {
+            logger.error("主题抽取失败：经算法抽取该课程主题数目为0");
+            return ResultUtil.success(ResultEnum.TOPIC_SEARCH_ERROR_1.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_1.getMsg() + "该课程主题数目为0", results);
+        }
+
+        logger.info("课程主题抽取成功");
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg() + "抽取到主题个数为" + results.size(), results);
+    }
+
+    /**
+     * 查询主题：根据课程Id
+     * 根据主题筛选算法获取处理后的知识主题
+     *
+     * @param domainId
+     * @return
+     */
+    public Result findSelectedTopicsByDomainId(Long domainId) {
+        Domain domain = domainRepository.findByDomainId(domainId);
+        if (domain == null) {
+            logger.error("主题查询失败：没有指定课程");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_2.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_2.getMsg());
+        }
+
+        List<Topic> topicRaw = topicRepository.findByDomainId(domainId);
+        List<Topic> results = null;
+        if (topicRaw.size() <= 0) {
+            logger.error("主题抽取失败：该课程主题数目为0");
+            return ResultUtil.success(ResultEnum.TOPIC_SEARCH_ERROR_1.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_1.getMsg() + "该课程主题数目为0", results);
+        }
+
+        TopicSelect topicSelect = new TopicSelect();
+        results = topicSelect.filterAlgorithm(domain.getDomainId(), topicRaw);
+        Map<Long, Integer> assembleCounts = topicDAO.countAssemblesByDomainIdGroupByTopicId(domainId);
+
+        // 获得topicContainAssembleText List，即每个主题对应的碎片文本，获得主题内容信息
+        List<TopicContainAssembleText> topicContainAssembleTexts = new ArrayList<>();
+        for (int i = 0; i < results.size(); i++) {
+            Topic tmpTopic = results.get(i);
+            TopicContainAssembleText tmpText = new TopicContainAssembleText(tmpTopic);
+            tmpText.setTopicId(tmpTopic.getTopicId());
+
+            //查询主题碎片信息
+            List<Assemble> assembleList = assembleRepository.findAllAssemblesByTopicId(tmpTopic.getTopicId());
+            if (assembleList.size() <= 0) {
+                System.out.println("该主题没有碎片知识 - TopicId:" + tmpTopic.getTopicId());
+                continue;
+            }
+            String text = "";
+            for (int j = 0; j < assembleList.size(); j++) {
+                text = text + assembleList.get(j).getAssembleText() + " ";
+            }
+            tmpText.setText(text);
+            topicContainAssembleTexts.add(tmpText);
+        }
+
+        TopicExtraction topicExtraction = new TopicExtraction();
+        // 对主题进行算法处理
+        results = topicExtraction.extractAlgorithm(results, topicContainAssembleTexts, assembleCounts);
+
+        if (results.size() <= 0) {
+            logger.error("主题抽取失败：经算法抽取该课程主题数目为0");
+            return ResultUtil.success(ResultEnum.TOPIC_SEARCH_ERROR_1.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_1.getMsg() + "该课程主题数目为0", results);
+        }
 
         logger.info("课程主题抽取成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg() + "抽取到主题个数为" + results.size(), results);
