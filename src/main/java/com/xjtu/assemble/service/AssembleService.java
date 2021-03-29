@@ -1,5 +1,6 @@
 package com.xjtu.assemble.service;
 
+import com.xjtu.assemble.algorithm.AssembleMatch;
 import com.xjtu.assemble.dao.AssembleDAO;
 import com.xjtu.assemble.domain.Assemble;
 import com.xjtu.assemble.domain.TemporaryAssemble;
@@ -1254,6 +1255,27 @@ public class AssembleService {
         }
         logger.info("共修复" + fixCounter + "个图片损坏的碎片");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "共修复" + fixCounter + "个图片损坏的碎片");
+    }
+
+
+    /**
+     * 判断碎片的分面装配是否正确
+     *
+     * @param facet
+     * @param assemble
+     * @return
+     * @author Qi Jingchao
+     */
+    public Result isAssembleFacetMatchByAssembleAndFacet(String facet, String assemble){
+        AssembleMatch am = new AssembleMatch();
+//        String path = "G:\\JavaProjects\\Yotta";
+//        am.trainModel(path);
+        logger.info("正在检查装配正确性");
+//        List<String> result = am.assignFacetForassemble(facet, assemble);
+//        System.out.println(result.toString());
+        boolean isMatch = am.isAssembleFacetMatch(facet, assemble);
+//        System.out.println(isMatch);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), isMatch);
     }
 
 }
