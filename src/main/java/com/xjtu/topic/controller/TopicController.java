@@ -145,6 +145,20 @@ public class TopicController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @GetMapping("/filterTopicsByDomainName")
+    @ApiOperation(value = "利用算法对主题进行过滤，删除多余的主题以及主题下所有内容", notes = "输入课程名，删除算法过滤掉的主题以及主题下所有内容")
+    public ResponseEntity filterTopicsByDomainName(@RequestParam(name = "domainName") String domainName) {
+        Result result = topicService.filterTopicsByDomainName(domainName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
+
+
+
     /**
      * API
      * 获得指定课程、指定主题的所有信息
@@ -227,6 +241,9 @@ public class TopicController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
+
+
 
 
     @PostMapping("/deleteCompleteTopicByDomainName")

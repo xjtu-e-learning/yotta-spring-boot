@@ -259,9 +259,9 @@ public class TopicService {
                 return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR_2.getCode(), ResultEnum.TOPIC_DELETE_ERROR_2.getMsg());
             }
             Long topicId = topic.getTopicId();
-            logger.info("开始删除 " + domain.getDomainName() + "课程下" + topicName + "主题的依赖关系");
+            logger.info("开始删除 " + domain.getDomainName() + " 课程下 " + topicName + " 主题的依赖关系");
             dependencyRepository.deleteByStartTopicIdOrEndTopicId(topicId, topicId);
-            logger.info("删除 " + domain.getDomainName() + "课程下" + topicName + "主题的依赖关系完成");
+            logger.info("删除 " + domain.getDomainName() + " 课程下 " + topicName + " 主题的依赖关系完成");
             logger.info("开始删除 " + topicName + " 主题的碎片");
             assembleRepository.deleteByTopicId(topicId);
             logger.info("删除 " + topicName + " 主题的碎片完成");
@@ -1000,5 +1000,54 @@ public class TopicService {
 
 
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicNameMap);
+    }
+
+    public Result filterTopicsByDomainName(String domainName) {
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("主题查询失败：没有指定课程");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_2.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_2.getMsg());
+        }
+
+        List<Topic> topicRaw = topicRepository.findByDomainName(domainName);
+        List<Topic> results = null;
+
+        if (topicRaw.size() <= 0) {
+            logger.error("主题抽取失败：该课程主题数目为0");
+            return ResultUtil.success(ResultEnum.TOPIC_SEARCH_ERROR_1.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_1.getMsg() + "该课程主题数目为0", results);
+        }
+
+        List<String> originalTopicNameList=new ArrayList<>();
+        List<String> topicNameListAfterFilter=new ArrayList<>();
+
+        for(Topic topic:topicRaw){
+            String topicName = topic.getTopicName();
+            originalTopicNameList.add(topicName);
+        }
+
+        Result result = findSelectedTopicsByDomainName(domainName);
+        List<Topic> topicListAfterFilter = (List<Topic>)result.getData();
+        for(Topic topic :topicListAfterFilter){
+            topicNameListAfterFilter.add(topic.getTopicName());
+        }
+
+        // 剩下的就是被过滤掉的，也是需要删除的
+        originalTopicNameList.removeAll(topicNameListAfterFilter);
+        for(String filterTopicName :originalTopicNameList){
+            Result result1 = deleteTopicCompleteByDomainNameAndTopicName(domainName, filterTopicName);
+            if (!result1.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+                return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR.getCode(), ResultEnum.TOPIC_DELETE_ERROR.getMsg());
+            }
+        }
+        Map<String, Object> topicNameMap=new LinkedHashMap<>();
+        topicNameMap.put("domainName:",domainName);
+        topicNameMap.put("totalNum:",topicRaw.size());
+        topicNameMap.put("filterNum:",originalTopicNameList.size());
+        topicNameMap.put("Filter:",originalTopicNameList);
+        topicNameMap.put("remainNum:",topicNameListAfterFilter.size());
+        topicNameMap.put("Remain:",topicNameListAfterFilter);
+
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicNameMap);
+
     }
 }
