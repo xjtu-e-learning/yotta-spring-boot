@@ -1,5 +1,6 @@
 package com.xjtu.topic.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xjtu.assemble.domain.Assemble;
 import com.xjtu.assemble.domain.AssembleContainType;
 import com.xjtu.assemble.repository.AssembleRepository;
@@ -26,10 +27,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 /**
@@ -918,5 +928,77 @@ public class TopicService {
     public static void main(String[] args) {
         TopicService topicService = new TopicService();
         topicService.deleteTopicByNameAndDomainName("诺基亚操作系统", "Java");
+    }
+
+    public Result findTopicNameBeforeAndAfterFilter(String domainName) {
+        List<String> originalTopicNameList=new ArrayList<>();
+        List<String> topicNameListAfterFilter=new ArrayList<>();
+
+
+        Map<String,Object> topicNameMap=new LinkedHashMap<>();
+
+
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("主题查询失败：没有指定课程");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_2.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_2.getMsg());
+        }
+
+        Long domainId = domain.getDomainId();
+        List<Topic> topicList = topicRepository.findByDomainId(domainId);
+
+        if(topicList==null || topicList.size()==0){
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_1.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_1.getMsg());
+        }
+        for(Topic topic:topicList){
+            String topicName = topic.getTopicName();
+            originalTopicNameList.add(topicName);
+        }
+
+        Result result = findSelectedTopicsByDomainName(domainName);
+        List<Topic> topicListAfterFilter = (List<Topic>)result.getData();
+
+        for(Topic topic :topicListAfterFilter){
+            topicNameListAfterFilter.add(topic.getTopicName());
+        }
+
+        originalTopicNameList.removeAll(topicNameListAfterFilter);
+        topicNameMap.put("domainName:",domainName);
+        topicNameMap.put("totalNum:",topicList.size());
+        topicNameMap.put("filterNum:",originalTopicNameList.size());
+        topicNameMap.put("Filter:",originalTopicNameList);
+        topicNameMap.put("remainNum:",topicNameListAfterFilter.size());
+        topicNameMap.put("Remain:",topicNameListAfterFilter);
+
+        String fileName = "C:\\Users\\马昆明\\Desktop\\topic\\"+domainName+".json";
+        ObjectMapper mapper = new ObjectMapper();
+        String s="";
+
+        s=s+"domainName: "+domainName+"\n";
+        s=s+"totalNum: "+topicList.size()+"\n";
+        s=s+"filterNum: "+originalTopicNameList.size()+"\n";
+        s=s+"Filter: {\n";
+        for(String name :originalTopicNameList){
+            s=s+"\t"+name+", \n";
+        }
+        s=s+"}\n";
+        s=s+"remainNum: "+topicNameListAfterFilter.size()+"\n";
+        s=s+"Remain: {\n";
+        for(String name :topicNameListAfterFilter){
+            s=s+"\t"+name+", \n";
+        }
+        s=s+"}\n";
+        Path path = Paths.get(fileName);
+        // 使用newBufferedWriter创建文件并写文件
+        // 这里使用了try-with-resources方法来关闭流，不用手动关闭
+        try (BufferedWriter writer =
+                     Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+            writer.write(s);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicNameMap);
     }
 }
