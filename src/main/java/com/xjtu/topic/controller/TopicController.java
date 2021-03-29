@@ -2,12 +2,18 @@ package com.xjtu.topic.controller;
 
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
+import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.service.TopicService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * api:处理topic主题数据
@@ -107,6 +113,18 @@ public class TopicController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @GetMapping("/getSelectedTopicsByDomainNameOutputToFiles")
+    @ApiOperation(value = "分别获得算法过滤抽取前后的知识主题", notes = "输入课程名，获得课程下算法过滤前后的主题")
+    public ResponseEntity getSelectedTopicsByDomainNameOutputToFiles(@RequestParam(name = "domainName") String domainName) {
+
+        Result result= topicService.findTopicNameBeforeAndAfterFilter(domainName);
+        if(!result.getCode().equals(ResultEnum.SUCCESS.getCode())){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
     @GetMapping("/getTopicsByDomainId")
     @ApiOperation(value = "获得主题信息", notes = "输入课程id，获得课程下主题信息")
     public ResponseEntity getTopicsByDomainId(@RequestParam(name = "domainId") Long domainId) {
@@ -126,6 +144,20 @@ public class TopicController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
+    @GetMapping("/filterTopicsByDomainName")
+    @ApiOperation(value = "利用算法对主题进行过滤，删除多余的主题以及主题下所有内容", notes = "输入课程名，删除算法过滤掉的主题以及主题下所有内容")
+    public ResponseEntity filterTopicsByDomainName(@RequestParam(name = "domainName") String domainName) {
+        Result result = topicService.filterTopicsByDomainName(domainName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
+
+
 
     /**
      * API
@@ -209,6 +241,9 @@ public class TopicController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
+
+
 
 
     @PostMapping("/deleteCompleteTopicByDomainName")
