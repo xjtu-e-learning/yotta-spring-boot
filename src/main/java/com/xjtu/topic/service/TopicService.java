@@ -1,5 +1,6 @@
 package com.xjtu.topic.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xjtu.assemble.domain.Assemble;
 import com.xjtu.assemble.domain.AssembleContainType;
 import com.xjtu.assemble.repository.AssembleRepository;
@@ -26,10 +27,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 /**
@@ -249,9 +259,9 @@ public class TopicService {
                 return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR_2.getCode(), ResultEnum.TOPIC_DELETE_ERROR_2.getMsg());
             }
             Long topicId = topic.getTopicId();
-            logger.info("开始删除 " + domain.getDomainName() + "课程下" + topicName + "主题的依赖关系");
+            logger.info("开始删除 " + domain.getDomainName() + " 课程下 " + topicName + " 主题的依赖关系");
             dependencyRepository.deleteByStartTopicIdOrEndTopicId(topicId, topicId);
-            logger.info("删除 " + domain.getDomainName() + "课程下" + topicName + "主题的依赖关系完成");
+            logger.info("删除 " + domain.getDomainName() + " 课程下 " + topicName + " 主题的依赖关系完成");
             logger.info("开始删除 " + topicName + " 主题的碎片");
             assembleRepository.deleteByTopicId(topicId);
             logger.info("删除 " + topicName + " 主题的碎片完成");
@@ -918,5 +928,126 @@ public class TopicService {
     public static void main(String[] args) {
         TopicService topicService = new TopicService();
         topicService.deleteTopicByNameAndDomainName("诺基亚操作系统", "Java");
+    }
+
+    public Result findTopicNameBeforeAndAfterFilter(String domainName) {
+        List<String> originalTopicNameList=new ArrayList<>();
+        List<String> topicNameListAfterFilter=new ArrayList<>();
+
+
+        Map<String,Object> topicNameMap=new LinkedHashMap<>();
+
+
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("主题查询失败：没有指定课程");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_2.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_2.getMsg());
+        }
+
+        Long domainId = domain.getDomainId();
+        List<Topic> topicList = topicRepository.findByDomainId(domainId);
+
+        if(topicList==null || topicList.size()==0){
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_1.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_1.getMsg());
+        }
+        for(Topic topic:topicList){
+            String topicName = topic.getTopicName();
+            originalTopicNameList.add(topicName);
+        }
+
+        Result result = findSelectedTopicsByDomainName(domainName);
+        List<Topic> topicListAfterFilter = (List<Topic>)result.getData();
+
+        for(Topic topic :topicListAfterFilter){
+            topicNameListAfterFilter.add(topic.getTopicName());
+        }
+
+        originalTopicNameList.removeAll(topicNameListAfterFilter);
+        topicNameMap.put("domainName:",domainName);
+        topicNameMap.put("totalNum:",topicList.size());
+        topicNameMap.put("filterNum:",originalTopicNameList.size());
+        topicNameMap.put("Filter:",originalTopicNameList);
+        topicNameMap.put("remainNum:",topicNameListAfterFilter.size());
+        topicNameMap.put("Remain:",topicNameListAfterFilter);
+
+        String fileName = "C:\\Users\\马昆明\\Desktop\\topic\\"+domainName+".json";
+        ObjectMapper mapper = new ObjectMapper();
+        String s="";
+
+        s=s+"domainName: "+domainName+"\n";
+        s=s+"totalNum: "+topicList.size()+"\n";
+        s=s+"filterNum: "+originalTopicNameList.size()+"\n";
+        s=s+"Filter: {\n";
+        for(String name :originalTopicNameList){
+            s=s+"\t"+name+", \n";
+        }
+        s=s+"}\n";
+        s=s+"remainNum: "+topicNameListAfterFilter.size()+"\n";
+        s=s+"Remain: {\n";
+        for(String name :topicNameListAfterFilter){
+            s=s+"\t"+name+", \n";
+        }
+        s=s+"}\n";
+        Path path = Paths.get(fileName);
+        // 使用newBufferedWriter创建文件并写文件
+        // 这里使用了try-with-resources方法来关闭流，不用手动关闭
+        try (BufferedWriter writer =
+                     Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+            writer.write(s);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicNameMap);
+    }
+
+    public Result filterTopicsByDomainName(String domainName) {
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("主题查询失败：没有指定课程");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_2.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_2.getMsg());
+        }
+
+        List<Topic> topicRaw = topicRepository.findByDomainName(domainName);
+        List<Topic> results = null;
+
+        if (topicRaw.size() <= 0) {
+            logger.error("主题抽取失败：该课程主题数目为0");
+            return ResultUtil.success(ResultEnum.TOPIC_SEARCH_ERROR_1.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_1.getMsg() + "该课程主题数目为0", results);
+        }
+
+        List<String> originalTopicNameList=new ArrayList<>();
+        List<String> topicNameListAfterFilter=new ArrayList<>();
+
+        for(Topic topic:topicRaw){
+            String topicName = topic.getTopicName();
+            originalTopicNameList.add(topicName);
+        }
+
+        Result result = findSelectedTopicsByDomainName(domainName);
+        List<Topic> topicListAfterFilter = (List<Topic>)result.getData();
+        for(Topic topic :topicListAfterFilter){
+            topicNameListAfterFilter.add(topic.getTopicName());
+        }
+
+        // 剩下的就是被过滤掉的，也是需要删除的
+        originalTopicNameList.removeAll(topicNameListAfterFilter);
+        for(String filterTopicName :originalTopicNameList){
+            Result result1 = deleteTopicCompleteByDomainNameAndTopicName(domainName, filterTopicName);
+            if (!result1.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+                return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR.getCode(), ResultEnum.TOPIC_DELETE_ERROR.getMsg());
+            }
+        }
+        Map<String, Object> topicNameMap=new LinkedHashMap<>();
+        topicNameMap.put("domainName:",domainName);
+        topicNameMap.put("totalNum:",topicRaw.size());
+        topicNameMap.put("filterNum:",originalTopicNameList.size());
+        topicNameMap.put("Filter:",originalTopicNameList);
+        topicNameMap.put("remainNum:",topicNameListAfterFilter.size());
+        topicNameMap.put("Remain:",topicNameListAfterFilter);
+
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicNameMap);
+
     }
 }

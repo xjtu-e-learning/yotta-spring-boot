@@ -16,7 +16,7 @@ public class TopicExtraction {
     // 设定主题统计处理阈值
     public static final int EXEC_THRESHOLD = 150;
 
-    public static final int MIN_THRESHOLD = 10;
+    public static final int MIN_THRESHOLD = 60;
 
     public static final int MAx_THRESHOLD = 200;
 
@@ -142,6 +142,8 @@ public class TopicExtraction {
 
     public List<Topic> getTopTopic(List<Topic> topicList, List<Long> sortList) {
         List<Topic> topicResult = new ArrayList<>();
+        Random rand = new Random();
+
         for (Long item : sortList) {
             for (Topic topic : topicList) {
                 if (item.equals(topic.getTopicId())) {
@@ -154,16 +156,31 @@ public class TopicExtraction {
             }
         }
 
-        // 兜底策略，课程主题质量不佳，使用伪结果
+        int randNum = rand.nextInt(50);
+        int randNum2 = rand.nextInt(100);
+        // 兜底策略，课程主题质量不佳，添加伪结果
         if (topicResult.size() < MIN_THRESHOLD) {
             int count = 0;
-            topicResult = null;
             for (Topic topic : topicList) {
-                topicResult.add(topic);
-                count++;
-                logger.info("redo: " + topic.getTopicName() + " 已添加");
-                if (count > MIN_THRESHOLD * 5) {
-                    break;
+                if (!topicResult.contains(topic)) {
+                    topicResult.add(topic);
+                    count++;
+                    logger.info("redo: " + topic.getTopicName() + " 已添加");
+                    if (count > MIN_THRESHOLD + randNum) {
+                        break;
+                    }
+                }
+            }
+        } else {
+            int count = 0;
+            for (Topic topic : topicList) {
+                if (!topicResult.contains(topic)) {
+                    topicResult.add(topic);
+                    count++;
+                    logger.info("redo: " + topic.getTopicName() + " 已添加");
+                    if (count > randNum2) {
+                        break;
+                    }
                 }
             }
         }

@@ -353,9 +353,6 @@ public class AssembleController {
     }
 
 
-
-
-
     @PostMapping("/uploadImageWithId")
     @ApiOperation(value = "上传图片到服务器"
             , notes = "上传图片到服务器")
@@ -394,14 +391,34 @@ public class AssembleController {
     /**
      * 修复域名迁移造成的图片失效问题，根据碎片ID和内容更新碎片assembleContent字段内容，注意：这不会改变assembleText。
      *
-     * @param   domainName
+     * @param domainName
      * @return
-     * @author  Qi Jingchao
+     * @author Qi Jingchao
      */
     @PostMapping("/fixAssembleImageByDomainName")
     @ApiOperation(value = "修复域名迁移造成的图片失效问题", notes = "修复域名迁移造成的图片失效问题")
     public ResponseEntity fixAssembleImageByDomainName(@RequestParam(value = "domainName") String domainName) {
         Result result = assembleService.fixAssembleImageByDomainName(domainName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
+    /**
+     * 供标准爬虫使用（使用标准一级分面的爬虫），判断碎片装配的分面是否正确
+     *
+     * @param facetName
+     * @param assembleContent
+     * @return
+     * @author Qi Jingchao
+     */
+    @PostMapping("/isAssembleFacetMatchByAssembleAndFacet")
+    @ApiOperation(value="判断碎片装配的分面是否正确", notes = "限标准一级分面，包括：定义、性质、历史、应用、原理等")
+    public ResponseEntity isAssembleFacetMatchByAssembleAndFacet(@RequestParam(value = "facetName") String facetName,
+                                                                 @RequestParam(value = "assembleContent") String assembleContent) {
+        Result result = assembleService.isAssembleFacetMatchByAssembleAndFacet(facetName, assembleContent);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
