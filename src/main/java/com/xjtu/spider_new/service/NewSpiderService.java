@@ -1,5 +1,6 @@
 package com.xjtu.spider_new.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.xjtu.assemble.domain.Assemble;
 import com.xjtu.assemble.repository.AssembleRepository;
 import com.xjtu.common.domain.Result;
@@ -9,6 +10,7 @@ import com.xjtu.domain.repository.DomainRepository;
 import com.xjtu.domain.service.DomainService;
 import com.xjtu.facet.domain.Facet;
 import com.xjtu.facet.repository.FacetRepository;
+import com.xjtu.spider_new.common.FacetResultVO;
 import com.xjtu.spider_new.common.NewSpiderRunnable;
 import com.xjtu.spider_new.common.ProgressResult;
 import com.xjtu.spider_new.spiders.wikicn.AssembleCrawler;
@@ -20,9 +22,18 @@ import com.xjtu.topic.service.TopicService;
 import com.xjtu.utils.Log;
 import com.xjtu.utils.ResultUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 2021使用的爬虫
@@ -132,6 +143,62 @@ public class NewSpiderService {
         // 爬取上面爬到的所有分面下的所有碎片
         AssembleCrawler.storeAssembleByDomainName(domain);
 
+    }
+
+    /**
+     * 调用根据lhx师兄的接口，得到返回的爬取并抽取分面结果
+     * @param domainName 课程名
+     * @param isChineseOrNot 是否为中文
+     * @param topicNameList 主题列表
+     * @param isConstruct true为构造分面，false为查看构造状态
+     * @return
+     */
+    public static Result facetExtraction(String domainName,List<String> topicNameList, Boolean isChineseOrNot, boolean isConstruct) throws URISyntaxException {
+//        String facetConstruct = "http://maotoumao.xyz:5373/facet-construct";
+//        String facetConstructStatus = "http://maotoumao.xyz:5373/facet-construct-status";
+        String facetConstruct = "http://10.181.184.41:3747/facet-construct";
+        String facetConstructStatus = "http://10.181.184.41:3747/facet-construct-status";
+        String url = isConstruct ? facetConstruct : facetConstructStatus;
+        //使用Restemplate来发送HTTP请求
+        RestTemplate restTemplate = new RestTemplate();
+        // json对象
+        JSONObject jsonObject = new JSONObject();
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("className", domainName);
+        params.add("language", (isChineseOrNot ? "zh" : "en"));
+        for (int i = 0; i < topicNameList.size(); i++) {
+            params.add("topicNames[" + i + "]", topicNameList.get(i));
+        }
+
+        // 发送post数据并返回数据
+        //设置请求header 为 APPLICATION_FORM_URLENCODED
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+//        // 请求体，包括请求数据 body 和 请求头 headers
+//        HttpEntity httpEntity = new HttpEntity(params, headers);
+        //将请求头部和参数合成一个请求
+        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(params, headers);
+        //执行HTTP请求，将返回的结构使用ResultVO类格式化
+        ResponseEntity<FacetResultVO> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, FacetResultVO.class);
+
+        FacetResultVO facetResult = response.getBody();
+
+        System.out.println("running: " + facetResult.isRunning());
+        System.out.println("msg: " + facetResult.getMessage());
+        for (Map.Entry<String, List<String>> facet : ((Map<String, List<String>>) facetResult.getFacets()).entrySet()) {
+            System.out.println("topic: " + facet.getKey());
+            System.out.print("facets: ");
+            for (String s : facet.getValue()) {
+                System.out.print(s + " ");
+            }
+            System.out.println();
+        }
+
+
+
+        return null;
     }
 
     public static Boolean getIsChinese() {
