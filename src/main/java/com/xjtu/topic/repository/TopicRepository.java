@@ -20,6 +20,17 @@ import java.util.Map;
 public interface TopicRepository extends JpaRepository<Topic, Long>, JpaSpecificationExecutor<Topic> {
 
     /**
+     * 根据课程id判断是否存在主题
+     * @param domainId
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    boolean existsTopicByDomainId(Long domainId);
+
+    @Transactional(rollbackFor = Exception.class)
+    boolean existsByDomainId(Long domainId);
+
+    /**
      * 根据课程id，查询课程下的所有主题
      *
      * @param domainId 课程id
@@ -153,6 +164,17 @@ public interface TopicRepository extends JpaRepository<Topic, Long>, JpaSpecific
      */
     @Transactional(rollbackFor = Exception.class)
     void deleteByDomainIdAndTopicName(Long domainId, String topicName);
+
+
+    /**
+     * 根据课程ID，删除课程下所有主题
+     * 【！】请不要单独执行此功能，应首先确保课程所属的碎片-分面已依次清空
+     * @param   domainId
+     * @author  Qi Jingchao
+     */
+    @Modifying(clearAutomatically = true)
+    @Transactional(rollbackFor = Exception.class)
+    void deleteByDomainId(Long domainId);
 
 
     /**

@@ -57,6 +57,7 @@ public enum ResultEnum {
     TOPIC_SEARCH_ERROR_2(134, "主题查询失败：没有指定课程"),
     TOPIC_DELETE_ERROR_1(135, "主题删除失败:没有主题对应的课程"),
     TOPIC_DELETE_ERROR_2(136, "主题删除失败:主题数据不存在"),
+    TOPIC_DELETE_ERROR_3(214, "主题删除失败：指定课程ID不存在"),
     TOPIC_UPDATE_ERROR_3(137, "主题更新失败：原主题不存在"),
     TOPIC_INSERT_ERROR_3(138, "主题信息插入失败：没有对应的课程"),
 
@@ -121,6 +122,8 @@ public enum ResultEnum {
 
     //用户登录
     LOGIN_ERROR(176, "登录失败：用户不存在"),
+    USER_DOMAIN_LIST_ERROR_1(215, "用户对应课程查询失败：信息不存在"),
+    USER_SUBJECT_LIST_ERROR_1(216, "用户可见学科查询失败：信息不存在"),
 
     //依赖关系
     DEPENDENCY_SEARCH_ERROR(177, "主题依赖关系查询失败：没有课程信息记录"),
@@ -136,11 +139,13 @@ public enum ResultEnum {
     DEPENDENCY_INSERT_ERROR_4(201, "主题依赖关系插入失败:起始和终止主题重名"),
     DEPENDENCY_DELETE_ERROR(186, "主题依赖关系删除失败:没有课程信息记录"),
     DEPENDENCY_DELETE_ERROR_1(187, "主题依赖关系删除失败：删除语句执行失败"),
-    DEPENDENCY_DELETE_ERROR_2(212, "主体依赖关系删除失败：主题为空或不存在"),
+    DEPENDENCY_DELETE_ERROR_2(212, "主题依赖关系删除失败：主题为空或不存在"),
 
     DEPENDENCY_GENERATE_ERROR(197, "主题依赖关系生成失败：没有课程信息记录"),
     DEPENDENCY_GENERATE_ERROR_1(198, "主题依赖关系生成失败：主题不存在"),
     DEPENDENCY_GENERATE_ERROR_2(199, "主题依赖关系生成失败：主题碎片内容为空"),
+
+    DEPENDENCY_LEARNING_PATH_ERROR(213, "导航学习路径生成失败"),
 
     //课程数据统计
     STATISTICS_SEARCH_ERROR(188, "词频查询失败：中文分词失败"),
@@ -165,6 +170,15 @@ public enum ResultEnum {
     TSPIDER_ERROR2(199,"正在爬取分面中, "),
     TSPIDER_ERROR3(203,"分面树构建失败"),
     TSPIDER_ERROR4(204,"该主题的分面已存在，无需构建"),
+    TSPIDER_ERROR5(205,"正在爬取碎片中, "),
+
+
+    //知识主题分面树爬虫动态输出
+    OUTPUTSPIDER_ERROR_1(300,"分面碎片爬虫已启动"),
+    OUTPUTSPIDER_ERROR_2(301,"分面碎片爬虫正在运行"),
+    OUTPUTSPIDER_ERROR_3(302,"分面树构建失败"),
+    OUTPUTSPIDER_ERROR_4(303,"分面树构建失败"),
+
     ;
 
     private Integer code;

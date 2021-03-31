@@ -23,9 +23,14 @@ import java.util.List;
 @Service
 public class TFSpiderService {
     private static Boolean domainFlag;
+
     //获取课程的中英文状态
-    public static boolean getDomainFlag(){
+    public static boolean getDomainFlag() {
         return domainFlag;
+    }
+    //设置课程的中英文状态
+    public static void setDomainFlag(Boolean Flag){
+        domainFlag=Flag;
     }
 
     @Autowired
@@ -43,7 +48,15 @@ public class TFSpiderService {
     @Autowired
     private FacetRepository facetRepository;
 
-    // 中文网站爬虫
+    /**
+     * 主题分面树爬虫方法
+     *
+     * @param subjectName
+     * @param domainName
+     * @param isChineseOrNot
+     * @return Result
+     * @throws Exception
+     */
     public Result TopicFacetTreeSpider(String subjectName, String domainName, Boolean isChineseOrNot) throws Exception {
         Domain domain = domainRepository.findByDomainName(domainName);
         List<Topic> topics = topicRepository.findByDomainName(domainName);
@@ -71,7 +84,7 @@ public class TFSpiderService {
             return ResultUtil.error(ResultEnum.TSPIDER_ERROR1.getCode(), ResultEnum.TSPIDER_ERROR1.getMsg(), "已经爬取的主题数目为 " + TopicCrawler.getCountTopicCrawled());
         } else if (domain != null && (topics != null && topics.size() != 0) && (facets == null || !FragmentCrawler.getisCompleted())) {
             return ResultUtil.error(ResultEnum.TSPIDER_ERROR2.getCode(), ResultEnum.TSPIDER_ERROR2.getMsg(),
-                    "已经爬取的一级分面数目为 " + FragmentCrawler.getCountFacetCrawled()+ " 二、三级分面数目为 " + FragmentCrawler.getCountFacetRelationCrawled());
+                    "已经爬取的一级分面数目为 " + FragmentCrawler.getCountFacetCrawled() + " 二、三级分面数目为 " + FragmentCrawler.getCountFacetRelationCrawled());
         } else {
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "==========该课程的知识主题分面树已成功构建==========");
         }
@@ -92,17 +105,18 @@ public class TFSpiderService {
 
     /**
      * 按照课程名爬取该课程的所有分面与分面关系，用于爬取完主题之后爬取分面
+     *
      * @param domainName
      * @return
      * @throws Exception
      */
-    public Result FacetTreeSpider(String domainName) throws Exception{
+    public Result FacetTreeSpider(String domainName) throws Exception {
         try {
             Domain domain = domainRepository.findByDomainName(domainName);
             FragmentCrawler.storeFacetTreeByDomainName(domain);
             Log.log("\n\n\n==========该课程的分面与分面关系已经构建完成==========");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "该课程的分面树与分面关系已成功构建");
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return ResultUtil.error(ResultEnum.TSPIDER_ERROR3.getCode(), ResultEnum.TSPIDER_ERROR3.getMsg(), "课程 " + domainName + " 分面构建出错");
@@ -111,19 +125,36 @@ public class TFSpiderService {
 
     /**
      * 针对人工添加的新主题爬取对应的主题分面树并存入数据库
-     * 
      */
     public Result SingleTopicFacetTreeSpider(String domainName, String topicName) {
         try {
             Domain domain = domainRepository.findByDomainName(domainName);
-            topicService.insertTopicByNameAndDomainName(domainName,topicName);
+            topicService.insertTopicByNameAndDomainName(domainName, topicName);
             Topic topic = topicRepository.findByTopicName(topicName).get(0);
-            FragmentCrawler.storeFacetTreeByTopicName(domain,topic);
+            FragmentCrawler.storeFacetTreeByTopicName(domain, topic);
             Log.log("\n\n\n==========该主题的分面与分面关系已经构建完成==========");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "该主题下分面与分面关系已构建完毕");
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return ResultUtil.error(ResultEnum.TSPIDER_ERROR3.getCode(), ResultEnum.TSPIDER_ERROR3.getMsg(), "主题 " + topicName + " 分面构建出错");
+    }
+
+    /**
+     * 保存主题列表
+     *
+     * @param topics
+     */
+    public void saveTopics(List<Topic> topics) {
+        topicRepository.save(topics);
+    }
+
+    /**
+     * 保存分面列表
+     *
+     * @param facets
+     */
+    public void saveFacets(List<Facet> facets) {
+        facetRepository.save(facets);
     }
 }

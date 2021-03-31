@@ -47,7 +47,10 @@ public class UserService {
         }
         UserLog userLog = new UserLog(userName, password, ip, place, date);
         userLogRepository.save(userLog);
-        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "用户登录成功");
+        String userPermission = "normal user";
+        if(user.getUserName().equals("zscl")) userPermission = "admin user";
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), userPermission);
+//        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "用户登录成功");
     }
 
 }

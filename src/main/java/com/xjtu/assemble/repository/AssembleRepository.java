@@ -24,6 +24,15 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
 
 
     /**
+     * 判断facet下是否有碎片
+     * @param facetId
+     * @return
+     */
+    @Modifying(clearAutomatically = true)
+    @Transactional(rollbackFor = Exception.class)
+    boolean existsAssembleByFacetId(Long facetId);
+
+    /**
      * 根据分面id集合，删除分面下的所有碎片
      *
      * @param facetIds
@@ -41,6 +50,18 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
     @Transactional(rollbackFor = Exception.class)
     void deleteByFacetId(Long facetId);
 
+
+    /**
+     * 根据课程ID，删除课程下的所有碎片
+     *
+     * @param domainId
+     * @author Qi Jingchao
+     */
+    @Modifying(clearAutomatically = true)
+    @Transactional(rollbackFor = Exception.class)
+    void deleteByDomainId(Long domainId);
+
+
     /**
      * 根据分面id，查询分面下的所有碎片
      *
@@ -49,6 +70,7 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
     @Transactional(rollbackFor = Exception.class)
     @Query("select a from Assemble as a where a.facetId in ?1")
     List<Assemble> findByFacetIdIn(Collection<Long> facetIds);
+
 
     /**
      * 根据主题id，删除主题下的所有碎片
@@ -82,6 +104,10 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
     List<Assemble> findByDomainId(Long domainId);
 
 
+    @Transactional(rollbackFor = Exception.class)
+    Assemble findByAssembleId(Long assembleId);
+
+
     /**
      * 根据课程名查询碎片
      *
@@ -91,6 +117,18 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
     @Transactional(rollbackFor = Exception.class)
     @Query(value = "select a from Assemble a,Domain d where d.domainName=?1 and d.domainId=a.domainId")
     List<Assemble> findByDomainName(String domainName);
+
+
+    /**
+     * 获取所有碎片所属课程ID的列表
+     *
+     * @return
+     * @author Qi Jingchao
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "select distinct domain_id from assemble where domain_id is not NULL", nativeQuery = true)
+    List<BigInteger> findDistinctDomainId();
+
 
     /**
      * 指定分面id，统计对应分面下的碎片
@@ -269,4 +307,15 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
     @Query("select count(assembleId) from Assemble where assembleScratchTime > ?1 and domainId = ?2")
     Long countUpdateAssembleByDomainIdAndAssembleScratchTime(String localTime, Long domainId);
 
+
+    /**
+     * 根据碎片ID和内容更新碎片assembleContent字段内容，注意：这不会改变assembleText。
+     * @param   assembleId
+     * @param   assembleContent
+     * @author  Qi Jingchao
+     */
+    @Modifying(clearAutomatically = true)
+    @Transactional(rollbackFor = Exception.class)
+    @Query("update Assemble set assembleContent=?2 where assembleId=?1")
+    void updateAssembleContentByAssembleIdAndAssembleContent(Long assembleId, String assembleContent);
 }

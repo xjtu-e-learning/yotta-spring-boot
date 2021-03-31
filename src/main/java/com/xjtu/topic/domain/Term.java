@@ -10,12 +10,8 @@ import javax.persistence.Table;
  * @date 2019.07.17
  */
 
-@Entity
-@Table(name = "term")
 public class Term {
 
-    @GeneratedValue
-    @Id
     private Long termId;
     private String termName;
     private String termUrl;

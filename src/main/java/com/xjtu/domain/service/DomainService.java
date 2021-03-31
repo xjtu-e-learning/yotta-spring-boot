@@ -99,6 +99,78 @@ public class DomainService {
         return ResultUtil.error(ResultEnum.DOMAIN_INSERT_ERROR_1.getCode(), ResultEnum.DOMAIN_INSERT_ERROR_1.getMsg());
     }
 
+
+    /**
+     * 根据课程名，递归地依次删除主题依赖关系、碎片、分面、主题及课程本身，请谨慎操作！
+     *
+     * @param domainName
+     * @return
+     * @author  Qi Jingchao
+     */
+    public Result deleteDomainByDomainName(String domainName) {
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("指定课程不存在，未执行删除操作");
+            return ResultUtil.error(ResultEnum.DOMAIN_DELETE_ERROR.getCode(), ResultEnum.DOMAIN_DELETE_ERROR.getMsg(), "指定课程不存在");
+        } else {
+            logger.info("开始删除 " + domain.getDomainName() + " 课程的主题依赖关系");
+            dependencyRepository.deleteDependenciesByDomainId(domain.getDomainId());
+            logger.info("删除 " + domain.getDomainName() + " 课程的主题依赖关系完成");
+            logger.info("开始删除 " + domain.getDomainName() + " 课程的碎片");
+            assembleRepository.deleteByDomainId(domain.getDomainId());
+            logger.info("删除 " + domain.getDomainName() + " 课程碎片完成");
+            logger.info("开始删除 " + domain.getDomainName() + " 课程的分面");
+            List<Facet> facetList = facetRepository.findByDomainName(domain.getDomainName());
+            for (int i = 0; i < facetList.size(); i++) {
+                facetRepository.deleteByFacetId(facetList.get(i).getFacetId());
+            }
+            logger.info("删除 " + domain.getDomainName() + " 课程分面完成");
+            logger.info("开始删除 " + domain.getDomainName() + " 课程的主题");
+            topicRepository.deleteByDomainId(domain.getDomainId());
+            logger.info("删除 " + domain.getDomainName() + " 课程主题完成");
+            logger.info("开始删除 " + domain.getDomainName() + " 课程");
+            domainRepository.deleteByDomainId(domain.getDomainId());
+            logger.info("删除 " + domain.getDomainName() + " 课程全部完成！");
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "课程 " + domainName + " 及其主题-分面-碎片已完全删除。");
+        }
+    }
+
+    /**
+     * 根据课程ID，递归地依次删除主题依赖关系、碎片、分面、主题及课程本身，请谨慎操作！
+     *
+     * @param domainId
+     * @return
+     * @author  Qi Jingchao
+     */
+    public Result deleteDomainByDomainId(Long domainId) {
+        Domain domain = domainRepository.findByDomainId(domainId);
+        if (domain == null) {
+            logger.error("指定课程不存在，未执行删除操作");
+            return ResultUtil.error(ResultEnum.DOMAIN_DELETE_ERROR.getCode(), ResultEnum.DOMAIN_DELETE_ERROR.getMsg(), "指定课程不存在");
+        } else {
+            logger.info("开始删除 " + domain.getDomainName() + " 课程的主题依赖关系");
+            dependencyRepository.deleteDependenciesByDomainId(domain.getDomainId());
+            logger.info("删除 " + domain.getDomainName() + " 课程的主题依赖关系完成");
+            logger.info("开始删除 " + domain.getDomainName() + " 课程的碎片");
+            assembleRepository.deleteByDomainId(domain.getDomainId());
+            logger.info("删除 " + domain.getDomainName() + " 课程碎片完成");
+            logger.info("开始删除 " + domain.getDomainName() + " 课程的分面");
+            List<Facet> facetList = facetRepository.findByDomainName(domain.getDomainName());
+            for (int i = 0; i < facetList.size(); i++) {
+                facetRepository.deleteByFacetId(facetList.get(i).getFacetId());
+            }
+            logger.info("删除 " + domain.getDomainName() + " 课程分面完成");
+            logger.info("开始删除 " + domain.getDomainName() + " 课程的主题");
+            topicRepository.deleteByDomainId(domain.getDomainId());
+            logger.info("删除 " + domain.getDomainName() + " 课程主题完成");
+            logger.info("开始删除 " + domain.getDomainName() + " 课程");
+            domainRepository.deleteByDomainId(domain.getDomainId());
+            logger.info("删除 " + domain.getDomainName() + " 课程全部完成！");
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "课程 " + domain.getDomainName() + " 及其主题-分面-碎片已完全删除。");
+        }
+    }
+
+
     /**
      * 指定课程名，插入一门课程
      *
@@ -133,8 +205,7 @@ public class DomainService {
                 logger.error("课程信息插入失败：数据库插入语句失败");
                 return ResultUtil.error(ResultEnum.DOMAIN_INSERT_ERROR_2.getCode(), ResultEnum.DOMAIN_INSERT_ERROR_2.getMsg());
             }
-        }
-        else {
+        } else {
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "课程:" + domainName + "插入成功");
         }
     }
@@ -216,6 +287,7 @@ public class DomainService {
             return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
         }
     }
+
 
     /**
      * 根据课程名，查询该课程下面主题，以及分面按树状组织
@@ -494,14 +566,14 @@ public class DomainService {
         List<SubjectContainDomain> subjectContainDomains = new ArrayList<>();
 
         //添加示范课程学科数据
-        Subject subject_typical = subjectRepository.findBySubjectName("示范课程");
-        if (subject_typical == null) {
-            logger.error("学科查询失败：没有示范课程学科信息记录");
-            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
-        }
-        List<Domain> domains_typical = domainRepository.findBySubjectId(subject_typical.getSubjectId());
-        SubjectContainDomain subjectContainDomain_typical = new SubjectContainDomain(subject_typical.getSubjectId(), subject_typical.getSubjectName(), subject_typical.getNote(), domains_typical);
-        subjectContainDomains.add(subjectContainDomain_typical);
+//        Subject subject_typical = subjectRepository.findBySubjectName("示范课程");
+//        if (subject_typical == null) {
+//            logger.error("学科查询失败：没有示范课程学科信息记录");
+//            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
+//        }
+//        List<Domain> domains_typical = domainRepository.findBySubjectId(subject_typical.getSubjectId());
+//        SubjectContainDomain subjectContainDomain_typical = new SubjectContainDomain(subject_typical.getSubjectId(), subject_typical.getSubjectName(), subject_typical.getNote(), domains_typical);
+//        subjectContainDomains.add(subjectContainDomain_typical);
 
         //添加每个用户权限下所能看到的学科课程数据
         List<Permission> permissionOfSubjectId = permissionRepository.findSubjectIdByUserName(userName);

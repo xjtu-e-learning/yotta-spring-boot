@@ -117,15 +117,79 @@ public class DependencyController {
      */
     @PostMapping("/generateDependencyByDomainName")
     @ApiOperation(value = "自动构建主题依赖关系。通过课程名，生成该课程下主题依赖关系。需已有主题，碎片信息。并给出该课程是否为英文课程信息",
-    notes = "自动构建主题依赖关系。通过课程名，生成该课程下主题依赖关系。需已有主题，碎片信息。并给出该课程是否为英文课程信息")
+            notes = "自动构建主题依赖关系。通过课程名，生成该课程下主题依赖关系。需已有主题，碎片信息。并给出该课程是否为英文课程信息")
     public ResponseEntity generateDependencyByDomainName(@RequestParam(name = "domainName") String domainName
-    , @RequestParam(name = "isEnglish") boolean isEnglish)
-    {
+            , @RequestParam(name = "isEnglish") boolean isEnglish) {
         Result result = dependencyService.generateDependencyByDomainName(domainName, isEnglish);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @GetMapping("/LearningPathWeb")
+    @ApiOperation(value = "智慧教育系统获得推荐路径", notes = "智慧教育系统获得推荐路径")
+    public ResponseEntity getLearningPath(@RequestParam(name = "domainId") Long domainId
+            , @RequestParam(name = "userId") Long userId) {
+        Result result = dependencyService.getLearningPath(domainId, userId);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @GetMapping("/LearningPathWeb/updateUserStates")
+    @ApiOperation(value = "智慧教育系统学习路径，更新用户状态", notes = "智慧教育系统学习路径，更新用户状态")
+    public ResponseEntity learningPath_updateUserStates(@RequestParam(name = "domainId") Long domainId
+            , @RequestParam(name = "userId") Long userId) {
+        Result result = dependencyService.learningPath_updateUserStates(domainId, userId);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @GetMapping("/LearningPath/defineLearningPath")
+    @ApiOperation(value = "智慧教育系统学习路径，定义学习路径", notes = "智慧教育系统学习路径，定义学习路径")
+    public ResponseEntity learningPath_defineLearningPath(@RequestParam(name = "domainId") Long domainId
+            , @RequestParam(name = "userId") Long userId
+            , @RequestParam(name = "termId") Long termId) {
+        Result result = dependencyService.learningPath_defineLearningPath(domainId, userId, termId);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @PostMapping("/deleteDependenciesByDomainName")
+    @ApiOperation(value = "通过课程名，删除课程下的所有主题依赖关系", notes = "通过课程名，删除课程下的所有主题依赖关系")
+    public ResponseEntity deleteDependenciesByDomainName(@RequestParam(name = "domainName") String domainName) {
+        Result result = dependencyService.deleteDependenciesByDomainName(domainName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
+    /**
+     * API
+     * 自动构建主题依赖关系
+     * 通过课程名，生成该课程下主题依赖关系。需已有主题，碎片信息
+     */
+    @PostMapping("/getGenerateDependencyCSVFileByDomainName")
+    @ApiOperation(value = "获得自动构建主题依赖关系CSV文件。通过课程名，生成该课程下主题依赖关系。需已有主题，碎片信息。并给出该课程是否为英文课程信息",
+            notes = "获得自动构建主题依赖关系CSV文件。通过课程名，生成该课程下主题依赖关系。需已有主题，碎片信息。并给出该课程是否为英文课程信息")
+    public ResponseEntity getGenerateDependencyCSVFileByDomainName(@RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "isEnglish") boolean isEnglish)
+    {
+        Result result = dependencyService.getGenerateDependencyCSVFileByDomainName(domainName, isEnglish);
         if(!result.getCode().equals(ResultEnum.SUCCESS.getCode()))
         {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
+
 }

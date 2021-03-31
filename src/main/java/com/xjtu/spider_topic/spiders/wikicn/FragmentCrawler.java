@@ -38,10 +38,18 @@ public class FragmentCrawler {
         return countFacetCrawled;
     }
 
-    public static int getCountFacetRelationCrawled(){ return countFacetRelationCrawled;}
+    public static int getCountFacetRelationCrawled() {
+        return countFacetRelationCrawled;
+    }
 
-    public static void setIsCompleted(boolean bool){isCompleted = bool;}
-    public static boolean getisCompleted(){return  isCompleted;}
+    public static void setIsCompleted(boolean bool) {
+        isCompleted = bool;
+    }
+
+    public static boolean getisCompleted() {
+        return isCompleted;
+    }
+
     /**
      * 将领域术语页面的内容按照分面存储到数据库
      *
@@ -85,7 +93,7 @@ public class FragmentCrawler {
              * 判断该主题的信息是不是在所有表格中已经存在
              * 只要有一个不存在就需要再次爬取（再次模拟加载浏览器）
              */
-            if (!existFacet) {   //|| !existFacetRelation
+            if (!existFacet) {   // !existFacetRelation
                 /**
                  * selenium解析网页
                  */
@@ -106,12 +114,12 @@ public class FragmentCrawler {
             }
         }
         for (int i = 0; i < topicList.size(); i++) {
-            if (facetSimples.get(i).size() != 0){
+            if (facetSimples.get(i).size() != 0) {
                 MysqlReadWriteDAO.storeFacet(topicList.get(i).getTopicId(), facetSimples.get(i));
-            } else{
+            } else {
                 continue;
             }
-            if (facetRelations.get(i).size() != 0){
+            if (facetRelations.get(i).size() != 0) {
                 MysqlReadWriteDAO.storeFacetRelation(topicList.get(i).getTopicId(), facetRelations.get(i));
             } else {
                 continue;
@@ -128,7 +136,7 @@ public class FragmentCrawler {
         countFacetCrawled = 0;
     }
 
-    public static void storeFacetTreeByTopicName(Domain domain,Topic topic) throws Exception {
+    public static void storeFacetTreeByTopicName(Domain domain, Topic topic) throws Exception {
         //定义课程、主题内容
         String domainName = domain.getDomainName();
         String topicName = topic.getTopicName();
@@ -162,12 +170,12 @@ public class FragmentCrawler {
             // 获取并存储所有分面关系信息Facet
             facetRelationList = FragmentCrawlerDAO.getFacetRelation(doc);
 
-            if (facetSimpleList.size() != 0){
+            if (facetSimpleList.size() != 0) {
                 MysqlReadWriteDAO.storeFacet(topicId, facetSimpleList);
-            } else{
+            } else {
                 Log.log("该主题不存在分面");
             }
-            if (facetRelationList.size() != 0){
+            if (facetRelationList.size() != 0) {
                 MysqlReadWriteDAO.storeFacetRelation(topicId, facetRelationList);
             } else {
                 Log.log("该主题不存在分面关系");

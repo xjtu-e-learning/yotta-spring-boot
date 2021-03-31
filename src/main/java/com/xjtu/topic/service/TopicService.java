@@ -1,5 +1,6 @@
 package com.xjtu.topic.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xjtu.assemble.domain.Assemble;
 import com.xjtu.assemble.domain.AssembleContainType;
 import com.xjtu.assemble.repository.AssembleRepository;
@@ -15,7 +16,10 @@ import com.xjtu.relation.domain.Relation;
 import com.xjtu.relation.repository.RelationRepository;
 import com.xjtu.topic.dao.TopicDAO;
 import com.xjtu.topic.domain.Topic;
+import com.xjtu.topic.domain.TopicContainAssembleText;
 import com.xjtu.topic.domain.TopicContainFacet;
+import com.xjtu.topic.extraction.TopicExtraction;
+import com.xjtu.topic.extraction.TopicSelect;
 import com.xjtu.topic.repository.TopicRepository;
 import com.xjtu.utils.HttpUtil;
 import com.xjtu.utils.ResultUtil;
@@ -23,13 +27,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedWriter;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 
 /**
  * 处理topic主题数据
@@ -141,9 +152,8 @@ public class TopicService {
 
     /**
      * 辅助之后两个分别按照主题名课程名、按照主题ID删除主题的函数，负责具体删除功能。
-     *
      */
-    public void deleteTopicContent(Long topicId){
+    public void deleteTopicContent(Long topicId) {
         //删除主题表中该主题
         topicRepository.delete(topicId);
         //删除分面表中主题下的分面
@@ -207,12 +217,12 @@ public class TopicService {
     }
 
     /**
-     * 根据主题ID删除该主题的所有信息
+     * 根据主题ID删除该主题的所有信息（已废弃，请勿使用）
      *
      * @param topicId
      * @return
      */
-    public Result deleteTopicByTopicId(Long topicId){
+    public Result deleteTopicByTopicId(Long topicId) {
         try {
             Topic topic = topicRepository.findByTopicId(topicId);
             if (topic == null) {
@@ -230,6 +240,181 @@ public class TopicService {
     }
 
 
+    /**
+     * 根据课程和主题名字，递归地依次删除该主题下的主题依赖关系、碎片、分面，请谨慎操作！
+     *
+     * @param domainName
+     * @return
+     */
+    public Result deleteTopicCompleteByDomainNameAndTopicName(String domainName, String topicName) {
+        try {
+            Domain domain = domainRepository.findByDomainName(domainName);
+            if (domain == null) {
+                logger.error("主题删除失败：指定课程不存在");
+                return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR_1.getCode(), ResultEnum.TOPIC_DELETE_ERROR_1.getMsg());
+            }
+            Topic topic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(), topicName);
+            if (topic == null) {
+                logger.error("主题删除失败：此课程下不存在该主题");
+                return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR_2.getCode(), ResultEnum.TOPIC_DELETE_ERROR_2.getMsg());
+            }
+            Long topicId = topic.getTopicId();
+            logger.info("开始删除 " + domain.getDomainName() + " 课程下 " + topicName + " 主题的依赖关系");
+            dependencyRepository.deleteByStartTopicIdOrEndTopicId(topicId, topicId);
+            logger.info("删除 " + domain.getDomainName() + " 课程下 " + topicName + " 主题的依赖关系完成");
+            logger.info("开始删除 " + topicName + " 主题的碎片");
+            assembleRepository.deleteByTopicId(topicId);
+            logger.info("删除 " + topicName + " 主题的碎片完成");
+            logger.info("开始删除 " + topicName + " 主题的分面");
+            facetRepository.deleteByTopicId(topicId);
+            logger.info("删除 " + topicName + " 主题的分面完成");
+            logger.info("开始删除该主题信息");
+            topicRepository.deleteByDomainIdAndTopicName(domain.getDomainId(), topicName);
+            logger.info("删除该主题信息完成！" + topicName + " 主题下的所有主题依赖关系-分面-碎片已完全删除。");
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "主题 " + topicName + " 下的所有主题依赖关系-分面-碎片已完全删除。");
+        } catch (Exception excepetion) {
+            logger.error("错误：" + excepetion);
+            logger.error("主题完整删除失败：删除语句执行失败");
+            return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR.getCode(), ResultEnum.TOPIC_DELETE_ERROR.getMsg());
+        }
+    }
+
+
+    /**
+     * 根据课程ID，递归地依次删除该课程下的主题依赖关系、碎片、分面、主题，请谨慎操作！
+     *
+     * @param domainId
+     * @return
+     * @author Qi Jingchao
+     */
+    public Result deleteCompleteTopicByDomainId(Long domainId) {
+        try {
+            Domain domain = domainRepository.findByDomainId(domainId);
+            if (domain != null) {
+                logger.error("主题完整删除失败：指定课程ID不存在");
+                return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR_3.getCode(), ResultEnum.TOPIC_DELETE_ERROR_3.getMsg());
+            }
+            logger.info("开始删除 " + domain.getDomainName() + " 课程的主题依赖关系");
+            dependencyRepository.deleteDependenciesByDomainId(domain.getDomainId());
+            logger.info("删除 " + domain.getDomainName() + " 课程的主题依赖关系完成");
+            logger.info("开始删除 " + domain.getDomainName() + " 课程的碎片");
+            assembleRepository.deleteByDomainId(domain.getDomainId());
+            logger.info("删除 " + domain.getDomainName() + " 课程碎片完成");
+            logger.info("开始删除 " + domain.getDomainName() + " 课程的分面");
+            List<Facet> facetList = facetRepository.findByDomainName(domain.getDomainName());
+            for (int i = 0; i < facetList.size(); i++) {
+                facetRepository.deleteByFacetId(facetList.get(i).getFacetId());
+            }
+            logger.info("删除 " + domain.getDomainName() + " 课程分面完成");
+            logger.info("开始删除 " + domain.getDomainName() + " 课程的主题");
+            topicRepository.deleteByDomainId(domain.getDomainId());
+            logger.info("删除 " + domain.getDomainName() + " 课程主题完成，" + domain.getDomainName() + " 下的所有主题-分面-碎片已完全删除。");
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "课程 " + domain.getDomainName() + " 下的所有主题-分面-碎片已完全删除。");
+        } catch (Exception excepetion) {
+            logger.error("错误：" + excepetion);
+            logger.error("主题完整删除失败：删除语句执行失败");
+            return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR.getCode(), ResultEnum.TOPIC_DELETE_ERROR.getMsg());
+        }
+    }
+
+
+    /**
+     * 根据课程名，递归地依次删除该课程下的主题依赖关系、碎片、分面、主题，请谨慎操作！
+     *
+     * @param domainName
+     * @return
+     * @author Qi Jingchao
+     */
+    public Result deleteCompleteTopicByDomainName(String domainName) {
+        try {
+            Domain domain = domainRepository.findByDomainName(domainName);
+            if (domain != null) {
+                logger.error("主题完整删除失败：指定课程ID不存在");
+                return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR_3.getCode(), ResultEnum.TOPIC_DELETE_ERROR_3.getMsg());
+            }
+            logger.info("开始删除 " + domain.getDomainName() + " 课程的主题依赖关系");
+            dependencyRepository.deleteDependenciesByDomainId(domain.getDomainId());
+            logger.info("删除 " + domain.getDomainName() + " 课程的主题依赖关系完成");
+            logger.info("开始删除 " + domain.getDomainName() + " 课程的碎片");
+            assembleRepository.deleteByDomainId(domain.getDomainId());
+            logger.info("删除 " + domain.getDomainName() + " 课程碎片完成");
+            logger.info("开始删除 " + domain.getDomainName() + " 课程的分面");
+            List<Facet> facetList = facetRepository.findByDomainName(domain.getDomainName());
+            for (int i = 0; i < facetList.size(); i++) {
+                facetRepository.deleteByFacetId(facetList.get(i).getFacetId());
+            }
+            logger.info("删除 " + domain.getDomainName() + " 课程分面完成");
+            logger.info("开始删除 " + domain.getDomainName() + " 课程的主题");
+            topicRepository.deleteByDomainId(domain.getDomainId());
+            logger.info("删除 " + domain.getDomainName() + " 课程主题完成，" + domain.getDomainName() + " 下的所有主题-分面-碎片已完全删除。");
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "课程 " + domain.getDomainName() + " 下的所有主题-分面-碎片已完全删除。");
+        } catch (Exception excepetion) {
+            logger.error("错误：" + excepetion);
+            logger.error("主题完整删除失败：删除语句执行失败");
+            return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR.getCode(), ResultEnum.TOPIC_DELETE_ERROR.getMsg());
+        }
+    }
+
+
+    /**
+     * 依次递归删除所有课程已不存在的主题依赖、碎片、分面、主题（未完成）
+     *
+     * @return
+     * @author Qi Jingchao
+     */
+    public Result deleteNonDomainTopicAndFacetAndAssembleAndDependency() {
+        List<BigInteger> rawDomainIdList = assembleRepository.findDistinctDomainId();
+        List<Long> fullDomainIdList = new ArrayList<>();
+        for (int i = 0; i < rawDomainIdList.size(); i++) {
+            Long temp = Long.valueOf(String.valueOf(rawDomainIdList.get(i)));
+            fullDomainIdList.add(temp);
+        }
+//        List<Long> fullDomainIdList = assembleRepository.findDistinctDomainId();
+        logger.info(fullDomainIdList.toString());
+        List<Long> domainIdList = new ArrayList<>();
+        for (int i = 0; i < fullDomainIdList.size(); i++) {
+            if (fullDomainIdList.get(i) == null) {
+                continue;
+            }
+//            Long currentDomain = Long.valueOf(fullDomainIdList.get(i));
+//            logger.info(currentDomain.toString());
+//            Domain domain = domainRepository.findByDomainId(Long.parseLong(fullDomainIdList.get(i).toString()));
+            Domain domain = domainRepository.findByDomainId(fullDomainIdList.get(i));
+            if (domain == null) {
+                domainIdList.add(fullDomainIdList.get(i));
+            }
+        }
+        logger.info("发现野生 domainId 如下：" + domainIdList.toString());
+        for (int i = 0; i < domainIdList.size(); i++) {
+            if (domainIdList.get(i) == null) {
+                continue;
+            } else {
+                try {
+                    Long domainId = domainIdList.get(i);
+                    logger.info("开始删除课程ID：" + domainIdList.get(i) + "的主题依赖关系");
+                    dependencyRepository.deleteDependenciesByDomainId(domainId);
+                    logger.info("删除课程ID：" + domainIdList.get(i) + "的主题依赖关系完成");
+                    logger.info("开始删除课程ID：" + domainIdList.get(i) + " 的碎片");
+                    assembleRepository.deleteByDomainId(domainId);
+                    logger.info("删除课程ID：" + domainIdList.get(i) + "的碎片完成");
+                    logger.info("开始删除课程ID：" + domainIdList.get(i) + "的分面");
+                    List<Facet> facetList = facetRepository.findByDomainId(domainId);
+                    for (int j = 0; j < facetList.size(); j++) {
+                        facetRepository.deleteByFacetId(facetList.get(j).getFacetId());
+                    }
+                    logger.info("删除课程ID：" + domainIdList.get(i) + "的分面完成");
+                    logger.info("开始删除课程ID：" + domainIdList.get(i) + "的主题");
+                    topicRepository.deleteByDomainId(domainId);
+                    logger.info("删除课程ID：" + domainIdList.get(i) + "的主题完成");
+                    logger.info("野生课程ID：" + domainIdList.get(i) + "的依赖、分面、主题已全部删除。");
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        System.out.println(domainIdList);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), domainIdList);
+    }
 
     /**
      * 更新主题：根据主题名
@@ -277,6 +462,126 @@ public class TopicService {
         }
         Long domainId = domain.getDomainId();
         return findTopicsByDomainId(domainId);
+    }
+
+
+    /**
+     * 查询主题：根据课程名
+     * 根据主题筛选算法获取处理后的知识主题
+     *
+     * @param domainName
+     * @return
+     */
+    public Result findSelectedTopicsByDomainName(String domainName) {
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("主题查询失败：没有指定课程");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_2.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_2.getMsg());
+        }
+
+        List<Topic> topicRaw = topicRepository.findByDomainName(domainName);
+        List<Topic> results = null;
+
+        if (topicRaw.size() <= 0) {
+            logger.error("主题抽取失败：该课程主题数目为0");
+            return ResultUtil.success(ResultEnum.TOPIC_SEARCH_ERROR_1.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_1.getMsg() + "该课程主题数目为0", results);
+        }
+
+        TopicSelect topicSelect = new TopicSelect();
+        results = topicSelect.filterAlgorithm(domain.getDomainId(), topicRaw);
+        Map<Long, Integer> assembleCounts = topicDAO.countAssemblesByDomainIdGroupByTopicId(domain.getDomainId());
+
+        // 获得topicContainAssembleText List，即每个主题对应的碎片文本，获得主题内容信息
+        List<TopicContainAssembleText> topicContainAssembleTexts = new ArrayList<>();
+        for (int i = 0; i < results.size(); i++) {
+            Topic tmpTopic = results.get(i);
+            TopicContainAssembleText tmpText = new TopicContainAssembleText(tmpTopic);
+            tmpText.setTopicId(tmpTopic.getTopicId());
+
+            //查询主题碎片信息
+            List<Assemble> assembleList = assembleRepository.findAllAssemblesByTopicId(tmpTopic.getTopicId());
+            if (assembleList.size() <= 0) {
+                System.out.println("该主题没有碎片知识 - TopicId:" + tmpTopic.getTopicId());
+                continue;
+            }
+            String text = "";
+            for (int j = 0; j < assembleList.size(); j++) {
+                text = text + assembleList.get(j).getAssembleText() + " ";
+            }
+            tmpText.setText(text);
+            topicContainAssembleTexts.add(tmpText);
+        }
+
+        TopicExtraction topicExtraction = new TopicExtraction();
+        // 对主题进行算法处理
+        results = topicExtraction.extractAlgorithm(results, topicContainAssembleTexts, assembleCounts);
+
+        if (results.size() <= 0) {
+            logger.error("主题抽取失败：经算法抽取该课程主题数目为0");
+            return ResultUtil.success(ResultEnum.TOPIC_SEARCH_ERROR_1.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_1.getMsg() + "该课程主题数目为0", results);
+        }
+
+        logger.info("课程主题抽取成功");
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg() + "抽取到主题个数为" + results.size(), results);
+    }
+
+    /**
+     * 查询主题：根据课程Id
+     * 根据主题筛选算法获取处理后的知识主题
+     *
+     * @param domainId
+     * @return
+     */
+    public Result findSelectedTopicsByDomainId(Long domainId) {
+        Domain domain = domainRepository.findByDomainId(domainId);
+        if (domain == null) {
+            logger.error("主题查询失败：没有指定课程");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_2.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_2.getMsg());
+        }
+
+        List<Topic> topicRaw = topicRepository.findByDomainId(domainId);
+        List<Topic> results = null;
+        if (topicRaw.size() <= 0) {
+            logger.error("主题抽取失败：该课程主题数目为0");
+            return ResultUtil.success(ResultEnum.TOPIC_SEARCH_ERROR_1.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_1.getMsg() + "该课程主题数目为0", results);
+        }
+
+        TopicSelect topicSelect = new TopicSelect();
+        results = topicSelect.filterAlgorithm(domain.getDomainId(), topicRaw);
+        Map<Long, Integer> assembleCounts = topicDAO.countAssemblesByDomainIdGroupByTopicId(domainId);
+
+        // 获得topicContainAssembleText List，即每个主题对应的碎片文本，获得主题内容信息
+        List<TopicContainAssembleText> topicContainAssembleTexts = new ArrayList<>();
+        for (int i = 0; i < results.size(); i++) {
+            Topic tmpTopic = results.get(i);
+            TopicContainAssembleText tmpText = new TopicContainAssembleText(tmpTopic);
+            tmpText.setTopicId(tmpTopic.getTopicId());
+
+            //查询主题碎片信息
+            List<Assemble> assembleList = assembleRepository.findAllAssemblesByTopicId(tmpTopic.getTopicId());
+            if (assembleList.size() <= 0) {
+                System.out.println("该主题没有碎片知识 - TopicId:" + tmpTopic.getTopicId());
+                continue;
+            }
+            String text = "";
+            for (int j = 0; j < assembleList.size(); j++) {
+                text = text + assembleList.get(j).getAssembleText() + " ";
+            }
+            tmpText.setText(text);
+            topicContainAssembleTexts.add(tmpText);
+        }
+
+        TopicExtraction topicExtraction = new TopicExtraction();
+        // 对主题进行算法处理
+        results = topicExtraction.extractAlgorithm(results, topicContainAssembleTexts, assembleCounts);
+
+        if (results.size() <= 0) {
+            logger.error("主题抽取失败：经算法抽取该课程主题数目为0");
+            return ResultUtil.success(ResultEnum.TOPIC_SEARCH_ERROR_1.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_1.getMsg() + "该课程主题数目为0", results);
+        }
+
+        logger.info("课程主题抽取成功");
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg() + "抽取到主题个数为" + results.size(), results);
     }
 
     /**
@@ -525,15 +830,14 @@ public class TopicService {
 
     /**
      * 根据主题名，获得主题的所有信息，用于构建分面树
+     *
      * @param topicName
      * @param hasFragment
      * @return
      */
-    public Result getCompleteTopicByTopicName(String topicName, String hasFragment)
-    {
+    public Result getCompleteTopicByTopicName(String topicName, String hasFragment) {
         List<Topic> topicList = topicRepository.findByTopicName(topicName);
-        if(topicList.size() == 0)
-        {
+        if (topicList.size() == 0) {
             logger.error("主题查询失败：没有指定主题");
             return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR.getCode(), ResultEnum.TOPIC_SEARCH_ERROR.getMsg());
         }
@@ -617,8 +921,133 @@ public class TopicService {
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicContainFacet);
     }
 
+    public List<Topic> getTopicList(Long domainId) {
+        return topicRepository.findByDomainId(domainId);
+    }
+
     public static void main(String[] args) {
         TopicService topicService = new TopicService();
         topicService.deleteTopicByNameAndDomainName("诺基亚操作系统", "Java");
+    }
+
+    public Result findTopicNameBeforeAndAfterFilter(String domainName) {
+        List<String> originalTopicNameList=new ArrayList<>();
+        List<String> topicNameListAfterFilter=new ArrayList<>();
+
+
+        Map<String,Object> topicNameMap=new LinkedHashMap<>();
+
+
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("主题查询失败：没有指定课程");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_2.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_2.getMsg());
+        }
+
+        Long domainId = domain.getDomainId();
+        List<Topic> topicList = topicRepository.findByDomainId(domainId);
+
+        if(topicList==null || topicList.size()==0){
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_1.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_1.getMsg());
+        }
+        for(Topic topic:topicList){
+            String topicName = topic.getTopicName();
+            originalTopicNameList.add(topicName);
+        }
+
+        Result result = findSelectedTopicsByDomainName(domainName);
+        List<Topic> topicListAfterFilter = (List<Topic>)result.getData();
+
+        for(Topic topic :topicListAfterFilter){
+            topicNameListAfterFilter.add(topic.getTopicName());
+        }
+
+        originalTopicNameList.removeAll(topicNameListAfterFilter);
+        topicNameMap.put("domainName:",domainName);
+        topicNameMap.put("totalNum:",topicList.size());
+        topicNameMap.put("filterNum:",originalTopicNameList.size());
+        topicNameMap.put("Filter:",originalTopicNameList);
+        topicNameMap.put("remainNum:",topicNameListAfterFilter.size());
+        topicNameMap.put("Remain:",topicNameListAfterFilter);
+
+        String fileName = "C:\\Users\\马昆明\\Desktop\\topic\\"+domainName+".json";
+        ObjectMapper mapper = new ObjectMapper();
+        String s="";
+
+        s=s+"domainName: "+domainName+"\n";
+        s=s+"totalNum: "+topicList.size()+"\n";
+        s=s+"filterNum: "+originalTopicNameList.size()+"\n";
+        s=s+"Filter: {\n";
+        for(String name :originalTopicNameList){
+            s=s+"\t"+name+", \n";
+        }
+        s=s+"}\n";
+        s=s+"remainNum: "+topicNameListAfterFilter.size()+"\n";
+        s=s+"Remain: {\n";
+        for(String name :topicNameListAfterFilter){
+            s=s+"\t"+name+", \n";
+        }
+        s=s+"}\n";
+        Path path = Paths.get(fileName);
+        // 使用newBufferedWriter创建文件并写文件
+        // 这里使用了try-with-resources方法来关闭流，不用手动关闭
+        try (BufferedWriter writer =
+                     Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+            writer.write(s);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicNameMap);
+    }
+
+    public Result filterTopicsByDomainName(String domainName) {
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("主题查询失败：没有指定课程");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_2.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_2.getMsg());
+        }
+
+        List<Topic> topicRaw = topicRepository.findByDomainName(domainName);
+        List<Topic> results = null;
+
+        if (topicRaw.size() <= 0) {
+            logger.error("主题抽取失败：该课程主题数目为0");
+            return ResultUtil.success(ResultEnum.TOPIC_SEARCH_ERROR_1.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_1.getMsg() + "该课程主题数目为0", results);
+        }
+
+        List<String> originalTopicNameList=new ArrayList<>();
+        List<String> topicNameListAfterFilter=new ArrayList<>();
+
+        for(Topic topic:topicRaw){
+            String topicName = topic.getTopicName();
+            originalTopicNameList.add(topicName);
+        }
+
+        Result result = findSelectedTopicsByDomainName(domainName);
+        List<Topic> topicListAfterFilter = (List<Topic>)result.getData();
+        for(Topic topic :topicListAfterFilter){
+            topicNameListAfterFilter.add(topic.getTopicName());
+        }
+
+        // 剩下的就是被过滤掉的，也是需要删除的
+        originalTopicNameList.removeAll(topicNameListAfterFilter);
+        for(String filterTopicName :originalTopicNameList){
+            Result result1 = deleteTopicCompleteByDomainNameAndTopicName(domainName, filterTopicName);
+            if (!result1.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+                return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR.getCode(), ResultEnum.TOPIC_DELETE_ERROR.getMsg());
+            }
+        }
+        Map<String, Object> topicNameMap=new LinkedHashMap<>();
+        topicNameMap.put("domainName:",domainName);
+        topicNameMap.put("totalNum:",topicRaw.size());
+        topicNameMap.put("filterNum:",originalTopicNameList.size());
+        topicNameMap.put("Filter:",originalTopicNameList);
+        topicNameMap.put("remainNum:",topicNameListAfterFilter.size());
+        topicNameMap.put("Remain:",topicNameListAfterFilter);
+
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicNameMap);
+
     }
 }

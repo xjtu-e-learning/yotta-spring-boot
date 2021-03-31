@@ -28,6 +28,12 @@ public interface SubjectRepository extends JpaRepository<Subject, Long>, JpaSpec
     @Transactional(rollbackFor = Exception.class)
     Subject findBySubjectIdAndSubjectName(Long subjectId, String subjectName);
 
+    /**
+     * 根据学科名查询实例
+     * @param subjectName
+     * @return
+     * @author Qi Jingchao
+     */
     @Transactional(rollbackFor = Exception.class)
     Subject findBySubjectName(String subjectName);
 

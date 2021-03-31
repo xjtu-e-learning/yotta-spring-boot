@@ -2,12 +2,18 @@ package com.xjtu.topic.controller;
 
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
+import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.service.TopicService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * api:处理topic主题数据
@@ -97,6 +103,28 @@ public class TopicController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @GetMapping("/getSelectedTopicsByDomainName")
+    @ApiOperation(value = "获得算法过滤抽取后的知识主题", notes = "输入课程名，获得课程下抽取得到的主题信息")
+    public ResponseEntity getSelectedTopicsByDomainName(@RequestParam(name = "domainName") String domainName) {
+        Result result = topicService.findSelectedTopicsByDomainName(domainName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @GetMapping("/getSelectedTopicsByDomainNameOutputToFiles")
+    @ApiOperation(value = "分别获得算法过滤抽取前后的知识主题", notes = "输入课程名，获得课程下算法过滤前后的主题")
+    public ResponseEntity getSelectedTopicsByDomainNameOutputToFiles(@RequestParam(name = "domainName") String domainName) {
+
+        Result result= topicService.findTopicNameBeforeAndAfterFilter(domainName);
+        if(!result.getCode().equals(ResultEnum.SUCCESS.getCode())){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
     @GetMapping("/getTopicsByDomainId")
     @ApiOperation(value = "获得主题信息", notes = "输入课程id，获得课程下主题信息")
     public ResponseEntity getTopicsByDomainId(@RequestParam(name = "domainId") Long domainId) {
@@ -106,6 +134,30 @@ public class TopicController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
+    @GetMapping("/getSelectedTopicsByDomainId")
+    @ApiOperation(value = "获得算法过滤抽取后的知识主题", notes = "输入课程Id，获得课程下抽取得到的主题信息")
+    public ResponseEntity getSelectedTopicsByDomainId(@RequestParam(name = "domainId") Long domainId) {
+        Result result = topicService.findSelectedTopicsByDomainId(domainId);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @GetMapping("/filterTopicsByDomainName")
+    @ApiOperation(value = "利用算法对主题进行过滤，删除多余的主题以及主题下所有内容", notes = "输入课程名，删除算法过滤掉的主题以及主题下所有内容")
+    public ResponseEntity filterTopicsByDomainName(@RequestParam(name = "domainName") String domainName) {
+        Result result = topicService.filterTopicsByDomainName(domainName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
+
+
 
     /**
      * API
@@ -151,7 +203,6 @@ public class TopicController {
     /**
      * API
      * 获得指定课程第一个主题的所有信息,用于构建分面树
-     * 获得指定课程第一个主题的所有信息,用于构建分面树
      */
     @PostMapping("/getFirstTopicByDomainName")
     @ApiOperation(value = "获得指定课程第一个主题的所有信息,用于构建分面树", notes = "获得指定课程第一个主题的所有信息,用于构建分面树")
@@ -165,7 +216,6 @@ public class TopicController {
 
     /**
      * API
-     * 查询指定课程、主题下的，主题信息、以及分面统计信息
      * 查询指定课程、主题下的，主题信息、以及分面统计信息
      */
     @GetMapping("/getTopicInformationByDomainNameAndTopicName")
@@ -184,8 +234,7 @@ public class TopicController {
     @ApiOperation(value = "根据主题名，获得给定主题的所有信息，用于构建分面树"
             , notes = "根据主题名，获得给定主题的所有信息，用于构建分面树")
     public ResponseEntity getCompleteTopicByTopicName(@RequestParam(name = "topicName") String topicName,
-                                                      @RequestParam(name = "hasFragment") String hasFragment)
-    {
+                                                      @RequestParam(name = "hasFragment") String hasFragment) {
         Result result = topicService.getCompleteTopicByTopicName(topicName, hasFragment);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
@@ -193,4 +242,56 @@ public class TopicController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+
+
+
+
+    @PostMapping("/deleteCompleteTopicByDomainName")
+    @ApiOperation(value = "根据课程名，递归地依次删除该课程下的主题依赖关系、碎片、分面、主题，请谨慎操作！", notes = "根据课程名，递归地依次删除该课程下的主题依赖关系、碎片、分面、主题，请谨慎操作！")
+    public ResponseEntity deleteCompleteTopicByDoaminName(@RequestParam(name = "domainName") String domainName) {
+        Result result = topicService.deleteCompleteTopicByDomainName(domainName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
+    @PostMapping("/deleteTopicCompleteByDomainNameAndTopicName")
+    @ApiOperation(value = "根据课程名和主题名，递归地依次删除该课程对应主题下的主题依赖关系、碎片、分面、主题，请谨慎操作！", notes = "根据课程名和主题名，递归地依次删除该课程对应主题下的主题依赖关系、碎片、分面、主题，请谨慎操作！")
+    public ResponseEntity deleteTopicCompleteByDomainNameAndTopicName(@RequestParam(name = "domainName") String domainName,
+                                                              @RequestParam(name = "topicName") String topicName) {
+        Result result = topicService.deleteTopicCompleteByDomainNameAndTopicName(domainName,topicName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
+    @PostMapping("/deleteCompleteTopicByDomainId")
+    @ApiOperation(value = "根据课程ID，递归地依次删除该课程下的主题依赖关系、碎片、分面、主题，请谨慎操作！", notes = "根据课程名，递归地依次删除该课程下的主题依赖关系、碎片、分面、主题，请谨慎操作！")
+    public ResponseEntity deleteCompleteTopicByDoaminName(@RequestParam(name = "domainId") Long domainId) {
+        Result result = topicService.deleteCompleteTopicByDomainId(domainId);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
+    /**
+     * 一键清除野生主题、分面、碎片及主题依赖关系，解决数据库冗余
+     * @return
+     * @author  Qi Jingchao
+     */
+    @GetMapping("/deleteNonDomainTopicAndFacetAndAssembleAndDependency")
+    @ApiOperation(value = "一键清除野生主题、分面、碎片及主题依赖关系", notes = "一键清除野生主题、分面、碎片及主题依赖关系")
+    public ResponseEntity deleteNonDomainTopicAndFacetAndAssembleAndDependency() {
+        Result result = topicService.deleteNonDomainTopicAndFacetAndAssembleAndDependency();
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 }

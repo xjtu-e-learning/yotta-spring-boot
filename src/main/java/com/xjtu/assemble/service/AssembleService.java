@@ -1,5 +1,6 @@
 package com.xjtu.assemble.service;
 
+import com.xjtu.assemble.algorithm.AssembleMatch;
 import com.xjtu.assemble.dao.AssembleDAO;
 import com.xjtu.assemble.domain.Assemble;
 import com.xjtu.assemble.domain.TemporaryAssemble;
@@ -1057,6 +1058,52 @@ public class AssembleService {
         }
     }
 
+
+    /**
+     * 根据课程ID，删除课程下的所有碎片
+     *
+     * @param domainId
+     * @return
+     */
+    public Result deleteAssembleByDomainId(Long domainId) {
+        List<Assemble> assembleList = assembleRepository.findByDomainId(domainId);
+        if (assembleList == null) {
+            logger.error("指定课程的碎片不存在，未执行删除操作");
+            return ResultUtil.error(ResultEnum.DOMAIN_DELETE_ERROR.getCode(), ResultEnum.DOMAIN_DELETE_ERROR.getMsg(), "指定课程不存在");
+        }
+        try {
+            assembleRepository.deleteByDomainId(domainId);
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "碎片删除成功");
+        } catch (Exception exception) {
+            logger.error("删除碎片失败");
+            return ResultUtil.error(ResultEnum.Assemble_DELETE_ERROR.getCode(), ResultEnum.Assemble_DELETE_ERROR.getMsg());
+        }
+    }
+
+
+    /**
+     * 根据课程名，删除课程下的所有碎片
+     *
+     * @param domainName
+     * @return
+     */
+    public Result deleteAssembleByDomainName(String domainName) {
+        Domain domain = domainRepository.findByDomainName(domainName);
+        List<Assemble> assembleList = assembleRepository.findByDomainId(domain.getDomainId());
+        if (assembleList == null) {
+            logger.error("指定课程的碎片不存在，未执行删除操作");
+            return ResultUtil.error(ResultEnum.DOMAIN_DELETE_ERROR.getCode(), ResultEnum.DOMAIN_DELETE_ERROR.getMsg(), "指定课程不存在");
+        }
+        try {
+            assembleRepository.deleteByDomainId(domain.getDomainId());
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "碎片删除成功");
+        } catch (Exception exception) {
+            logger.error("删除碎片失败");
+            return ResultUtil.error(ResultEnum.Assemble_DELETE_ERROR.getCode(), ResultEnum.Assemble_DELETE_ERROR.getMsg());
+        }
+    }
+
+
     public Map<String, Object> uploadImage(MultipartFile image) {
         Map<String, Object> result = new HashMap<>();
         List<String> imageUrls = new ArrayList<>();
@@ -1149,18 +1196,15 @@ public class AssembleService {
         }
     }
 
-    public Result countUpdateAssemble(String domainName)
-    {
-        if (domainName == null || domainName.equals("") || domainName.length() == 0)
-        {
+    public Result countUpdateAssemble(String domainName) {
+        if (domainName == null || domainName.equals("") || domainName.length() == 0) {
             logger.error("碎片查询失败，课程名为空");
-            return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR.getCode(), ResultEnum.Assemble_SEARCH_ERROR.getMsg(),"碎片查询失败：对应课程不存在");
+            return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR.getCode(), ResultEnum.Assemble_SEARCH_ERROR.getMsg(), "碎片查询失败：对应课程不存在");
         }
         Domain domain = domainRepository.findByDomainName(domainName);
-        if (domain == null)
-        {
+        if (domain == null) {
             logger.error("碎片查询失败，课程不存在");
-            return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR.getCode(), ResultEnum.Assemble_SEARCH_ERROR.getMsg(),"碎片查询失败：对应课程不存在");
+            return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR.getCode(), ResultEnum.Assemble_SEARCH_ERROR.getMsg(), "碎片查询失败：对应课程不存在");
         }
         Long domainId = domain.getDomainId();
         //设置日期格式
@@ -1173,6 +1217,73 @@ public class AssembleService {
         String localdate = df.format(date);
         Long updateAssembleNumber = assembleRepository.countUpdateAssembleByDomainIdAndAssembleScratchTime(localdate, domainId);
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), updateAssembleNumber);
+    }
+
+
+    /**
+     * 修复域名迁移造成的图片失效问题，根据碎片ID和内容更新碎片assembleContent字段内容，注意：这不会改变assembleText。
+     *
+     * @param domainName
+     * @return
+     * @author Qi Jingchao
+     */
+    public Result fixAssembleImageByDomainName(String domainName) {
+        if (domainName == null || domainName.equals("")) {
+            logger.error("碎片查询失败，课程名为空");
+            return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR.getCode(), ResultEnum.Assemble_SEARCH_ERROR.getMsg(), "碎片查询失败：对应课程不存在");
+        }
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("碎片查询失败，课程不存在");
+            return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR.getCode(), ResultEnum.Assemble_SEARCH_ERROR.getMsg(), "碎片查询失败：对应课程不存在");
+        }
+        List<Assemble> assembleList = assembleRepository.findByDomainName(domain.getDomainName());
+        long fixCounter = 0;
+        for (int i = 0; i < assembleList.size(); i++) {
+            Assemble currentAassemble = new Assemble();
+//            logger.info(new String(assembleRepository.findByAssembleId(assembleList.get(i).getAssembleId()).getAssembleText()));
+            currentAassemble = assembleRepository.findByAssembleId(assembleList.get(i).getAssembleId());
+//                logger.info(String.valueOf(currentAassemble.getAssembleId()));
+//                logger.info(String.valueOf(currentAassemble.getAssembleContent()));
+            String oldAssembleContent = String.valueOf(currentAassemble.getAssembleContent());
+            if (oldAssembleContent.contains("yotta.xjtushilei.com")) {
+//                    logger.info("Broken assemble found!");
+                String newAssembleContent = oldAssembleContent.replace("yotta.xjtushilei.com", "zscl.xjtudlc.com");
+                assembleRepository.updateAssembleContentByAssembleIdAndAssembleContent(currentAassemble.getAssembleId(), newAssembleContent);
+                fixCounter++;
+            }
+        }
+        logger.info("共修复" + fixCounter + "个图片损坏的碎片");
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "共修复" + fixCounter + "个图片损坏的碎片");
+    }
+
+
+    /**
+     * 判断碎片的分面装配是否正确
+     *
+     * @param facet
+     * @param assemble
+     * @return
+     * @author Qi Jingchao
+     */
+    public Result isAssembleFacetMatchByAssembleAndFacet(String facet, String assemble){
+        AssembleMatch am = new AssembleMatch();
+//        String path = "G:\\JavaProjects\\Yotta";
+//        am.trainModel(path);
+        logger.info("正在检查装配正确性");
+//        List<String> result = am.assignFacetForassemble(facet, assemble);
+//        System.out.println(result.toString());
+        boolean isMatch = am.isAssembleFacetMatch(facet, assemble);
+//        System.out.println(isMatch);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), isMatch);
+    }
+
+
+    public Result assignFacetForFacet(String assemble) {
+        AssembleMatch am = new AssembleMatch();
+        logger.info("正在为碎片匹配分面");
+        List<String> assignFacet = am.assignFacetForassemble(assemble);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), assignFacet.toString());
     }
 
 }

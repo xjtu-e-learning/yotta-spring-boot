@@ -21,6 +21,15 @@ import java.util.Map;
 public interface FacetRepository extends JpaRepository<Facet, Long>, JpaSpecificationExecutor<Facet> {
 
     /**
+     * 判断topic下是否有facet
+     * @param topicId
+     * @return
+     */
+    @Modifying(clearAutomatically = true)
+    @Transactional(rollbackFor = Exception.class)
+    boolean existsFacetByTopicId(Long topicId);
+
+    /**
      * 根据主题id删除主题下的所有分面
      *
      * @param topicId
@@ -39,6 +48,19 @@ public interface FacetRepository extends JpaRepository<Facet, Long>, JpaSpecific
     @Modifying(clearAutomatically = true)
     @Transactional(rollbackFor = Exception.class)
     void deleteByFacetIdAndFacetLayer(Long facetId, Integer facetLayer);
+
+
+    /**
+     * 根据分面ID删除分面
+     * 【！】请不要单独执行此功能，应首先确保分面所属的碎片已依次清空
+     *
+     * @param   facetId
+     * @author  Qi Jingchao
+     */
+    @Modifying(clearAutomatically = true)
+    @Transactional(rollbackFor = Exception.class)
+    void deleteByFacetId(Long facetId);
+
 
     /**
      * 指定主题Id，查找分面
@@ -61,6 +83,19 @@ public interface FacetRepository extends JpaRepository<Facet, Long>, JpaSpecific
             "d.domainId = t.domainId and " +
             "t.topicId = f.topicId")
     List<Facet> findByDomainName(String domainName);
+
+
+    /**
+     * 根据课程ID查询分面
+     *
+     * @param domainId
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Query("select f from Facet f,Topic t,Domain d " +
+            "where d.domainId = t.domainId and " +
+            "t.topicId = f.topicId and d.domainId=?1")
+    List<Facet> findByDomainId(Long domainId);
 
 
     /**
