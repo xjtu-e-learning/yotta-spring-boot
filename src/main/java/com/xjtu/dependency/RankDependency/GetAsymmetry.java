@@ -20,9 +20,11 @@ import java.util.*;
 public class GetAsymmetry {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private Double THD = 0.5;
+    private Double THD0 = 0.0;
 
     public List<Dependency> AsyDependency(List<Topic> topicList, List<TopicContainAssembleText> termList) {
         List<Dependency> dependencies = new ArrayList<>();
+        List<Dependency> dependenciesAll = new ArrayList<>();
 
         logger.info("Finish Hash...");
         logger.info("Start computing the hammingDistance...");
@@ -40,15 +42,25 @@ public class GetAsymmetry {
                     double Afirst = asyResult.get(0);
                     double Bfirst = asyResult.get(1);
 //                    System.out.println("Afirst: " + Afirst + "     Bfirst: " + Bfirst);
-                    if(Afirst > THD)
+                    if(Afirst >= THD)
                     {
                         Dependency dependency = new Dependency(term1.getTopicId(), term2.getTopicId(), (float)Afirst, term1.getDomainId());
                         dependencies.add(dependency);
                     }
-                    if(Bfirst > THD)
+                    if(Bfirst >= THD)
                     {
                         Dependency dependency = new Dependency(term2.getTopicId(), term1.getTopicId(), (float)Bfirst, term1.getDomainId());
                         dependencies.add(dependency);
+                    }
+                    if(Afirst >= THD0)
+                    {
+                        Dependency dependency = new Dependency(term1.getTopicId(), term2.getTopicId(), (float)Afirst, term1.getDomainId());
+                        dependenciesAll.add(dependency);
+                    }
+                    if(Bfirst >= THD0)
+                    {
+                        Dependency dependency = new Dependency(term2.getTopicId(), term1.getTopicId(), (float)Bfirst, term1.getDomainId());
+                        dependenciesAll.add(dependency);
                     }
 //                    double dis = 0.0;
 //                    if (isEnglish) {
@@ -62,11 +74,23 @@ public class GetAsymmetry {
                 }
             }
         }
-        System.out.println("生成的认知关系对数量： " + dependencies.size());
+
+        List<Dependency> all_dependencies = new ArrayList<>();
+        if(dependencies.size()> topicList.size()/2)
+        {
+            all_dependencies = dependencies;
+        }
+        else
+        {
+            all_dependencies = dependenciesAll;
+        }
+
+        System.out.println("生成的认知关系对数量： " + all_dependencies.size());
         //去除前向边
         DFSvisit dfSvisit = new DFSvisit();
-        HashMap<Long, List<Dependency>> relations = dfSvisit.changeRelation(dependencies);
+        HashMap<Long, List<Dependency>> relations = dfSvisit.changeRelation(all_dependencies);
         HashMap<Long, List<Dependency>> resultRelations = dfSvisit.relationProcess(relations);
+
         List<Dependency> returnDependency = new ArrayList<>();
         for (Long key : resultRelations.keySet())
         {
