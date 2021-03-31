@@ -415,10 +415,29 @@ public class AssembleController {
      * @author Qi Jingchao
      */
     @PostMapping("/isAssembleFacetMatchByAssembleAndFacet")
-    @ApiOperation(value="判断碎片装配的分面是否正确", notes = "限标准一级分面，包括：定义、性质、历史、应用、原理等")
+    @ApiOperation(value = "判断碎片装配的分面是否正确", notes = "限标准一级分面，包括：定义、性质、历史、应用、原理等")
     public ResponseEntity isAssembleFacetMatchByAssembleAndFacet(@RequestParam(value = "facetName") String facetName,
                                                                  @RequestParam(value = "assembleContent") String assembleContent) {
         Result result = assembleService.isAssembleFacetMatchByAssembleAndFacet(facetName, assembleContent);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
+    /**
+     * 为碎片匹配分面，分配的分面限标准一级分面，包括：定义、性质、历史、应用、原理等
+     *
+     *
+     * @param assembleContent
+     * @return
+     * @author Qi Jingchao
+     */
+    @PostMapping("/assignFacetForAssembleByAssembleContent")
+    @ApiOperation(value = "为碎片匹配分面", notes = "分配的分面限标准一级分面，包括：定义、性质、历史、应用、原理等")
+    public ResponseEntity assignFacetForAssembleByAssembleContent(@RequestParam(value = "assembleContent") String assembleContent) {
+        Result result = assembleService.assignFacetForFacet(assembleContent);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }

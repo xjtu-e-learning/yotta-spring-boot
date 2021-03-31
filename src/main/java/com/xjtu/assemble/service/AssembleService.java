@@ -1278,4 +1278,12 @@ public class AssembleService {
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), isMatch);
     }
 
+
+    public Result assignFacetForFacet(String assemble) {
+        AssembleMatch am = new AssembleMatch();
+        logger.info("正在为碎片匹配分面");
+        List<String> assignFacet = am.assignFacetForassemble(assemble);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), assignFacet.toString());
+    }
+
 }
