@@ -52,12 +52,12 @@ public class GetAsymmetry {
                         Dependency dependency = new Dependency(term2.getTopicId(), term1.getTopicId(), (float)Bfirst, term1.getDomainId());
                         dependencies.add(dependency);
                     }
-                    if(Afirst >= THD0)
+                    if(Afirst > THD0)
                     {
                         Dependency dependency = new Dependency(term1.getTopicId(), term2.getTopicId(), (float)Afirst, term1.getDomainId());
                         dependenciesAll.add(dependency);
                     }
-                    if(Bfirst >= THD0)
+                    if(Bfirst > THD0)
                     {
                         Dependency dependency = new Dependency(term2.getTopicId(), term1.getTopicId(), (float)Bfirst, term1.getDomainId());
                         dependenciesAll.add(dependency);
