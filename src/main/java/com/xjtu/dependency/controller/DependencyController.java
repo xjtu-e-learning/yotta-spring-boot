@@ -172,4 +172,24 @@ public class DependencyController {
     }
 
 
+    /**
+     * API
+     * 自动构建主题依赖关系
+     * 通过课程名，生成该课程下主题依赖关系。需已有主题，碎片信息
+     */
+    @PostMapping("/getGenerateDependencyCSVFileByDomainName")
+    @ApiOperation(value = "获得自动构建主题依赖关系CSV文件。通过课程名，生成该课程下主题依赖关系。需已有主题，碎片信息。并给出该课程是否为英文课程信息",
+            notes = "获得自动构建主题依赖关系CSV文件。通过课程名，生成该课程下主题依赖关系。需已有主题，碎片信息。并给出该课程是否为英文课程信息")
+    public ResponseEntity getGenerateDependencyCSVFileByDomainName(@RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "isEnglish") boolean isEnglish)
+    {
+        Result result = dependencyService.getGenerateDependencyCSVFileByDomainName(domainName, isEnglish);
+        if(!result.getCode().equals(ResultEnum.SUCCESS.getCode()))
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
 }
