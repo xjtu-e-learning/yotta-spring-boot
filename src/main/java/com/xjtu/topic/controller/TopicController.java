@@ -2,6 +2,8 @@ package com.xjtu.topic.controller;
 
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
+import com.xjtu.domain.domain.Domain;
+import com.xjtu.domain.service.DomainService;
 import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.service.TopicService;
 import io.swagger.annotations.ApiOperation;
@@ -10,10 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * api:处理topic主题数据
@@ -27,6 +26,8 @@ public class TopicController {
 
     @Autowired
     private TopicService topicService;
+    @Autowired
+    private DomainService domainService;
 
 
     /**
@@ -44,6 +45,7 @@ public class TopicController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
 
     /**
      * API
@@ -145,15 +147,40 @@ public class TopicController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-    @GetMapping("/filterTopicsByDomainName")
+    @GetMapping("/filterTopics")
     @ApiOperation(value = "利用算法对主题进行过滤，删除多余的主题以及主题下所有内容", notes = "输入课程名，删除算法过滤掉的主题以及主题下所有内容")
-    public ResponseEntity filterTopicsByDomainName(@RequestParam(name = "domainName") String domainName) {
-        Result result = topicService.filterTopicsByDomainName(domainName);
-        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+    public ResponseEntity filterTopics() {
+        String[] notFilterDomain={"计算机组成原理","C语言","操作系统","计算机系统结构","数据结构",
+        "数据库应用","低年级(1-2)语文","低年级(1-2)科学","中年级(3-4)英语","高年级(5-6)数学",
+        "五年级科学","七年级语文","八年级语文","九年级语文","七年级数学","八年级数学","九年级数学",
+        "七年级英语","八年级英语","九年级英语","八年级物理","九年级物理","九年级化学","七年级生物",
+        "八年级生物","七年级历史","八年级历史","九年级历史","七年级地理","八年级地理","七年级政治","八年级政治",
+        "九年级政治","初中信息技术","高一语文","高二语文","高中数学","高一英语","高三英语","高一历史","高二历史",
+        "高一政治","高二政治","高三政治","高一地理","高三地理","高一生物","高二生物","高一化学","高二化学","高三化学",
+        "合同法","数据结构(人工)","示范课程高等数学","概率论"};
+        Map<String,Object > map=new HashMap<>();
+        List<String> allDomainName=new ArrayList<>();
+        List<Domain> domains = (List<Domain>) domainService.findDomains().getData();
+        List<String> filterDomainNames= Arrays.asList(notFilterDomain);
+        for (int i = 23; i < domains.size(); i++) {
+            Domain domain = domains.get(i);
+            String domainName = domain.getDomainName();
+            allDomainName.add(domainName);
+            if (!filterDomainNames.contains(domainName)) {
+                Result result = topicService.filterTopicsByDomainName(domainName);
+                if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+                    map.put(domainName, result);
+                    continue;
+//                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+                }
+            }
         }
-        return ResponseEntity.status(HttpStatus.OK).body(result);
+        allDomainName.removeAll(filterDomainNames);
+
+        map.put("已经过滤的主题",allDomainName);
+        return ResponseEntity.status(HttpStatus.OK).body(map);
     }
+
 
 
 
