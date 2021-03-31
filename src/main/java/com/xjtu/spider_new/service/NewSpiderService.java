@@ -185,6 +185,10 @@ public class NewSpiderService {
         //将请求头部和参数合成一个请求
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(params, headers);
         //执行HTTP请求，将返回的结构使用ResultVO类格式化
+        if (isConstruct) {
+            restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
+            return facetExtraction(domainName, topicNameList, isChineseOrNot, false);
+        }
         ResponseEntity<FacetResultVO> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, FacetResultVO.class);
 
         FacetResultVO facetResult = response.getBody();
@@ -201,19 +205,23 @@ public class NewSpiderService {
 //        }
 
         if (facetResult.isRunning()) {
-            ResultUtil.error(ResultEnum.TSPIDER_ERROR2.getCode(), ResultEnum.TSPIDER_ERROR2.getMsg(), facetResult.getMessage());
+            Log.log("========================="  + "分面爬取正在进行中" + "=========================");
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+//            ResultUtil.error(ResultEnum.TSPIDER_ERROR2.getCode(), ResultEnum.TSPIDER_ERROR2.getMsg(), facetResult.getMessage());
+            return facetExtraction(domainName, topicNameList, isChineseOrNot, false);
         }
         else {
-            if (facetResult.getMessage().equals("数据缺失")) {
-                facetExtraction(domainName, topicNameList, isChineseOrNot, true);
-            } else if (facetResult.getMessage().equals("数据采集完成，未构建分面集")) {
-                facetExtraction(domainName, topicNameList, isChineseOrNot, true);
+            if (facetResult.getFacets() == null) {
+                return facetExtraction(domainName, topicNameList, isChineseOrNot, true);
             } else {
                 return ResultUtil.success(ResultEnum.SUCCESS.getCode(), facetResult.getMessage(), facetResult.getFacets());
             }
         }
 
-        return ResultUtil.error(ResultEnum.TSPIDER_ERROR3.getCode(), ResultEnum.TSPIDER_ERROR3.getMsg(), facetResult.getMessage());
     }
 
 
@@ -231,7 +239,8 @@ public class NewSpiderService {
             int typeId = missingRecord.getType();
 
             // 先删除数据库中的缺失记录防止分布进行爬取时冲突
-            missingRecordRepository.deleteById(missingRecord.getId());
+            // 若非分布式爬取，这个操作可以放在爬取之后防止出错
+//            missingRecordRepository.deleteById(missingRecord.getId());
 
             switch (typeId) {
                 case 0 :
@@ -248,7 +257,9 @@ public class NewSpiderService {
                     break;
             }
 
-            // 如果爬取失败，要把缺失记录继续写回数据库
+            // 先删除数据库中的缺失记录防止分布进行爬取时冲突
+            // 若非分布式爬取，这个操作可以放在爬取之后防止出错
+            missingRecordRepository.deleteById(missingRecord.getId());
 
         }
 
@@ -278,8 +289,6 @@ public class NewSpiderService {
         // 调用lhx师兄接口
 
         Result result = facetExtraction(parentDomain.getDomainName(), topicList, isChinese, false);
-
-        System.out.println(result.getData().getClass().getName());
 
         for (Object value : ((LinkedHashMap) result.getData()).values()) {
             List<String> facetNames = (ArrayList<String>) value;
