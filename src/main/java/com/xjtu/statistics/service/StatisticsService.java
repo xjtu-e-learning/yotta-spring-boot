@@ -13,6 +13,8 @@ import com.xjtu.facet.repository.FacetRepository;
 import com.xjtu.relation.repository.RelationRepository;
 import com.xjtu.source.domain.Source;
 import com.xjtu.source.repository.SourceRepository;
+import com.xjtu.spider_new.domain.MissingRecord;
+import com.xjtu.spider_new.repository.MissingRecordRepository;
 import com.xjtu.statistics.domain.Statistics;
 import com.xjtu.statistics.repository.StatisticsRepository;
 import com.xjtu.subject.domain.Subject;
@@ -72,6 +74,9 @@ public class StatisticsService {
 
     @Autowired
     StatisticsRepository statisticsRepository;
+
+    @Autowired
+    MissingRecordRepository missingRecordRepository;
 
     /**
      * 查询所有课程下的统计数据
@@ -418,6 +423,130 @@ public class StatisticsService {
         statisticsInformation.put("details", details);
         statisticsInformation.put("totals", totals);
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), statisticsInformation);
+    }
+
+    /**
+     * 遍历所有课程查询统计所有空课程
+     * @return 空课程名列表
+     */
+    public Result findEmptyDomains() {
+        List<Domain> domainList = domainRepository.findAll();
+        List<String> res = new ArrayList<>();
+        int count = 0;
+
+        for (Domain domain : domainList) {
+            if (isDomainEmpty(domain.getDomainName())) {
+                res.add(domain.getDomainName());
+
+                // 将缺失记录存入数据库
+                missingRecordRepository.save(new MissingRecord(0, domain.getDomainId()));
+
+                count++;
+            }
+        }
+
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), "共有" + count + "门空课程，记录已存至数据库", res);
+    }
+
+    /**
+     * 判断某课程下是否没主题（即空课程） （更高效的做法：不用每次都获取到所有的topicList）
+     * @param domainName 课程名
+     * @return 该domain下是否没有主题
+     */
+    public boolean isDomainEmpty(String domainName) {
+        //获取课程
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("课程查询失败：没有课程信息记录");
+            return false;
+        }
+        //获取课程下的主题列表
+//        List<Topic> topics = topicRepository.findByDomainId(domain.getDomainId());
+//
+//        return topics.size() == 0;
+        return !topicRepository.existsTopicByDomainId(domain.getDomainId());
+    }
+
+    /**
+     * 遍历所有主题查询统计所有空主题
+     * @return 空主题名列表
+     */
+    public Result findEmptyTopics() {
+        List<Topic> topicList = topicRepository.findAll();
+        List<Long> res = new ArrayList<>();
+        int count = 0;
+
+        for (Topic topic : topicList) {
+            if (isTopicEmpty(topic.getTopicId())) {
+                res.add(topic.getTopicId());
+
+                missingRecordRepository.save(new MissingRecord(1, topic.getTopicId()));
+
+                count++;
+            }
+        }
+
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), "共有" + count + "门空主题，记录已存至数据库", res);
+    }
+
+    /**
+     * 判断某主题下是否没分面（即空主题） （更高效的做法：不用每次都获取到所有的topicList）
+     * @param topicId 主题id
+     * @return 该domain下是否没有主题
+     */
+    public boolean isTopicEmpty(Long topicId) {
+
+        Topic topic = topicRepository.findByTopicId(topicId);
+        if (topic == null) {
+            logger.error("课程查询失败：没有课程信息记录");
+            return false;
+        }
+
+//        List<Facet> facets = facetRepository.findByTopicId(topicId);
+//
+//        return facets.size() == 0;
+        return  !facetRepository.existsFacetByTopicId(topicId);
+    }
+
+    /**
+     * 遍历所有分面查询统计所有空分面
+     * @return 空分面名列表
+     */
+    public Result findEmptyFacet() {
+        List<Facet> facetList = facetRepository.findAll();
+        List<Long> res = new ArrayList<>();
+        int count = 0;
+
+        for (Facet facet : facetList) {
+            if (isFacetEmpty(facet.getFacetId())) {
+                res.add(facet.getFacetId());
+
+                missingRecordRepository.save(new MissingRecord(2, facet.getFacetId()));
+
+                count++;
+            }
+        }
+
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), "共有" + count + "门空分面，记录已存至数据库", res);
+    }
+
+    /**
+     * 判断某分面下是否没碎片
+     * @param facetId 课程名
+     * @return 该分面下是否无碎片
+     */
+    public boolean isFacetEmpty(Long facetId) {
+
+        Facet facet = facetRepository.findByFacetId(facetId);
+        if (facet == null) {
+            logger.error("课程查询失败：没有课程信息记录");
+            return false;
+        }
+
+//        List<Assemble> assembles = assembleRepository.findByFacetId(facetId);
+//
+//        return assembles.size() == 0;
+        return !assembleRepository.existsAssembleByFacetId(facetId);
     }
 
     /**

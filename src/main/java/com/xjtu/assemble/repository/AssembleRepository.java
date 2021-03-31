@@ -24,6 +24,15 @@ public interface AssembleRepository extends JpaRepository<Assemble, Long>, JpaSp
 
 
     /**
+     * 判断facet下是否有碎片
+     * @param facetId
+     * @return
+     */
+    @Modifying(clearAutomatically = true)
+    @Transactional(rollbackFor = Exception.class)
+    boolean existsAssembleByFacetId(Long facetId);
+
+    /**
      * 根据分面id集合，删除分面下的所有碎片
      *
      * @param facetIds

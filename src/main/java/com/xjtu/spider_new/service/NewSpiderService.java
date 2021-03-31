@@ -13,6 +13,8 @@ import com.xjtu.facet.repository.FacetRepository;
 import com.xjtu.spider_new.common.FacetResultVO;
 import com.xjtu.spider_new.common.NewSpiderRunnable;
 import com.xjtu.spider_new.common.ProgressResult;
+import com.xjtu.spider_new.domain.MissingRecord;
+import com.xjtu.spider_new.repository.MissingRecordRepository;
 import com.xjtu.spider_new.spiders.wikicn.AssembleCrawler;
 import com.xjtu.spider_new.spiders.wikicn.FragmentCrawler;
 import com.xjtu.spider_new.spiders.wikicn.TopicCrawler;
@@ -32,8 +34,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 2021使用的爬虫
@@ -63,6 +64,9 @@ public class NewSpiderService {
 
     @Autowired
     private AssembleRepository assembleRepository;
+
+    @Autowired
+    private MissingRecordRepository missingRecordRepository;
 
     /**
      * 主题-分面-碎片爬虫方法
@@ -185,20 +189,122 @@ public class NewSpiderService {
 
         FacetResultVO facetResult = response.getBody();
 
-        System.out.println("running: " + facetResult.isRunning());
-        System.out.println("msg: " + facetResult.getMessage());
-        for (Map.Entry<String, List<String>> facet : ((Map<String, List<String>>) facetResult.getFacets()).entrySet()) {
-            System.out.println("topic: " + facet.getKey());
-            System.out.print("facets: ");
-            for (String s : facet.getValue()) {
-                System.out.print(s + " ");
+//        System.out.println("running: " + facetResult.isRunning());
+//        System.out.println("msg: " + facetResult.getMessage());
+//        for (Map.Entry<String, List<String>> facet : ((Map<String, List<String>>) facetResult.getFacets()).entrySet()) {
+//            System.out.println("topic: " + facet.getKey());
+//            System.out.print("facets: ");
+//            for (String s : facet.getValue()) {
+//                System.out.print(s + " ");
+//            }
+//            System.out.println();
+//        }
+
+        if (facetResult.isRunning()) {
+            ResultUtil.error(ResultEnum.TSPIDER_ERROR2.getCode(), ResultEnum.TSPIDER_ERROR2.getMsg(), facetResult.getMessage());
+        }
+        else {
+            if (facetResult.getMessage().equals("数据缺失")) {
+                facetExtraction(domainName, topicNameList, isChineseOrNot, true);
+            } else if (facetResult.getMessage().equals("数据采集完成，未构建分面集")) {
+                facetExtraction(domainName, topicNameList, isChineseOrNot, true);
+            } else {
+                return ResultUtil.success(ResultEnum.SUCCESS.getCode(), facetResult.getMessage(), facetResult.getFacets());
             }
-            System.out.println();
         }
 
+        return ResultUtil.error(ResultEnum.TSPIDER_ERROR3.getCode(), ResultEnum.TSPIDER_ERROR3.getMsg(), facetResult.getMessage());
+    }
 
 
-        return null;
+    public Result crawlEmptyData() throws Exception {
+        Optional<MissingRecord> first = null;
+
+        while (missingRecordRepository.count() != 0) {
+
+//            first = missingRecordRepository.findFirstBy();
+            first = missingRecordRepository.findFirstByType(1);
+            if (!first.isPresent())
+                return ResultUtil.error(404, "失败", "已无缺失数据");
+
+            MissingRecord missingRecord = first.get();
+            int typeId = missingRecord.getType();
+
+            // 先删除数据库中的缺失记录防止分布进行爬取时冲突
+            missingRecordRepository.deleteById(missingRecord.getId());
+
+            switch (typeId) {
+                case 0 :
+                    Log.log("===============" + "找到空课程, id为" + missingRecord.getSpecificId() + ", 开始构建" + "===============");
+                    crawlEmptyDomain(missingRecord.getSpecificId(), true); // !!!先默认都为中文
+                    break;
+                case 1 :
+                    Log.log("===============" + "找到空主题, id为" + missingRecord.getSpecificId() + ", 开始构建" + "===============");
+                    crawlEmptyTopic(missingRecord.getSpecificId(), true); // !!!先默认都为中文
+                    break;
+                case 2 :
+                    Log.log("===============" + "找到空分面, id为" + missingRecord.getSpecificId() + ", 开始构建" + "===============");
+                    crawlEmptyFacet(missingRecord.getSpecificId());
+                    break;
+            }
+
+            // 如果爬取失败，要把缺失记录继续写回数据库
+
+        }
+
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "填充完成");
+    }
+
+
+    public Result crawlEmptyDomain(Long domainId, boolean isChinese) throws Exception {
+        Domain domain = domainRepository.findByDomainId(domainId);
+        setIsChinese(isChinese);
+        TopicCrawler.setDomainLanguage();
+
+        // 调用zd师兄接口
+        constructTopicFacetTreeByDomainName(domain);
+
+        // 此处应该加更多错误判断
+
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "大概好了吧");
+    }
+
+    public Result crawlEmptyTopic(Long topicId, boolean isChinese) throws URISyntaxException {
+        Topic topic = topicRepository.findByTopicId(topicId);
+        Domain parentDomain = domainRepository.findByDomainId(topic.getDomainId());
+        List<String> topicList = new ArrayList<>();
+        topicList.add(topic.getTopicName());
+
+        // 调用lhx师兄接口
+
+        Result result = facetExtraction(parentDomain.getDomainName(), topicList, isChinese, false);
+
+        System.out.println(result.getData().getClass().getName());
+
+        for (Object value : ((LinkedHashMap) result.getData()).values()) {
+            List<String> facetNames = (ArrayList<String>) value;
+            for (String facetName : facetNames) {
+
+                // !!!这里暂时只考虑了一级分面的情况
+                if (facetRepository.findByTopicIdAndFacetName(topicId, facetName) == null)
+                    facetRepository.save(new Facet(facetName, 1, topicId, null));
+            }
+        }
+
+        return result;
+    }
+
+    public Result crawlEmptyFacet(Long facetId) throws Exception {
+        Facet facet = facetRepository.findByFacetId(facetId);
+        Topic parentTopic = topicRepository.findByTopicId(facet.getTopicId());
+        Domain parentDomain = domainRepository.findByDomainId(parentTopic.getDomainId());
+
+        // 调用ljj师兄接口
+        AssembleCrawler.crawlAssembleByFacet(parentDomain, parentTopic, facet);
+
+        // 此处应该加更多错误判断
+
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "大概好了吧");
     }
 
     public static Boolean getIsChinese() {
