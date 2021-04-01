@@ -298,4 +298,37 @@ public class StatisticsController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
+    @ApiOperation(value = "统计所有主题为空的课程"
+            , notes = "统计所有主题为空的课程")
+    @GetMapping("/countEmptyDomains")
+    public ResponseEntity countEmptyDomains() {
+        Result result = statisticsService.findEmptyDomains();
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @ApiOperation(value = "统计所有分面为空的主题"
+            , notes = "统计所有分面为空的主题")
+    @GetMapping("/countEmptyTopics")
+    public ResponseEntity countEmptyTopics() {
+        Result result = statisticsService.findEmptyTopics();
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @ApiOperation(value = "统计所有碎片为空的分面"
+            , notes = "统计所有碎片为空的分面")
+    @GetMapping("/countEmptyFacets")
+    public ResponseEntity countEmptyFacets() {
+        Result result = statisticsService.findEmptyFacet();
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 }

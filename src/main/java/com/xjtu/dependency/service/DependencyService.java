@@ -17,6 +17,7 @@ import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.domain.TopicContainAssembleText;
 import com.xjtu.topic.repository.TopicRepository;
 import com.xjtu.utils.ResultUtil;
+import com.xjtu.utils.CsvUtil;
 import org.apache.commons.io.FileUtils;
 import org.gephi.appearance.api.*;
 import org.gephi.appearance.plugin.PartitionElementColorTransformer;
@@ -622,15 +623,8 @@ public class DependencyService {
         /**
          * 根据主题内容，调用算法得到主题认知关系
          */
-        //2021/3/22 老方法包装入主题数大于1000的情况中
-        List<Dependency> generated_dependencies = new ArrayList<>();
-        if(topicList.size() > 1000){
-            RankDependency rankDependency = new RankDependency();
-            generated_dependencies = rankDependency.rankText(topicContainAssembleTexts, topicContainAssembleTexts.size(), isEnglish);
-        }else{
-            GetAsymmetry getAsymmetry = new GetAsymmetry();
-            generated_dependencies = getAsymmetry.AsyDependency(topicList, topicContainAssembleTexts);
-        }
+        RankDependency rankDependency = new RankDependency();
+        List<Dependency> generated_dependencies = rankDependency.rankText(topicContainAssembleTexts, topicContainAssembleTexts.size(), isEnglish);
 
         //保存自动构建的依赖关系，存到数据库
         dependencyRepository.save(generated_dependencies);
@@ -720,6 +714,114 @@ public class DependencyService {
         }
         return ResultUtil.error(ResultEnum.DEPENDENCY_LEARNING_PATH_ERROR.getCode(), ResultEnum.DEPENDENCY_LEARNING_PATH_ERROR.getMsg());
     }
+
+
+    /**
+     * 使用新的认知关系生成算法生成课程下的认知关系，并写入到csv文件中，不保存到数据库中
+     * @param domainName  课程名
+     * @param isEnglish   是否为英文课程
+     * @return
+     */
+    public Result getGenerateDependencyCSVFileByDomainName(String domainName, Boolean isEnglish)
+    {
+
+        if (domainName == null)
+        {
+            logger.error("主题依赖关系查询失败：没有指定课程");
+            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR_5.getCode(), ResultEnum.DEPENDENCY_SEARCH_ERROR_5.getMsg());
+        }
+
+        Domain domain = domainRepository.findByDomainName(domainName);
+        //查询错误
+        if (domain == null) {
+            logger.error("主题依赖关系生成失败：没有课程信息记录");
+            return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR.getMsg());
+        }
+
+        Long domainId = domain.getDomainId();
+
+        //查看数据库中是否已有该课程的主题依赖关系
+        List<Dependency> dependencies = dependencyRepository.findByDomainId(domainId);
+
+//        if(dependencies.size() > 0)   //数据库已有该课程主题依赖关系
+//        {
+//            logger.error("主题依赖关系生成失败：已有认知关系");
+//            return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR.getMsg());
+//        }
+
+        //数据库中没有该课程的主题依赖关系，需自动构建
+        //获得课程下所有主题
+        List<Topic> topicList = topicRepository.findByDomainId(domainId);
+        if(topicList.size() < 1)
+        {
+            logger.error("主题依赖关系生成失败：主题不存在");
+            return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR_1.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR_1.getMsg());
+        }
+
+        //获得topicContainAssembleText List，即每个主题有对应碎片文本，获得主题内容信息
+        List<TopicContainAssembleText> topicContainAssembleTexts = new ArrayList<>();
+
+        for(int i = 0; i<topicList.size(); i++)
+        {
+            Topic temp_topic = topicList.get(i);
+            TopicContainAssembleText temp_topicContentAssembleText = new TopicContainAssembleText(temp_topic);
+            temp_topicContentAssembleText.setTopicId(temp_topic.getTopicId());
+
+
+            //查询碎片信息
+            List<Assemble> assembleList = assembleRepository.findAllAssemblesByTopicId(temp_topic.getTopicId());
+            if(assembleList.size() < 1)
+            {
+                System.out.println("缺乏碎片主题：" + temp_topic.getTopicName());
+                continue;
+//                System.out.print(temp_topic.getTopicId());
+//                logger.error("主体依赖关系生成失败：碎片内容为空");
+//                return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR_2.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR_2.getMsg());
+            }
+            String text = "";
+            for(int j = 0; j<assembleList.size(); j++)
+            {
+                text = text + assembleList.get(j).getAssembleText() + " ";
+            }
+            temp_topicContentAssembleText.setText(text);
+
+            topicContainAssembleTexts.add(temp_topicContentAssembleText);
+        }
+
+        /**
+         * 根据主题内容，调用算法得到主题认知关系
+         */
+        GetAsymmetry getAsymmetry = new GetAsymmetry();
+        List<Dependency> generated_dependencies = getAsymmetry.AsyDependency(topicList, topicContainAssembleTexts);
+
+
+        List<DependencyContainName> dependencyContainNames = new ArrayList<>();
+        for (Dependency dependency : generated_dependencies) {
+            DependencyContainName dependencyContainName = new DependencyContainName();
+            dependencyContainName.setStartTopicId(dependency.getStartTopicId());
+            dependencyContainName.setEndTopicId(dependency.getEndTopicId());
+            dependencyContainName.setConfidence(dependency.getConfidence());
+            dependencyContainName.setDomainId(dependency.getDomainId());
+//            DependencyContainName dependencyContainName = new DependencyContainName(dependency);
+            //获取主题名
+            String startTopicName = topicRepository.findOne(dependency.getStartTopicId()).getTopicName();
+            String endTopicName = topicRepository.findOne(dependency.getEndTopicId()).getTopicName();
+            //设置主题名
+            dependencyContainName.setStartTopicName(startTopicName);
+            dependencyContainName.setEndTopicName(endTopicName);
+            dependencyContainNames.add(dependencyContainName);
+        }
+//        写入到csv文件
+        if (dependencyContainNames.size()>0)
+        {
+            String[] csvHeaders = {"startTopicName", "endTopicName"};
+            CsvUtil.writeCSV(dependencyContainNames, "E:\\认知关系算法生成结果_临时文件夹/"+dependencyContainNames.get(0).getDomainId().toString()+"算法生成.csv", csvHeaders);
+
+        }
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), dependencyContainNames);
+
+    }
+
 
 
     public static void main(String[] args) {

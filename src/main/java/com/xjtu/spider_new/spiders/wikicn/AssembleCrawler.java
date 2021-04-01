@@ -1,5 +1,6 @@
 package com.xjtu.spider_new.spiders.wikicn;
 
+import com.spreada.utils.chinese.ZHConverter;
 import com.xjtu.domain.domain.Domain;
 import com.xjtu.facet.domain.Facet;
 import com.xjtu.topic.domain.Topic;
@@ -190,23 +191,83 @@ public class AssembleCrawler {
     }
 
     /**
+     * 根据单个分面爬取碎片
+     * @param domain
+     * @param topic
+     * @param facet
+     * @throws Exception
+     */
+    public static void crawlAssembleByFacet(Domain domain, Topic topic, Facet facet) throws Exception {
+        String topicHtml = SpiderUtils.seleniumWiki(topic.getTopicUrl());
+        Document wikiDoc = JsoupDao.parseHtmlText(topicHtml);
+        String facetName = facet.getFacetName();
+        String assembleContent = "";
+        String assembleText = "";
+        try {
+            // 在wikipedia上爬碎片
+            assembleContent = getAssembleContent(wikiDoc, facetName);
+            assembleText = getAssembleText(wikiDoc, facetName);
+        } catch (Exception e) {
+            Log.log("\n维基网页查找碎片异常\n链接地址：" + topic.getTopicUrl());
+        }
+
+        if (assembleContent.length() != 0 && assembleText.length() != 0) {
+            Long sourceId = Long.valueOf(1);
+            assembleCount++;
+            MysqlReadWriteDAO.storeAssemble(assembleContent, assembleText, domain.getDomainId(), facet.getFacetId(), sourceId);
+        }
+
+        // 在简书源上爬碎片
+        String jianshuSearchUrl = "https://www.jianshu.com/search?q=" + topic.getTopicName() + facet.getFacetName() + "&page=1&type=note";
+        try {
+            String jianshuSearchHtml = SpiderUtils.seleniumJianshu(jianshuSearchUrl);
+            Document jianshuSerarchDoc = JsoupDao.parseHtmlText(jianshuSearchHtml);
+            Elements jianshuUrlElements = jianshuSerarchDoc.select("ul[class='note-list']").select("a[class='title']");
+            if (jianshuUrlElements.isEmpty()) {
+                Log.log("没有拿到简书链接！");
+            }
+            for (int i = 0; i < 5; i++) {
+                Element urlElement = jianshuUrlElements.get(i);
+                String jianshuUrl = "https://www.jianshu.com" + urlElement.attr("href");
+
+                String jianshuHtml = SpiderUtils.seleniumJianshu(jianshuUrl);
+                Document jianshuDoc = JsoupDao.parseHtmlText(jianshuHtml);
+                Elements titleElement = jianshuDoc.select("h1[class='_1RuRku']");
+                Elements contentElement = jianshuDoc.select("article[class='_2rhmJa']");
+                assembleContent = "";
+                assembleText = "";
+                assembleContent = titleElement.toString() + contentElement.toString();
+                assembleText = titleElement.text() + contentElement.text();
+                if (assembleContent.length() != 0 && assembleText.length() != 0) {
+                    Long sourceId = Long.valueOf(17);
+                    assembleCount++;
+                    MysqlReadWriteDAO.storeAssemble(assembleContent, assembleText, domain.getDomainId(), facet.getFacetId(), sourceId);
+                } else {
+                    Log.log("简书链接无法解析：" + jianshuUrl);
+                }
+            }
+        } catch (Exception e) {
+            Log.log("\n简书碎片列表地址获取失败\n链接地址：" + jianshuSearchUrl);
+        }
+    }
+
+    /**
      * 获得维基碎片的内容
      */
     public static String getAssembleContent(Document doc, String facetName) {
+        // 未使用简体转繁体，避免wikipedia中id是繁体的问题
         Element element = doc.getElementById(facetName);
         Element parentElement = element.parent();
         if (parentElement != null) {
             Element nextElement = parentElement.nextElementSibling();
             StringBuffer stringBuffer = new StringBuffer();
-            if (nextElement != null) {
-                while (nextElement.tagName() != "h1" && nextElement.tagName() != "h2" && nextElement.tagName() != "h3") {
-                    Element currentElement = nextElement;
-                    String currentContent = currentElement.toString();
-                    stringBuffer.append(currentContent);
-                    nextElement = currentElement.nextElementSibling();
-                }
-                return stringBuffer.toString();
+            while (nextElement != null && nextElement.tagName() != "h1" && nextElement.tagName() != "h2" && nextElement.tagName() != "h3") {
+                Element currentElement = nextElement;
+                String currentContent = currentElement.toString();
+                stringBuffer.append(currentContent);
+                nextElement = currentElement.nextElementSibling();
             }
+            return stringBuffer.toString();
         }
 
         return null;
@@ -216,17 +277,22 @@ public class AssembleCrawler {
      * 获得维基碎片的纯文本
      */
     public static String getAssembleText(Document doc, String facetName) {
+        // 未使用简体转繁体，避免wikipedia中id是繁体的问题
         Element element = doc.getElementById(facetName);
         Element parentElement = element.parent();
-        Element nextElement = parentElement.nextElementSibling();
-        StringBuffer stringBuffer = new StringBuffer();
-        while (nextElement.tagName() != "h1" && nextElement.tagName() != "h2" && nextElement.tagName() != "h3") {
-            Element currentElement = nextElement;
-            String currentContent = currentElement.text();
-            stringBuffer.append(currentContent);
-            nextElement = currentElement.nextElementSibling();
+        if (parentElement != null) {
+            Element nextElement = parentElement.nextElementSibling();
+            StringBuffer stringBuffer = new StringBuffer();
+            while (nextElement != null && nextElement.tagName() != "h1" && nextElement.tagName() != "h2" && nextElement.tagName() != "h3") {
+                Element currentElement = nextElement;
+                String currentContent = currentElement.text();
+                stringBuffer.append(currentContent);
+                nextElement = currentElement.nextElementSibling();
+            }
+            return stringBuffer.toString();
         }
-        return stringBuffer.toString();
+
+        return null;
     }
 
     /**

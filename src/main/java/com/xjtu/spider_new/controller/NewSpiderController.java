@@ -10,6 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URISyntaxException;
+import java.util.List;
+
 /**
  * 2021使用的爬虫
  *
@@ -39,5 +42,82 @@ public class NewSpiderController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @CrossOrigin
+    @PostMapping("/buildFacetsByTopicList")
+    @ApiOperation(value = "构建指定课程下的所有主题列表中的所有分面",
+            notes = "构建指定课程下的所有主题列表中的所有分面")
+    public ResponseEntity buildFacetsByTopicList(@RequestParam(name = "domainName") String domainName,
+                                                 @RequestParam(name = "isChinese") Boolean isChinese,
+                                                 @RequestParam(name = "topicNames") List<String> topicNames) throws URISyntaxException {
+        Result result = NewSpiderService.facetExtraction(domainName, topicNames, isChinese, false);
+
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @CrossOrigin
+    @PostMapping("/fillEmptyTopic")
+    @ApiOperation(value = "填充单个空主题",
+            notes = "填充单个空主题")
+    public ResponseEntity fillEmptyTopic(@RequestParam(name = "domainName") String domainName,
+                                                 @RequestParam(name = "isChinese") Boolean isChinese,
+                                                 @RequestParam(name = "topicId") Long topicId) throws URISyntaxException {
+        Result result = SpiderService.crawlEmptyTopic(topicId, isChinese);
+
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @CrossOrigin
+    @PostMapping("/fillEmptyFacet")
+    @ApiOperation(value = "填充单个空分面",
+            notes = "填充单个空分面")
+    public ResponseEntity fillEmptyFacet(@RequestParam(name = "facetId") Long facetId) throws Exception {
+
+        Result result = SpiderService.crawlEmptyFacet(facetId);
+
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @CrossOrigin
+    @PostMapping("/fillEmptyDomain")
+    @ApiOperation(value = "填充单个空课程",
+            notes = "填充单个空课程")
+    public ResponseEntity fillEmptyDomain(@RequestParam(name = "domainId") Long domainId,
+                                          @RequestParam(name = "isChinese") Boolean isChinese) throws Exception {
+
+        Result result = SpiderService.crawlEmptyDomain(domainId, isChinese);
+
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @CrossOrigin
+    @PostMapping("/fillEmpty")
+    @ApiOperation(value = "找一个空的地方开始填充",
+            notes = "找一个空的地方开始填充")
+    public ResponseEntity fillEmpty() throws Exception {
+
+        Result result = SpiderService.crawlEmptyData();
+
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 
 }

@@ -21,6 +21,15 @@ import java.util.Map;
 public interface FacetRepository extends JpaRepository<Facet, Long>, JpaSpecificationExecutor<Facet> {
 
     /**
+     * 判断topic下是否有facet
+     * @param topicId
+     * @return
+     */
+    @Modifying(clearAutomatically = true)
+    @Transactional(rollbackFor = Exception.class)
+    boolean existsFacetByTopicId(Long topicId);
+
+    /**
      * 根据主题id删除主题下的所有分面
      *
      * @param topicId

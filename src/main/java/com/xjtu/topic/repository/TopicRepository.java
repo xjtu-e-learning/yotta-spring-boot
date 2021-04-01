@@ -20,6 +20,17 @@ import java.util.Map;
 public interface TopicRepository extends JpaRepository<Topic, Long>, JpaSpecificationExecutor<Topic> {
 
     /**
+     * 根据课程id判断是否存在主题
+     * @param domainId
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    boolean existsTopicByDomainId(Long domainId);
+
+    @Transactional(rollbackFor = Exception.class)
+    boolean existsByDomainId(Long domainId);
+
+    /**
      * 根据课程id，查询课程下的所有主题
      *
      * @param domainId 课程id
