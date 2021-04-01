@@ -14,7 +14,7 @@ public class AssembleSegment {
     public static void main(String[] args) {
         AssembleSegment as = new AssembleSegment();
         try{
-            System.out.println(as.assembleSegment(new String("老陈\n成了".getBytes("UTF-8"))));
+            System.out.println(as.assembleSegment(new String("test\ntest".getBytes("UTF-8"))));
         }catch (Exception e){
 
         }
