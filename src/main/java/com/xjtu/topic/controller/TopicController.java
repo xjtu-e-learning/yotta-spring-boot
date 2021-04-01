@@ -162,7 +162,7 @@ public class TopicController {
         List<String> allDomainName=new ArrayList<>();
         List<Domain> domains = (List<Domain>) domainService.findDomains().getData();
         List<String> filterDomainNames= Arrays.asList(notFilterDomain);
-        for (int i = 23; i < domains.size(); i++) {
+        for (int i = 314; i < domains.size(); i++) {
             Domain domain = domains.get(i);
             String domainName = domain.getDomainName();
             allDomainName.add(domainName);

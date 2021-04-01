@@ -521,7 +521,7 @@ public class TopicService {
             return ResultUtil.success(ResultEnum.TOPIC_SEARCH_ERROR_1.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_1.getMsg() + "该课程主题数目为0", results);
         }
 
-        logger.info("课程主题抽取成功");
+        logger.info(domainName+" 课程主题抽取成功");
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg() + "抽取到主题个数为" + results.size(), results);
     }
 
