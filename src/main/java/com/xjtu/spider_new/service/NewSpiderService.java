@@ -314,7 +314,7 @@ public class NewSpiderService {
 //        crawler3.start();
 
         // todo: 改成线程池
-        int thread_num = 2;
+        int thread_num = 3;
         for (int i = 0; i < thread_num; i++) {
             Thread.sleep(5000);
             while (synLock < 0)
@@ -359,8 +359,9 @@ public class NewSpiderService {
         topicList.add(topic.getTopicName());
 
         // 调用lhx师兄接口
-
+        Log.log( Thread.currentThread().getName() + "===================" + "爬取主题名为" + topic.getTopicName() + "课程名为" + parentDomain.getDomainName() + "主题id为" + topicId);
         Result result = facetExtraction(parentDomain.getDomainName(), topicList, this.isChinese, false, 0, topicId);
+        Log.log("===============主题 " + topic.getTopicName() + " 下分面构建完毕，开始爬取对应碎片===============");
 
         for (Object value : ((LinkedHashMap) result.getData()).values()) {
             List<String> facetNames = (ArrayList<String>) value;
