@@ -268,19 +268,30 @@ public class NewSpiderService {
 
         }
 
-        Thread.sleep(500);
-        while (synLock < 0)
-            Thread.sleep(10);
-        synLock--;
-        Thread crawler2 = new Thread(crawlerRunnable);
-        crawler2.start();
+//        Thread.sleep(500);
+//        while (synLock < 0)
+//            Thread.sleep(10);
+//        synLock--;
+//        Thread crawler2 = new Thread(crawlerRunnable);
+//        crawler2.start();
+//
+//        Thread.sleep(500);
+//        while (synLock < 0)
+//            Thread.sleep(10);
+//        synLock--;
+//        Thread crawler3 = new Thread(crawlerRunnable);
+//        crawler3.start();
 
-        Thread.sleep(500);
-        while (synLock < 0)
-            Thread.sleep(10);
-        synLock--;
-        Thread crawler3 = new Thread(crawlerRunnable);
-        crawler3.start();
+        // todo: 改成线程池
+        int thread_num = 5;
+        for (int i = 0; i < thread_num; i++) {
+            Thread.sleep(5000);
+            while (synLock < 0)
+                Thread.sleep(10);
+            synLock--;
+            new Thread(crawlerRunnable).start();
+        }
+
 
             // 先删除数据库中的缺失记录防止分布进行爬取时冲突
             // 若非分布式爬取，这个操作可以放在爬取之后防止出错
