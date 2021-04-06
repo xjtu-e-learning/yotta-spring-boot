@@ -1,6 +1,7 @@
 package com.xjtu.assemble.service;
 
 import com.xjtu.assemble.algorithm.AssembleMatch;
+import com.xjtu.assemble.algorithm.AssembleSegment;
 import com.xjtu.assemble.dao.AssembleDAO;
 import com.xjtu.assemble.domain.Assemble;
 import com.xjtu.assemble.domain.TemporaryAssemble;
@@ -1266,7 +1267,7 @@ public class AssembleService {
      * @return
      * @author Qi Jingchao
      */
-    public Result isAssembleFacetMatchByAssembleAndFacet(String facet, String assemble){
+    public Result isAssembleFacetMatchByAssembleAndFacet(String facet, String assemble) {
         AssembleMatch am = new AssembleMatch();
 //        String path = "G:\\JavaProjects\\Yotta";
 //        am.trainModel(path);
@@ -1276,6 +1277,24 @@ public class AssembleService {
         boolean isMatch = am.isAssembleFacetMatch(facet, assemble);
 //        System.out.println(isMatch);
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), isMatch);
+    }
+
+
+    public Result assignFacetForFacet(String assemble) {
+        AssembleMatch am = new AssembleMatch();
+        logger.info("正在为碎片匹配分面");
+        List<String> assignFacet = am.assignFacetForassemble(assemble);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), assignFacet.toString());
+    }
+
+
+    public Result assembleSegment(String assemble) {
+        if (assemble.length() == 0) {
+            logger.error("碎片为空");
+            return ResultUtil.error(ResultEnum.Assemble_UPDATE_ERROR_2.getCode(), ResultEnum.Assemble_UPDATE_ERROR_2.getMsg(), "碎片查询失败：对应课程不存在");
+        }
+        AssembleSegment as = new AssembleSegment();
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), as.assembleSegment(assemble).toString());
     }
 
 }

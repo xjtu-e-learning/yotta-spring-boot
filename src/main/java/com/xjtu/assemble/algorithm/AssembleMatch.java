@@ -22,7 +22,7 @@ public class AssembleMatch {
         boolean result = false;
 //        FastText model = loadModel("G:\\JavaProjects\\Yotta");
         assemble = textSeg(assemble);
-        List<ScoreLabelPair> modelOutput = testModel(facet, assemble);
+        List<ScoreLabelPair> modelOutput = testModel(assemble);
         List<String> modelOutputLabel = new ArrayList<>();
         for (int i = 0; i < modelOutput.size(); i++) {
             modelOutputLabel.add(modelOutput.get(i).getLabel());
@@ -36,11 +36,11 @@ public class AssembleMatch {
         return result;
     }
 
-    public List<String> assignFacetForassemble(String facet, String assemble) {
+    public List<String> assignFacetForassemble(String assemble) {
         List<String> result = new ArrayList<>();
 //        FastText model = loadModel("G:\\JavaProjects\\Yotta");
         assemble = textSeg(assemble);
-        List<ScoreLabelPair> modelOutput = testModel(facet, assemble);
+        List<ScoreLabelPair> modelOutput = testModel(assemble);
         List<String> modelOutputLabel = new ArrayList<>();
         for (int i = 0; i < modelOutput.size(); i++) {
             modelOutputLabel.add(modelOutput.get(i).getLabel().replace("__label__", ""));
@@ -70,7 +70,7 @@ public class AssembleMatch {
     }
 
 
-    public List<ScoreLabelPair> testModel(String facet, String assemble) {
+    public List<ScoreLabelPair> testModel(String assemble) {
         FastText model = loadModel();
         List<ScoreLabelPair> result = model.predict(Arrays.asList(assemble.split(" ")), 3, 0);
         return result;
@@ -92,7 +92,7 @@ public class AssembleMatch {
     public static void main(String[] args) {
         AssembleMatch am = new AssembleMatch();
         am.trainModel();
-        List<String> result = am.assignFacetForassemble("定义", "一个电池电阻组成直流电路周围空间中坡印亭矢量方向向外说明流出");
+        List<String> result = am.assignFacetForassemble("一个电池电阻组成直流电路周围空间中坡印亭矢量方向向外说明流出");
         System.out.println(result.toString());
         boolean isMatch = am.isAssembleFacetMatch("定义", "一个电池电阻组成直流电路周围空间中坡印亭矢量方向向外说明流出");
         System.out.println(isMatch);

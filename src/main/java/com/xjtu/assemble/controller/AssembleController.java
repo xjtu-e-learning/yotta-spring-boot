@@ -415,10 +415,46 @@ public class AssembleController {
      * @author Qi Jingchao
      */
     @PostMapping("/isAssembleFacetMatchByAssembleAndFacet")
-    @ApiOperation(value="判断碎片装配的分面是否正确", notes = "限标准一级分面，包括：定义、性质、历史、应用、原理等")
+    @ApiOperation(value = "判断碎片装配的分面是否正确", notes = "限标准一级分面，包括：定义、性质、历史、应用、原理等")
     public ResponseEntity isAssembleFacetMatchByAssembleAndFacet(@RequestParam(value = "facetName") String facetName,
                                                                  @RequestParam(value = "assembleContent") String assembleContent) {
         Result result = assembleService.isAssembleFacetMatchByAssembleAndFacet(facetName, assembleContent);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
+    /**
+     * 为碎片匹配分面（不入库，仅供测试），分配的分面限标准一级分面，包括：定义、性质、历史、应用、原理等
+     *
+     * @param assembleContent
+     * @return
+     * @author Qi Jingchao
+     */
+    @PostMapping("/assignFacetForAssembleByAssembleContent")
+    @ApiOperation(value = "为碎片匹配分面（不入库，仅供测试）", notes = "分配的分面限标准一级分面，包括：定义、性质、历史、应用、原理等")
+    public ResponseEntity assignFacetForAssembleByAssembleContent(@RequestParam(value = "assembleContent") String assembleContent) {
+        Result result = assembleService.assignFacetForFacet(assembleContent);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
+    /**
+     * 超长碎片分割（不入库，仅供测试），仅供博客、百科等文章式长碎片。
+     *
+     * @param assembleContent
+     * @return
+     * @author Qi Jingchao
+     */
+    @PostMapping("/assembleSegment")
+    @ApiOperation(value = "超长碎片分割（不入库，仅供测试）", notes = "仅供博客、百科等文章式长碎片")
+    public ResponseEntity assembleSegment(@RequestParam(value = "assembleContent") String assembleContent) {
+        Result result = assembleService.assembleSegment(assembleContent);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
