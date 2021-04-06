@@ -23,6 +23,7 @@ import com.xjtu.topic.repository.TopicRepository;
 import com.xjtu.topic.service.TopicService;
 import com.xjtu.utils.Log;
 import com.xjtu.utils.ResultUtil;
+import org.omg.PortableServer.THREAD_POLICY_ID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -30,11 +31,14 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import javax.xml.bind.SchemaOutputResolver;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 2021使用的爬虫
@@ -67,6 +71,10 @@ public class NewSpiderService {
 
     @Autowired
     private MissingRecordRepository missingRecordRepository;
+
+    private Thread crawler;
+
+    private int synLock = 1;
 
     /**
      * 主题-分面-碎片爬虫方法
@@ -158,10 +166,10 @@ public class NewSpiderService {
      * @return
      */
     public static Result facetExtraction(String domainName,List<String> topicNameList, Boolean isChineseOrNot, boolean isConstruct) throws URISyntaxException {
-//        String facetConstruct = "http://maotoumao.xyz:5373/facet-construct";
-//        String facetConstructStatus = "http://maotoumao.xyz:5373/facet-construct-status";
-        String facetConstruct = "http://10.181.184.41:3747/facet-construct";
-        String facetConstructStatus = "http://10.181.184.41:3747/facet-construct-status";
+        String facetConstruct = "http://maotoumao.xyz:5373/facet-construct";
+        String facetConstructStatus = "http://maotoumao.xyz:5373/facet-construct-status";
+//        String facetConstruct = "http://10.181.184.41:3747/facet-construct";
+//        String facetConstructStatus = "http://10.181.184.41:3747/facet-construct-status";
         String url = isConstruct ? facetConstruct : facetConstructStatus;
         //使用Restemplate来发送HTTP请求
         RestTemplate restTemplate = new RestTemplate();
@@ -226,50 +234,82 @@ public class NewSpiderService {
 
 
     public Result crawlEmptyData() throws Exception {
-        Optional<MissingRecord> first = null;
-
-        while (missingRecordRepository.count() != 0) {
+//        Optional<MissingRecord> first = null;
+        synLock = 1;
+//        while (missingRecordRepository.count() != 0) {
 
 //            first = missingRecordRepository.findFirstBy();
-            first = missingRecordRepository.findFirstByType(1);
-            if (!first.isPresent())
-                return ResultUtil.error(404, "失败", "已无缺失数据");
-
-            MissingRecord missingRecord = first.get();
-            int typeId = missingRecord.getType();
+//            first = missingRecordRepository.findFirstByType(1); // 1053349
+//            if (!first.isPresent())
+//                return ResultUtil.error(404, "失败", "已无缺失数据");
+//
+//            MissingRecord missingRecord = first.get();
+//            int typeId = missingRecord.getType();
 
             // 先删除数据库中的缺失记录防止分布进行爬取时冲突
             // 若非分布式爬取，这个操作可以放在爬取之后防止出错
 //            missingRecordRepository.deleteById(missingRecord.getId());
 
-            switch (typeId) {
-                case 0 :
-                    Log.log("===============" + "找到空课程, id为" + missingRecord.getSpecificId() + ", 开始构建" + "===============");
-                    crawlEmptyDomain(missingRecord.getSpecificId(), true); // !!!先默认都为中文
-                    break;
-                case 1 :
-                    Log.log("===============" + "找到空主题, id为" + missingRecord.getSpecificId() + ", 开始构建" + "===============");
-                    crawlEmptyTopic(missingRecord.getSpecificId(), true); // !!!先默认都为中文
-                    break;
-                case 2 :
-                    Log.log("===============" + "找到空分面, id为" + missingRecord.getSpecificId() + ", 开始构建" + "===============");
-                    crawlEmptyFacet(missingRecord.getSpecificId());
-                    break;
-            }
+        if (missingRecordRepository.countByType(1) == 0)
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "空分面全部填充完成");
 
-            // 先删除数据库中的缺失记录防止分布进行爬取时冲突
-            // 若非分布式爬取，这个操作可以放在爬取之后防止出错
-            missingRecordRepository.deleteById(missingRecord.getId());
+        CrawlerRunnable crawlerRunnable = new CrawlerRunnable();
+        try {
+            while (synLock < 0)
+                Thread.sleep(10);
+            crawler = new Thread(crawlerRunnable);
+            synLock--;
+            crawler.start();
+        } catch (Exception e) {
+            // 若出错了，将数据写回数据库
+//                missingRecordRepository.save(new MissingRecord(typeId, missingRecord.getSpecificId()));
+
+            e.printStackTrace();
 
         }
 
-        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "填充完成");
+//        Thread.sleep(500);
+//        while (synLock < 0)
+//            Thread.sleep(10);
+//        synLock--;
+//        Thread crawler2 = new Thread(crawlerRunnable);
+//        crawler2.start();
+//
+//        Thread.sleep(500);
+//        while (synLock < 0)
+//            Thread.sleep(10);
+//        synLock--;
+//        Thread crawler3 = new Thread(crawlerRunnable);
+//        crawler3.start();
+
+        // todo: 改成线程池
+        int thread_num = 5;
+        for (int i = 0; i < thread_num; i++) {
+            Thread.sleep(5000);
+            while (synLock < 0)
+                Thread.sleep(10);
+            synLock--;
+            new Thread(crawlerRunnable).start();
+        }
+
+
+            // 先删除数据库中的缺失记录防止分布进行爬取时冲突
+            // 若非分布式爬取，这个操作可以放在爬取之后防止出错
+//            missingRecordRepository.deleteById(missingRecord.getId());
+
+//        }
+
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "正在填充，详情查看/newSpiderFor2021/emptyCrawlerStatus");
+    }
+
+    public Result getEmptyCrawlerInfo() {
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), crawler.getState());
     }
 
 
     public Result crawlEmptyDomain(Long domainId, boolean isChinese) throws Exception {
         Domain domain = domainRepository.findByDomainId(domainId);
-        setIsChinese(isChinese);
+        this.isChinese = checkIsChinese(domain.getDomainName());
         TopicCrawler.setDomainLanguage();
 
         // 调用zd师兄接口
@@ -280,23 +320,28 @@ public class NewSpiderService {
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "大概好了吧");
     }
 
-    public Result crawlEmptyTopic(Long topicId, boolean isChinese) throws URISyntaxException {
+    public Result crawlEmptyTopic(Long topicId, boolean isChinese) throws Exception {
         Topic topic = topicRepository.findByTopicId(topicId);
         Domain parentDomain = domainRepository.findByDomainId(topic.getDomainId());
+        this.isChinese = checkIsChinese(topic.getTopicName());
         List<String> topicList = new ArrayList<>();
         topicList.add(topic.getTopicName());
 
         // 调用lhx师兄接口
 
-        Result result = facetExtraction(parentDomain.getDomainName(), topicList, isChinese, false);
+        Result result = facetExtraction(parentDomain.getDomainName(), topicList, this.isChinese, false);
 
         for (Object value : ((LinkedHashMap) result.getData()).values()) {
             List<String> facetNames = (ArrayList<String>) value;
             for (String facetName : facetNames) {
 
                 // !!!这里暂时只考虑了一级分面的情况
-                if (facetRepository.findByTopicIdAndFacetName(topicId, facetName) == null)
+                if (facetRepository.findByTopicIdAndFacetName(topicId, facetName) == null) {
                     facetRepository.save(new Facet(facetName, 1, topicId, null));
+
+                    // 然后爬取对应的空分面
+                    crawlEmptyFacet(facetRepository.findByTopicIdAndFacetName(topicId, facetName).getFacetId());
+                }
             }
         }
 
@@ -306,10 +351,29 @@ public class NewSpiderService {
     public Result crawlEmptyFacet(Long facetId) throws Exception {
         Facet facet = facetRepository.findByFacetId(facetId);
         Topic parentTopic = topicRepository.findByTopicId(facet.getTopicId());
+        if (parentTopic == null) {
+            facetRepository.deleteByFacetId(facetId);
+            return ResultUtil.success(ResultEnum.FACET_SEARCH_ERROR_4.getCode(), ResultEnum.FACET_SEARCH_ERROR_4.getMsg(), "error");
+        }
         Domain parentDomain = domainRepository.findByDomainId(parentTopic.getDomainId());
 
+        // 若无此课程，说明数据库中数据有问题，直接删掉该课程下全部主题，分面会在线程中自动删除
+        if (parentDomain == null) {
+            topicRepository.deleteByDomainId(parentTopic.getDomainId());
+            Log.log(Thread.currentThread().getName() + " ================================= 该分面数据异常，无对应课程，已删除该课程id下的所有主题");
+        }
+
         // 调用ljj师兄接口
-        AssembleCrawler.crawlAssembleByFacet(parentDomain, parentTopic, facet);
+        boolean canCrawled = AssembleCrawler.crawlAssembleByFacet(parentDomain, parentTopic, facet);
+
+        // 如果在该分面下爬不到碎片，直接删了这个分面
+        if (!canCrawled) {
+            facetRepository.deleteByFacetId(facetId);
+            // 删除分面后，若其父主题下没分面了，则把这个主题也删除
+            if (!facetRepository.existsFacetByTopicId(parentTopic.getTopicId())) {
+                topicRepository.delete(parentTopic.getTopicId());
+            }
+        }
 
         // 此处应该加更多错误判断
 
@@ -323,4 +387,128 @@ public class NewSpiderService {
     public static void setIsChinese(Boolean isChinese) {
         NewSpiderService.isChinese = isChinese;
     }
+
+    /**
+     * 判断是否为中文
+     * @param name
+     * @return
+     */
+    public boolean checkIsChinese (String name) {
+        Pattern p = Pattern.compile("[\u4e00-\u9fa5]");
+        Matcher m = p.matcher(name);
+        return m.find();
+    }
+
+    class CrawlerRunnable implements Runnable {
+        private Optional<MissingRecord> first;
+        private Long missingRecordId;
+        private Long specificId;
+        private int type;
+        private boolean isChinese;
+
+        public CrawlerRunnable() {
+        }
+
+        public CrawlerRunnable(Long specificId, int type) {
+            this.specificId = specificId;
+            this.type = type;
+        }
+
+        @Override
+        public void run() {
+
+            first = missingRecordRepository.findFirstByType(2); //
+
+            this.missingRecordId = first.get().getId();
+
+            // 先删除记录，防止多线程读冲突
+            missingRecordRepository.deleteById(missingRecordId);
+            System.out.println(missingRecordRepository.findFirstByType(2).get().getId());
+            synLock++;
+
+            this.specificId = first.get().getSpecificId();
+            this.type = first.get().getType();
+
+
+            if (first.isPresent()) {
+
+                switch (type) {
+                    case 0:
+                        Log.log("===============" + "找到空课程, id为" + specificId + ", 开始构建" + "===============");
+                        try {
+                            crawlEmptyDomain(specificId, true); // !!!先默认都为中文
+                            Log.log("===============" + Thread.currentThread().getName() + "已完成工作，课程 " + specificId + " 下的主题爬取完毕");
+                        } catch (Exception e) {
+                            // 若出错，将记录写回数据库
+                            missingRecordRepository.save(new MissingRecord(type, specificId));
+                            e.printStackTrace();
+                        }
+                        break;
+                    case 1:
+                        Log.log("===============" + "找到空主题, id为" + specificId + ", 开始构建" + "===============");
+                        try {
+                            crawlEmptyTopic(specificId, true); // !!!先默认都为中文
+                            Log.log("===============" + Thread.currentThread().getName() + "已完成工作，主题 " + specificId + " 下的分面爬取完毕");
+                        } catch (URISyntaxException e) {
+                            // 若出错，将记录写回数据库
+                            missingRecordRepository.save(new MissingRecord(type, specificId));
+                            e.printStackTrace();
+                        } catch (Exception e) {
+                            // 若出错，将记录写回数据库
+                            missingRecordRepository.save(new MissingRecord(type, specificId));
+                            e.printStackTrace();
+                        }
+                        break;
+                    case 2:
+                        Log.log("===============" + "找到空分面, id为" + specificId + ", 开始构建" + "===============");
+                        try {
+                            Result res = crawlEmptyFacet(specificId);
+                            if (res.getCode() == ResultEnum.FACET_SEARCH_ERROR_4.getCode()) {
+                                Log.log("===============" + Thread.currentThread().getName() + "已完成工作，分面 " + specificId + " 不存在对应主题，已将其删除");
+                            } else {
+                                Log.log("===============" + Thread.currentThread().getName() + "已完成工作，分面 " + specificId + " 下的碎片爬取完毕");
+                            }
+
+//                            missingRecordRepository.deleteById(missingRecordId);
+                        } catch (Exception e) {
+
+                            // 若出错，将记录写回数据库
+                            missingRecordRepository.save(new MissingRecord(type, specificId));
+
+                            e.printStackTrace();
+                        }
+                        break;
+                }
+
+                // 爬完一个空的后接着爬
+//                try {
+//                    crawlEmptyData();
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+
+                try {
+                    Thread.sleep(500);
+                    while (synLock < 0) {
+                        Thread.sleep(10);
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                synLock--;
+                CrawlerRunnable crawlerRunnable = new CrawlerRunnable();
+                crawler = new Thread(crawlerRunnable);
+                try {
+                    crawler.start();
+                } catch (Exception e) {
+                    // 若出错了，将数据写回数据库
+//                missingRecordRepository.save(new MissingRecord(typeId, missingRecord.getSpecificId()));
+
+                    e.printStackTrace();
+
+                }
+            }
+        }
+    }
+
 }

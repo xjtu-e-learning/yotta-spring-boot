@@ -197,12 +197,14 @@ public class AssembleCrawler {
      * @param facet
      * @throws Exception
      */
-    public static void crawlAssembleByFacet(Domain domain, Topic topic, Facet facet) throws Exception {
+    public static boolean crawlAssembleByFacet(Domain domain, Topic topic, Facet facet) throws Exception {
         String topicHtml = SpiderUtils.seleniumWiki(topic.getTopicUrl());
         Document wikiDoc = JsoupDao.parseHtmlText(topicHtml);
         String facetName = facet.getFacetName();
         String assembleContent = "";
         String assembleText = "";
+        boolean res = false; // 记录是否爬到了碎片
+
         try {
             // 在wikipedia上爬碎片
             assembleContent = getAssembleContent(wikiDoc, facetName);
@@ -215,6 +217,7 @@ public class AssembleCrawler {
             Long sourceId = Long.valueOf(1);
             assembleCount++;
             MysqlReadWriteDAO.storeAssemble(assembleContent, assembleText, domain.getDomainId(), facet.getFacetId(), sourceId);
+            res = true;
         }
 
         // 在简书源上爬碎片
@@ -242,6 +245,7 @@ public class AssembleCrawler {
                     Long sourceId = Long.valueOf(17);
                     assembleCount++;
                     MysqlReadWriteDAO.storeAssemble(assembleContent, assembleText, domain.getDomainId(), facet.getFacetId(), sourceId);
+                    res = true;
                 } else {
                     Log.log("简书链接无法解析：" + jianshuUrl);
                 }
@@ -249,14 +253,18 @@ public class AssembleCrawler {
         } catch (Exception e) {
             Log.log("\n简书碎片列表地址获取失败\n链接地址：" + jianshuSearchUrl);
         }
+
+        return res;
     }
 
     /**
      * 获得维基碎片的内容
      */
     public static String getAssembleContent(Document doc, String facetName) {
-        // 未使用简体转繁体，避免wikipedia中id是繁体的问题
-        Element element = doc.getElementById(facetName);
+        // 避免wikipedia中id是简繁体的问题
+        Element element = doc.getElementById(facetName) == null ?
+                doc.getElementById(ZHConverter.convert(facetName, ZHConverter.TRADITIONAL)) :
+                doc.getElementById(facetName);
         Element parentElement = element.parent();
         if (parentElement != null) {
             Element nextElement = parentElement.nextElementSibling();
@@ -277,8 +285,10 @@ public class AssembleCrawler {
      * 获得维基碎片的纯文本
      */
     public static String getAssembleText(Document doc, String facetName) {
-        // 未使用简体转繁体，避免wikipedia中id是繁体的问题
-        Element element = doc.getElementById(facetName);
+        // 避免wikipedia中id是简繁体的问题
+        Element element = doc.getElementById(facetName) == null ?
+                doc.getElementById(ZHConverter.convert(facetName, ZHConverter.TRADITIONAL)) :
+                doc.getElementById(facetName);
         Element parentElement = element.parent();
         if (parentElement != null) {
             Element nextElement = parentElement.nextElementSibling();

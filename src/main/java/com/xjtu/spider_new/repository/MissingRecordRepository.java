@@ -21,4 +21,10 @@ public interface MissingRecordRepository extends JpaRepository<MissingRecord, Lo
 
     @Transactional(rollbackFor = Exception.class)
     Optional<MissingRecord> findFirstByType(int type);
+
+    @Transactional(rollbackFor = Exception.class)
+    int countByType(int type);
+
+    @Transactional(rollbackFor = Exception.class)
+    MissingRecord findById(Long id);
 }
