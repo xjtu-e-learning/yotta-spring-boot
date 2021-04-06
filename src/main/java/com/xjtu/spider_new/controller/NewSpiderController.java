@@ -49,7 +49,7 @@ public class NewSpiderController {
     public ResponseEntity buildFacetsByTopicList(@RequestParam(name = "domainName") String domainName,
                                                  @RequestParam(name = "isChinese") Boolean isChinese,
                                                  @RequestParam(name = "topicNames") List<String> topicNames) throws URISyntaxException {
-        Result result = NewSpiderService.facetExtraction(domainName, topicNames, isChinese, false);
+        Result result = SpiderService.facetExtraction(domainName, topicNames, isChinese, false, 0, -1);
 
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);

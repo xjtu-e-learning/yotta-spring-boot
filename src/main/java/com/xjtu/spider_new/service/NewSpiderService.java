@@ -158,6 +158,19 @@ public class NewSpiderService {
     }
 
     /**
+     * 判断是否含有特殊字符
+     *
+     * @param str
+     * @return true为包含，false为不包含
+     */
+    public boolean isSpecialChar(String str) {
+        String regEx = "[`~!@#$%^&:<>|\\[\\]/~！#￥%……&|【】‘；：。，、？]|\n|\r|\t";
+        Pattern p = Pattern.compile(regEx);
+        Matcher m = p.matcher(str);
+        return m.find();
+    }
+
+    /**
      * 调用根据lhx师兄的接口，得到返回的爬取并抽取分面结果
      * @param domainName 课程名
      * @param isChineseOrNot 是否为中文
@@ -165,7 +178,16 @@ public class NewSpiderService {
      * @param isConstruct true为构造分面，false为查看构造状态
      * @return
      */
-    public static Result facetExtraction(String domainName,List<String> topicNameList, Boolean isChineseOrNot, boolean isConstruct) throws URISyntaxException {
+    public  Result facetExtraction(String domainName,List<String> topicNameList, Boolean isChineseOrNot, boolean isConstruct, int tryTime, long tmpId) throws URISyntaxException {
+
+        if (isSpecialChar(topicNameList.get(0))) {
+            // 数据异常，直接删除
+            topicRepository.delete(tmpId);
+
+            Log.log("数据异常，有特殊字符 ，主题名为 " + topicNameList.get(0));
+            return ResultUtil.error(ResultEnum.TSPIDER_ERROR2.getCode(), ResultEnum.TSPIDER_ERROR2.getMsg(), "数据异常，有特殊字符");
+        }
+
         String facetConstruct = "http://maotoumao.xyz:5373/facet-construct";
         String facetConstructStatus = "http://maotoumao.xyz:5373/facet-construct-status";
 //        String facetConstruct = "http://10.181.184.41:3747/facet-construct";
@@ -195,7 +217,7 @@ public class NewSpiderService {
         //执行HTTP请求，将返回的结构使用ResultVO类格式化
         if (isConstruct) {
             restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
-            return facetExtraction(domainName, topicNameList, isChineseOrNot, false);
+            return facetExtraction(domainName, topicNameList, isChineseOrNot, false, 0, tmpId);
         }
         ResponseEntity<FacetResultVO> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, FacetResultVO.class);
 
@@ -213,18 +235,27 @@ public class NewSpiderService {
 //        }
 
         if (facetResult.isRunning()) {
-            Log.log("========================="  + "分面爬取正在进行中" + "=========================");
+//            Log.log("========================="  + "分面爬取正在进行中" + "=========================");
+            if (tryTime > 20) {
+                // 数据异常，直接删除
+                Log.log("数据异常，分面爬取接口调用错误 ，主题名为 " + topicNameList.get(0) + "错误为 " + facetResult.getMessage() + " ，已删除错误主题");
+                topicRepository.delete(tmpId);
+
+                return ResultUtil.error(ResultEnum.TSPIDER_ERROR2.getCode(), ResultEnum.TSPIDER_ERROR2.getMsg(), facetResult.getMessage());
+
+            }
+            System.out.print("...分面爬取中...");
             try {
-                Thread.sleep(3000);
+                Thread.sleep(5000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 //            ResultUtil.error(ResultEnum.TSPIDER_ERROR2.getCode(), ResultEnum.TSPIDER_ERROR2.getMsg(), facetResult.getMessage());
-            return facetExtraction(domainName, topicNameList, isChineseOrNot, false);
+            return facetExtraction(domainName, topicNameList, isChineseOrNot, false, tryTime + 1, tmpId);
         }
         else {
             if (facetResult.getFacets() == null) {
-                return facetExtraction(domainName, topicNameList, isChineseOrNot, true);
+                return facetExtraction(domainName, topicNameList, isChineseOrNot, true, 0, tmpId);
             } else {
                 return ResultUtil.success(ResultEnum.SUCCESS.getCode(), facetResult.getMessage(), facetResult.getFacets());
             }
@@ -283,7 +314,7 @@ public class NewSpiderService {
 //        crawler3.start();
 
         // todo: 改成线程池
-        int thread_num = 5;
+        int thread_num = 2;
         for (int i = 0; i < thread_num; i++) {
             Thread.sleep(5000);
             while (synLock < 0)
@@ -329,7 +360,7 @@ public class NewSpiderService {
 
         // 调用lhx师兄接口
 
-        Result result = facetExtraction(parentDomain.getDomainName(), topicList, this.isChinese, false);
+        Result result = facetExtraction(parentDomain.getDomainName(), topicList, this.isChinese, false, 0, topicId);
 
         for (Object value : ((LinkedHashMap) result.getData()).values()) {
             List<String> facetNames = (ArrayList<String>) value;
@@ -417,13 +448,12 @@ public class NewSpiderService {
         @Override
         public void run() {
 
-            first = missingRecordRepository.findFirstByType(2); //
+            first = missingRecordRepository.findFirstByType(1); //
 
             this.missingRecordId = first.get().getId();
 
             // 先删除记录，防止多线程读冲突
             missingRecordRepository.deleteById(missingRecordId);
-            System.out.println(missingRecordRepository.findFirstByType(2).get().getId());
             synLock++;
 
             this.specificId = first.get().getSpecificId();
