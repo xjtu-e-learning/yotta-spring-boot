@@ -64,7 +64,7 @@ public class NewSpiderController {
             notes = "填充单个空主题")
     public ResponseEntity fillEmptyTopic(@RequestParam(name = "domainName") String domainName,
                                                  @RequestParam(name = "isChinese") Boolean isChinese,
-                                                 @RequestParam(name = "topicId") Long topicId) throws URISyntaxException {
+                                                 @RequestParam(name = "topicId") Long topicId) throws Exception {
         Result result = SpiderService.crawlEmptyTopic(topicId, isChinese);
 
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
@@ -112,6 +112,21 @@ public class NewSpiderController {
     public ResponseEntity fillEmpty() throws Exception {
 
         Result result = SpiderService.crawlEmptyData();
+
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @CrossOrigin
+    @PostMapping("/emptyCrawlerStatus")
+    @ApiOperation(value = "查看爬取空数据线程的状态",
+            notes = "查看爬取空数据线程的状态")
+    public ResponseEntity emptyCrawlerStatus() throws Exception {
+
+        Result result = SpiderService.getEmptyCrawlerInfo();
 
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
