@@ -1022,24 +1022,19 @@ public class TopicService {
             return ResultUtil.success(ResultEnum.TOPIC_SEARCH_ERROR_1.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_1.getMsg() + "该课程主题数目为0", results);
         }
 
-        List<String> originalTopicNameList=new ArrayList<>();
-        List<String> topicNameListAfterFilter=new ArrayList<>();
-
+        List<Topic> originalTopicNameList=new ArrayList<>();
         for(Topic topic:topicRaw){
-            String topicName = topic.getTopicName();
-            originalTopicNameList.add(topicName);
+            originalTopicNameList.add(topic);
         }
 
         Result result = findSelectedTopicsByDomainName(domainName);
         List<Topic> topicListAfterFilter = (List<Topic>)result.getData();
-        for(Topic topic :topicListAfterFilter){
-            topicNameListAfterFilter.add(topic.getTopicName());
-        }
+
 
         // 剩下的就是被过滤掉的，也是需要删除的
-        originalTopicNameList.removeAll(topicNameListAfterFilter);
-        for(String filterTopicName :originalTopicNameList){
-            Result result1 = deleteTopicCompleteByDomainNameAndTopicName(domainName, filterTopicName);
+        originalTopicNameList.removeAll(topicListAfterFilter);
+        for(Topic topic :originalTopicNameList){
+            Result result1 = deleteTopicCompleteByDomainNameAndTopicId(domainName, topic.getTopicId());
             if (!result1.getCode().equals(ResultEnum.SUCCESS.getCode())) {
                 return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR.getCode(), ResultEnum.TOPIC_DELETE_ERROR.getMsg());
             }
@@ -1049,11 +1044,9 @@ public class TopicService {
         topicNameMap.put("totalNum:",topicRaw.size());
         topicNameMap.put("filterNum:",originalTopicNameList.size());
         topicNameMap.put("Filter:",originalTopicNameList);
-        topicNameMap.put("remainNum:",topicNameListAfterFilter.size());
-        topicNameMap.put("Remain:",topicNameListAfterFilter);
-
+        topicNameMap.put("remainNum:",topicListAfterFilter.size());
+        topicNameMap.put("Remain:",topicListAfterFilter);
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicNameMap);
-
     }
 
     public Result getTopicNumByDomainName(String domainName) {
