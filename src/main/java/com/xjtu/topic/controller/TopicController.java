@@ -193,6 +193,40 @@ public class TopicController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @GetMapping("/getTopicNumByDomainName")
+    @ApiOperation(value = "通过课程名获取该课程下的主题数量", notes = "通过课程名获取该课程下的主题数量")
+    public ResponseEntity getTopicNumByDomainName(@RequestParam("domainName")String domainName) {
+
+        Result result = topicService.getTopicNumByDomainName(domainName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @GetMapping("/getTopicListByTopicNumLargerThanNum")
+    @ApiOperation(value = "通过输入主题数量，得到主题数大于该值的所有课程", notes = "通过输入主题数量，得到主题数大于该值的所有课程")
+    public ResponseEntity getTopicListByTopicNumLargerThanNum(@RequestParam("topicNum")Integer topicNum) {
+
+        Result result = topicService.getTopicListByTopicNumLargerThanNum(topicNum);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @GetMapping("/deleteNeedlessTopicByDomainName")
+    @ApiOperation(value = "输入课程名称和指定主题数量，删除该课程下主题数量超过指定数量的部分", notes = "输入课程名称和指定主题数量，删除该课程下主题数量超过指定数量的部分")
+    public ResponseEntity deleteNeedlessTopicByDomainName(@RequestParam("domainName")String domainName,
+                                                          @RequestParam("num")Integer num) {
+
+        Result result = topicService.deleteNeedlessTopicByDomainName(domainName,num);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
 
 
 
@@ -306,6 +340,30 @@ public class TopicController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @PostMapping("/deleteTopicCompleteByDomainNameAndTopicId")
+    @ApiOperation(value = "根据课程名和主题名，递归地依次删除该课程对应主题下的主题依赖关系、碎片、分面、主题，请谨慎操作！", notes = "根据课程名和主题名，递归地依次删除该课程对应主题下的主题依赖关系、碎片、分面、主题，请谨慎操作！")
+    public ResponseEntity deleteTopicCompleteByDomainNameAndTopicId(@RequestParam(name = "domainName") String domainName,
+                                                                      @RequestParam(name = "topicId") Long topicId) {
+        Result result = topicService.deleteTopicCompleteByDomainNameAndTopicId(domainName,topicId);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
+
+    @PostMapping("/deleteDuplicatedTopicCompleteByDomainName")
+    @ApiOperation(value = "根据课程名删除该课程下存在的重复主题", notes = "根据课程名删除该课程下存在的重复主题")
+    public ResponseEntity deleteDuplicatedTopicCompleteByDomainName(@RequestParam(name = "domainName") String domainName) {
+        Result result = topicService.deleteDuplicatedTopicCompleteByDomainName(domainName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
 
     @PostMapping("/deleteCompleteTopicByDomainId")
     @ApiOperation(value = "根据课程ID，递归地依次删除该课程下的主题依赖关系、碎片、分面、主题，请谨慎操作！", notes = "根据课程名，递归地依次删除该课程下的主题依赖关系、碎片、分面、主题，请谨慎操作！")
@@ -332,4 +390,7 @@ public class TopicController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
+
+
 }

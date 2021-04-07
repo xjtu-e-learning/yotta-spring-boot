@@ -43,6 +43,7 @@ public enum ResultEnum {
     DOMAIN_SEARCH_ERROR_2(124, "课程分页查询失败：查询的页数超过最大页数"),
     DOMAIN_GENERATE_ERROR(210, "课程构建失败：该课程已存在"),
     DOMAIN_SEARCH_ERROR_3(213, "课程查询失败：没有课程信息记录"),
+    DOMAIN_SEARCH_ERROR_4(214, "课程查询失败：课程信息列表无记录"),
 
     //主题
     TOPIC_INSERT_ERROR(125, "主题信息插入失败：主题名不存在或者为空"),
