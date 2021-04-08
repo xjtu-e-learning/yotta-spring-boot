@@ -427,14 +427,14 @@ public class AssembleController {
 
 
     /**
-     * 为碎片匹配分面（不入库，仅供测试），分配的分面限标准一级分面，包括：定义、性质、历史、应用、原理等
+     * 为碎片匹配分面（不入库，仅供测试），分配的分面限标准一级分面，包括：定义、性质、历史、应用、原理、类型、利弊等
      *
      * @param assembleContent
      * @return
      * @author Qi Jingchao
      */
     @PostMapping("/assignFacetForAssembleByAssembleContent")
-    @ApiOperation(value = "为碎片匹配分面（不入库，仅供测试）", notes = "分配的分面限标准一级分面，包括：定义、性质、历史、应用、原理等")
+    @ApiOperation(value = "为碎片匹配分面（不入库，仅供测试）", notes = "分配的分面限标准一级分面，包括：定义、性质、历史、应用、原理、类型、利弊等")
     public ResponseEntity assignFacetForAssembleByAssembleContent(@RequestParam(value = "assembleContent") String assembleContent) {
         Result result = assembleService.assignFacetForFacet(assembleContent);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
