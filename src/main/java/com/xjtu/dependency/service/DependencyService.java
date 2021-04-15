@@ -623,8 +623,10 @@ public class DependencyService {
         /**
          * 根据主题内容，调用算法得到主题认知关系
          */
-        RankDependency rankDependency = new RankDependency();
-        List<Dependency> generated_dependencies = rankDependency.rankText(topicContainAssembleTexts, topicContainAssembleTexts.size(), isEnglish);
+//        RankDependency rankDependency = new RankDependency();
+//        List<Dependency> generated_dependencies = rankDependency.rankText(topicContainAssembleTexts, topicContainAssembleTexts.size(), isEnglish);
+        GetAsymmetry getAsymmetry = new GetAsymmetry();
+        List<Dependency> generated_dependencies = getAsymmetry.AsyDependency(topicList, topicContainAssembleTexts);
 
         //保存自动构建的依赖关系，存到数据库
         dependencyRepository.save(generated_dependencies);

@@ -62,15 +62,6 @@ public class GetAsymmetry {
                         Dependency dependency = new Dependency(term2.getTopicId(), term1.getTopicId(), (float)Bfirst, term1.getDomainId());
                         dependenciesAll.add(dependency);
                     }
-//                    double dis = 0.0;
-//                    if (isEnglish) {
-//                        dis = CosineSimilar.getSimilarityEn(term1.getText(), term2.getText());
-//                    } else {
-//                        dis = CosineSimilar.getSimilarity(term1.getText(), term2.getText());
-//                    }
-////				    logger.info(dis+"");
-//                    TwoTuple<TopicContainAssembleText, TopicContainAssembleText> twoTuple = new TwoTuple<>(term1, term2);
-//                    disMap.put(twoTuple, dis);
                 }
             }
         }
