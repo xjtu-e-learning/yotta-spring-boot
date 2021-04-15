@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -33,6 +34,7 @@ public class DomainController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+
     @GetMapping("/getDomainsBySubject")
     @ApiOperation(value = "根据学科名，返回该学科下的所有课程", notes = "根据学科名，返回该学科下的所有课程")
     public ResponseEntity getDomainsBySubject(@RequestParam(name = "subjectName") String subjectName) {
@@ -42,6 +44,7 @@ public class DomainController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
 
     @GetMapping("/getDomains")
     @ApiOperation(value = "获得所有课程信息", notes = "获得所有课程信息")
@@ -63,6 +66,7 @@ public class DomainController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
 
     @GetMapping("/getDomainByName")
     @ApiOperation(value = "根据课程名，获得课程信息", notes = "根据课程名，获得课程信息")

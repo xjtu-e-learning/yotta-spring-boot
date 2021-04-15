@@ -66,10 +66,8 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -647,6 +645,117 @@ public class DependencyService {
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), dependencyContainNames);
 
     }
+
+    /**
+     * 自动构建认知关系。从数据库中读取主题以及碎片
+     *
+     *
+     * @return
+     */
+    public Result generateAllDomainDependency() {
+
+        String[] notFilterDomain={"计算机组成原理","C语言","操作系统","计算机系统结构","数据结构",
+                "数据库应用","低年级(1-2)语文","低年级(1-2)科学","中年级(3-4)英语","高年级(5-6)数学",
+                "五年级科学","七年级语文","八年级语文","九年级语文","七年级数学","八年级数学","九年级数学",
+                "七年级英语","八年级英语","九年级英语","八年级物理","九年级物理","九年级化学","七年级生物",
+                "八年级生物","七年级历史","八年级历史","九年级历史","七年级地理","八年级地理","七年级政治","八年级政治",
+                "九年级政治","初中信息技术","高一语文","高二语文","高中数学","高一英语","高三英语","高一历史","高二历史",
+                "高一政治","高二政治","高三政治","高一地理","高三地理","高一生物","高二生物","高一化学","高二化学","高三化学",
+                "合同法","数据结构(人工)","示范课程高等数学","概率论"};
+//        Integer[] EnglishDomainId={
+//                283,284,285,568,569,571,572,573,574,575,576,577,578,579,580,581,604,610,611,618,628,630,
+//                650,652,653,654,656,658,659,680,681,682,683,693,694,695,696,698,699,704,705,707,710,715,721,
+//                723,725,726,734,748,749,756,763,764,765,768,773,774,780,782,783,786,789,791,793,796,797,799,800,
+//                801,802, 804,805,806,807,808,809,810,811,817,818,820,824,825,826,829,831,832,840,856,857, 858,
+//                859,860,861 ,862 ,870 ,871,872,873 ,874 ,875 ,876 ,877 ,878
+//        };
+        List<String> notFilterDomainList= Arrays.asList(notFilterDomain);
+//        List<Integer> EnglishDomainIdList= Arrays.asList(EnglishDomainId);
+
+        List<Domain> domains = domainRepository.findAll();
+        //查询错误
+        if (domains == null) {
+            logger.error("主题依赖关系生成失败：没有课程信息记录");
+            return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR.getMsg());
+        }
+
+        for(Domain domain: domains){
+            Long domainId = domain.getDomainId();
+            String domainName = domain.getDomainName();
+            if(notFilterDomainList.contains(domainName)){
+                continue;
+            }
+
+            List<Dependency> dependencies = dependencyRepository.findByDomainId(domainId);
+            if (dependencies.size() > 0)   //数据库已有该课程主题依赖关系
+            {
+                logger.info("数据库已有 "+domainName+ " 课程的主题依赖关系，删除数据库中的依赖关系");
+                dependencyRepository.deleteDependenciesByDomainId(domainId);
+                logger.info("删除数据库中 "+domainName+" 课程的的依赖关系完成");
+            }
+
+            List<Topic> topicList = topicRepository.findByDomainId(domainId);
+            if (topicList.size() < 1) {
+                logger.error("主题依赖关系生成失败：主题不存在");
+                return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR_1.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR_1.getMsg());
+            }
+
+            //获得topicContainAssembleText List，即每个主题有对应碎片文本，获得主题内容信息
+            List<TopicContainAssembleText> topicContainAssembleTexts = new ArrayList<>();
+
+            for (int i = 0; i < topicList.size(); i++) {
+                Topic temp_topic = topicList.get(i);
+                TopicContainAssembleText temp_topicContentAssembleText = new TopicContainAssembleText(temp_topic);
+                temp_topicContentAssembleText.setTopicId(temp_topic.getTopicId());
+
+                //查询碎片信息
+                List<Assemble> assembleList = assembleRepository.findAllAssemblesByTopicId(temp_topic.getTopicId());
+                if (assembleList.size() < 1) {
+                    logger.error("该主题没有依赖碎片！" + temp_topic.getTopicId());
+                    continue;
+                }
+                String text = "";
+                for (int j = 0; j < assembleList.size(); j++) {
+                    text = text + assembleList.get(j).getAssembleText() + " ";
+                }
+                temp_topicContentAssembleText.setText(text);
+
+                topicContainAssembleTexts.add(temp_topicContentAssembleText);
+            }
+
+            /**
+             * 根据主题内容，调用算法得到主题认知关系
+             */
+//        RankDependency rankDependency = new RankDependency();
+//        List<Dependency> generated_dependencies = rankDependency.rankText(topicContainAssembleTexts, topicContainAssembleTexts.size(), isEnglish);
+            GetAsymmetry getAsymmetry = new GetAsymmetry();
+            List<Dependency> generated_dependencies = getAsymmetry.AsyDependency(topicList, topicContainAssembleTexts);
+            logger.info("开始构建 "+domainName+" 课程的主题依赖关系");
+            //保存自动构建的依赖关系，存到数据库
+            dependencyRepository.save(generated_dependencies);
+            List<DependencyContainName> dependencyContainNames = new ArrayList<>();
+            for (Dependency dependency : generated_dependencies) {
+                DependencyContainName dependencyContainName = new DependencyContainName(dependency);
+                //获取主题名
+                String startTopicName = topicRepository.findOne(dependency.getStartTopicId()).getTopicName();
+                String endTopicName = topicRepository.findOne(dependency.getEndTopicId()).getTopicName();
+                //设置主题名
+                dependencyContainName.setStartTopicName(startTopicName);
+                dependencyContainName.setEndTopicName(endTopicName);
+                dependencyContainNames.add(dependencyContainName);
+            }
+            logger.info(domainName+" 课程的主题依赖关系构建完成，结果为"+dependencyContainNames);
+//        for(Dependency temp_dependency : generated_dependencies)
+//            dependencyRepository.saveAndFlush(temp_dependency);
+
+        }
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(),"success");
+
+    }
+
+
+
+
 
     /**
      * 智慧教育系统获得推荐路径，访问教育大数据组提供的war包
