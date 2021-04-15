@@ -28,7 +28,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -279,7 +278,6 @@ public class DomainService {
      *
      * @return 查询结果
      */
-    @Async("AsyncThread")
     public Result findDomains() {
         List<Domain> domains = domainRepository.findAll();
         if (domains.size() > 0) {
