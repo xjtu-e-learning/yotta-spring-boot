@@ -652,7 +652,7 @@ public class DependencyService {
      *
      * @return
      */
-    public Result generateAllDomainDependency() {
+    public Result generateAllDomainDependency(Integer startIndex) {
 
         String[] notFilterDomain={"计算机组成原理","C语言","操作系统","计算机系统结构","数据结构",
                 "数据库应用","低年级(1-2)语文","低年级(1-2)科学","中年级(3-4)英语","高年级(5-6)数学",
@@ -679,19 +679,21 @@ public class DependencyService {
             return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR.getMsg());
         }
 
-        for(Domain domain: domains){
+        for (int k = startIndex; k < domains.size(); k++) {
+            Domain domain = domains.get(k);
             Long domainId = domain.getDomainId();
             String domainName = domain.getDomainName();
-            if(notFilterDomainList.contains(domainName)){
+            if (notFilterDomainList.contains(domainName)) {
                 continue;
             }
 
+            logger.info("正在抽取第 " +k+" 门课程 "+domainName+ " 的主题依赖关系");
             List<Dependency> dependencies = dependencyRepository.findByDomainId(domainId);
             if (dependencies.size() > 0)   //数据库已有该课程主题依赖关系
             {
-                logger.info("数据库已有 "+domainName+ " 课程的主题依赖关系，删除数据库中的依赖关系");
+                logger.info("数据库已有 " + domainName + " 课程的主题依赖关系，删除数据库中的依赖关系");
                 dependencyRepository.deleteDependenciesByDomainId(domainId);
-                logger.info("删除数据库中 "+domainName+" 课程的的依赖关系完成");
+                logger.info("删除数据库中 " + domainName + " 课程的的依赖关系完成");
             }
 
             List<Topic> topicList = topicRepository.findByDomainId(domainId);
@@ -730,7 +732,7 @@ public class DependencyService {
 //        List<Dependency> generated_dependencies = rankDependency.rankText(topicContainAssembleTexts, topicContainAssembleTexts.size(), isEnglish);
             GetAsymmetry getAsymmetry = new GetAsymmetry();
             List<Dependency> generated_dependencies = getAsymmetry.AsyDependency(topicList, topicContainAssembleTexts);
-            logger.info("开始构建 "+domainName+" 课程的主题依赖关系");
+            logger.info("开始构建 " + domainName + " 课程的主题依赖关系");
             //保存自动构建的依赖关系，存到数据库
             dependencyRepository.save(generated_dependencies);
             List<DependencyContainName> dependencyContainNames = new ArrayList<>();
@@ -744,10 +746,7 @@ public class DependencyService {
                 dependencyContainName.setEndTopicName(endTopicName);
                 dependencyContainNames.add(dependencyContainName);
             }
-            logger.info(domainName+" 课程的主题依赖关系构建完成，结果为"+dependencyContainNames);
-//        for(Dependency temp_dependency : generated_dependencies)
-//            dependencyRepository.saveAndFlush(temp_dependency);
-
+            logger.info("第 " +k+" 门课程 "+domainName+ " 的主题依赖关系构建完成，结果为 " + dependencyContainNames);
         }
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(),"success");
 
