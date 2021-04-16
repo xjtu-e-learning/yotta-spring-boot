@@ -699,7 +699,8 @@ public class DependencyService {
             List<Topic> topicList = topicRepository.findByDomainId(domainId);
             if (topicList.size() < 1) {
                 logger.error("主题依赖关系生成失败：主题不存在");
-                return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR_1.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR_1.getMsg());
+                continue;
+//                return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR_1.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR_1.getMsg());
             }
 
             //获得topicContainAssembleText List，即每个主题有对应碎片文本，获得主题内容信息
