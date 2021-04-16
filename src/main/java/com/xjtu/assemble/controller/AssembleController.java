@@ -445,6 +445,35 @@ public class AssembleController {
 
 
     /**
+     * 判断分面碎片是否匹配，匹配则返回true，不匹配则为碎片匹配分面并返回分面名，分配的分面限标准一级分面，包括：定义、性质、历史、应用、原理、类型、利弊等
+     * @param facetName
+     * @param assembleContent
+     * @return
+     * @author Qi Jingchao
+     */
+    @PostMapping("/judgeAndAssignFacetForAssembleByAssembleContent")
+    @ApiOperation(value = "为碎片匹配分面（不入库，仅供测试）", notes = "分配的分面限标准一级分面，包括：定义、性质、历史、应用、原理、类型、利弊等")
+    public ResponseEntity judgeAndAssignFacetForAssembleByFacetNameAndAssembleContent(@RequestParam(value = "facetName") String facetName,
+                                                                                      @RequestParam(value = "assembleContent") String assembleContent) {
+        Result matchResult = assembleService.isAssembleFacetMatch(facetName, assembleContent);
+        boolean isRight = (boolean) matchResult.getData();
+
+        if (isRight) {
+            if (!matchResult.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(matchResult);
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(matchResult);
+        }else{
+            Result result = assembleService.assignFacetForFacet(assembleContent);
+            if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(result);
+        }
+    }
+
+
+    /**
      * 超长碎片分割（不入库，仅供测试），仅供博客、百科等文章式长碎片。
      *
      * @param assembleContent
