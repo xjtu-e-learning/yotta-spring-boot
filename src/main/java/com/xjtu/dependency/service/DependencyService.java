@@ -707,6 +707,7 @@ public class DependencyService {
             List<TopicContainAssembleText> topicContainAssembleTexts = new ArrayList<>();
 
             for (int i = 0; i < topicList.size(); i++) {
+                logger.info("开始第"+i+"个主题 "+topicList.get(i));
                 Topic temp_topic = topicList.get(i);
                 TopicContainAssembleText temp_topicContentAssembleText = new TopicContainAssembleText(temp_topic);
                 temp_topicContentAssembleText.setTopicId(temp_topic.getTopicId());
