@@ -719,7 +719,7 @@ public class DependencyService {
                     continue;
                 }
                 String text = "";
-                for (int j = 0; j < Math.min(assembleList.size(),1000); j++) {
+                for (int j = 0; j < Math.min(assembleList.size(),200); j++) {
                     text = text + assembleList.get(j).getAssembleText() + " ";
                 }
                 temp_topicContentAssembleText.setText(text);
