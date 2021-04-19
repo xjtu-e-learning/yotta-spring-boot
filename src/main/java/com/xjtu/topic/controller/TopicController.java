@@ -147,6 +147,8 @@ public class TopicController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+
+
     @GetMapping("/filterTopics")
     @ApiOperation(value = "利用算法对主题进行过滤，删除多余的主题以及主题下所有内容", notes = "输入课程名，删除算法过滤掉的主题以及主题下所有内容")
     public ResponseEntity filterTopics() {

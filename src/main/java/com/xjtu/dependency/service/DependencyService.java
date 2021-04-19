@@ -652,7 +652,7 @@ public class DependencyService {
      *
      * @return
      */
-    public Result generateAllDomainDependency(Integer startIndex) {
+    public Result generateAllDomainDependency(Integer startIndex,Integer endIndex) {
 
         String[] notFilterDomain={"计算机组成原理","C语言","操作系统","计算机系统结构","数据结构",
                 "数据库应用","低年级(1-2)语文","低年级(1-2)科学","中年级(3-4)英语","高年级(5-6)数学",
@@ -679,7 +679,7 @@ public class DependencyService {
             return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR.getMsg());
         }
 
-        for (int k = startIndex; k < domains.size(); k++) {
+        for (int k = startIndex; k < endIndex; k++) {
             Domain domain = domains.get(k);
             Long domainId = domain.getDomainId();
             String domainName = domain.getDomainName();

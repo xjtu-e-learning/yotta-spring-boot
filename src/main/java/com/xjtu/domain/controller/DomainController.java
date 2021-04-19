@@ -34,6 +34,16 @@ public class DomainController {
     }
 
 
+//    @GetMapping("/getDomainListWithNoAssemble")
+//    @ApiOperation(value = "获得碎片数量为0的课程信息", notes = "获得碎片数量为0的课程信息")
+//    public ResponseEntity getDomainListWithNoAssemble() {
+//        Result result = domainService.getDomainListWithNoAssemble();
+//        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+//        }
+//        return ResponseEntity.status(HttpStatus.OK).body(result);
+//    }
+
     @GetMapping("/getDomainsBySubject")
     @ApiOperation(value = "根据学科名，返回该学科下的所有课程", notes = "根据学科名，返回该学科下的所有课程")
     public ResponseEntity getDomainsBySubject(@RequestParam(name = "subjectName") String subjectName) {

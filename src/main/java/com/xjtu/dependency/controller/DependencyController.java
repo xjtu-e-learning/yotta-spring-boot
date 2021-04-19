@@ -141,8 +141,9 @@ public class DependencyController {
     @PostMapping("/generateAllDomainDependency")
     @ApiOperation(value = "自动构建主题依赖关系。通过课程名，生成该课程下主题依赖关系。需已有主题，碎片信息。并给出该课程是否为英文课程信息",
             notes = "自动构建主题依赖关系。通过课程名，生成该课程下主题依赖关系。需已有主题，碎片信息。并给出该课程是否为英文课程信息")
-    public ResponseEntity generateAllDomainDependency(@RequestParam(name="startIndex") Integer startIndex) {
-        Result result = dependencyService.generateAllDomainDependency(startIndex);
+    public ResponseEntity generateAllDomainDependency(@RequestParam(name="startIndex") Integer startIndex,
+                                                      @RequestParam(name="endIndex") Integer endIndex) {
+        Result result = dependencyService.generateAllDomainDependency(startIndex,endIndex);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }

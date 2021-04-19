@@ -711,4 +711,15 @@ public class DomainService {
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), resultMap);
     }
 
+    public Result getDomainListWithNoAssemble() {
+        List<Domain> domainList = domainRepository.findAll();
+        List<Domain> domainListWithNoAssemble=new ArrayList<>();
+        for(Domain domain:domainList){
+            Integer assembleNumInDomain = assembleRepository.countByDomainId(domain.getDomainId());
+            if(assembleNumInDomain==0){
+                domainListWithNoAssemble.add(domain);
+            }
+        }
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), domainListWithNoAssemble);
+    }
 }
