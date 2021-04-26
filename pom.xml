@@ -205,6 +205,10 @@
             <artifactId>commons-net</artifactId>
             <version>1.4.1</version>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
 
 
         <!--爬虫需要的依赖-->

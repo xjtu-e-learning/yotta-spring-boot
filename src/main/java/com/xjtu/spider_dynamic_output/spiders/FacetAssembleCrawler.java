@@ -13,6 +13,6 @@ public class FacetAssembleCrawler {
     public static void storeFacetAssemble(Domain domain, Topic topic) throws Exception {
         FacetCrawler.storeFacetByTopicName(domain,topic);
         FacetCrawler.setIsCompleted(false);
-        AssembleCrawler.storeAssembleByTopicName(domain, topic);
+        AssembleCrawler.storeAssembleByTopicName(domain, topic,false);
     }
 }

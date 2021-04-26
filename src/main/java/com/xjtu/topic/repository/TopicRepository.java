@@ -167,6 +167,17 @@ public interface TopicRepository extends JpaRepository<Topic, Long>, JpaSpecific
     @Transactional(rollbackFor = Exception.class)
     void deleteByDomainIdAndTopicName(Long domainId, String topicName);
 
+    /**
+     * 根据主题名和课程id，删除对应主题信息
+     *
+     * @param domainId  课程id
+     * @param topicId 主题名
+     * @return void
+     */
+    @Transactional(rollbackFor = Exception.class)
+    void deleteByDomainIdAndTopicId(Long domainId, Long topicId);
+
+
 
     /**
      * 根据课程ID，删除课程下所有主题

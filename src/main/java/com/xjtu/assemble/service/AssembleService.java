@@ -1280,6 +1280,13 @@ public class AssembleService {
     }
 
 
+    public Result isAssembleFacetMatch(String facet, String assemble) {
+        AssembleMatch am = new AssembleMatch();
+        boolean isMatch = am.isAssembleFacetMatch(facet, assemble);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), isMatch);
+    }
+
+
     public Result assignFacetForFacet(String assemble) {
         AssembleMatch am = new AssembleMatch();
         logger.info("正在为碎片匹配分面");

@@ -89,6 +89,9 @@ public class AssembleMatch {
     }
 
 
+    /**
+     * 直接运行此文件可测试分面碎片是否匹配
+     */
     public static void main(String[] args) {
         AssembleMatch am = new AssembleMatch();
         am.trainModel();

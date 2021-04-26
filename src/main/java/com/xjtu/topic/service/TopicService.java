@@ -9,6 +9,7 @@ import com.xjtu.common.domain.ResultEnum;
 import com.xjtu.dependency.repository.DependencyRepository;
 import com.xjtu.domain.domain.Domain;
 import com.xjtu.domain.repository.DomainRepository;
+import com.xjtu.domain.service.DomainService;
 import com.xjtu.facet.domain.Facet;
 import com.xjtu.facet.domain.FacetContainAssemble;
 import com.xjtu.facet.repository.FacetRepository;
@@ -71,6 +72,9 @@ public class TopicService {
 
     @Autowired
     private DependencyRepository dependencyRepository;
+
+    @Autowired
+    private DomainService domainService;
 
     @Autowired
     private TopicDAO topicDAO;
@@ -247,17 +251,18 @@ public class TopicService {
      * @return
      */
     public Result deleteTopicCompleteByDomainNameAndTopicName(String domainName, String topicName) {
-        try {
-            Domain domain = domainRepository.findByDomainName(domainName);
-            if (domain == null) {
-                logger.error("主题删除失败：指定课程不存在");
-                return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR_1.getCode(), ResultEnum.TOPIC_DELETE_ERROR_1.getMsg());
-            }
-            Topic topic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(), topicName);
-            if (topic == null) {
-                logger.error("主题删除失败：此课程下不存在该主题");
-                return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR_2.getCode(), ResultEnum.TOPIC_DELETE_ERROR_2.getMsg());
-            }
+
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("主题删除失败：指定课程不存在");
+            return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR_1.getCode(), ResultEnum.TOPIC_DELETE_ERROR_1.getMsg());
+        }
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(), topicName);
+        if (topic == null) {
+            logger.error("主题删除失败：此课程下不存在该主题");
+            return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR_2.getCode(), ResultEnum.TOPIC_DELETE_ERROR_2.getMsg());
+        }
+        try{
             Long topicId = topic.getTopicId();
             logger.info("开始删除 " + domain.getDomainName() + " 课程下 " + topicName + " 主题的依赖关系");
             dependencyRepository.deleteByStartTopicIdOrEndTopicId(topicId, topicId);
@@ -269,7 +274,7 @@ public class TopicService {
             facetRepository.deleteByTopicId(topicId);
             logger.info("删除 " + topicName + " 主题的分面完成");
             logger.info("开始删除该主题信息");
-            topicRepository.deleteByDomainIdAndTopicName(domain.getDomainId(), topicName);
+            topicRepository.deleteByDomainIdAndTopicId(domain.getDomainId(), topicId);
             logger.info("删除该主题信息完成！" + topicName + " 主题下的所有主题依赖关系-分面-碎片已完全删除。");
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "主题 " + topicName + " 下的所有主题依赖关系-分面-碎片已完全删除。");
         } catch (Exception excepetion) {
@@ -1017,24 +1022,19 @@ public class TopicService {
             return ResultUtil.success(ResultEnum.TOPIC_SEARCH_ERROR_1.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_1.getMsg() + "该课程主题数目为0", results);
         }
 
-        List<String> originalTopicNameList=new ArrayList<>();
-        List<String> topicNameListAfterFilter=new ArrayList<>();
-
+        List<Topic> originalTopicNameList=new ArrayList<>();
         for(Topic topic:topicRaw){
-            String topicName = topic.getTopicName();
-            originalTopicNameList.add(topicName);
+            originalTopicNameList.add(topic);
         }
 
         Result result = findSelectedTopicsByDomainName(domainName);
         List<Topic> topicListAfterFilter = (List<Topic>)result.getData();
-        for(Topic topic :topicListAfterFilter){
-            topicNameListAfterFilter.add(topic.getTopicName());
-        }
+
 
         // 剩下的就是被过滤掉的，也是需要删除的
-        originalTopicNameList.removeAll(topicNameListAfterFilter);
-        for(String filterTopicName :originalTopicNameList){
-            Result result1 = deleteTopicCompleteByDomainNameAndTopicName(domainName, filterTopicName);
+        originalTopicNameList.removeAll(topicListAfterFilter);
+        for(Topic topic :originalTopicNameList){
+            Result result1 = deleteTopicCompleteByDomainNameAndTopicId(domainName, topic.getTopicId());
             if (!result1.getCode().equals(ResultEnum.SUCCESS.getCode())) {
                 return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR.getCode(), ResultEnum.TOPIC_DELETE_ERROR.getMsg());
             }
@@ -1044,10 +1044,143 @@ public class TopicService {
         topicNameMap.put("totalNum:",topicRaw.size());
         topicNameMap.put("filterNum:",originalTopicNameList.size());
         topicNameMap.put("Filter:",originalTopicNameList);
-        topicNameMap.put("remainNum:",topicNameListAfterFilter.size());
-        topicNameMap.put("Remain:",topicNameListAfterFilter);
-
+        topicNameMap.put("remainNum:",topicListAfterFilter.size());
+        topicNameMap.put("Remain:",topicListAfterFilter);
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicNameMap);
+    }
 
+    public Result getTopicNumByDomainName(String domainName) {
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if(domain==null){
+            logger.error("主题查询失败：没有指定课程");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_2.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_2.getMsg());
+        }
+        Integer topicNum = topicRepository.countByDomainId(domain.getDomainId());
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicNum);
+    }
+
+    public Result getTopicListByTopicNumLargerThanNum(Integer num) {
+        List<Domain> domains = domainRepository.findAll();
+        if(domains==null || domains.size()==0){
+            logger.error("课程查询失败：课程列表为空");
+            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR_4.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR_4.getMsg());
+        }
+        List<Domain> domainList=new ArrayList<>();
+        for(Domain domain:domains){
+            Integer topicNum = topicRepository.countByDomainId(domain.getDomainId());
+            if(topicNum>num){
+                domainList.add(domain);
+            }
+        }
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), domainList);
+
+    }
+
+    public Result deleteNeedlessTopicByDomainName(String domainName, Integer num) {
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if(domain==null){
+            logger.error("课程查询失败：课程列表为空");
+            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
+        }
+        List<Topic> topicList = topicRepository.findByDomainId(domain.getDomainId());
+        List<Topic> deleteTopicList=new ArrayList<>();
+        for (int i = 0; i < topicList.size(); i++) {
+            if(i>=num){
+                Topic topic = topicList.get(i);
+                Result result = deleteTopicCompleteByDomainNameAndTopicId(domainName, topic.getTopicId());
+                if (result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+                    deleteTopicList.add(topic);
+                }
+            }
+        }
+
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), deleteTopicList);
+    }
+
+    public Result deleteDuplicatedTopicCompleteByDomainName(String domainName) {
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if(domain==null){
+            logger.error("课程查询失败：课程列表为空");
+            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
+        }
+        List<Topic> topicList = topicRepository.findByDomainId(domain.getDomainId());
+        Collections.sort(topicList,Comparator.comparing(Topic::getTopicName));
+        List<String> deleteTopicList=new ArrayList<>();
+        for (int i = 0; i < topicList.size()-1; i++) {
+            Topic topic = topicList.get(i);
+            Topic nextTopic = topicList.get(i+1);
+            if(topic.getTopicName().equalsIgnoreCase(nextTopic.getTopicName())){
+                deleteTopicCompleteByDomainNameAndTopicId(domainName,topic.getTopicId());
+                deleteTopicList.add(topic.getTopicName());
+            }
+        }
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), deleteTopicList);
+
+    }
+
+    private Result deleteTopicCompleteByDomainNameAndTopicEntity(String domainName, Topic topic) {
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("主题删除失败：指定课程不存在");
+            return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR_1.getCode(), ResultEnum.TOPIC_DELETE_ERROR_1.getMsg());
+        }
+        if (topic == null) {
+            logger.error("主题删除失败：此课程下不存在该主题");
+            return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR_2.getCode(), ResultEnum.TOPIC_DELETE_ERROR_2.getMsg());
+        }
+        String topicName=topic.getTopicName();
+        try{
+            Long topicId = topic.getTopicId();
+            logger.info("开始删除 " + domain.getDomainName() + " 课程下 " + topicName + " 主题的依赖关系");
+            dependencyRepository.deleteByStartTopicIdOrEndTopicId(topicId, topicId);
+            logger.info("删除 " + domain.getDomainName() + " 课程下 " + topicName + " 主题的依赖关系完成");
+            logger.info("开始删除 " + topicName + " 主题的碎片");
+            assembleRepository.deleteByTopicId(topicId);
+            logger.info("删除 " + topicName + " 主题的碎片完成");
+            logger.info("开始删除 " + topicName + " 主题的分面");
+            facetRepository.deleteByTopicId(topicId);
+            logger.info("删除 " + topicName + " 主题的分面完成");
+            logger.info("开始删除该主题信息");
+            topicRepository.deleteByDomainIdAndTopicId(domain.getDomainId(), topicId);
+            logger.info("删除该主题信息完成！" + topicName + " 主题下的所有主题依赖关系-分面-碎片已完全删除。");
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "主题 " + topicName + " 下的所有主题依赖关系-分面-碎片已完全删除。");
+        } catch (Exception excepetion) {
+            logger.error("错误：" + excepetion);
+            logger.error("主题完整删除失败：删除语句执行失败");
+            return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR.getCode(), ResultEnum.TOPIC_DELETE_ERROR.getMsg());
+        }
+    }
+
+    public Result deleteTopicCompleteByDomainNameAndTopicId(String domainName, Long topicId) {
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("主题删除失败：指定课程不存在");
+            return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR_1.getCode(), ResultEnum.TOPIC_DELETE_ERROR_1.getMsg());
+        }
+        Topic topic = topicRepository.findByTopicId(topicId);
+        if (topic == null) {
+            logger.error("主题删除失败：此课程下不存在该主题");
+            return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR_2.getCode(), ResultEnum.TOPIC_DELETE_ERROR_2.getMsg());
+        }
+        try{
+            String topicName = topic.getTopicName();
+            logger.info("开始删除 " + domain.getDomainName() + " 课程下 " + topicName + " 主题的依赖关系");
+            dependencyRepository.deleteByStartTopicIdOrEndTopicId(topicId, topicId);
+            logger.info("删除 " + domain.getDomainName() + " 课程下 " + topicName + " 主题的依赖关系完成");
+            logger.info("开始删除 " + topicName + " 主题的碎片");
+            assembleRepository.deleteByTopicId(topicId);
+            logger.info("删除 " + topicName + " 主题的碎片完成");
+            logger.info("开始删除 " + topicName + " 主题的分面");
+            facetRepository.deleteByTopicId(topicId);
+            logger.info("删除 " + topicName + " 主题的分面完成");
+            logger.info("开始删除该主题信息");
+            topicRepository.deleteByDomainIdAndTopicId(domain.getDomainId(), topicId);
+            logger.info("删除该主题信息完成！" + topicName + " 主题下的所有主题依赖关系-分面-碎片已完全删除。");
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "主题 " + topicName + " 下的所有主题依赖关系-分面-碎片已完全删除。");
+        } catch (Exception excepetion) {
+            logger.error("错误：" + excepetion);
+            logger.error("主题完整删除失败：删除语句执行失败");
+            return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR.getCode(), ResultEnum.TOPIC_DELETE_ERROR.getMsg());
+        }
     }
 }

@@ -39,28 +39,52 @@ public class SpiderDynamicOutputController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-    @ApiOperation(value = "输入课程名、主题名，爬取该主题下的分面树和分面下的碎片", notes = "输入课程名、主题名，爬取该主题下的分面树和分面下的碎片")
-    @PostMapping("/spiderFacetAssembleTreeByDomianAndTopicName")
-    public ResponseEntity spiderFacetAssembleTreeByDomianAndTopicName(@RequestParam(name="domainName") String domainName,
+    @ApiOperation(value = "输入课程名、主题名，启动爬虫", notes = "输入课程名、主题名，开启爬取该主题下的分面树和分面下的碎片爬虫")
+    @PostMapping("/startSpiderFacetAssembleTreeByDomianAndTopicName")
+    public ResponseEntity startSpiderFacetAssembleTreeByDomianAndTopicName(@RequestParam(name="domainName") String domainName,
                                                                       @RequestParam(name="topicName") String topicName
                                                                      ) throws Exception{
-        Result result=spiderdOutputService.FacetAssembleSpider(domainName,topicName);
+        Result result=spiderdOutputService.startFacetAssembleSpider(domainName,topicName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-    @ApiOperation(value = "输入课程名、主题名，增量爬取该主题下的分面树和分面下的碎片", notes = "输入课程名、主题名，增量爬取该主题下的分面树和分面下的碎片")
-    @PostMapping("/incrementalSpiderFacetAssembleTreeByDomianAndTopicName")
-    public ResponseEntity incrementalSpiderFacetAssembleTreeByDomianAndTopicName(@RequestParam(name="domainName") String domainName,
+    @ApiOperation(value = "输入课程名、主题名，启动增量爬虫", notes = "输入课程名、主题名，开启爬取该主题下的分面树和分面下的碎片爬虫")
+    @PostMapping("/startIncrementalSpiderFacetAssembleTreeByDomianAndTopicName")
+    public ResponseEntity startIncrementalSpiderFacetAssembleTreeByDomianAndTopicName(@RequestParam(name="domainName") String domainName,
                                                                       @RequestParam(name="topicName") String topicName
     ) throws Exception{
-        Result result=spiderdOutputService.FacetAssembleIncrementalSpider(domainName,topicName);
+        Result result=spiderdOutputService.startIncrementFacetAssembleSpider(domainName,topicName);
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+    @ApiOperation(value = "输入课程名、主题名，查询爬虫的数据和爬虫状态", notes = "输入课程名、主题名，查询爬虫的数据和爬虫状态")
+    @PostMapping("/spiderFacetAssembleTreeByDomianAndTopicName")
+    public ResponseEntity spiderFacetAssembleTreeByDomianAndTopicName(@RequestParam(name="domainName") String domainName,
+                                                                      @RequestParam(name="topicName") String topicName
+    ) throws Exception{
+        Result result=spiderdOutputService.getFacetAssemble(domainName,topicName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @ApiOperation(value = "输入课程名、主题名，查询增量爬虫的数据和爬虫状态", notes = "输入课程名、主题名，查询增量爬虫的数据和爬虫状态")
+    @PostMapping("/incrementalSpiderFacetAssembleTreeByDomianAndTopicName")
+    public ResponseEntity incrementalSpiderFacetAssembleTreeByDomianAndTopicName(@RequestParam(name="domainName") String domainName,
+                                                                                 @RequestParam(name="topicName") String topicName
+    ) throws Exception{
+        Result result=spiderdOutputService.getIncrementFacetAssemble(domainName,topicName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
 
 }
