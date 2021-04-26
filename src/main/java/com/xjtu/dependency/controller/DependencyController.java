@@ -216,5 +216,23 @@ public class DependencyController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    /**
+     * API
+     * 新增知识主题时，新增该知识主题与其它知识主题间的依赖关系
+     */
+    @PostMapping("/getGenerateDependencyWithNewTopic")
+    @ApiOperation(value = "新增知识主题时，新增该知识主题与其它知识主题间的依赖关系",
+            notes = "新增知识主题时，新增该知识主题与其它知识主题间的依赖关系")
+    public ResponseEntity getGenerateDependencyWithNewTopic(@RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "topicName") String topicName)
+    {
+        Result result = dependencyService.generateDependencyWithNewTopic(domainName, topicName);
+        if(!result.getCode().equals(ResultEnum.SUCCESS.getCode()))
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
 
 }
