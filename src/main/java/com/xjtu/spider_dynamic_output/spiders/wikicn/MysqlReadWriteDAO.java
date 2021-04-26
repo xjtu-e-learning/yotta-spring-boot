@@ -286,6 +286,27 @@ public class MysqlReadWriteDAO {
         }
 
     }
+    public static long findAssembleNumByFacet(Long facetId){
+        mysqlUtils mysql = new mysqlUtils();
+        String sql="select count(*) from "+Config.ASSEMBLE_TABLE+" where facet_id=?";
+        List<Object> params = new ArrayList<Object>();
+        params.add(facetId);
+        long assembleCount=0;
+        try {
+            List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
+            if (results.size() != 0) {
+                Map<String, Object> map = results.get(0);
+                assembleCount = (long) map.get("count(*)");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            mysql.closeconnection();
+        }
+        return assembleCount;
+
+
+    }
 
     public static Long findByTopicIdAndFacetName(Long topicID, String parentFcetName) {
         mysqlUtils mysql = new mysqlUtils();
@@ -345,7 +366,7 @@ public class MysqlReadWriteDAO {
      *
      * @return
      */
-    public static void storeAssemble(String assembleContent,String assembleText,Long domainId,Long facetId,Long sourceId) throws Exception {
+    public static synchronized void  storeAssemble(String assembleContent,String assembleText,Long domainId,Long facetId,Long sourceId) throws Exception {
 
         mysqlUtils mysql = new mysqlUtils();
         String sql = "insert into " + Config.ASSEMBLE_TABLE + "(assemble_content,assemble_scratch_time,assemble_text,domain_id," +

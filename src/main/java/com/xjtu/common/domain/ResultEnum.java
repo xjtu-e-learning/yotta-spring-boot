@@ -175,7 +175,7 @@ public enum ResultEnum {
 
 
     //知识主题分面树爬虫动态输出
-    OUTPUTSPIDER_ERROR_1(300,"分面碎片爬虫已启动"),
+    OUTPUTSPIDER_ERROR_1(300,"分面碎片爬虫未启动"),
     OUTPUTSPIDER_ERROR_2(301,"分面碎片爬虫正在运行"),
     OUTPUTSPIDER_ERROR_3(302,"分面树构建失败"),
     OUTPUTSPIDER_ERROR_4(303,"分面树构建失败"),

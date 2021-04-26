@@ -16,6 +16,7 @@ import com.xjtu.relation.repository.RelationRepository;
 import com.xjtu.source.repository.SourceRepository;
 import com.xjtu.spider_dynamic_output.spiders.FacetAssembleCrawler;
 import com.xjtu.spider_dynamic_output.spiders.wikicn.AssembleCrawler;
+import com.xjtu.spider_dynamic_output.spiders.wikicn.FacetCrawler;
 import com.xjtu.spider_dynamic_output.spiders.wikicn.TopicOnlyCrawler;
 import com.xjtu.spider_topic.service.TFSpiderService;
 import com.xjtu.topic.dao.TopicDAO;
@@ -23,6 +24,7 @@ import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.domain.TopicContainFacet;
 import com.xjtu.topic.repository.TopicRepository;
 import com.xjtu.utils.*;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.concurrent.*;
+
+import static java.lang.Thread.State.RUNNABLE;
+import static java.lang.Thread.State.TERMINATED;
 
 @Service
 public class SpiderDynamicOutputService {
@@ -65,10 +70,6 @@ public class SpiderDynamicOutputService {
     private Integer port;
 
 
-    Map<String, Integer> topicNamemap = new HashMap<String, Integer>();
-
-    private static List<FutureTask<Integer>> taskList = new ArrayList<FutureTask<Integer>>();
-    private static ExecutorService exec = Executors.newFixedThreadPool(2000);
 
     private static Boolean domainFlag;
 
@@ -76,6 +77,11 @@ public class SpiderDynamicOutputService {
     public static boolean getDomainFlag() {
         return domainFlag;
     }
+
+    HashMap<String,Thread> threadMap=new HashMap<>();//保存正常爬虫状态
+    HashMap<String,Thread> inThreadMap=new HashMap<>();//保存增量爬虫状态
+
+
 
 
     /**
@@ -85,9 +91,7 @@ public class SpiderDynamicOutputService {
      * @param topicName
      * @return
      */
-
-    public Result FacetAssembleSpider(String domainName, String topicName) throws Exception {
-
+    public Result startFacetAssembleSpider(String domainName, String topicName){
         Domain domain = domainRepository.findByDomainName(domainName);
         if (domain == null) {
             logger.error("课程查询失败：没有指定课程");
@@ -99,48 +103,17 @@ public class SpiderDynamicOutputService {
             return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR.getCode(), ResultEnum.TOPIC_SEARCH_ERROR.getMsg());
 
         }
-        if (topicNamemap.isEmpty()) {
-            List<Topic> topiclist = topicRepository.findByDomainName(domainName);
-            for (Topic topic2 : topiclist) {
-                topicNamemap.put(topic2.getTopicName(), -1);//-1 没有启动它的爬虫
-            }
+        if(threadMap.containsKey(topicName)==true){
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(),"主题："+topicName+"  爬虫已启动,无需重复启动");
         }
+        Thread thread=new facetAssembleSpiderThread(domain,topic);
+        thread.start();
+        threadMap.put(topicName,thread);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(),"主题："+topicName+"  爬虫已启动");
 
-        List<Facet> firstLayerFacets = facetRepository.findByTopicIdAndFacetLayer(topic.getTopicId(), 1);
-        if (firstLayerFacets.isEmpty() && topicNamemap.get(topicName) == -1)//分面为空，没有启动爬虫，则启动
-        {
-            Integer index = taskList.size();
-            FutureTask<Integer> ft1 = new FutureTask<Integer>(new FacetAssembleSpiderTask(domain, topic));
-            taskList.add(index, ft1);
-            topicNamemap.put(topicName, index);//>0表示已经启动爬虫，其数字为taskList的索引
-            exec.submit(ft1);
-        }
-        if (topicNamemap.get(topicName) >= 0) {//这个分面已经有爬虫启动
-            FutureTask<Integer> ft2 = taskList.get(topicNamemap.get(topicName));
-            if (ft2.isDone()) {//如果已经完成，设为-1
-                topicNamemap.put(topicName, -1);
-            }
-        }
-        TopicContainFacet topicContainFacet = getTopicContainFacet(topic);
-        if (topicNamemap.get(topicName) >= 0)//该主题爬虫正在运行
-        {
-            return ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_2.getCode(), ResultEnum.OUTPUTSPIDER_ERROR_2.getMsg(), topicContainFacet);
-        } else {//该主题无爬虫运行
-            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicContainFacet);
-        }
     }
 
-
-    /**
-     * 指定课程名和主题名，更新主题并包含其完整的下的分面、碎片数据
-     *
-     * @param domainName
-     * @param topicName
-     * @return
-     */
-
-    public Result FacetAssembleIncrementalSpider(String domainName, String topicName) throws Exception {
-
+    public Result getFacetAssemble(String domainName, String topicName){
         Domain domain = domainRepository.findByDomainName(domainName);
         if (domain == null) {
             logger.error("课程查询失败：没有指定课程");
@@ -152,45 +125,79 @@ public class SpiderDynamicOutputService {
             return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR.getCode(), ResultEnum.TOPIC_SEARCH_ERROR.getMsg());
 
         }
-        if (topicNamemap.isEmpty()) {
-            List<Topic> topiclist = topicRepository.findByDomainName(domainName);
-            for (Topic topic2 : topiclist) {
-                topicNamemap.put(topic2.getTopicName(), -1);//-1 没有启动它的爬虫
-            }
-        }
 
-        List<Facet> firstLayerFacets = facetRepository.findByTopicIdAndFacetLayer(topic.getTopicId(), 1);
-        if (firstLayerFacets.isEmpty() && topicNamemap.get(topicName) == -1)//分面为空，没有启动爬虫，则启动
-        {
-            Integer index = taskList.size();
-            FutureTask<Integer> ft1 = new FutureTask<Integer>(new FacetAssembleIncrementalSpiderTask(domain, topic));
-            taskList.add(index, ft1);
-            topicNamemap.put(topicName, index);//>0表示已经启动爬虫，其数字为taskList的索引
-            exec.submit(ft1);
-        }
-        if (!firstLayerFacets.isEmpty() && topicNamemap.get(topicName) == -1)//分面不为空，没有启动爬虫，则启动碎片增量爬虫
-        {
-            Integer index = taskList.size();
-            FutureTask<Integer> ft1 = new FutureTask<Integer>(new AssembleIncrementalSpiderTask(domain, topic));
-            taskList.add(index, ft1);
-            topicNamemap.put(topicName, index);//>0表示已经启动爬虫，其数字为taskList的索引
-            exec.submit(ft1);
-        }
-
-        if (topicNamemap.get(topicName) >= 0) {//这个分面已经有爬虫启动
-            FutureTask<Integer> ft2 = taskList.get(topicNamemap.get(topicName));
-            if (ft2.isDone()) {//如果已经完成，设为-1
-                topicNamemap.put(topicName, -1);
-            }
-        }
         TopicContainFacet topicContainFacet = getTopicContainFacet(topic);
-        if (topicNamemap.get(topicName) >= 0)//该主题爬虫正在运行
-        {
-            return ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_2.getCode(), ResultEnum.OUTPUTSPIDER_ERROR_2.getMsg(), topicContainFacet);
-        } else {//该主题无爬虫运行
-            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicContainFacet);
+
+        if(threadMap.containsKey(topicName)==false){
+            return ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_1.getCode(), ResultEnum.OUTPUTSPIDER_ERROR_1.getMsg(), topicContainFacet);
         }
+        System.out.println("hashmap中的线程状态:"+threadMap.get(topicName).getState());
+
+        if(threadMap.get(topicName).getState()==TERMINATED){
+            threadMap.remove(topicName);
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicContainFacet);
+        }else {
+            return ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_2.getCode(), ResultEnum.OUTPUTSPIDER_ERROR_2.getMsg(), topicContainFacet);
+        }
+
+
+
     }
+
+    public Result startIncrementFacetAssembleSpider(String domainName, String topicName){
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("课程查询失败：没有指定课程");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_2.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_2.getMsg());
+        }
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(), topicName);
+        if (topic == null) {
+            logger.error("主题查询失败：没有指定主题");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR.getCode(), ResultEnum.TOPIC_SEARCH_ERROR.getMsg());
+
+        }
+        if(inThreadMap.containsKey(topicName)==true){
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(),"主题："+topicName+"  增量爬虫已启动,无需重复启动");
+        }
+        Thread thread=new incrementFacetAssembleSpiderThread(domain,topic);
+        thread.start();
+        inThreadMap.put(topicName,thread);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(),"主题："+topicName+"  增量爬虫已启动");
+
+    }
+
+    public Result getIncrementFacetAssemble(String domainName, String topicName){
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("课程查询失败：没有指定课程");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_2.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_2.getMsg());
+        }
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(), topicName);
+        if (topic == null) {
+            logger.error("主题查询失败：没有指定主题");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR.getCode(), ResultEnum.TOPIC_SEARCH_ERROR.getMsg());
+
+        }
+
+        TopicContainFacet topicContainFacet = getTopicContainFacet(topic);
+
+        if(inThreadMap.containsKey(topicName)==false){
+            return ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_1.getCode(), ResultEnum.OUTPUTSPIDER_ERROR_1.getMsg(), topicContainFacet);
+        }
+        System.out.println("hashmap中的线程状态: "+inThreadMap.get(topicName).getState());
+
+        if(inThreadMap.get(topicName).getState()==TERMINATED){
+            inThreadMap.remove(topicName);
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicContainFacet);
+        }else {
+            return ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_2.getCode(), ResultEnum.OUTPUTSPIDER_ERROR_2.getMsg(), topicContainFacet);
+        }
+
+
+
+    }
+
+
 
 
     /**
@@ -244,18 +251,6 @@ public class SpiderDynamicOutputService {
             result.put("outDegreeNumber", outDegreeCounts.get(topic.getTopicId()) == null ? 0 : outDegreeCounts.get(topic.getTopicId()));
             results.add(result);
         }
-        //初始化爬虫线程
-        if (!taskList.isEmpty()) {
-            for (FutureTask<Integer> ft : taskList) {
-                try {
-                    ft.cancel(true);
-                } catch (Exception e) {
-                    Log.log("\n任务无取消");
-                }
-            }
-            taskList.clear();
-        }
-        topicNamemap.clear();
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), results);
     }
 
@@ -263,6 +258,53 @@ public class SpiderDynamicOutputService {
     /**
      *分面碎片爬取线程
      * */
+
+    public class facetAssembleSpiderThread extends Thread{
+        public Domain domain;
+        public Topic topic;
+
+
+        public facetAssembleSpiderThread(Domain domain,Topic topic){
+            this.domain=domain;
+            this.topic=topic;
+        }
+
+        @Override
+        public void run(){
+            try {
+                FacetCrawler.storeFacetByTopicName(domain,topic);
+                AssembleCrawler.storeAssembleByTopicName(domain, topic,false);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     *分面碎片爬取线程
+     * */
+
+    public class incrementFacetAssembleSpiderThread extends Thread{
+        public Domain domain;
+        public Topic topic;
+
+
+        public incrementFacetAssembleSpiderThread(Domain domain,Topic topic){
+            this.domain=domain;
+            this.topic=topic;
+        }
+
+        @Override
+        public void run(){
+            try {
+                FacetCrawler.storeFacetByTopicName(domain,topic);
+                AssembleCrawler.storeAssembleByTopicName(domain, topic,true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public class FacetAssembleSpiderTask implements Callable<Integer> {//分面碎片爬取线程
         public Domain domain;
         public Topic topic;
@@ -329,7 +371,6 @@ public class SpiderDynamicOutputService {
         }
 
     }
-
 
     /**
      * 根据主题名获得该主题的分面树
