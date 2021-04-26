@@ -591,16 +591,31 @@ public class DomainService {
                 }
                 List<Permission> permissionOfDomainId = permissionRepository.findDomainIdByUserName(userName);
                 List<Domain> domains = new ArrayList<>();
+//                for (Permission pd : permissionOfDomainId) {
+//                    if (pd.getSubjectId().equals(subjectId)) {
+//                        Domain domain = domainRepository.findOne(pd.getDomainId());
+//                        if (domain == null) {
+//                            logger.error("课程查询失败：没有课程信息记录");
+//                            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
+//                        }
+//                        domains.add(domain);
+//                    }
+//                }
+                // 新逻辑，防止个别课程被删除导致获取权限列表失败
                 for (Permission pd : permissionOfDomainId) {
                     if (pd.getSubjectId().equals(subjectId)) {
                         Domain domain = domainRepository.findOne(pd.getDomainId());
-                        if (domain == null) {
+                        if (domain != null) {
+                            domains.add(domain);
+                        }else{
                             logger.error("课程查询失败：没有课程信息记录");
-                            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
                         }
-                        domains.add(domain);
                     }
                 }
+                if (domains.size() == 0) {
+                    return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
+                }
+
                 SubjectContainDomain subjectContainDomain = new SubjectContainDomain(subject.getSubjectId(), subject.getSubjectName(), subject.getNote(), domains);
                 subjectContainDomains.add(subjectContainDomain);
             }
