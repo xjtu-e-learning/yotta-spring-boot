@@ -86,5 +86,15 @@ public class SpiderDynamicOutputController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @ApiOperation(value = "输入课程Id, 在CSDN上爬取对应所有分面的碎片", notes = "无")
+    @PostMapping("/crawlAssemblesByDomainId")
+    public ResponseEntity crawlAssemblesByDomainId(@RequestParam(name="domainId") Long domainId
+    ) throws Exception{
+        Result result= spiderdOutputService.crawlAssemblesByDomainId(domainId);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 
 }
