@@ -404,4 +404,10 @@ public interface FacetRepository extends JpaRepository<Facet, Long>, JpaSpecific
     @Transactional(rollbackFor = Exception.class)
     Facet findByFacetId(Long facetId);
 
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "SELECT f.facet_id FROM facet f LEFT JOIN assemble a " +
+            "ON f.facet_id = a.facet_id " +
+            "WHERE a.facet_id IS NULL ;", nativeQuery = true)
+    List<BigInteger> findEmptyFacet();
+
 }

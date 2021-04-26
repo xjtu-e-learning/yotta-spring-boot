@@ -381,5 +381,4 @@ public class FacetController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-
 }
