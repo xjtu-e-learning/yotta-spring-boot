@@ -1213,22 +1213,20 @@ public class TopicService {
         }
 
         Topic topic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(), topicName);
+        Map<String, Thread> threadMap=null;
         try {
             FacetCrawler.storeFacetByTopicName(domain,topic);
-            AssembleCrawler.storeAssembleByTopicName(domain, topic,false);
+            AssembleCrawler.storeAssembleByTopicNameReturnThreadMap(domain, topic, false);
         } catch (Exception e) {
             e.printStackTrace();
-//            return ResultUtil.error(ResultEnum.FACET_INSERT_ERROR_0.getCode(), ResultEnum.FACET_INSERT_ERROR_0.getMsg());
         }
 
-//        Result spiderResult=spiderdOutputService.startFacetAssembleSpider(domainName,topicName);
-//        if(!spiderResult.getCode().equals(ResultEnum.SUCCESS.getCode())){
-//            return ResultUtil.error(ResultEnum.FACET_INSERT_ERROR_0.getCode(), ResultEnum.FACET_INSERT_ERROR_0.getMsg());
-//        }
 
+        logger.info("该主题的分面与碎片爬取完成");
         Result generateDependencyResult = dependencyService.generateDependencyWithNewTopic(domainName, topicName);
         if(!generateDependencyResult.getCode().equals(ResultEnum.SUCCESS.getCode())){
-            return ResultUtil.error(ResultEnum.DEPENDENCY_INSERT_ERROR_0.getCode(), ResultEnum.DEPENDENCY_INSERT_ERROR_0.getMsg());
+            deleteTopicCompleteByDomainNameAndTopicName(domainName,topicName);
+            return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR_2.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR_2.getMsg());
         }
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), generateDependencyResult);
     }

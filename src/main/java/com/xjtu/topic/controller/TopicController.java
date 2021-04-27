@@ -395,7 +395,7 @@ public class TopicController {
 
 
     @GetMapping("/insertNewCompleteTopicByNameAndDomainName")
-    @ApiOperation(value = "插入新主题，调用爬虫获取主题分面，调用算法添加主题依赖关系", notes = "插入新主题，调用爬虫获取主题分面，调用算法添加主题依赖关系")
+    @ApiOperation(value = "（谨慎使用，比较耗时！）插入新主题，调用爬虫获取主题分面，调用算法添加主题依赖关系", notes = "（谨慎使用，比较耗时！）插入新主题，调用爬虫获取主题分面，调用算法添加主题依赖关系")
     public ResponseEntity insertNewCompleteTopicByNameAndDomainName(@RequestParam(name = "domainName") String domainName,
                                                                     @RequestParam(name = "topicName") String topicName) {
         Result result = topicService.insertNewCompleteTopicByNameAndDomainName(topicName,domainName);

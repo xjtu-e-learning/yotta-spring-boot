@@ -135,7 +135,7 @@ public enum ResultEnum {
     DEPENDENCY_SEARCH_ERROR_2(179, "主题依赖关系生成失败：gexf文件生成失败"),
     DEPENDENCY_SEARCH_ERROR_3(180, "主题依赖关系生成失败：起始或终止主题不存在"),
     DEPENDENCY_SEARCH_ERROR_4(181, "主题依赖关系查询失败：查询语句执行失败"),
-    DEPENDENCY_INSERT_ERROR_0(182, "主题依赖关系插入失败："),
+    DEPENDENCY_INSERT_ERROR_0(182, "主题依赖关系插入失败：该主题下没有碎片"),
     DEPENDENCY_INSERT_ERROR(182, "主题依赖关系插入失败:插入语句执行失败"),
     DEPENDENCY_INSERT_ERROR_1(183, "主题依赖关系插入失败：没有课程信息记录"),
     DEPENDENCY_INSERT_ERROR_2(184, "主题依赖关系插入失败:起始或终止主题不存在"),
