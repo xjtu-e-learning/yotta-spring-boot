@@ -49,6 +49,7 @@ public enum ResultEnum {
     TOPIC_INSERT_ERROR(125, "主题信息插入失败：主题名不存在或者为空"),
     TOPIC_INSERT_ERROR_1(126, "主题信息插入失败：插入主题已经存在"),
     TOPIC_INSERT_ERROR_2(127, "主题信息插入失败：数据库插入语句失败"),
+    TOPIC_INSERT_ERROR_4(127, "主题信息插入失败"),
     TOPIC_DELETE_ERROR(128, "主题删除失败"),
     TOPIC_UPDATE_ERROR(129, "主题更新失败：更新语句执行失败"),
     TOPIC_UPDATE_ERROR_1(130, "主题更新失败：主题名不存在或者为空"),

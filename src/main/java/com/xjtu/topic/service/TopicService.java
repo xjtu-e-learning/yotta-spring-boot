@@ -15,6 +15,8 @@ import com.xjtu.facet.domain.FacetContainAssemble;
 import com.xjtu.facet.repository.FacetRepository;
 import com.xjtu.relation.domain.Relation;
 import com.xjtu.relation.repository.RelationRepository;
+import com.xjtu.spider.service.SpiderService;
+import com.xjtu.spider_new.service.NewSpiderService;
 import com.xjtu.topic.dao.TopicDAO;
 import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.domain.TopicContainAssembleText;
@@ -54,6 +56,9 @@ import java.util.*;
 public class TopicService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    private NewSpiderService spiderService;
 
     @Autowired
     private TopicRepository topicRepository;
@@ -1182,5 +1187,27 @@ public class TopicService {
             logger.error("主题完整删除失败：删除语句执行失败");
             return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR.getCode(), ResultEnum.TOPIC_DELETE_ERROR.getMsg());
         }
+    }
+
+    public Result insertNewCompleteTopicByNameAndDomainName(String topicName, String domainName,boolean isChinese) {
+
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("主题信息插入失败：没有对应的课程");
+            return ResultUtil.error(ResultEnum.TOPIC_INSERT_ERROR_3.getCode(), ResultEnum.TOPIC_INSERT_ERROR_3.getMsg());
+        }
+
+        Result insertTopicResult = insertTopicByNameAndDomainName(topicName, domainName);
+        if(!insertTopicResult.getCode().equals(ResultEnum.SUCCESS.getCode())){
+            return ResultUtil.error(ResultEnum.TOPIC_INSERT_ERROR_4.getCode(), ResultEnum.TOPIC_INSERT_ERROR_4.getMsg());
+        }
+
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(), topicName);
+        try {
+            Result result = spiderService.crawlEmptyTopic(topic.getTopicId(), isChinese);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "ok");
     }
 }
