@@ -265,4 +265,84 @@ public class GetAsymmetry {
         }
         return tfidf;
     }
+
+    public List<Dependency> addDependencyWithNewTopic(List<Topic> topicList, List<TopicContainAssembleText> termList,
+                                                      Topic newTopic, TopicContainAssembleText newTopicText)
+    {
+        List<Dependency> dependencies = new ArrayList<>();
+        List<Dependency> dependenciesAll = new ArrayList<>();
+
+        List<HashMap<String, Float>> tfidf = getTFIDF(topicList, termList);
+
+        int newtopicIndex = 0;
+
+        for(int i = 0; i<termList.size(); i++)
+        {
+            Topic tempT = topicList.get(i);
+            if (tempT.getTopicName().equals(newTopic.getTopicName()))
+            {
+                newtopicIndex = i;
+                break;
+            }
+        }
+
+        for (int i = 0; i<termList.size(); i++)
+        {
+
+            if (i == newtopicIndex)
+                continue;
+
+            TopicContainAssembleText term = termList.get(i);
+            if (term.getText().length() == 0 || term.getText().equals(""))
+                continue;
+            List<Double> asyResult = computeAsy(topicList, term, newTopicText, tfidf.get(i),tfidf.get(newtopicIndex));
+            double Afirst = asyResult.get(0);
+            double Bfirst = asyResult.get(1);
+            if(Afirst >= THD)
+            {
+                Dependency dependency = new Dependency(term.getTopicId(), newTopicText.getTopicId(), (float)Afirst, term.getDomainId());
+                dependencies.add(dependency);
+            }
+            if(Bfirst >= THD)
+            {
+                Dependency dependency = new Dependency(newTopicText.getTopicId(), term.getTopicId(), (float)Bfirst, term.getDomainId());
+                dependencies.add(dependency);
+            }
+            if(Afirst > THD0)
+            {
+                Dependency dependency = new Dependency(term.getTopicId(), newTopicText.getTopicId(), (float)Afirst, term.getDomainId());
+                dependenciesAll.add(dependency);
+            }
+            if(Bfirst > THD0)
+            {
+                Dependency dependency = new Dependency(newTopicText.getTopicId(), term.getTopicId(), (float)Bfirst, term.getDomainId());
+                dependenciesAll.add(dependency);
+            }
+        }
+
+        List<Dependency> all_dependencies = new ArrayList<>();
+        if(dependencies.size()> topicList.size()/2)
+        {
+            all_dependencies = dependencies;
+        }
+        else
+        {
+            all_dependencies = dependenciesAll;
+        }
+
+        System.out.println("生成的认知关系对数量： " + all_dependencies.size());
+        //去除前向边
+//        DFSvisit dfSvisit = new DFSvisit();
+//        HashMap<Long, List<Dependency>> relations = dfSvisit.changeRelation(all_dependencies);
+//        HashMap<Long, List<Dependency>> resultRelations = dfSvisit.relationProcess(relations);
+
+//        List<Dependency> returnDependency = new ArrayList<>();
+//        for (Long key : resultRelations.keySet())
+//        {
+//            returnDependency.addAll(resultRelations.get(key));
+//        }
+
+        return all_dependencies;
+    }
+
 }

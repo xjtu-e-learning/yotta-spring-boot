@@ -15,6 +15,7 @@ import com.xjtu.facet.repository.FacetRepository;
 import com.xjtu.relation.repository.RelationRepository;
 import com.xjtu.source.repository.SourceRepository;
 import com.xjtu.spider_dynamic_output.spiders.FacetAssembleCrawler;
+import com.xjtu.spider_dynamic_output.spiders.csdn.CsdnThread;
 import com.xjtu.spider_dynamic_output.spiders.wikicn.AssembleCrawler;
 import com.xjtu.spider_dynamic_output.spiders.wikicn.FacetCrawler;
 import com.xjtu.spider_dynamic_output.spiders.wikicn.TopicOnlyCrawler;
@@ -452,6 +453,41 @@ public class SpiderDynamicOutputService {
         topicContainFacet.setChildren(firstLayerFacetContainAssembles);
         topicContainFacet.setChildrenNumber(firstLayerFacetContainAssembles.size());
         return topicContainFacet;
+    }
+
+
+    /**
+     * 爬取某个课程下所有分面的碎片
+     * @param domainId 课程id
+     * @return
+     */
+    public Result crawlAssemblesByDomainId(Long domainId) {
+        Domain domain = domainRepository.findByDomainId(domainId);
+        List<Topic> topics = topicRepository.findByDomainId(domainId);
+
+        for (Topic topic : topics) {
+            List<Facet> facets = facetRepository.findByTopicId(topic.getTopicId());
+            for (Facet facet : facets) {
+                crawlCSDNAssemble(domain, topic, facet, false); // 目前先不启用增量
+            }
+        }
+
+        return ResultUtil.success(ResultEnum.Assemble_GENERATE_ERROR_3.getCode(),
+                ResultEnum.Assemble_GENERATE_ERROR_3.getMsg(),
+                null);
+    }
+
+    /**
+     * 根据以下参数去 CSDN 上爬取碎片
+     * @param domain 课程
+     * @param topic 主题
+     * @param facet 分面
+     * @param incremental 是否增量爬取
+     * @return
+     */
+    public void crawlCSDNAssemble(Domain domain,Topic topic, Facet facet, Boolean incremental) {
+        Thread csdnCrawler = new CsdnThread(domain, topic, facet, incremental);
+        csdnCrawler.start();
     }
 
 }

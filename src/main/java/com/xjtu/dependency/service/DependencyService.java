@@ -934,6 +934,98 @@ public class DependencyService {
 
     }
 
+    /**
+     * 新增一个知识主题，更新增加该知识主题与其它知识主题间依赖关系
+     * @param domainName
+     * @param topicName
+     * @return
+     */
+    public Result generateDependencyWithNewTopic(String domainName, String topicName)
+    {
+        if (domainName == null)
+        {
+            logger.error("主题依赖关系查询失败：没有指定课程");
+            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR_5.getCode(), ResultEnum.DEPENDENCY_SEARCH_ERROR_5.getMsg());
+        }
+
+        Domain domain = domainRepository.findByDomainName(domainName);
+        //查询错误
+        if (domain == null) {
+            logger.error("主题依赖关系生成失败：没有课程信息记录");
+            return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR.getMsg());
+        }
+
+        Long domainId = domain.getDomainId();
+        //获得课程下所有主题
+        List<Topic> topicList = topicRepository.findByDomainId(domainId);
+        if(topicList.size() < 1)
+        {
+            logger.error("主题依赖关系生成失败：主题不存在");
+            return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR_1.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR_1.getMsg());
+        }
+
+        //获得topicContainAssembleText List，即每个主题有对应碎片文本，获得主题内容信息
+        List<TopicContainAssembleText> topicContainAssembleTexts = new ArrayList<>();
+
+        Topic newTopic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
+        TopicContainAssembleText newTopicText = new TopicContainAssembleText(newTopic);
+        newTopicText.setTopicId(newTopic.getTopicId());
+
+        for(int i = 0; i<topicList.size(); i++)
+        {
+            Topic temp_topic = topicList.get(i);
+            TopicContainAssembleText temp_topicContentAssembleText = new TopicContainAssembleText(temp_topic);
+            temp_topicContentAssembleText.setTopicId(temp_topic.getTopicId());
+
+
+            //查询碎片信息
+            List<Assemble> assembleList = assembleRepository.findAllAssemblesByTopicId(temp_topic.getTopicId());
+            if(assembleList.size() < 1)
+            {
+                System.out.println("缺乏碎片主题：" + temp_topic.getTopicName());
+                continue;
+//                System.out.print(temp_topic.getTopicId());
+//                logger.error("主体依赖关系生成失败：碎片内容为空");
+//                return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR_2.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR_2.getMsg());
+            }
+            String text = "";
+            for(int j = 0; j<assembleList.size(); j++)
+            {
+                text = text + assembleList.get(j).getAssembleText() + " ";
+            }
+            temp_topicContentAssembleText.setText(text);
+
+            if (temp_topic.getTopicName().equals(newTopic.getTopicName()))
+            {
+                newTopicText.setText(text);
+            }
+
+            topicContainAssembleTexts.add(temp_topicContentAssembleText);
+        }
+
+        /**
+         * 根据主题内容，调用算法得到主题认知关系
+         */
+        GetAsymmetry getAsymmetry = new GetAsymmetry();
+        List<Dependency> generated_dependencies = getAsymmetry.addDependencyWithNewTopic(topicList,topicContainAssembleTexts,newTopic, newTopicText);
+
+        dependencyRepository.save(generated_dependencies);
+
+        List<DependencyContainName> dependencyContainNames = new ArrayList<>();
+        for (Dependency dependency : generated_dependencies) {
+            DependencyContainName dependencyContainName = new DependencyContainName(dependency);
+            //获取主题名
+            String startTopicName = topicRepository.findOne(dependency.getStartTopicId()).getTopicName();
+            String endTopicName = topicRepository.findOne(dependency.getEndTopicId()).getTopicName();
+            //设置主题名
+            dependencyContainName.setStartTopicName(startTopicName);
+            dependencyContainName.setEndTopicName(endTopicName);
+            dependencyContainNames.add(dependencyContainName);
+        }
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), dependencyContainNames);
+
+    }
+
 
 
     public static void main(String[] args) {
