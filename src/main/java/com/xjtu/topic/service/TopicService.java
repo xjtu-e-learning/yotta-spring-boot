@@ -7,6 +7,7 @@ import com.xjtu.assemble.repository.AssembleRepository;
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
 import com.xjtu.dependency.repository.DependencyRepository;
+import com.xjtu.dependency.service.DependencyService;
 import com.xjtu.domain.domain.Domain;
 import com.xjtu.domain.repository.DomainRepository;
 import com.xjtu.domain.service.DomainService;
@@ -16,6 +17,9 @@ import com.xjtu.facet.repository.FacetRepository;
 import com.xjtu.relation.domain.Relation;
 import com.xjtu.relation.repository.RelationRepository;
 import com.xjtu.spider.service.SpiderService;
+import com.xjtu.spider_dynamic_output.service.SpiderDynamicOutputService;
+import com.xjtu.spider_dynamic_output.spiders.wikicn.AssembleCrawler;
+import com.xjtu.spider_dynamic_output.spiders.wikicn.FacetCrawler;
 import com.xjtu.spider_new.service.NewSpiderService;
 import com.xjtu.topic.dao.TopicDAO;
 import com.xjtu.topic.domain.Topic;
@@ -58,7 +62,7 @@ public class TopicService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private NewSpiderService spiderService;
+    private NewSpiderService SpiderService;
 
     @Autowired
     private TopicRepository topicRepository;
@@ -70,6 +74,9 @@ public class TopicService {
     private FacetRepository facetRepository;
 
     @Autowired
+    private DependencyService dependencyService;
+
+    @Autowired
     private AssembleRepository assembleRepository;
 
     @Autowired
@@ -77,6 +84,8 @@ public class TopicService {
 
     @Autowired
     private DependencyRepository dependencyRepository;
+    @Autowired
+    private SpiderDynamicOutputService spiderdOutputService;
 
     @Autowired
     private DomainService domainService;
@@ -1189,25 +1198,38 @@ public class TopicService {
         }
     }
 
-    public Result insertNewCompleteTopicByNameAndDomainName(String topicName, String domainName,boolean isChinese) {
+    public Result insertNewCompleteTopicByNameAndDomainName(String topicName, String domainName) {
 
         Domain domain = domainRepository.findByDomainName(domainName);
+
         if (domain == null) {
             logger.error("主题信息插入失败：没有对应的课程");
             return ResultUtil.error(ResultEnum.TOPIC_INSERT_ERROR_3.getCode(), ResultEnum.TOPIC_INSERT_ERROR_3.getMsg());
         }
 
-        Result insertTopicResult = insertTopicByNameAndDomainName(topicName, domainName);
+        Result insertTopicResult = insertTopicByNameAndDomainName(domainName,topicName);
         if(!insertTopicResult.getCode().equals(ResultEnum.SUCCESS.getCode())){
             return ResultUtil.error(ResultEnum.TOPIC_INSERT_ERROR_4.getCode(), ResultEnum.TOPIC_INSERT_ERROR_4.getMsg());
         }
 
         Topic topic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(), topicName);
         try {
-            Result result = spiderService.crawlEmptyTopic(topic.getTopicId(), isChinese);
+            FacetCrawler.storeFacetByTopicName(domain,topic);
+            AssembleCrawler.storeAssembleByTopicName(domain, topic,false);
         } catch (Exception e) {
             e.printStackTrace();
+//            return ResultUtil.error(ResultEnum.FACET_INSERT_ERROR_0.getCode(), ResultEnum.FACET_INSERT_ERROR_0.getMsg());
         }
-        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "ok");
+
+//        Result spiderResult=spiderdOutputService.startFacetAssembleSpider(domainName,topicName);
+//        if(!spiderResult.getCode().equals(ResultEnum.SUCCESS.getCode())){
+//            return ResultUtil.error(ResultEnum.FACET_INSERT_ERROR_0.getCode(), ResultEnum.FACET_INSERT_ERROR_0.getMsg());
+//        }
+
+        Result generateDependencyResult = dependencyService.generateDependencyWithNewTopic(domainName, topicName);
+        if(!generateDependencyResult.getCode().equals(ResultEnum.SUCCESS.getCode())){
+            return ResultUtil.error(ResultEnum.DEPENDENCY_INSERT_ERROR_0.getCode(), ResultEnum.DEPENDENCY_INSERT_ERROR_0.getMsg());
+        }
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), generateDependencyResult);
     }
 }

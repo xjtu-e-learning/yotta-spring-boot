@@ -383,7 +383,7 @@ public class NewSpiderService {
                         + "下的空主题数量为" + rawEmptyTopics.size() + "，开始爬取===============");
 
                 try {
-                    new MultiCrawlerController().startCrawler(rawEmptyTopics, domainChinese, domainId);
+//                    new MultiCrawlerController().startCrawler(rawEmptyTopics, domainChinese, domainId);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
