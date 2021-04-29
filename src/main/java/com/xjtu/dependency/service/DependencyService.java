@@ -954,8 +954,16 @@ public class DependencyService {
             logger.error("主题依赖关系生成失败：没有课程信息记录");
             return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR.getMsg());
         }
-
         Long domainId = domain.getDomainId();
+        Topic newTopic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
+
+        List<Assemble> newTopicAssemble = assembleRepository.findAllAssemblesByTopicId(newTopic.getTopicId());
+        if(newTopicAssemble==null || newTopicAssemble.size()==0){
+            logger.error("主题依赖关系生成失败：添加的新主题碎片为空");
+            return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR_2.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR_2.getMsg());
+        }
+
+
         //获得课程下所有主题
         List<Topic> topicList = topicRepository.findByDomainId(domainId);
         if(topicList.size() < 1)
@@ -967,7 +975,7 @@ public class DependencyService {
         //获得topicContainAssembleText List，即每个主题有对应碎片文本，获得主题内容信息
         List<TopicContainAssembleText> topicContainAssembleTexts = new ArrayList<>();
 
-        Topic newTopic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
+
         TopicContainAssembleText newTopicText = new TopicContainAssembleText(newTopic);
         newTopicText.setTopicId(newTopic.getTopicId());
 

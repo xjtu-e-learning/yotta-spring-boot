@@ -110,6 +110,7 @@ public class SpiderDynamicOutputService {
         Thread thread=new facetAssembleSpiderThread(domain,topic);
         thread.start();
         threadMap.put(topicName,thread);
+
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(),"主题："+topicName+"  爬虫已启动");
 
     }
