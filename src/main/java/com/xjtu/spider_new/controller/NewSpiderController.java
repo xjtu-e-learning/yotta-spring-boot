@@ -161,4 +161,17 @@ public class NewSpiderController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
+    @ApiOperation(value = "根据课程与主题增量爬取其分面下的碎片", notes = "课程名、主题名需真实存在，且主题下需要有分面")
+    @GetMapping("/crawlAssembleIncrement")
+    public ResponseEntity crawlAssembleIncrement(@RequestParam(name = "domainName") String domainName,
+                                                 @RequestParam(name = "topicName") String topicName)
+    {
+        Result result = SpiderService.crawlAssembleIncrement(domainName, topicName);
+
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 }

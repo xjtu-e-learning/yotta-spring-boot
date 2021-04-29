@@ -16,6 +16,7 @@ import com.xjtu.spider_new.common.NewSpiderRunnable;
 import com.xjtu.spider_new.common.ProgressResult;
 import com.xjtu.spider_new.domain.MissingRecord;
 import com.xjtu.spider_new.repository.MissingRecordRepository;
+import com.xjtu.spider_new.spiders.BasicCrawlerController;
 import com.xjtu.spider_new.spiders.wikicn.*;
 import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.repository.TopicRepository;
@@ -351,6 +352,43 @@ public class NewSpiderService {
         // 此处应该加更多错误判断
 
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "大概好了吧");
+    }
+
+    public Result crawlAssembleIncrement(String domainName, String topicName) {
+        //todo: 后续有时间改成线程池
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                addAssembleByDomainNameAndTopicName(domainName, topicName);
+            }
+        }, "incrementCrawler").start();
+
+        return ResultUtil.success(ResultEnum.Assemble_GENERATE_ERROR_2.getCode(), ResultEnum.Assemble_GENERATE_ERROR_3.getMsg(), "start");
+    }
+
+    public void addAssembleByDomainNameAndTopicName(String domainName, String topicName) {
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if(domain == null) {
+            logger.error("该课程不存在。");
+            return;
+        }
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(), topicName);
+        if (topic == null) {
+            logger.error("该主题不存在。");
+            return;
+        }
+        List<Facet> facetList = facetRepository.findByTopicId(topic.getTopicId());
+        if (facetList == null) {
+            logger.error("该主题下不存在分面。");
+            return;
+        }
+
+        try {
+            new BasicCrawlerController().startCrawlerForAssembleOnly(domain.getDomainId(), topic.getTopicId(), facetList);
+        } catch (Exception e) {
+            logger.error("爬虫出错。");
+            e.printStackTrace();
+        }
     }
 
     class CrawlEmptyTopicRunnable implements Runnable {
