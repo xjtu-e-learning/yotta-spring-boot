@@ -24,11 +24,11 @@
 
         <!--爬虫需要的依赖-->
         <!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
-        <dependency>
-            <groupId>org.jsoup</groupId>
-            <artifactId>jsoup</artifactId>
-            <version>1.9.2</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.jsoup</groupId>-->
+<!--            <artifactId>jsoup</artifactId>-->
+<!--            <version>1.9.2</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
@@ -107,6 +107,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
+        <dependency>
+            <groupId>de.codecentric</groupId>
+            <artifactId>spring-boot-admin-starter-client</artifactId>
+            <version>1.5.7</version>
+        </dependency>
 
 
         <!-- json-path 解析包 -->
@@ -157,7 +162,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <optional>true</optional>
-            <scope>true</scope>
+            <scope>compile</scope>
         </dependency>
 
 
@@ -231,6 +236,10 @@
                     <source>1.8</source>
                     <target>1.8</target>
                     <encoding>UTF-8</encoding>
+<!--                    <compilerArguments>-->
+<!--                        <compilerArgument>-Xlint:deprecation</compilerArgument>>-->
+<!--                        <compilerArgument>-Xlint:unchecked</compilerArgument>-->
+<!--                    </compilerArguments>>-->
                 </configuration>
             </plugin>
             <plugin>
