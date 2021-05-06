@@ -537,6 +537,19 @@ public class DependencyService {
         return dbInformation;
     }
 
+    public Result generateDependencyByDomainId(Long domainId, boolean isEnglish) {
+        if(domainId==null){
+            logger.error("主题依赖关系查询失败：没有指定课程");
+            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR_5.getCode(), ResultEnum.DEPENDENCY_SEARCH_ERROR_5.getMsg());
+        }
+        Domain domain = domainRepository.findByDomainId(domainId);
+        if (domain == null) {
+            logger.error("主题依赖关系生成失败：没有课程信息记录");
+            return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR.getMsg());
+        }
+        return generateDependencyByDomainName(domain.getDomainName(),isEnglish);
+    }
+
     /**
      * 自动构建认知关系。从数据库中读取主题以及碎片
      *
@@ -1040,4 +1053,6 @@ public class DependencyService {
         DependencyService dependencyService = new DependencyService();
         dependencyService.findDependenciesByDomainNameSaveAsGexf("数据结构");
     }
+
+
 }
