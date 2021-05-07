@@ -121,6 +121,9 @@ public class AssembleService {
         List<Facet> facets = facetRepository.findByTopicId(topicId);
         List<Assemble> assembles = new ArrayList<>();
         for (Facet facet : facets) {
+            if ("匿名分面".equals(facet.getFacetName())) {
+                continue;
+            }
             //查询碎片
             assembles.addAll(assembleRepository.findByFacetId(facet.getFacetId()));
         }
