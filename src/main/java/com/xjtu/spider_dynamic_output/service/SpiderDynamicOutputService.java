@@ -115,6 +115,109 @@ public class SpiderDynamicOutputService {
 
     }
 
+    /**
+     * 指定课程名和主题名，爬取主题并包含其完整的下的分面、碎片数据
+     *
+     * @param domainName
+     * @param topicName
+     * @return
+     */
+    public Result pauseFacetAssembleSpider(String domainName, String topicName) {
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("课程查询失败：没有指定课程");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_2.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_2.getMsg());
+        }
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(), topicName);
+        if (topic == null) {
+            logger.error("主题查询失败：没有指定主题");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR.getCode(), ResultEnum.TOPIC_SEARCH_ERROR.getMsg());
+
+        }
+        if(threadMap.containsKey(topicName)==false){
+            return ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_1.getCode(), ResultEnum.OUTPUTSPIDER_ERROR_1.getMsg(), null);
+        }
+        System.out.println("hashmap中的线程状态:"+threadMap.get(topicName).getState());
+
+        if(threadMap.get(topicName).getState()==TERMINATED){
+            return ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_3.getCode(), ResultEnum.OUTPUTSPIDER_ERROR_3.getMsg(), null);
+        }else {
+            threadMap.get(topicName).suspend();
+            logger.info("爬虫线程:"+topicName+"  已暂停运行");
+
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "爬虫线程:"+topicName+"  已暂停运行");
+        }
+
+    }
+
+    /**
+     * 指定课程名和主题名，爬取主题并包含其完整的下的分面、碎片数据
+     *
+     * @param domainName
+     * @param topicName
+     * @return
+     */
+    public Result continueFacetAssembleSpider(String domainName, String topicName) {
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("课程查询失败：没有指定课程");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_2.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_2.getMsg());
+        }
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(), topicName);
+        if (topic == null) {
+            logger.error("主题查询失败：没有指定主题");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR.getCode(), ResultEnum.TOPIC_SEARCH_ERROR.getMsg());
+
+        }
+        if(threadMap.containsKey(topicName)==false){
+            return ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_1.getCode(), ResultEnum.OUTPUTSPIDER_ERROR_1.getMsg(), null);
+        }
+        System.out.println("hashmap中的线程状态:"+threadMap.get(topicName).getState());
+
+        if(threadMap.get(topicName).getState()==TERMINATED){
+            return ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_3.getCode(), ResultEnum.OUTPUTSPIDER_ERROR_3.getMsg(), null);
+        }else {
+            threadMap.get(topicName).resume();
+            logger.info("爬虫线程:"+topicName+"  已继续运行");
+
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "爬虫线程:"+topicName+"  已继续运行");
+        }
+
+    }
+
+    public Result stopFacetAssembleSpider(String domainName, String topicName){
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("课程查询失败：没有指定课程");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_2.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_2.getMsg());
+        }
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(), topicName);
+        if (topic == null) {
+            logger.error("主题查询失败：没有指定主题");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR.getCode(), ResultEnum.TOPIC_SEARCH_ERROR.getMsg());
+
+        }
+        if(threadMap.containsKey(topicName)==false){
+            return ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_1.getCode(), ResultEnum.OUTPUTSPIDER_ERROR_1.getMsg(), null);
+        }
+        System.out.println("hashmap中的线程状态:"+threadMap.get(topicName).getState());
+
+        if(threadMap.get(topicName).getState()==TERMINATED){
+            return ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_3.getCode(), ResultEnum.OUTPUTSPIDER_ERROR_3.getMsg(), null);
+        }else {
+            threadMap.get(topicName).interrupt();
+            System.out.println("hashmap中的线程状态:"+threadMap.get(topicName).getState());
+
+            logger.info("爬虫线程:"+topicName+"  已停止");
+            threadMap.remove(topicName);
+
+
+
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "爬虫线程:"+topicName+"  已停止");
+        }
+
+    }
+
     public Result getFacetAssemble(String domainName, String topicName){
         Domain domain = domainRepository.findByDomainName(domainName);
         if (domain == null) {
@@ -489,6 +592,17 @@ public class SpiderDynamicOutputService {
     public void crawlCSDNAssemble(Domain domain,Topic topic, Facet facet, Boolean incremental) {
         Thread csdnCrawler = new CsdnThread(domain, topic, facet, incremental);
         csdnCrawler.start();
+    }
+
+    public void kill_chromedriver(){
+        Runtime runtime=Runtime.getRuntime();
+        try{
+            System.out.println("kill chromedriver.exe");
+            runtime.exec("taskkill /f /im chromedriver.exe");
+            runtime.exec("taskkill /f /im chrome.exe");
+        }catch(Exception e){
+            System.out.println("Error!");
+        }
     }
 
 }
