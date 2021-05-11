@@ -25,11 +25,11 @@ public class CsdnCrawler {
     public static void csdnSpiderAssemble(Domain domain,Topic topic, Facet facet,Boolean incremental){
         String topicName=topic.getTopicName();
         String facetName=facet.getFacetName();
-        String csdnSearchUrl = "https://so.csdn.net/so/search/blog?q=" + topicName + facetName + "&t=blog&p=1&s=0&tm=0&lv=-1&ft=0&l=&u=";
+        String csdnSearchUrl = "https://so.csdn.net/so/search/blog?q=" + topicName + "%20" + facetName + "&t=blog&p=1&s=0&tm=0&lv=-1&ft=0&l=&u=";
         try {
             String csdnSearchHtml = SpiderUtils.seleniumCsdn(csdnSearchUrl);
             Document csdnSerarchDoc = JsoupDao.parseHtmlText(csdnSearchHtml);
-            Elements csdnUrlElements = csdnSerarchDoc.select("div[class*='list-item']").select("a[class='normal-list-link']");
+            Elements csdnUrlElements = csdnSerarchDoc.select("div[class*='list-item']").select("a[class='block-title']");
             if (csdnUrlElements.isEmpty()) {
                 Log.log("没有拿到csdn链接！");
             }
