@@ -406,6 +406,20 @@ public class SpiderDynamicOutputService {
 
     }
 
+    public Result findAllSpider(){
+        HashMap<String,String> allThreadMap=new HashMap<>();//保存增量爬虫状态
+        for (String key:threadMap.keySet()) {
+            allThreadMap.put(key,threadMap.get(key).getState().toString());
+        }
+
+        for (String key:inThreadMap.keySet()) {
+            allThreadMap.put(key,inThreadMap.get(key).getState().toString());
+        }
+
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), allThreadMap);
+
+    }
+
 
 
 
