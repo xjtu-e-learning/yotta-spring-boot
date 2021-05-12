@@ -29,7 +29,7 @@ public class CsdnCrawler {
         try {
             String csdnSearchHtml = SpiderUtils.seleniumCsdn(csdnSearchUrl);
             Document csdnSerarchDoc = JsoupDao.parseHtmlText(csdnSearchHtml);
-            Elements csdnUrlElements = csdnSerarchDoc.select("div[class*='list-item']").select("a[class='normal-list-link']");
+            Elements csdnUrlElements = csdnSerarchDoc.select("div[class*='list-item']").select("a[class='block-title']");
             if (csdnUrlElements.isEmpty()) {
                 Log.log("没有拿到csdn链接！");
             }
@@ -56,7 +56,7 @@ public class CsdnCrawler {
                 }
             }
         } catch (Exception e) {
-            Log.log("\ncsdn碎片列表地址获取失败\n链接地址：" + csdnSearchUrl);
+            Log.log("\ncsdn碎片获取失败\n链接地址：" + csdnSearchUrl);
         }
 
     }
