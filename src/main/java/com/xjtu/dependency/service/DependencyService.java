@@ -626,6 +626,12 @@ public class DependencyService {
         GetAsymmetry getAsymmetry = new GetAsymmetry();
         List<Dependency> generated_dependencies = getAsymmetry.AsyDependency(topicList, topicContainAssembleTexts);
 
+        if (generated_dependencies.size() == 0)
+        {
+            RankDependency rankDependency = new RankDependency();
+            generated_dependencies = rankDependency.rankText(topicContainAssembleTexts, topicContainAssembleTexts.size(), isEnglish);
+        }
+
         //保存自动构建的依赖关系，存到数据库
         dependencyRepository.save(generated_dependencies);
 //        for(Dependency temp_dependency : generated_dependencies)
