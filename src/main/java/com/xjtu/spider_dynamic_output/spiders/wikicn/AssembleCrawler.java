@@ -78,50 +78,22 @@ public class AssembleCrawler {
                     Long sourceId = Long.valueOf(1);
                     MysqlReadWriteDAO.storeAssemble(assembleContent, assembleText, domain.getDomainId(), facet.getFacetId(), sourceId);
                 }
-                Thread thread=new CsdnThread(domain,topic,facet,increment);
-                thread.start();
-                threadMap.put(facetName,thread);
+                CsdnCrawler.csdnSpiderAssemble(domain,topic,facet,increment);
+//                Thread thread=new CsdnThread(domain,topic,facet,increment);
+//                thread.start();
+//                threadMap.put(facetName,thread);
 
-                //CSDN爬虫
-//                String csdnSearchUrl = "https://so.csdn.net/so/search/blog?q=" + topicName + facetName + "&t=blog&p=1&s=0&tm=0&lv=-1&ft=0&l=&u=";
-//                try {
-//                    String csdnSearchHtml = SpiderUtils.seleniumCsdn(csdnSearchUrl);
-//                    Document csdnSerarchDoc = JsoupDao.parseHtmlText(csdnSearchHtml);
-//                    Elements csdnUrlElements = csdnSerarchDoc.select("div[class*='list-item']").select("a[class='normal-list-link']");
-//                    if (csdnUrlElements.isEmpty()) {
-//                        Log.log("没有拿到csdn链接！");
+
+            }
+//            while (threadMap.isEmpty()==false){
+//                Thread.sleep(200);
+//                for(String name:threadMap.keySet()){
+//                    if(threadMap.get(name).getState()==TERMINATED){
+//                        threadMap.remove(name);
+//                        Log.log("==========课程 " + domainName + "，主题 " + topicName +"分面"+name+ " 下的碎片已经爬取==========");
 //                    }
-//                    for (int i = 0; i < 5; i++) {
-//                        Element urlElement = csdnUrlElements.get(i);
-//                        String csdnUrl = urlElement.attr("href");
-//
-//                        String csdnHtml = SpiderUtils.seleniumCsdn(csdnUrl);
-//                        Document csdnDoc = JsoupDao.parseHtmlText(csdnHtml);
-//                        Elements contentElement = csdnDoc.select("div[class='blog-content-box']");
-//                        StringBuffer csdnAssembleContent = new StringBuffer();
-//                        StringBuffer csdnAssembleText = new StringBuffer();
-//                        csdnAssembleContent.append(contentElement.toString());
-//                        csdnAssembleText.append(contentElement.text());
-//                        if (csdnAssembleContent.length() != 0 && csdnAssembleText.length() != 0) {
-//                            Long sourceId = Long.valueOf(4);
-//                            MysqlReadWriteDAO.storeAssemble(csdnAssembleContent.toString(), csdnAssembleText.toString(), domain.getDomainId(), facet.getFacetId(), sourceId);
-//                        } else {
-//                            Log.log("csdn链接无法解析：" + csdnUrl);
-//                        }
-//                    }
-//                } catch (Exception e) {
-//                    Log.log("\ncsdn碎片列表地址获取失败\n链接地址：" + csdnSearchUrl);
 //                }
-            }
-            while (threadMap.isEmpty()==false){
-                Thread.sleep(200);
-                for(String name:threadMap.keySet()){
-                    if(threadMap.get(name).getState()==TERMINATED){
-                        threadMap.remove(name);
-                        Log.log("==========课程 " + domainName + "，主题 " + topicName +"分面"+name+ " 下的碎片已经爬取==========");
-                    }
-                }
-            }
+//            }
 
             Log.log("==========课程 " + domainName + "，主题 " + topicName + " 下的碎片已经爬取==========");
         }

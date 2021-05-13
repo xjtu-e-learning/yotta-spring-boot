@@ -140,7 +140,7 @@ public class SpiderUtils {
             }
             break;
         }
-//        Thread.sleep(500);
+        Thread.sleep(500);
         logger.info("Page title is: " + driver.getTitle());
         String html = driver.getPageSource();
         driver.quit();
