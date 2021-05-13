@@ -1,5 +1,6 @@
 package com.xjtu.subject.service;
 
+import com.sun.javafx.geom.Edge;
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
 import com.xjtu.domain.domain.Domain;
@@ -27,10 +28,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 处理subject学科数据
@@ -319,3 +317,5 @@ public class SubjectService {
     }
 
 }
+
+
