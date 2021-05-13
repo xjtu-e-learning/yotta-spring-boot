@@ -4,6 +4,7 @@ import com.spreada.utils.chinese.ZHConverter;
 import com.xjtu.assemble.domain.Assemble;
 import com.xjtu.domain.domain.Domain;
 import com.xjtu.facet.domain.Facet;
+import com.xjtu.spider_dynamic_output.spiders.csdn.CsdnCrawler;
 import com.xjtu.spider_dynamic_output.spiders.csdn.CsdnThread;
 import com.xjtu.topic.domain.Topic;
 import com.xjtu.utils.JsoupDao;
@@ -15,6 +16,7 @@ import org.jsoup.select.Elements;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static java.lang.Thread.State.TERMINATED;
 
@@ -76,9 +78,85 @@ public class AssembleCrawler {
                     Long sourceId = Long.valueOf(1);
                     MysqlReadWriteDAO.storeAssemble(assembleContent, assembleText, domain.getDomainId(), facet.getFacetId(), sourceId);
                 }
-                Thread thread=new CsdnThread(domain,topic,facet,increment);
-                thread.start();
-                threadMap.put(facetName,thread);
+                CsdnCrawler.csdnSpiderAssemble(domain,topic,facet,increment);
+//                Thread thread=new CsdnThread(domain,topic,facet,increment);
+//                thread.start();
+//                threadMap.put(facetName,thread);
+
+
+            }
+//            while (threadMap.isEmpty()==false){
+//                Thread.sleep(200);
+//                for(String name:threadMap.keySet()){
+//                    if(threadMap.get(name).getState()==TERMINATED){
+//                        threadMap.remove(name);
+//                        Log.log("==========课程 " + domainName + "，主题 " + topicName +"分面"+name+ " 下的碎片已经爬取==========");
+//                    }
+//                }
+//            }
+
+            Log.log("==========课程 " + domainName + "，主题 " + topicName + " 下的碎片已经爬取==========");
+        }
+    }
+
+
+
+    /**
+     * 根据课程名、主题名爬取碎片
+     */
+    public static Map<String,Thread> storeAssembleByTopicNameReturnThreadMap(Domain domain, Topic topic, Boolean increment) throws Exception {
+        //定义课程、主题内容
+        String domainName = domain.getDomainName();
+        String topicName = topic.getTopicName();
+        String topicUrl = topic.getTopicUrl();
+
+        /**
+         * 判断该主题的信息是不是在所有表格中已经存在
+         * 只要有一个不存在就需要再次爬取（再次模拟加载浏览器）
+         */
+
+        List<Facet> facets = MysqlReadWriteDAO.getTopicFacet(topic.getTopicId());
+
+        /**
+         * selenium解析wiki网页
+         */
+        HashMap<String,Thread> threadMap=new HashMap<>();
+        if (facets.isEmpty())//分面为空的情况
+        {
+            Log.log("==========课程 " + domainName + "，主题 " + topicName + " 下无分面，无法爬碎片==========");
+        } else {
+            String topicHtml = SpiderUtils.seleniumWiki(topicUrl);
+            Document wikiDoc = JsoupDao.parseHtmlText(topicHtml);
+            for (Facet facet : facets) {
+                long assembleCount=MysqlReadWriteDAO.findAssembleNumByFacet(facet.getFacetId());
+                Log.log("====分面："+facet.getFacetName()+ "下的碎片数量为" +assembleCount );
+                if(assembleCount>4l && increment==false){
+                    Log.log("分面："+facet.getFacetName()+ "下碎片已爬取，无需再爬" );
+                    continue;
+                }
+                if(assembleCount>9l && increment==true){
+                    Log.log("分面："+facet.getFacetName()+ ",下碎片已增量爬取，无需再爬" );
+                    continue;
+                }
+                String facetName = facet.getFacetName();
+                String assembleContent = "";
+                String assembleText = "";
+                try {
+                    assembleContent = getAssembleContent(wikiDoc, facetName);
+                    assembleText = getAssembleText(wikiDoc, facetName);
+                } catch (Exception e) {
+                    Log.log("\n维基网页查找碎片异常\n链接地址：" + topicUrl);
+                }
+
+                if (assembleContent.length() != 0 && assembleText.length() != 0) {
+                    Long sourceId = Long.valueOf(1);
+                    MysqlReadWriteDAO.storeAssemble(assembleContent, assembleText, domain.getDomainId(), facet.getFacetId(), sourceId);
+                }
+                try {
+                    CsdnCrawler.csdnSpiderAssemble(domain,topic,facet,increment);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
                 //CSDN爬虫
 //                String csdnSearchUrl = "https://so.csdn.net/so/search/blog?q=" + topicName + facetName + "&t=blog&p=1&s=0&tm=0&lv=-1&ft=0&l=&u=";
@@ -123,11 +201,14 @@ public class AssembleCrawler {
 
             Log.log("==========课程 " + domainName + "，主题 " + topicName + " 下的碎片已经爬取==========");
         }
+        return threadMap;
     }
 
 
-            /**
-             * 简书网页爬碎片*/
+
+
+    /**
+     * 简书网页爬碎片*/
 /**
             for (Facet facet : facets) {
 

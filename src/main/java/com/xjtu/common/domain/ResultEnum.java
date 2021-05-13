@@ -30,6 +30,8 @@ public enum ResultEnum {
     SUBJECT_SEARCH_ERROR_1(114, "学科分页查询失败：没有该条学科信息记录"),
     SUBJECT_SEARCH_ERROR_2(115, "学科分页查询失败：查询的页数超过最大页数"),
     SUBJECT_GRAPH_ERROR(197, "学科知识图谱查询失败：对应文件可能不存在"),
+    SUBJECT_GRAPH_REMOVE_ERROR(198, "学科知识图谱删除失败：对应课程可能不存在"),
+    SUBJECT_GRAPH_ADD_DEPEND_ERROR(199, "学科知识图谱增加失败：对应依赖课程可能不存在"),
 
     //课程
     DOMAIN_INSERT_ERROR(116, "课程信息插入失败：课程名不存在或者为空"),
@@ -49,6 +51,7 @@ public enum ResultEnum {
     TOPIC_INSERT_ERROR(125, "主题信息插入失败：主题名不存在或者为空"),
     TOPIC_INSERT_ERROR_1(126, "主题信息插入失败：插入主题已经存在"),
     TOPIC_INSERT_ERROR_2(127, "主题信息插入失败：数据库插入语句失败"),
+    TOPIC_INSERT_ERROR_4(127, "主题信息插入失败"),
     TOPIC_DELETE_ERROR(128, "主题删除失败"),
     TOPIC_UPDATE_ERROR(129, "主题更新失败：更新语句执行失败"),
     TOPIC_UPDATE_ERROR_1(130, "主题更新失败：主题名不存在或者为空"),
@@ -64,6 +67,7 @@ public enum ResultEnum {
 
 
     //分面
+    FACET_INSERT_ERROR_0(139, "分面信息插入失败：爬虫出错"),
     FACET_INSERT_ERROR(139, "分面信息插入失败：分面名不存在或者为空"),
     FACET_INSERT_ERROR_1(140, "分面信息插入失败：分面插入语句执行失败"),
     FACET_DELETE_ERROR(141, "分面信息删除失败：分面不存在"),
@@ -133,6 +137,7 @@ public enum ResultEnum {
     DEPENDENCY_SEARCH_ERROR_2(179, "主题依赖关系生成失败：gexf文件生成失败"),
     DEPENDENCY_SEARCH_ERROR_3(180, "主题依赖关系生成失败：起始或终止主题不存在"),
     DEPENDENCY_SEARCH_ERROR_4(181, "主题依赖关系查询失败：查询语句执行失败"),
+    DEPENDENCY_INSERT_ERROR_0(182, "主题依赖关系插入失败：该主题下没有碎片"),
     DEPENDENCY_INSERT_ERROR(182, "主题依赖关系插入失败:插入语句执行失败"),
     DEPENDENCY_INSERT_ERROR_1(183, "主题依赖关系插入失败：没有课程信息记录"),
     DEPENDENCY_INSERT_ERROR_2(184, "主题依赖关系插入失败:起始或终止主题不存在"),
@@ -177,7 +182,7 @@ public enum ResultEnum {
     //知识主题分面树爬虫动态输出
     OUTPUTSPIDER_ERROR_1(300,"分面碎片爬虫未启动"),
     OUTPUTSPIDER_ERROR_2(301,"分面碎片爬虫正在运行"),
-    OUTPUTSPIDER_ERROR_3(302,"分面树构建失败"),
+    OUTPUTSPIDER_ERROR_3(302,"分面碎片爬虫已完成"),
     OUTPUTSPIDER_ERROR_4(303,"分面树构建失败"),
 
     ;

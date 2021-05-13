@@ -249,6 +249,8 @@ public class TopicController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+
+
     /**
      * API
      * 获得指定课程、指定主题的所有信息，添加hasFragment,如果为false分面树信息不添加碎片
@@ -394,5 +396,14 @@ public class TopicController {
     }
 
 
-
+    @GetMapping("/insertNewCompleteTopicByNameAndDomainName")
+    @ApiOperation(value = "（谨慎使用，比较耗时！）插入新主题，调用爬虫获取主题分面，调用算法添加主题依赖关系", notes = "（谨慎使用，比较耗时！）插入新主题，调用爬虫获取主题分面，调用算法添加主题依赖关系")
+    public ResponseEntity insertNewCompleteTopicByNameAndDomainName(@RequestParam(name = "domainName") String domainName,
+                                                                    @RequestParam(name = "topicName") String topicName) {
+        Result result = topicService.insertNewCompleteTopicByNameAndDomainName(topicName,domainName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 }

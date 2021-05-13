@@ -3,6 +3,7 @@ package com.xjtu.spider_new.controller;
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
 import com.xjtu.spider_new.service.NewSpiderService;
+import com.xjtu.utils.ResultUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,30 +43,45 @@ public class NewSpiderController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+//    @CrossOrigin
+//    @PostMapping("/buildFacetsByTopicList")
+//    @ApiOperation(value = "构建指定课程下的所有主题列表中的所有分面",
+//            notes = "构建指定课程下的所有主题列表中的所有分面")
+//    public ResponseEntity buildFacetsByTopicList(@RequestParam(name = "domainName") String domainName,
+//                                                 @RequestParam(name = "isChinese") Boolean isChinese,
+//                                                 @RequestParam(name = "topicNames") List<String> topicNames) throws URISyntaxException {
+//        Result result = SpiderService.facetExtraction(domainName, topicNames, isChinese, false, 0, -1);
+//
+//        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+//        }
+//
+//        return ResponseEntity.status(HttpStatus.OK).body(result);
+//    }
+
+//    @CrossOrigin
+//    @PostMapping("/fillEmptyTopic")
+//    @ApiOperation(value = "填充单个空主题",
+//            notes = "填充单个空主题")
+//    public ResponseEntity fillEmptyTopic(@RequestParam(name = "domainName") String domainName,
+//                                                 @RequestParam(name = "isChinese") Boolean isChinese,
+//                                                 @RequestParam(name = "topicId") Long topicId) throws Exception {
+//        Result result = SpiderService.crawlEmptyTopic(topicId, isChinese);
+//
+//        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+//        }
+//
+//        return ResponseEntity.status(HttpStatus.OK).body(result);
+//    }
+
     @CrossOrigin
-    @PostMapping("/buildFacetsByTopicList")
-    @ApiOperation(value = "构建指定课程下的所有主题列表中的所有分面",
-            notes = "构建指定课程下的所有主题列表中的所有分面")
-    public ResponseEntity buildFacetsByTopicList(@RequestParam(name = "domainName") String domainName,
-                                                 @RequestParam(name = "isChinese") Boolean isChinese,
-                                                 @RequestParam(name = "topicNames") List<String> topicNames) throws URISyntaxException {
-        Result result = SpiderService.facetExtraction(domainName, topicNames, isChinese, false, 0, -1);
+    @PostMapping("/fillEmptyTopics")
+    @ApiOperation(value = "填充空主题",
+            notes = "输入课程下空主题的区间以爬取某区间数量下课程的空主题")
+    public ResponseEntity fillEmptyTopics(@RequestParam(name = "min") int min, @RequestParam(name = "max") int max) throws Exception {
 
-        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
-        }
-
-        return ResponseEntity.status(HttpStatus.OK).body(result);
-    }
-
-    @CrossOrigin
-    @PostMapping("/fillEmptyTopic")
-    @ApiOperation(value = "填充单个空主题",
-            notes = "填充单个空主题")
-    public ResponseEntity fillEmptyTopic(@RequestParam(name = "domainName") String domainName,
-                                                 @RequestParam(name = "isChinese") Boolean isChinese,
-                                                 @RequestParam(name = "topicId") Long topicId) throws Exception {
-        Result result = SpiderService.crawlEmptyTopic(topicId, isChinese);
+        Result result =  SpiderService.crawlEmptyTopicsByDomainWithoutAI(min, max);
 
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
@@ -135,4 +151,40 @@ public class NewSpiderController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @ApiOperation(value = "删除空分面及其下关联的东西", notes = "删除空分面及其下关联的东西")
+    @GetMapping("/deleteEmptyFacets")
+    public ResponseEntity deleteEmptyFacets()
+    {
+        Result result = SpiderService.deleteEmptyFacets();
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @ApiOperation(value = "根据课程与主题增量爬取其分面下的碎片", notes = "课程名、主题名需真实存在，且主题下需要有分面")
+    @PostMapping("/crawlAssembleIncrement")
+    public ResponseEntity crawlAssembleIncrement(@RequestParam(name = "domainName") String domainName,
+                                                 @RequestParam(name = "topicName") String topicName)
+    {
+        Result result = SpiderService.crawlAssembleIncrement(domainName, topicName);
+
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @ApiOperation(value = "根据课程与主题增量爬取其分面下的碎片", notes = "课程名、主题名需真实存在，主题下若无分面会自动构建")
+    @GetMapping("/getAndCheckIncrementStatus")
+    public ResponseEntity getAndCheckIncrementStatus(@RequestParam(name = "domainName") String domainName,
+                                                 @RequestParam(name = "topicName") String topicName)
+    {
+        Result result = SpiderService.getIncrementFacetAssembleAndThreadStatus(domainName, topicName);
+
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 }

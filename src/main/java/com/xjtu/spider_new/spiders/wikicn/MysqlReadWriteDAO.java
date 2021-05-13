@@ -309,6 +309,27 @@ public class MysqlReadWriteDAO {
 
     }
 
+    public static String findTopicNameByTopicId(Long topicID) {
+        String res = null;
+
+        mysqlUtils mysql = new mysqlUtils();
+        String sql = "select * from " + Config.TOPIC_TABLE + " where topic_id=?";
+        List<Object> params = new ArrayList<Object>();
+        params.add(topicID);
+        try {
+            List<Map<String, Object>> results = mysql.returnMultipleResult(sql, params);
+            if (results.size() != 0) {
+                Map<String, Object> map = results.get(0);
+                res = (String) map.get("topic_name");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            mysql.closeconnection();
+        }
+        return res;
+    }
+
 
     /**
      * 判断表格，判断某门课程下某个主题的数据是否已经在这个数据表中存在

@@ -40,7 +40,7 @@ public class FacetCrawler {
         String domainName = domain.getDomainName();
         String topicName = topic.getTopicName();
         String topicUrl = topic.getTopicUrl();
-        if(topicUrl.length()==0){
+        if(topicUrl==null || topicUrl.length()==0){
             topicUrl="https://zh.wikipedia.org/wiki/"+topicName;
         }
         Long topicId = topic.getTopicId();

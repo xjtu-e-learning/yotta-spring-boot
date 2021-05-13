@@ -6,8 +6,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 
@@ -214,4 +216,83 @@ public interface TopicRepository extends JpaRepository<Topic, Long>, JpaSpecific
     @Query("select new map(t.topicName,d.domainName) from Topic t, Domain d where t.domainId = d.domainId and t.topicName like %?1%")
     List<Map<String, Object>> findTopicInformationByKeyword(String keyword);
 
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "SELECT domain_id " +
+            "FROM topic t LEFT JOIN facet f " +
+            "ON t.topic_id = f.topic_id " +
+            "WHERE f.topic_id is NULL " +
+            "AND t.topic_url IS NOT NULL " +
+            "GROUP BY domain_id " +
+            "HAVING COUNT(*) > 120 " +
+            "AND COUNT(*) <= 250 " +
+            "Order BY COUNT(*) DESC ;", nativeQuery = true)
+    List<BigInteger> findDomainIdWhichHasEmptyTopic1();
+
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "SELECT domain_id " +
+            "FROM topic t LEFT JOIN facet f " +
+            "ON t.topic_id = f.topic_id " +
+            "WHERE f.topic_id is NULL " +
+            "AND t.topic_url IS NOT NULL " +
+            "GROUP BY domain_id " +
+            "HAVING COUNT(*) > 70 " +
+            "AND COUNT(*) <= 120 " +
+            "Order BY COUNT(*) DESC ;", nativeQuery = true)
+    List<BigInteger> findDomainIdWhichHasEmptyTopic2();
+
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "SELECT domain_id " +
+            "FROM topic t LEFT JOIN facet f " +
+            "ON t.topic_id = f.topic_id " +
+            "WHERE f.topic_id is NULL " +
+            "AND t.topic_url IS NOT NULL " +
+            "GROUP BY domain_id " +
+            "HAVING COUNT(*) > 50 " +
+            "AND COUNT(*) <= 70 " +
+            "Order BY COUNT(*) DESC ;", nativeQuery = true)
+    List<BigInteger> findDomainIdWhichHasEmptyTopic3();
+
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "SELECT domain_id " +
+            "FROM topic t LEFT JOIN facet f " +
+            "ON t.topic_id = f.topic_id " +
+            "WHERE f.topic_id is NULL " +
+            "AND t.topic_url IS NOT NULL " +
+            "GROUP BY domain_id " +
+            "HAVING COUNT(*) > 25 " +
+            "AND COUNT(*) <= 50 " +
+            "Order BY COUNT(*) DESC ;", nativeQuery = true)
+    List<BigInteger> findDomainIdWhichHasEmptyTopic4();
+
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "SELECT domain_id " +
+            "FROM topic t LEFT JOIN facet f " +
+            "ON t.topic_id = f.topic_id " +
+            "WHERE f.topic_id is NULL " +
+            "AND t.topic_url IS NOT NULL " +
+            "GROUP BY domain_id " +
+            "HAVING COUNT(*) <= 25 " +
+            "Order BY COUNT(*) DESC ;", nativeQuery = true)
+    List<BigInteger> findDomainIdWhichHasEmptyTopic5();
+
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "SELECT domain_id " +
+            "FROM topic t LEFT JOIN facet f " +
+            "ON t.topic_id = f.topic_id " +
+            "WHERE f.topic_id is NULL " +
+            "AND t.topic_url IS NOT NULL " +
+            "GROUP BY domain_id " +
+            "HAVING COUNT(*) >= ? " +
+            "AND COUNT(*) < ? " +
+            "Order BY COUNT(*) DESC ;", nativeQuery = true)
+    List<BigInteger> findDomainIdWhichHasEmptyTopic(@Param("min")int min, @Param("max") int max);
+
+    @Transactional(rollbackFor = Exception.class)
+    @Query(value = "SELECT t.topic_id, domain_id, topic_layer, topic_name, topic_url " +
+            "FROM topic t LEFT JOIN facet f " +
+            "ON t.topic_id = f.topic_id " +
+            "WHERE f.topic_id is NULL " +
+            "AND domain_id = ?1 " +
+            ";", nativeQuery = true)
+    List<Topic> findEmptyTopicByDomainId(Long domainId);
 }

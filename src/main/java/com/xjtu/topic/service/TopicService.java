@@ -7,6 +7,7 @@ import com.xjtu.assemble.repository.AssembleRepository;
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
 import com.xjtu.dependency.repository.DependencyRepository;
+import com.xjtu.dependency.service.DependencyService;
 import com.xjtu.domain.domain.Domain;
 import com.xjtu.domain.repository.DomainRepository;
 import com.xjtu.domain.service.DomainService;
@@ -15,6 +16,11 @@ import com.xjtu.facet.domain.FacetContainAssemble;
 import com.xjtu.facet.repository.FacetRepository;
 import com.xjtu.relation.domain.Relation;
 import com.xjtu.relation.repository.RelationRepository;
+import com.xjtu.spider.service.SpiderService;
+import com.xjtu.spider_dynamic_output.service.SpiderDynamicOutputService;
+import com.xjtu.spider_dynamic_output.spiders.wikicn.AssembleCrawler;
+import com.xjtu.spider_dynamic_output.spiders.wikicn.FacetCrawler;
+import com.xjtu.spider_new.service.NewSpiderService;
 import com.xjtu.topic.dao.TopicDAO;
 import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.domain.TopicContainAssembleText;
@@ -56,6 +62,9 @@ public class TopicService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
+    private NewSpiderService SpiderService;
+
+    @Autowired
     private TopicRepository topicRepository;
 
     @Autowired
@@ -65,6 +74,9 @@ public class TopicService {
     private FacetRepository facetRepository;
 
     @Autowired
+    private DependencyService dependencyService;
+
+    @Autowired
     private AssembleRepository assembleRepository;
 
     @Autowired
@@ -72,6 +84,8 @@ public class TopicService {
 
     @Autowired
     private DependencyRepository dependencyRepository;
+    @Autowired
+    private SpiderDynamicOutputService spiderdOutputService;
 
     @Autowired
     private DomainService domainService;
@@ -652,15 +666,20 @@ public class TopicService {
         //firstLayerFacets一级分面列表，将二级分面挂到对应一级分面下
         List<Facet> firstLayerFacetContainAssembles = new ArrayList<>();
         for (Facet firstLayerFacet : firstLayerFacets) {
-            if (firstLayerFacet.getFacetName().equals("匿名分面")) {
+            if ("匿名分面".equals(firstLayerFacet.getFacetName())) {
                 continue;
             }
             FacetContainAssemble firstLayerFacetContainAssemble = new FacetContainAssemble();
             firstLayerFacetContainAssemble.setFacet(firstLayerFacet);
             firstLayerFacetContainAssemble.setType("branch");
+
+
             //设置一级分面的子节点（二级分面）
             List<Object> secondLayerFacetContainAssembles = new ArrayList<>();
             for (Facet secondLayerFacet : secondLayerFacets) {
+                if ("匿名分面".equals(secondLayerFacet.getFacetName())) {
+                    continue;
+                }
                 //一级分面下的二级分面
                 if (secondLayerFacet.getParentFacetId().equals(firstLayerFacet.getFacetId())) {
                     FacetContainAssemble secondLayerFacetContainAssemble = new FacetContainAssemble();
@@ -717,6 +736,10 @@ public class TopicService {
         topicContainFacet.setChildrenNumber(firstLayerFacetContainAssembles.size());
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicContainFacet);
     }
+
+
+
+
 
     /**
      * 指定课程名和主题名，获取主题并包含其完整的下的分面、不包含碎片数据
@@ -1182,5 +1205,38 @@ public class TopicService {
             logger.error("主题完整删除失败：删除语句执行失败");
             return ResultUtil.error(ResultEnum.TOPIC_DELETE_ERROR.getCode(), ResultEnum.TOPIC_DELETE_ERROR.getMsg());
         }
+    }
+
+    public Result insertNewCompleteTopicByNameAndDomainName(String topicName, String domainName) {
+
+        Domain domain = domainRepository.findByDomainName(domainName);
+
+        if (domain == null) {
+            logger.error("主题信息插入失败：没有对应的课程");
+            return ResultUtil.error(ResultEnum.TOPIC_INSERT_ERROR_3.getCode(), ResultEnum.TOPIC_INSERT_ERROR_3.getMsg());
+        }
+
+        Result insertTopicResult = insertTopicByNameAndDomainName(domainName,topicName);
+        if(!insertTopicResult.getCode().equals(ResultEnum.SUCCESS.getCode())){
+            return ResultUtil.error(ResultEnum.TOPIC_INSERT_ERROR_4.getCode(), ResultEnum.TOPIC_INSERT_ERROR_4.getMsg());
+        }
+
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(), topicName);
+        Map<String, Thread> threadMap=null;
+        try {
+            FacetCrawler.storeFacetByTopicName(domain,topic);
+            AssembleCrawler.storeAssembleByTopicNameReturnThreadMap(domain, topic, false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+        logger.info("该主题的分面与碎片爬取完成");
+        Result generateDependencyResult = dependencyService.generateDependencyWithNewTopic(domainName, topicName);
+        if(!generateDependencyResult.getCode().equals(ResultEnum.SUCCESS.getCode())){
+            deleteTopicCompleteByDomainNameAndTopicName(domainName,topicName);
+            return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR_2.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR_2.getMsg());
+        }
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), generateDependencyResult);
     }
 }
