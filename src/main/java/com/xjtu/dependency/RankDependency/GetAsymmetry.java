@@ -8,6 +8,7 @@ package com.xjtu.dependency.RankDependency;
 import com.xjtu.dependency.domain.Dependency;
 import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.domain.TopicContainAssembleText;
+import com.xjtu.utils.CsvUtil;
 import io.swagger.models.auth.In;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,12 +43,12 @@ public class GetAsymmetry {
                     double Afirst = asyResult.get(0);
                     double Bfirst = asyResult.get(1);
 //                    System.out.println("Afirst: " + Afirst + "     Bfirst: " + Bfirst);
-                    if(Afirst >= THD)
+                    if(Afirst > THD)
                     {
                         Dependency dependency = new Dependency(term1.getTopicId(), term2.getTopicId(), (float)Afirst, term1.getDomainId());
                         dependencies.add(dependency);
                     }
-                    if(Bfirst >= THD)
+                    if(Bfirst > THD)
                     {
                         Dependency dependency = new Dependency(term2.getTopicId(), term1.getTopicId(), (float)Bfirst, term1.getDomainId());
                         dependencies.add(dependency);
@@ -65,7 +66,6 @@ public class GetAsymmetry {
                 }
             }
         }
-
         List<Dependency> all_dependencies = new ArrayList<>();
         if(dependencies.size()> topicList.size()/2)
         {
@@ -75,8 +75,7 @@ public class GetAsymmetry {
         {
             all_dependencies = dependenciesAll;
         }
-
-        System.out.println("生成的认知关系对数量： " + all_dependencies.size());
+        System.out.println("生成的认知关系对数量： " + dependencies.size());
         //去除前向边
         DFSvisit dfSvisit = new DFSvisit();
         HashMap<Long, List<Dependency>> relations = dfSvisit.changeRelation(all_dependencies);
@@ -120,6 +119,20 @@ public class GetAsymmetry {
 //        CsvUtil.writeCSV(dependencies, "D:/实验室/算法集成/"+termList.get(0).getDomainId().toString()+"confidence_orig.csv", csvHeaders);
         return returnDependency;
 
+    }
+
+    public double singleAsyDependency(List<Topic> topicList, TopicContainAssembleText term1, TopicContainAssembleText term2) {
+        List<Dependency> dependencies = new ArrayList<>();
+        List<Dependency> dependenciesAll = new ArrayList<>();
+
+        logger.info("Start computing...");
+        List<TopicContainAssembleText> termList = new ArrayList<>();
+        termList.add(term1);
+        termList.add(term2);
+        List<HashMap<String, Float>> tfidf = getTFIDF(topicList, termList);
+        List<Double> asyResult = computeAsy(topicList, term1, term2, tfidf.get(0), tfidf.get(1));
+        double Afirst = asyResult.get(0);
+        return Afirst;
     }
 
     public List<Double> computeAsy(List<Topic> topicList, TopicContainAssembleText term1, TopicContainAssembleText term2,
@@ -240,6 +253,7 @@ public class GetAsymmetry {
     //计算TFC
     public List<HashMap<String, Float>> getTFIDF(List<Topic> topicList, List<TopicContainAssembleText> termList)
     {
+
         List<HashMap<String, Float>> tfidf = new ArrayList<>();
         List<HashMap<String, Float>> tf = getTF(topicList, termList);
         HashMap<String, Float> idf = getIDF(topicList, termList);
@@ -344,5 +358,4 @@ public class GetAsymmetry {
 
         return all_dependencies;
     }
-
 }

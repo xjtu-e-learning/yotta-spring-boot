@@ -6,8 +6,7 @@ import com.xjtu.assemble.repository.AssembleRepository;
 import com.xjtu.common.Config;
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
-import com.xjtu.dependency.RankDependency.GetAsymmetry;
-import com.xjtu.dependency.RankDependency.RankDependency;
+import com.xjtu.dependency.RankDependency.*;
 import com.xjtu.dependency.domain.Dependency;
 import com.xjtu.dependency.domain.DependencyContainName;
 import com.xjtu.dependency.repository.DependencyRepository;
@@ -574,25 +573,25 @@ public class DependencyService {
         Long domainId = domain.getDomainId();
 
         //查看数据库中是否已有该课程的主题依赖关系
-        List<Dependency> dependencies = dependencyRepository.findByDomainId(domainId);
-        if (dependencies.size() > 0)   //数据库已有该课程主题依赖关系
-        {
-            List<DependencyContainName> dependencyContainNames = new ArrayList<>();
-            for (Dependency dependency : dependencies) {
-                DependencyContainName dependencyContainName = new DependencyContainName(dependency);
-                //获取主题名
-                String startTopicName = topicRepository.findOne(dependency.getStartTopicId()).getTopicName();
-                String endTopicName = topicRepository.findOne(dependency.getEndTopicId()).getTopicName();
-
-                //设置主题名
-                dependencyContainName.setStartTopicName(startTopicName);
-                dependencyContainName.setEndTopicName(endTopicName);
-
-                dependencyContainNames.add(dependencyContainName);
-
-            }
-            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), dependencyContainNames);
-        }
+//        List<Dependency> dependencies = dependencyRepository.findByDomainId(domainId);
+//        if (dependencies.size() > 0)   //数据库已有该课程主题依赖关系
+//        {
+//            List<DependencyContainName> dependencyContainNames = new ArrayList<>();
+//            for (Dependency dependency : dependencies) {
+//                DependencyContainName dependencyContainName = new DependencyContainName(dependency);
+//                //获取主题名
+//                String startTopicName = topicRepository.findOne(dependency.getStartTopicId()).getTopicName();
+//                String endTopicName = topicRepository.findOne(dependency.getEndTopicId()).getTopicName();
+//
+//                //设置主题名
+//                dependencyContainName.setStartTopicName(startTopicName);
+//                dependencyContainName.setEndTopicName(endTopicName);
+//
+//                dependencyContainNames.add(dependencyContainName);
+//
+//            }
+//            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), dependencyContainNames);
+//        }
 
         //数据库中没有该课程的主题依赖关系，需自动构建
         //获得课程下所有主题
@@ -639,11 +638,17 @@ public class DependencyService {
         GetAsymmetry getAsymmetry = new GetAsymmetry();
         List<Dependency> generated_dependencies = getAsymmetry.AsyDependency(topicList, topicContainAssembleTexts);
 
+        if (generated_dependencies.size() < topicList.size()/2)
+        {
+            generated_dependencies = predictSVMModel(domainName, isEnglish);
+        }
+
         if (generated_dependencies.size() == 0)
         {
             RankDependency rankDependency = new RankDependency();
             generated_dependencies = rankDependency.rankText(topicContainAssembleTexts, topicContainAssembleTexts.size(), isEnglish);
         }
+
 
         //保存自动构建的依赖关系，存到数据库
         dependencyRepository.save(generated_dependencies);
@@ -1051,6 +1056,455 @@ public class DependencyService {
         }
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), dependencyContainNames);
 
+    }
+
+    /**
+     * 训练分类器并保存模型，自动构建认知关系。从数据库中读取主题以及碎片
+     * 使用svm算法
+     * @param isEnglish  是否为英文课程
+     * @return
+     */
+    public Result trainSVMModel(Boolean isEnglish) {
+        int num = 0;
+        List<Float> asy = new ArrayList<>();
+        List<Float> sim = new ArrayList<>();
+        List<Float> simOfName = new ArrayList<>();
+        List<Double> labels = new ArrayList<>();
+        int trueNum = 0;
+        int falseNum = 0;
+        List<Integer> numflag = new ArrayList<>();
+        HashMap<Long, List<Long>> topicPair = new HashMap<>();
+
+        String[] domainNames={"计算机组成原理","数据结构", "概率论","计算机系统结构","数据库应用"};
+
+        for (String domainName : domainNames)
+        {
+            List<Float> negSim = new ArrayList<>();
+            List<Float> negSimofName = new ArrayList<>();
+            List<Dependency> trueDependency = new ArrayList<>();
+            List<Dependency> falseDependency = new ArrayList<>();
+            List<Topic> topicList = new ArrayList<>();
+            if (domainName == null) {
+                logger.error("主题依赖关系查询失败：没有指定课程");
+                return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR_5.getCode(), ResultEnum.DEPENDENCY_SEARCH_ERROR_5.getMsg());
+            }
+            Domain domain = domainRepository.findByDomainName(domainName);
+            //查询错误
+            if (domain == null) {
+                logger.error("主题依赖关系生成失败：没有课程信息记录: " + domainName);
+                continue;
+//                return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR.getMsg());
+            }
+
+            Long domainId = domain.getDomainId();
+            //查看数据库中是否已有该课程的主题依赖关系
+            List<Dependency> dependencies = dependencyRepository.findByDomainId(domainId);
+            //获得topicContainAssembleText List，即每个主题有对应碎片文本，获得主题内容信息
+            HashMap<Long, TopicContainAssembleText> topicContainAssembleTexts = new HashMap<>();
+            for (Dependency dependency : dependencies)
+            {
+                Topic startTopic = topicRepository.findByTopicId(dependency.getStartTopicId());
+                Topic endTopic = topicRepository.findByTopicId(dependency.getEndTopicId());
+                TopicContainAssembleText start_topicContentAssembleText = new TopicContainAssembleText(startTopic);
+                start_topicContentAssembleText.setTopicId(startTopic.getTopicId());
+                TopicContainAssembleText end_topicContentAssembleText = new TopicContainAssembleText(endTopic);
+                end_topicContentAssembleText.setTopicId(endTopic.getTopicId());
+
+
+                //查询碎片信息
+                if (!topicContainAssembleTexts.containsKey(startTopic.getTopicId()))
+                {
+                    List<Assemble> assembleList = assembleRepository.findAllAssemblesByTopicId(startTopic.getTopicId());
+                    if (assembleList.size() < 1) {
+                        System.out.println("该主题没有依赖碎片！" + startTopic.getTopicId());
+                        continue;
+                        /**
+                         System.out.print(temp_topic.getTopicId());
+                         logger.error("主体依赖关系生成失败：碎片内容为空");
+                         return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR_2.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR_2.getMsg());
+                         */
+                    }
+                    String start_text = "";
+                    for (int j = 0; j <Math.min(assembleList.size(),200); j++) {
+                        start_text = start_text + assembleList.get(j).getAssembleText() + " ";
+                    }
+                    if (start_text.length() == 0 || start_text.equals(""))
+                        continue;
+                    start_topicContentAssembleText.setText(start_text);
+                    topicContainAssembleTexts.put(startTopic.getTopicId(),start_topicContentAssembleText);
+                    topicList.add(startTopic);
+
+                }
+                else
+                {
+                    start_topicContentAssembleText = topicContainAssembleTexts.get(startTopic.getTopicId());
+                }
+
+                if (!topicContainAssembleTexts.containsKey(endTopic.getTopicId()))
+                {
+                    List<Assemble> assembleList = assembleRepository.findAllAssemblesByTopicId(endTopic.getTopicId());
+                    if (assembleList.size() < 1) {
+                        System.out.println("该主题没有依赖碎片！" + endTopic.getTopicId());
+                        continue;
+                        /**
+                         System.out.print(temp_topic.getTopicId());
+                         logger.error("主体依赖关系生成失败：碎片内容为空");
+                         return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR_2.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR_2.getMsg());
+                         */
+                    }
+                    String end_text = "";
+                    for (int j = 0; j <Math.min(assembleList.size(),200); j++) {
+                        end_text = end_text + assembleList.get(j).getAssembleText() + " ";
+                    }
+                    if (end_text.length() == 0 || end_text.equals(""))
+                        continue;
+                    end_topicContentAssembleText.setText(end_text);
+                    topicContainAssembleTexts.put(endTopic.getTopicId(),end_topicContentAssembleText);
+                    topicList.add(endTopic);
+                }
+                else
+                {
+                    end_topicContentAssembleText = topicContainAssembleTexts.get(endTopic.getTopicId());
+                }
+
+
+                num += 1;
+                trueNum += 1;
+                labels.add(1.0);
+                Long startId = startTopic.getTopicId();
+                trueDependency.add(dependency);
+
+                //用于生成负例样本判断
+                if (topicPair.containsKey(startId))
+                {
+                    List<Long> temp = topicPair.get(startId);
+                    temp.add(endTopic.getTopicId());
+                    topicPair.put(startId, temp);
+                }
+                else
+                {
+                    List<Long> temp = new ArrayList<>();
+                    temp.add(endTopic.getTopicId());
+                    topicPair.put(startId, temp);
+                }
+
+                double dis = 0.0;
+                if (isEnglish) {
+                    dis = CosineSimilar.getSimilarityEn(start_topicContentAssembleText.getText(), end_topicContentAssembleText.getText());
+                } else {
+                    dis = CosineSimilar.getSimilarity(start_topicContentAssembleText.getText(), end_topicContentAssembleText.getText());
+                }
+                sim.add((float)dis);
+                simOfName.add((float)SimilarityUtil.getSimilarity(startTopic.getTopicName(), endTopic.getTopicName()));
+
+                //反方向边，负例
+                negSim.add((float)dis);
+                negSimofName.add((float)SimilarityUtil.getSimilarity(endTopic.getTopicName(), startTopic.getTopicName()));
+                Dependency tempDependency = new Dependency();
+                tempDependency.setDomainId(dependency.getDomainId());
+                tempDependency.setStartTopicId(dependency.getEndTopicId());
+                tempDependency.setEndTopicId(dependency.getStartTopicId());
+                falseDependency.add(tempDependency);
+                falseNum += 1;
+
+            }
+            numflag.add(trueNum);
+            List<Topic> allTopicOfDomain = topicRepository.findByDomainId(domainId);
+            Long minTopicId = allTopicOfDomain.get(0).getTopicId();
+            Long maxTopicId = allTopicOfDomain.get(allTopicOfDomain.size()-1).getTopicId();
+            sim.addAll(negSim);
+            simOfName.addAll(negSimofName);
+            for(int i = 0; i<negSim.size(); i++)
+                labels.add(0.0);
+
+            while (falseNum<4*trueNum)
+            {
+                long random1 = (long)(minTopicId + (int)(Math.random() * (maxTopicId-minTopicId+1)));
+                long random2 = (long)(minTopicId + (int)(Math.random() * (maxTopicId-minTopicId+1)));
+                if (topicPair.containsKey(random1) && topicPair.get(random1).contains(random2))
+                {
+                    continue;
+                }
+                if (topicPair.containsKey(random1))
+                {
+                    List<Long> temp = topicPair.get(random1);
+                    temp.add(random2);
+                    topicPair.put(random1, temp);
+                }
+                else
+                {
+                    List<Long> temp = new ArrayList<>();
+                    temp.add(random2);
+                    topicPair.put(random1, temp);
+                }
+                Topic startTopic = topicRepository.findByTopicId(random1);
+                Topic endTopic = topicRepository.findByTopicId(random2);
+                if (startTopic == null || endTopic == null)
+                    continue;
+                TopicContainAssembleText start_topicContentAssembleText = new TopicContainAssembleText(startTopic);
+                start_topicContentAssembleText.setTopicId(startTopic.getTopicId());
+                TopicContainAssembleText end_topicContentAssembleText = new TopicContainAssembleText(endTopic);
+                end_topicContentAssembleText.setTopicId(endTopic.getTopicId());
+                //查询碎片信息
+                if (!topicContainAssembleTexts.containsKey(startTopic.getTopicId()))
+                {
+                    List<Assemble> assembleList = assembleRepository.findAllAssemblesByTopicId(startTopic.getTopicId());
+                    if (assembleList.size() < 1) {
+                        System.out.print("该主题没有依赖碎片！" + startTopic.getTopicId());
+                        continue;
+                        /**
+                         System.out.print(temp_topic.getTopicId());
+                         logger.error("主体依赖关系生成失败：碎片内容为空");
+                         return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR_2.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR_2.getMsg());
+                         */
+                    }
+                    String start_text = "";
+                    for (int j = 0; j <Math.min(assembleList.size(),200); j++) {
+                        start_text = start_text + assembleList.get(j).getAssembleText() + " ";
+                    }
+                    if (start_text.length() == 0 || start_text.equals(""))
+                        continue;
+                    start_topicContentAssembleText.setText(start_text);
+                    topicContainAssembleTexts.put(startTopic.getTopicId(),start_topicContentAssembleText);
+                    topicList.add(startTopic);
+
+                }
+                else
+                {
+                    start_topicContentAssembleText = topicContainAssembleTexts.get(startTopic.getTopicId());
+                }
+
+                if (!topicContainAssembleTexts.containsKey(endTopic.getTopicId()))
+                {
+                    List<Assemble> assembleList = assembleRepository.findAllAssemblesByTopicId(endTopic.getTopicId());
+                    if (assembleList.size() < 1) {
+                        System.out.print("该主题没有依赖碎片！" + endTopic.getTopicId());
+                        continue;
+                        /**
+                         System.out.print(temp_topic.getTopicId());
+                         logger.error("主体依赖关系生成失败：碎片内容为空");
+                         return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR_2.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR_2.getMsg());
+                         */
+                    }
+                    String end_text = "";
+                    for (int j = 0; j <Math.min(assembleList.size(),200); j++) {
+                        end_text = end_text + assembleList.get(j).getAssembleText() + " ";
+                    }
+                    if (end_text.length() == 0 || end_text.equals(""))
+                        continue;
+                    end_topicContentAssembleText.setText(end_text);
+                    topicContainAssembleTexts.put(endTopic.getTopicId(),end_topicContentAssembleText);
+                    topicList.add(endTopic);
+                }
+                else
+                {
+                    end_topicContentAssembleText = topicContainAssembleTexts.get(endTopic.getTopicId());
+                }
+                num += 1;
+                falseNum += 1;
+                labels.add(0.0);
+                Long startId = startTopic.getTopicId();
+                Dependency dependency = new Dependency();
+                dependency.setStartTopicId(startId);
+                dependency.setEndTopicId(endTopic.getTopicId());
+                falseDependency.add(dependency);
+                //用于生成负例样本判断
+                if (topicPair.containsKey(startId))
+                {
+                    List<Long> temp = topicPair.get(startId);
+                    temp.add(endTopic.getTopicId());
+                    topicPair.put(startId, temp);
+                }
+                else
+                {
+                    List<Long> temp = new ArrayList<>();
+                    temp.add(endTopic.getTopicId());
+                    topicPair.put(startId, temp);
+                }
+
+                double dis = 0.0;
+                if (isEnglish) {
+                    dis = CosineSimilar.getSimilarityEn(start_topicContentAssembleText.getText(), end_topicContentAssembleText.getText());
+                } else {
+                    dis = CosineSimilar.getSimilarity(start_topicContentAssembleText.getText(), end_topicContentAssembleText.getText());
+                }
+                sim.add((float)dis);
+                simOfName.add((float)SimilarityUtil.getSimilarity(startTopic.getTopicName(), endTopic.getTopicName()));
+            }
+            numflag.add(falseNum);
+            GetAsymmetry getAsymmetry = new GetAsymmetry();
+            for (Dependency dependency : trueDependency)
+            {
+                double asy_score = getAsymmetry.singleAsyDependency(topicList, topicContainAssembleTexts.get(dependency.getStartTopicId()),
+                        topicContainAssembleTexts.get(dependency.getEndTopicId()));
+                if (asy_score > 0)
+                    asy.add((float)asy_score);
+                else
+                    asy.add(0f);
+            }
+            for (Dependency dependency : falseDependency)
+            {
+                double asy_score = getAsymmetry.singleAsyDependency(topicList, topicContainAssembleTexts.get(dependency.getStartTopicId()),
+                        topicContainAssembleTexts.get(dependency.getEndTopicId()));
+                if (asy_score > 0)
+                    asy.add((float)asy_score);
+                else
+                    asy.add(0f);
+            }
+        }
+        SVMUtil svmUtil = new SVMUtil();
+        svmUtil.train(num, sim, asy, simOfName, labels);
+
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(),"svm模型训练成功");
+    }
+
+    /**
+     * 使用分类器预测认知关系
+     * 使用svm算法
+     * @param isEnglish  是否为英文课程
+     * @return
+     */
+    public List<Dependency> predictSVMModel(String domainName, Boolean isEnglish)
+    {
+        List<Float> asy = new ArrayList<>();
+        List<Float> sim = new ArrayList<>();
+        List<Float> simOfName = new ArrayList<>();
+//        if (domainName == null) {
+//            logger.error("主题依赖关系查询失败：没有指定课程");
+//            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR_5.getCode(), ResultEnum.DEPENDENCY_SEARCH_ERROR_5.getMsg());
+//        }
+
+        Domain domain = domainRepository.findByDomainName(domainName);
+        //查询错误
+//        if (domain == null) {
+//            logger.error("主题依赖关系生成失败：没有课程信息记录");
+//            return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR.getMsg());
+//        }
+
+        Long domainId = domain.getDomainId();
+
+        //查看数据库中是否已有该课程的主题依赖关系
+//        List<Dependency> dependencies = dependencyRepository.findByDomainId(domainId);
+//        if (dependencies.size() > 0)   //数据库已有该课程主题依赖关系
+//        {
+//            List<DependencyContainName> dependencyContainNames = new ArrayList<>();
+//            for (Dependency dependency : dependencies) {
+//                DependencyContainName dependencyContainName = new DependencyContainName(dependency);
+//                //获取主题名
+//                String startTopicName = topicRepository.findOne(dependency.getStartTopicId()).getTopicName();
+//                String endTopicName = topicRepository.findOne(dependency.getEndTopicId()).getTopicName();
+//
+//                //设置主题名
+//                dependencyContainName.setStartTopicName(startTopicName);
+//                dependencyContainName.setEndTopicName(endTopicName);
+//
+//                dependencyContainNames.add(dependencyContainName);
+//
+//            }
+//            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), dependencyContainNames);
+//        }
+
+        //数据库中没有该课程的主题依赖关系，需自动构建
+        //获得课程下所有主题
+        List<Topic> topicList = topicRepository.findByDomainId(domainId);
+//        if (topicList.size() < 1) {
+//            logger.error("主题依赖关系生成失败：主题不存在");
+//            return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR_1.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR_1.getMsg());
+//        }
+
+        //获得topicContainAssembleText List，即每个主题有对应碎片文本，获得主题内容信息
+        HashMap<Long, TopicContainAssembleText> topicContainAssembleTexts = new HashMap<>();
+
+        for (int i = 0; i < topicList.size(); i++) {
+            Topic temp_topic = topicList.get(i);
+            TopicContainAssembleText temp_topicContentAssembleText = new TopicContainAssembleText(temp_topic);
+            temp_topicContentAssembleText.setTopicId(temp_topic.getTopicId());
+
+
+            //查询碎片信息
+            List<Assemble> assembleList = assembleRepository.findAllAssemblesByTopicId(temp_topic.getTopicId());
+            if (assembleList.size() < 1) {
+                System.out.print("该主题没有依赖碎片！" + temp_topic.getTopicId());
+                continue;
+                /**
+                 System.out.print(temp_topic.getTopicId());
+                 logger.error("主体依赖关系生成失败：碎片内容为空");
+                 return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR_2.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR_2.getMsg());
+                 */
+            }
+            String text = "";
+            for (int j = 0; j <Math.min(assembleList.size(),200); j++) {
+                text = text + assembleList.get(j).getAssembleText() + " ";
+            }
+            if (text.length() == 0 || text.equals(""))
+                continue;
+            temp_topicContentAssembleText.setText(text);
+
+            topicContainAssembleTexts.put(temp_topic.getTopicId(),temp_topicContentAssembleText);
+        }
+        List<Dependency> dependencies = new ArrayList<>();
+        for(int i = 0; i<topicList.size(); i++)
+        {
+            for (int j = 0; j<topicList.size(); j++)
+            {
+                if (i == j)
+                    continue;
+                Topic startTopic = topicList.get(i);
+                Topic endTopic = topicList.get(j);
+                if (startTopic == null || endTopic == null)
+                    continue;
+                double dis = 0.0;
+                if (!topicContainAssembleTexts.containsKey(startTopic.getTopicId()) || !topicContainAssembleTexts.containsKey(endTopic.getTopicId()))
+                    continue;
+                if (isEnglish) {
+                    dis = CosineSimilar.getSimilarityEn(topicContainAssembleTexts.get(startTopic.getTopicId()).getText(), topicContainAssembleTexts.get(endTopic.getTopicId()).getText());
+                } else {
+                    //dis = SimilarityUtil.getSimilarity(topicContainAssembleTexts.get(startTopic.getTopicId()).getText(), topicContainAssembleTexts.get(endTopic.getTopicId()).getText());
+                    dis = CosineSimilar.getSimilarity(topicContainAssembleTexts.get(startTopic.getTopicId()).getText(), topicContainAssembleTexts.get(endTopic.getTopicId()).getText());
+                }
+                sim.add((float)dis);
+                simOfName.add((float)SimilarityUtil.getSimilarity(startTopic.getTopicName(), endTopic.getTopicName()));
+                System.out.println("生成" + startTopic.getTopicName() + " " + endTopic.getTopicName() +"特征数据, " + i + " ," + j);
+                GetAsymmetry getAsymmetry = new GetAsymmetry();
+                double asy_score = getAsymmetry.singleAsyDependency(topicList, topicContainAssembleTexts.get(startTopic.getTopicId()),
+                        topicContainAssembleTexts.get(endTopic.getTopicId()));
+                if (asy_score > 0)
+                    asy.add((float)asy_score);
+                else
+                    asy.add(0f);
+                Dependency dependency = new Dependency();
+                dependency.setStartTopicId(startTopic.getTopicId());
+                dependency.setEndTopicId(endTopic.getTopicId());
+                dependency.setDomainId(startTopic.getDomainId());
+                dependencies.add(dependency);
+            }
+        }
+        SVMUtil svmUtil = new SVMUtil();
+        List<Double> svmresult = svmUtil.predict(sim.size(), sim, asy, simOfName);
+        List<Dependency> returnDependency = new ArrayList<>();
+        for (int i = 0; i<svmresult.size(); i++)
+        {
+            if (svmresult.get(i)>0.5)
+            {
+                Dependency dependency = dependencies.get(i);
+                dependency.setConfidence(svmresult.get(i).floatValue());
+                returnDependency.add(dependency);
+            }
+        }
+        System.out.println("生成认知关系数量：" + returnDependency.size());
+//        //去除前向边
+//        DFSvisit dfSvisit = new DFSvisit();
+//        HashMap<Long, List<Dependency>> relations = dfSvisit.changeRelation(returnDependency);
+//        HashMap<Long, List<Dependency>> resultRelations = dfSvisit.relationProcess(relations);
+//
+//        List<Dependency> dependencyResult = new ArrayList<>();
+//        for (Long key : resultRelations.keySet())
+//        {
+//            dependencyResult.addAll(resultRelations.get(key));
+//        }
+//        System.out.println("去除前向边生成的认知关系对数量： " + dependencyResult.size());
+
+        return returnDependency;
     }
 
 

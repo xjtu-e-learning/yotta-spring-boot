@@ -252,5 +252,40 @@ public class DependencyController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    /**
+     * API，训练构建认知关系分类模型
+     */
+    @PostMapping("/trainSVMModel")
+    @ApiOperation(value = "训练构建认知关系分类模型",
+            notes = "训练构建认知关系分类模型")
+    public ResponseEntity trainSVMModel()
+    {
+        boolean isEnglish = false;
+        Result result = dependencyService.trainSVMModel(isEnglish);
+        if(!result.getCode().equals(ResultEnum.SUCCESS.getCode()))
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+//    /**
+//     * API，训练构建认知关系分类模型
+//     */
+//    @PostMapping("/predictSVMModel")
+//    @ApiOperation(value = "使用认知关系分类模型预测认知关系",
+//            notes = "使用认知关系分类模型预测认知关系")
+//    public ResponseEntity predictSVMModel(@RequestParam(name = "domainName") String domainName
+//            , @RequestParam(name = "isEnglish") boolean isEnglish)
+//    {
+//        Result result = dependencyService.predictSVMModel(domainName,isEnglish);
+//        if(!result.getCode().equals(ResultEnum.SUCCESS.getCode()))
+//        {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+//        }
+//        return ResponseEntity.status(HttpStatus.OK).body(result);
+//    }
+
+
 
 }
