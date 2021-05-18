@@ -573,25 +573,25 @@ public class DependencyService {
         Long domainId = domain.getDomainId();
 
         //查看数据库中是否已有该课程的主题依赖关系
-//        List<Dependency> dependencies = dependencyRepository.findByDomainId(domainId);
-//        if (dependencies.size() > 0)   //数据库已有该课程主题依赖关系
-//        {
-//            List<DependencyContainName> dependencyContainNames = new ArrayList<>();
-//            for (Dependency dependency : dependencies) {
-//                DependencyContainName dependencyContainName = new DependencyContainName(dependency);
-//                //获取主题名
-//                String startTopicName = topicRepository.findOne(dependency.getStartTopicId()).getTopicName();
-//                String endTopicName = topicRepository.findOne(dependency.getEndTopicId()).getTopicName();
-//
-//                //设置主题名
-//                dependencyContainName.setStartTopicName(startTopicName);
-//                dependencyContainName.setEndTopicName(endTopicName);
-//
-//                dependencyContainNames.add(dependencyContainName);
-//
-//            }
-//            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), dependencyContainNames);
-//        }
+        List<Dependency> dependencies = dependencyRepository.findByDomainId(domainId);
+        if (dependencies.size() > 0)   //数据库已有该课程主题依赖关系
+        {
+            List<DependencyContainName> dependencyContainNames = new ArrayList<>();
+            for (Dependency dependency : dependencies) {
+                DependencyContainName dependencyContainName = new DependencyContainName(dependency);
+                //获取主题名
+                String startTopicName = topicRepository.findOne(dependency.getStartTopicId()).getTopicName();
+                String endTopicName = topicRepository.findOne(dependency.getEndTopicId()).getTopicName();
+
+                //设置主题名
+                dependencyContainName.setStartTopicName(startTopicName);
+                dependencyContainName.setEndTopicName(endTopicName);
+
+                dependencyContainNames.add(dependencyContainName);
+
+            }
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), dependencyContainNames);
+        }
 
         //数据库中没有该课程的主题依赖关系，需自动构建
         //获得课程下所有主题
