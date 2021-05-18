@@ -18,9 +18,10 @@ import java.util.List;
 
 public class SVMUtil {
 
-//    private static String svm_model_file = "D:/java_workspace/save_svm_model/model.md"; 本地路径
+    //本地路径
+    private static String svm_model_file = "D:/java_workspace/save_svm_model/model.md";
     //服务器路径
-    private static String svm_model_file = "E:/dependency_svm_model/model.md";
+//    private static String svm_model_file = "E:/dependency_svm_model/model.md";
 
     public static void train(int num, List<Float> sim,List<Float> asy, List<Float> simOfName, List<Double> lab)
     {
