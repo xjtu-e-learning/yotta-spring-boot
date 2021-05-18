@@ -1111,6 +1111,14 @@ public class DependencyService {
                 returnDependency.add(dependency);
             }
         }
+
+        //当分类算法生成的认知关系数量为0时，尝试只使用不对称算法生成认知关系
+        if (returnDependency.size() == 0)
+        {
+            GetAsymmetry getAsymmetry = new GetAsymmetry();
+            returnDependency = getAsymmetry.addDependencyWithNewTopic(topicList,topicContainAssembleTexts,newTopic, newTopicText);
+        }
+
         System.out.println("生成认知关系数量：" + returnDependency.size());
 
         dependencyRepository.save(returnDependency);
