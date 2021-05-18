@@ -125,10 +125,55 @@ public class AssembleService {
                 continue;
             }
             //查询碎片
+
             assembles.addAll(assembleRepository.findByFacetId(facet.getFacetId()));
         }
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), assembles);
     }
+
+    /**
+     * 指定课程名、主题名，查询该主题下的碎片,其中如果一级分面下面有二级分面，那么该一级分面的碎片为二级分面的碎片总和。
+     *
+     * @param domainName
+     * @param topicName
+     * @return
+     */
+    public Result findAssemblesInTopicNew(String domainName, String topicName) {
+        //查询课程
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("Assembles Search Failed: Corresponding Domain Not Exist");
+            return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR.getCode(), ResultEnum.Assemble_SEARCH_ERROR.getMsg());
+        }
+        Long domainId = domain.getDomainId();
+        //查询主题
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domainId, topicName);
+        if (topic == null) {
+            logger.error("Assembles Search Failed: Corresponding Topic Not Exist");
+            return ResultUtil.error(ResultEnum.Assemble_SEARCH_ERROR_1.getCode(), ResultEnum.Assemble_SEARCH_ERROR_1.getMsg());
+        }
+        Long topicId = topic.getTopicId();
+        //查询分面
+        List<Facet> facets = facetRepository.findByTopicId(topicId);
+        List<Facet> byTopicIdAndFacetLayer = facetRepository.findByTopicIdAndFacetLayer(topicId, 2);
+        List<Assemble> assembles = new ArrayList<>();
+
+        List<Facet> parentFacets = new ArrayList<>();
+
+        for (Facet facet : facets) {
+            if ("匿名分面".equals(facet.getFacetName())) {
+                continue;
+            }
+            //查询碎片
+
+            assembles.addAll(assembleRepository.findByFacetId(facet.getFacetId()));
+        }
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), assembles);
+    }
+
+
+
+
 
     /**
      * 指定课程名、主题名和一级分面名，查询一级分面下的碎片

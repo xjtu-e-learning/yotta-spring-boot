@@ -66,13 +66,39 @@ public interface DomainRepository extends JpaRepository<Domain, Long>, JpaSpecif
     /**
      * 根据课程名，更新课程数据
      *
-     * @param oldDomainName
-     * @param newDomainName
+     * @param domainName
+     * @param domainGrade
+     */
+    @Modifying(clearAutomatically = true)
+    @Transactional(rollbackFor = Exception.class)
+    @Query("update Domain d set  d.domainGrade = ?2 where d.domainName = ?1")
+    void updateDomainGradeByDomainName(String domainName, String domainGrade);
+
+    /**
+     * 根据课程id，更新课程数据
+     *
+     * @param domainId
+     * @param domainGrade
+     */
+    @Modifying(clearAutomatically = true)
+    @Transactional(rollbackFor = Exception.class)
+    @Query("update Domain d set  d.domainGrade = ?2 where d.domainId = ?1")
+    void updateDomainGradeByDomainId(Long domainId, String domainGrade);
+
+
+    /**
+     * 根据课程id，添加课程质量评估
+     * @param
+     * @param
      */
     @Modifying(clearAutomatically = true)
     @Transactional(rollbackFor = Exception.class)
     @Query("update Domain d set  d.domainName = ?2 where d.domainName = ?1")
     void updateDomainByDomainName(String oldDomainName, String newDomainName);
+
+
+
+
 
     /**
      * 根据关键字，查询相关课程

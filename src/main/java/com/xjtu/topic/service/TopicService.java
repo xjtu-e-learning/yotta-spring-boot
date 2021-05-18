@@ -666,15 +666,20 @@ public class TopicService {
         //firstLayerFacets一级分面列表，将二级分面挂到对应一级分面下
         List<Facet> firstLayerFacetContainAssembles = new ArrayList<>();
         for (Facet firstLayerFacet : firstLayerFacets) {
-            if (firstLayerFacet.getFacetName().equals("匿名分面")) {
+            if ("匿名分面".equals(firstLayerFacet.getFacetName())) {
                 continue;
             }
             FacetContainAssemble firstLayerFacetContainAssemble = new FacetContainAssemble();
             firstLayerFacetContainAssemble.setFacet(firstLayerFacet);
             firstLayerFacetContainAssemble.setType("branch");
+
+
             //设置一级分面的子节点（二级分面）
             List<Object> secondLayerFacetContainAssembles = new ArrayList<>();
             for (Facet secondLayerFacet : secondLayerFacets) {
+                if ("匿名分面".equals(secondLayerFacet.getFacetName())) {
+                    continue;
+                }
                 //一级分面下的二级分面
                 if (secondLayerFacet.getParentFacetId().equals(firstLayerFacet.getFacetId())) {
                     FacetContainAssemble secondLayerFacetContainAssemble = new FacetContainAssemble();
@@ -731,6 +736,10 @@ public class TopicService {
         topicContainFacet.setChildrenNumber(firstLayerFacetContainAssembles.size());
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicContainFacet);
     }
+
+
+
+
 
     /**
      * 指定课程名和主题名，获取主题并包含其完整的下的分面、不包含碎片数据
