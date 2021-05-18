@@ -30,6 +30,8 @@ public enum ResultEnum {
     SUBJECT_SEARCH_ERROR_1(114, "学科分页查询失败：没有该条学科信息记录"),
     SUBJECT_SEARCH_ERROR_2(115, "学科分页查询失败：查询的页数超过最大页数"),
     SUBJECT_GRAPH_ERROR(197, "学科知识图谱查询失败：对应文件可能不存在"),
+    SUBJECT_GRAPH_REMOVE_ERROR(198, "学科知识图谱删除失败：对应课程可能不存在"),
+    SUBJECT_GRAPH_ADD_DEPEND_ERROR(199, "学科知识图谱增加失败：对应依赖课程可能不存在"),
 
     //课程
     DOMAIN_UPDATE_ERROR_0(116, "课程质量更新失败：课程不存在"),
@@ -181,7 +183,7 @@ public enum ResultEnum {
     //知识主题分面树爬虫动态输出
     OUTPUTSPIDER_ERROR_1(300,"分面碎片爬虫未启动"),
     OUTPUTSPIDER_ERROR_2(301,"分面碎片爬虫正在运行"),
-    OUTPUTSPIDER_ERROR_3(302,"分面树构建失败"),
+    OUTPUTSPIDER_ERROR_3(302,"分面碎片爬虫已完成"),
     OUTPUTSPIDER_ERROR_4(303,"分面树构建失败"),
 
     ;

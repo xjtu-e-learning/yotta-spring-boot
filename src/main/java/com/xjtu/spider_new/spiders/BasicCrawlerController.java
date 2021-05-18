@@ -149,6 +149,38 @@ public class BasicCrawlerController {
     }
 
     /**
+     * 根据空主题，仅爬取 维基百科 上的分面以及 碎片
+     */
+    public void startCrawlerForFacetOnly(String url, boolean isChinese, Long domainId, Long topicId) throws Exception {
+        CrawlConfig config = new CrawlConfig();
+
+        config.setCrawlStorageFolder("tmp/crawler4j/");
+        config.setPolitenessDelay(1000);
+        config.setMaxDepthOfCrawling(0);
+        config.setMaxPagesToFetch(1000);
+        config.setIncludeBinaryContentInCrawling(true);
+        config.setResumableCrawling(false);
+
+
+        PageFetcher pageFetcher = new PageFetcher(config);
+        RobotstxtConfig robotstxtConfig = new RobotstxtConfig();
+        RobotstxtServer robotstxtServer = new RobotstxtServer(robotstxtConfig, pageFetcher);
+        CrawlController controller = new CrawlController(config, pageFetcher, robotstxtServer);
+
+        controller.addSeed(url);
+
+
+        int numberOfCrawlers = 2;
+
+        CrawlController.WebCrawlerFactory<BasicCrawler> factory =
+                () -> new BasicCrawler("https://zh.wikipedia.org/wiki/", isChinese, domainId, topicId);
+
+        controller.start(factory, numberOfCrawlers);
+        logger.info("Crawler is finished");
+
+    }
+
+    /**
      * 根据给定课程、主题、分面列表，爬取分面列表下每个分面的碎片
      * @param domainId
      * @param topicId

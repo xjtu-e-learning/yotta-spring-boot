@@ -97,7 +97,7 @@ public class SimilarityUtil {
 
     }
 
-    private static List<String> getSplitWords(String sentence) {
+    public static List<String> getSplitWords(String sentence) {
 
 //        // 去除掉html标签
 //

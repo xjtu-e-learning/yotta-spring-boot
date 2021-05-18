@@ -2,6 +2,7 @@ package com.xjtu.spider_new.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xjtu.assemble.domain.Assemble;
+import com.xjtu.assemble.domain.AssembleContainType;
 import com.xjtu.assemble.repository.AssembleRepository;
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
@@ -9,6 +10,7 @@ import com.xjtu.domain.domain.Domain;
 import com.xjtu.domain.repository.DomainRepository;
 import com.xjtu.domain.service.DomainService;
 import com.xjtu.facet.domain.Facet;
+import com.xjtu.facet.domain.FacetContainAssemble;
 import com.xjtu.facet.repository.FacetRepository;
 import com.xjtu.facet.service.FacetService;
 import com.xjtu.spider_new.common.FacetResultVO;
@@ -19,14 +21,17 @@ import com.xjtu.spider_new.repository.MissingRecordRepository;
 import com.xjtu.spider_new.spiders.BasicCrawlerController;
 import com.xjtu.spider_new.spiders.wikicn.*;
 import com.xjtu.topic.domain.Topic;
+import com.xjtu.topic.domain.TopicContainFacet;
 import com.xjtu.topic.repository.TopicRepository;
 import com.xjtu.topic.service.TopicService;
+import com.xjtu.utils.HttpUtil;
 import com.xjtu.utils.Log;
 import com.xjtu.utils.ResultUtil;
 import org.omg.PortableServer.THREAD_POLICY_ID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -44,6 +49,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static java.lang.Thread.State.TERMINATED;
 
 /**
  * 2021使用的爬虫
@@ -82,9 +89,16 @@ public class NewSpiderService {
     @Autowired
     private MissingRecordRepository missingRecordRepository;
 
+    @Value("${server.port}")
+    private Integer port;
+
     private Thread crawler;
 
     private int synLock = 1;
+
+    private Thread facetCrawler;
+
+    private Thread incrementCrawler;
 
     /**
      * 主题-分面-碎片爬虫方法
@@ -356,12 +370,14 @@ public class NewSpiderService {
 
     public Result crawlAssembleIncrement(String domainName, String topicName) {
         //todo: 后续有时间改成线程池
-        new Thread(new Runnable() {
+        incrementCrawler = new Thread(new Runnable() {
             @Override
             public void run() {
                 addAssembleByDomainNameAndTopicName(domainName, topicName);
             }
-        }, "incrementCrawler").start();
+        }, "incrementCrawler");
+
+        incrementCrawler.start();
 
         return ResultUtil.success(ResultEnum.Assemble_GENERATE_ERROR_2.getCode(), ResultEnum.Assemble_GENERATE_ERROR_3.getMsg(), "start");
     }
@@ -379,7 +395,10 @@ public class NewSpiderService {
         }
         List<Facet> facetList = facetRepository.findByTopicId(topic.getTopicId());
         if (facetList == null) {
-            logger.error("该主题下不存在分面。");
+            logger.error("该主题下不存在分面，先去维基百科爬取分面。");
+            // 先爬取分面
+            crawlEmptyTopicByCrawler4j(topic);
+
             return;
         }
 
@@ -388,6 +407,43 @@ public class NewSpiderService {
         } catch (Exception e) {
             logger.error("爬虫出错。");
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * 查询 crawlAssembleIncrement 开的线程的状态
+     * @param domainName
+     * @param topicName
+     * @return
+     */
+    public Result getIncrementFacetAssembleAndThreadStatus(String domainName, String topicName){
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("课程查询失败：没有指定课程");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_2.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_2.getMsg());
+        }
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(), topicName);
+        if (topic == null) {
+            logger.error("主题查询失败：没有指定主题");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR.getCode(), ResultEnum.TOPIC_SEARCH_ERROR.getMsg());
+
+        }
+
+        TopicContainFacet topicContainFacet = getTopicContainFacet(topic);
+
+        if (incrementCrawler == null) {
+            if (facetCrawler != null) {
+                logger.info("facetCrawler 线程状态：" + incrementCrawler.getState());
+                return ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_2.getCode(), ResultEnum.OUTPUTSPIDER_ERROR_2.getMsg() + "，当前无分面，爬取分面中", topicContainFacet);
+            }
+            return ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_1.getCode(), ResultEnum.OUTPUTSPIDER_ERROR_1.getMsg(), topicContainFacet);
+        } else {
+            logger.info("incrementCrawler 线程状态：" + incrementCrawler.getState());
+            if(incrementCrawler.getState()==TERMINATED){
+                return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicContainFacet);
+            }else {
+                return ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_2.getCode(), ResultEnum.OUTPUTSPIDER_ERROR_2.getMsg(), topicContainFacet);
+            }
         }
     }
 
@@ -447,6 +503,30 @@ public class NewSpiderService {
         new Thread(new CrawlEmptyTopicRunnable(domainIdWhichHasEmptyTopic), "[" + min + ", " + max + ") Thread").start();
 
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "开始爬取");
+    }
+
+    /**
+     * 爬取 **单个** 空主题（无分面的），且使用 Crawler4j
+     */
+    public void crawlEmptyTopicByCrawler4j(Topic topic) {
+        facetCrawler = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    new BasicCrawlerController().startCrawlerForFacetOnly(
+                            topic.getTopicUrl(),
+                            checkIsChinese(topic.getTopicName()),
+                            topic.getDomainId(),
+                            topic.getTopicId()
+                    );
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }, "facetCrawler");
+        facetCrawler.start();
+
+        logger.info("facetCrawler 已启动");
     }
 
     /**
@@ -548,6 +628,88 @@ public class NewSpiderService {
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "大概好了吧");
     }
 
+    /**
+     * 根据主题名获得该主题的分面树
+     * */
+    public TopicContainFacet getTopicContainFacet(Topic topic) {
+        Boolean hasFragment = true;
+        List<Facet> firstLayerFacets = facetRepository.findByTopicIdAndFacetLayer(topic.getTopicId(), 1);
+        List<Facet> secondLayerFacets = facetRepository.findByTopicIdAndFacetLayer(topic.getTopicId(), 2);
+        List<Assemble> assembles = assembleRepository.findAllAssemblesByTopicId(topic.getTopicId());
+        //初始化Topic
+        TopicContainFacet topicContainFacet = new TopicContainFacet();
+        topicContainFacet.setTopic(topic);
+        topicContainFacet.setChildrenNumber(firstLayerFacets.size());
+
+        //firstLayerFacets一级分面列表，将二级分面挂到对应一级分面下
+        List<Facet> firstLayerFacetContainAssembles = new ArrayList<>();
+        for (Facet firstLayerFacet : firstLayerFacets) {
+            if (firstLayerFacet.getFacetName().equals("匿名分面")) {
+                continue;
+            }
+            FacetContainAssemble firstLayerFacetContainAssemble = new FacetContainAssemble();
+            firstLayerFacetContainAssemble.setFacet(firstLayerFacet);
+            firstLayerFacetContainAssemble.setType("branch");
+            //设置一级分面的子节点（二级分面）
+            List<Object> secondLayerFacetContainAssembles = new ArrayList<>();
+            for (Facet secondLayerFacet : secondLayerFacets) {
+                //一级分面下的二级分面
+                if (secondLayerFacet.getParentFacetId().equals(firstLayerFacet.getFacetId())) {
+                    FacetContainAssemble secondLayerFacetContainAssemble = new FacetContainAssemble();
+                    secondLayerFacetContainAssemble.setFacet(secondLayerFacet);
+                    List<Object> assembleContainTypes = new ArrayList<>();
+                    for (Assemble assemble : assembles) {
+                        //二级分面下的碎片
+                        if (assemble.getFacetId().equals(secondLayerFacet.getFacetId())) {
+                            AssembleContainType assembleContainType = new AssembleContainType();
+                            if ("emptyAssembleContent".equals(hasFragment)) {
+                                assemble.setAssembleContent("");
+                            }
+                            assembleContainType.setAssemble(assemble);
+                            String ip = HttpUtil.getIp();
+                            assembleContainType.setUrl(ip + ":" + port + "/assemble/getAssembleContentById?assembleId=" + assemble.getAssembleId());
+                            assembleContainTypes.add(assembleContainType);
+                        }
+                    }
+                    secondLayerFacetContainAssemble.setChildren(assembleContainTypes);
+                    secondLayerFacetContainAssemble.setChildrenNumber(assembleContainTypes.size());
+                    secondLayerFacetContainAssembles.add(secondLayerFacetContainAssemble);
+                }
+            }
+            //一级分面有二级分面
+            if (secondLayerFacetContainAssembles.size() > 0) {
+                firstLayerFacetContainAssemble.setChildren(secondLayerFacetContainAssembles);
+                firstLayerFacetContainAssemble.setChildrenNumber(secondLayerFacetContainAssembles.size());
+                firstLayerFacetContainAssemble.setContainChildrenFacet(true);
+            }
+            //一级分面没有二级分面
+            else {
+                firstLayerFacetContainAssemble.setContainChildrenFacet(false);
+                List<Object> assembleContainTypes = new ArrayList<>();
+                for (Assemble assemble : assembles) {
+                    //一级分面下的碎片
+                    if (assemble.getFacetId().equals(firstLayerFacet.getFacetId())) {
+                        AssembleContainType assembleContainType = new AssembleContainType();
+                        if ("emptyAssembleContent".equals(hasFragment)) {
+                            assemble.setAssembleContent("");
+                        }
+                        assembleContainType.setAssemble(assemble);
+                        String ip = HttpUtil.getIp();
+                        assembleContainType.setUrl(ip + ":" + port + "/assemble/getAssembleContentById?assembleId=" + assemble.getAssembleId());
+
+                        assembleContainTypes.add(assembleContainType);
+                    }
+                }
+                firstLayerFacetContainAssemble.setChildren(assembleContainTypes);
+                firstLayerFacetContainAssemble.setChildrenNumber(assembleContainTypes.size());
+            }
+            firstLayerFacetContainAssembles.add(firstLayerFacetContainAssemble);
+        }
+        topicContainFacet.setChildren(firstLayerFacetContainAssembles);
+        topicContainFacet.setChildrenNumber(firstLayerFacetContainAssembles.size());
+        return topicContainFacet;
+    }
+
     public static Boolean getIsChinese() {
         return isChinese;
     }
@@ -592,6 +754,10 @@ public class NewSpiderService {
         }
 
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "删除成功");
+    }
+
+    public String checkIncrementCrawlerStatus() {
+        return incrementCrawler.getState().name();
     }
 
     class CrawlerRunnable implements Runnable {
