@@ -639,10 +639,10 @@ public class DependencyService {
         List<Dependency> generated_dependencies = getAsymmetry.AsyDependency(topicList, topicContainAssembleTexts);
 
         // 项目救急屏蔽
-//        if (generated_dependencies.size() < topicList.size()/2)
-//        {
-//            generated_dependencies = predictSVMModel(domainName, isEnglish);
-//        }
+        if (generated_dependencies.size() < topicList.size()/2)
+        {
+            generated_dependencies = predictSVMModel(domainName, isEnglish);
+        }
 
         if (generated_dependencies.size() == 0)
         {
