@@ -100,6 +100,9 @@ public class NewSpiderService {
 
     private Thread incrementCrawler;
 
+    // 记录是否在爬取分面
+    private boolean isFacetCrawling = true;
+
     /**
      * 主题-分面-碎片爬虫方法
      *
@@ -394,12 +397,14 @@ public class NewSpiderService {
             return;
         }
         List<Facet> facetList = facetRepository.findByTopicId(topic.getTopicId());
-        if (facetList == null) {
+        if (facetList.size() == 0) {
             logger.error("该主题下不存在分面，先去维基百科爬取分面。");
             // 先爬取分面
             crawlEmptyTopicByCrawler4j(topic);
-
-            return;
+            while (isFacetCrawling);
+            facetList = facetRepository.findByTopicId(topic.getTopicId());
+            isFacetCrawling = true;
+            logger.info("该主题下分面爬取完毕。");
         }
 
         try {
@@ -519,6 +524,8 @@ public class NewSpiderService {
                             topic.getDomainId(),
                             topic.getTopicId()
                     );
+
+                    isFacetCrawling = false;
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
