@@ -18,7 +18,7 @@ import java.util.List;
 
 public class SVMUtil {
 
-//    private static String svm_model_file = "D:/java_workspace/save_svm_model/model.md"; 本地路径
+//    private static String svm_model_file = "D:/java_workspace/save_svm_model/model.md"; //本地路径
     //服务器路径
     private static String svm_model_file = "E:/dependency_svm_model/model.md";
 
