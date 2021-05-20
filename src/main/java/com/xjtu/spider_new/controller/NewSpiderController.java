@@ -162,7 +162,7 @@ public class NewSpiderController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-    @ApiOperation(value = "根据课程与主题增量爬取其分面下的碎片", notes = "课程名、主题名需真实存在，且主题下需要有分面")
+    @ApiOperation(value = "根据课程与主题增量爬取其分面下的碎片", notes = "课程名、主题名需真实存在，若主题下无分面则会对自动爬取分面")
     @PostMapping("/crawlAssembleIncrement")
     public ResponseEntity crawlAssembleIncrement(@RequestParam(name = "domainName") String domainName,
                                                  @RequestParam(name = "topicName") String topicName)
@@ -175,7 +175,7 @@ public class NewSpiderController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-    @ApiOperation(value = "根据课程与主题增量爬取其分面下的碎片", notes = "课程名、主题名需真实存在，主题下若无分面会自动构建")
+    @ApiOperation(value = "查询增量爬取某主题下碎片的线程状态", notes = "msg若是“成功”，则表示爬取已结束")
     @GetMapping("/getAndCheckIncrementStatus")
     public ResponseEntity getAndCheckIncrementStatus(@RequestParam(name = "domainName") String domainName,
                                                  @RequestParam(name = "topicName") String topicName)
@@ -187,4 +187,29 @@ public class NewSpiderController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
+//    @ApiOperation(value = "暂停爬取", notes = "")
+//    @GetMapping("/pauseCrawler")
+//    public ResponseEntity pauseCrawler()
+//    {
+////        Result result = SpiderService.getIncrementFacetAssembleAndThreadStatus(domainName, topicName);
+//        Result result = SpiderService.pauseCrawler();
+//
+//        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+//        }
+//        return ResponseEntity.status(HttpStatus.OK).body(result);
+//    }
+
+//    @ApiOperation(value = "恢复爬取", notes = "")
+//    @GetMapping("/recoverCrawler")
+//    public ResponseEntity recoverCrawler()
+//    {
+//        Result result = SpiderService.recoverCrawler();
+//
+//        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+//        }
+//        return ResponseEntity.status(HttpStatus.OK).body(result);
+//    }
 }

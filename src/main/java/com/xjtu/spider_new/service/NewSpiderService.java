@@ -100,6 +100,9 @@ public class NewSpiderService {
 
     private Thread incrementCrawler;
 
+    // 记录是否在爬取分面
+    private boolean isFacetCrawling = true;
+
     /**
      * 主题-分面-碎片爬虫方法
      *
@@ -394,12 +397,15 @@ public class NewSpiderService {
             return;
         }
         List<Facet> facetList = facetRepository.findByTopicId(topic.getTopicId());
-        if (facetList == null) {
+        if (facetList.size() == 0) {
             logger.error("该主题下不存在分面，先去维基百科爬取分面。");
             // 先爬取分面
-            crawlEmptyTopicByCrawler4j(topic);
-
-            return;
+            try {
+                crawlEmptyTopicByCrawler4jWithoutThread(topic);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            facetList = facetRepository.findByTopicId(topic.getTopicId());
         }
 
         try {
@@ -519,6 +525,8 @@ public class NewSpiderService {
                             topic.getDomainId(),
                             topic.getTopicId()
                     );
+
+                    isFacetCrawling = false;
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -527,6 +535,21 @@ public class NewSpiderService {
         facetCrawler.start();
 
         logger.info("facetCrawler 已启动");
+    }
+
+    /**
+     *  (不开线程) 爬取 **单个** 空主题（无分面的），且使用 Crawler4j
+     */
+    public void crawlEmptyTopicByCrawler4jWithoutThread(Topic topic) throws Exception {
+
+        new BasicCrawlerController().startCrawlerForFacetOnly(
+                topic.getTopicUrl(),
+                checkIsChinese(topic.getTopicName()),
+                topic.getDomainId(),
+                topic.getTopicId()
+        );
+
+        logger.info(topic.getTopicName() + " 下分面爬取完毕");
     }
 
     /**
