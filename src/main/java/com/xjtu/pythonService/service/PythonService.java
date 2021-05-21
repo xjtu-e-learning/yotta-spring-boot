@@ -22,12 +22,12 @@ public class PythonService {
         killTask(getProgramName(getPID("8081")));
         killTask(getProgramName(getPID("8082")));
         try {
-            runtime.exec("e:");
+            runtime.exec("cd e:");
             runtime.exec("cd E:\\mysite-with-cache-test");
             runtime.exec("conda activate django");
             runtime.exec("python manage.py runserver 0.0.0.0:8081");
             logger.info("重新启动python8081服务的进程完成");
-            runtime.exec("e:");
+            runtime.exec("cd e:");
             runtime.exec("cd E:\\mysite-no-cache-test");
             runtime.exec("conda activate django");
             runtime.exec("python manage.py runserver 0.0.0.0:8082");
