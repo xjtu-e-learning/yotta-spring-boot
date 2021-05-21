@@ -34,6 +34,7 @@ public enum ResultEnum {
     SUBJECT_GRAPH_ADD_DEPEND_ERROR(199, "学科知识图谱增加失败：对应依赖课程可能不存在"),
 
     //课程
+    DOMAIN_UPDATE_ERROR_0(116, "课程质量更新失败：课程不存在"),
     DOMAIN_INSERT_ERROR(116, "课程信息插入失败：课程名不存在或者为空"),
     DOMAIN_INSERT_ERROR_1(117, "课程信息插入失败：插入已经存在的课程"),
     DOMAIN_INSERT_ERROR_2(118, "课程信息插入失败：数据库插入语句失败"),
@@ -148,6 +149,7 @@ public enum ResultEnum {
     DEPENDENCY_DELETE_ERROR_2(212, "主题依赖关系删除失败：主题为空或不存在"),
 
     DEPENDENCY_GENERATE_ERROR(197, "主题依赖关系生成失败：没有课程信息记录"),
+    DEPENDENCY_GENERATE_ERROR_0(197, "主题依赖关系查询失败：没有课程信息记录"),
     DEPENDENCY_GENERATE_ERROR_1(198, "主题依赖关系生成失败：主题不存在"),
     DEPENDENCY_GENERATE_ERROR_2(199, "主题依赖关系生成失败：主题碎片内容为空"),
 

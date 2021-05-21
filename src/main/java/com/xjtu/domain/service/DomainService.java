@@ -737,4 +737,52 @@ public class DomainService {
         }
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), domainListWithNoAssemble);
     }
+
+    public Result updateDomainGradeByDomainId(Long domainId,String domainGrade) {
+        Domain domain = domainRepository.findByDomainId(domainId);
+        if(domain==null){
+            logger.error("课程质量更新失败：没有课程信息记录");
+            return ResultUtil.error(ResultEnum.DOMAIN_UPDATE_ERROR_0.getCode(), ResultEnum.DOMAIN_UPDATE_ERROR_0.getMsg());
+        }
+        try {
+            domainRepository.updateDomainGradeByDomainId(domainId,domainGrade);
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "课程质量信息更新成功");
+        } catch (Exception err) {
+            logger.error("课程质量信息失败：更新语句执行失败");
+            return ResultUtil.error(ResultEnum.DOMAIN_UPDATE_ERROR.getCode(), ResultEnum.DOMAIN_UPDATE_ERROR.getMsg());
+        }
+    }
+
+    public Result updateDomainGradeByDomainName(String domainName,String domainGrade) {
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if(domain==null){
+            logger.error("课程质量更新失败：没有课程信息记录");
+            return ResultUtil.error(ResultEnum.DOMAIN_UPDATE_ERROR_0.getCode(), ResultEnum.DOMAIN_UPDATE_ERROR_0.getMsg());
+        }
+        try {
+            domainRepository.updateDomainGradeByDomainName(domainName,domainGrade);
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "课程质量信息更新成功");
+        } catch (Exception err) {
+            logger.error("课程质量信息失败：更新语句执行失败");
+            return ResultUtil.error(ResultEnum.DOMAIN_UPDATE_ERROR.getCode(), ResultEnum.DOMAIN_UPDATE_ERROR.getMsg());
+        }
+    }
+
+    public Result getDomainGradeByDomainId(Long domainId) {
+        Domain domain = domainRepository.findByDomainId(domainId);
+        if(domain==null){
+            logger.error("课程质量更新失败：没有课程信息记录");
+            return ResultUtil.error(ResultEnum.DOMAIN_UPDATE_ERROR_0.getCode(), ResultEnum.DOMAIN_UPDATE_ERROR_0.getMsg());
+        }
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), domain.getDomainGrade());
+    }
+
+    public Result getDomainGradeByDomainName(String domainName) {
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if(domain==null){
+            logger.error("课程质量更新失败：没有课程信息记录");
+            return ResultUtil.error(ResultEnum.DOMAIN_UPDATE_ERROR_0.getCode(), ResultEnum.DOMAIN_UPDATE_ERROR_0.getMsg());
+        }
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), domain.getDomainGrade());
+    }
 }

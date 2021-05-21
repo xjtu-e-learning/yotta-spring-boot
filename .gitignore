@@ -8,6 +8,8 @@
 *.iml
 out
 gen### Java template
+tmp
+tmp/*
 # Compiled class file
 *.class
 

@@ -51,6 +51,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static java.lang.Thread.State.TERMINATED;
+import static java.lang.Thread.State.WAITING;
 
 /**
  * 2021使用的爬虫
@@ -371,8 +372,25 @@ public class NewSpiderService {
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "大概好了吧");
     }
 
-    public Result crawlAssembleIncrement(String domainName, String topicName) {
-        //todo: 后续有时间改成线程池
+    public Result crawlAssemble(String domainName, String topicName) {
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if(domain == null) {
+            logger.error("该课程不存在。");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_2.getCode(), "该课程不存在。");
+        }
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(), topicName);
+        if (topic == null) {
+            logger.error("该主题不存在。");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR.getCode(), "该主题不存在。");
+        }
+        List<Facet> facetList = facetRepository.findByTopicId(topic.getTopicId());
+        if (facetList.size() != 0 &&
+                assembleRepository.findAllAssemblesByTopicId(topic.getTopicId()).size() != 0) {
+            return ResultUtil.error(ResultEnum.Assemble_GENERATE_ERROR_5.getCode(),
+                    "该主题已有碎片，请调用增量爬取",
+                    "error");
+        }
+
         incrementCrawler = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -382,7 +400,16 @@ public class NewSpiderService {
 
         incrementCrawler.start();
 
-        return ResultUtil.success(ResultEnum.Assemble_GENERATE_ERROR_2.getCode(), ResultEnum.Assemble_GENERATE_ERROR_3.getMsg(), "start");
+        return ResultUtil.success(200, ResultEnum.Assemble_GENERATE_ERROR_3.getMsg(), "start");
+    }
+
+    /**
+     * 转换维基百科镜像
+     * @param url
+     * @return
+     */
+    public String convertWikipediaMirror(String url) {
+        return url.replaceAll("https://zh.wikipedia.org/wiki/", "https://www.wanweibaike.com/wiki-");
     }
 
     public void addAssembleByDomainNameAndTopicName(String domainName, String topicName) {
@@ -417,12 +444,12 @@ public class NewSpiderService {
     }
 
     /**
-     * 查询 crawlAssembleIncrement 开的线程的状态
+     * 查询 crawlAssemble 开的线程的状态
      * @param domainName
      * @param topicName
      * @return
      */
-    public Result getIncrementFacetAssembleAndThreadStatus(String domainName, String topicName){
+    public Result getFacetAssembleAndThreadStatus(String domainName, String topicName){
         Domain domain = domainRepository.findByDomainName(domainName);
         if (domain == null) {
             logger.error("课程查询失败：没有指定课程");
@@ -445,12 +472,50 @@ public class NewSpiderService {
             return ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_1.getCode(), ResultEnum.OUTPUTSPIDER_ERROR_1.getMsg(), topicContainFacet);
         } else {
             logger.info("incrementCrawler 线程状态：" + incrementCrawler.getState());
-            if(incrementCrawler.getState()==TERMINATED){
+            if (incrementCrawler.getState()==TERMINATED){
                 return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicContainFacet);
-            }else {
+//            } else if (incrementCrawler.getState() == WAITING) {
+//                return ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_2.getCode(), "当前主题无分面，爬取分面中", topicContainFacet);
+            } else {
                 return ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_2.getCode(), ResultEnum.OUTPUTSPIDER_ERROR_2.getMsg(), topicContainFacet);
             }
         }
+    }
+
+    /**
+     * ** 增量 ** 爬取某主题下的碎片 （需要有分面！！）
+     * @param domainName 课程名，存取数据库时需要
+     * @param topicName 主题名，查分面、存取时需要
+     * @return
+     */
+    public Result crawlAssembleIncrement(String domainName, String topicName) {
+        // todo: 增量爬碎片
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if(domain == null) {
+            logger.error("该课程不存在。");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_2.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_2.getMsg());
+        }
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(), topicName);
+        if (topic == null) {
+            logger.error("该主题不存在。");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR.getCode(), ResultEnum.TOPIC_SEARCH_ERROR.getMsg());
+        }
+        List<Facet> facetList = facetRepository.findByTopicId(topic.getTopicId());
+        if (facetList.size() == 0) {
+            logger.error("该主题下没有分面，请先执行基本的主题爬取操作(/crawlAssemble)。");
+            return ResultUtil.error(ResultEnum.FACET_SEARCH_ERROR.getCode(), "该主题下没有分面，请先执行基本的主题爬取操作(/crawlAssemble)。");
+        }
+
+        new Thread(() -> {
+            try {
+                new BasicCrawlerController().startIncrementCrawlerForAssembleOnly(domain.getDomainId(), topic.getTopicId(), facetList);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), "开始增量爬取碎片", "ok");
+
     }
 
     class CrawlEmptyTopicRunnable implements Runnable {
@@ -543,7 +608,7 @@ public class NewSpiderService {
     public void crawlEmptyTopicByCrawler4jWithoutThread(Topic topic) throws Exception {
 
         new BasicCrawlerController().startCrawlerForFacetOnly(
-                topic.getTopicUrl(),
+                convertWikipediaMirror(topic.getTopicUrl()),
                 checkIsChinese(topic.getTopicName()),
                 topic.getDomainId(),
                 topic.getTopicId()
