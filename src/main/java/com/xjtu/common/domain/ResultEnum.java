@@ -34,6 +34,7 @@ public enum ResultEnum {
     SUBJECT_GRAPH_ADD_DEPEND_ERROR(199, "学科知识图谱增加失败：对应依赖课程可能不存在"),
 
     //课程
+    DOMAIN_UPDATE_ERROR_0(116, "课程质量更新失败：课程不存在"),
     DOMAIN_INSERT_ERROR(116, "课程信息插入失败：课程名不存在或者为空"),
     DOMAIN_INSERT_ERROR_1(117, "课程信息插入失败：插入已经存在的课程"),
     DOMAIN_INSERT_ERROR_2(118, "课程信息插入失败：数据库插入语句失败"),

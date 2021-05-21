@@ -139,7 +139,7 @@ public interface DependencyRepository extends JpaRepository<Dependency, Long>, J
      */
     @Transactional(rollbackFor = Exception.class)
     @Modifying(clearAutomatically = true)
-    void deleteByStartTopicIdOrEndTopicId(Long startTopicId, Long endTopicId);
+    Integer deleteByStartTopicIdOrEndTopicId(Long startTopicId, Long endTopicId);
 
     /**
      * 删除依赖关系，指定课程、起始主题以及终止主题
@@ -150,7 +150,7 @@ public interface DependencyRepository extends JpaRepository<Dependency, Long>, J
      */
     @Transactional(rollbackFor = Exception.class)
     @Modifying(clearAutomatically = true)
-    void deleteByDomainIdAndStartTopicIdAndEndTopicId(Long domainId, Long startTopicId, Long endTopicId);
+    Integer deleteByDomainIdAndStartTopicIdAndEndTopicId(Long domainId, Long startTopicId, Long endTopicId);
 
     /**
      * 通过课程名和关键词，获取该课程下的主题依赖关系
