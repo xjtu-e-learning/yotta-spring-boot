@@ -1621,6 +1621,9 @@ public class DependencyService {
         int dependencyMaxNum=0;
         Topic topicWithMaxOutDegree=null;
         for(Topic topic:topicList){
+            if(topicWithMaxOutDegree==null){
+                topicWithMaxOutDegree=topic;
+            }
             List<Dependency> dependencyList = dependencyRepository.findByStartTopicId(topic.getTopicId());
             if(dependencyList.size()>dependencyMaxNum){
                 dependencyMaxNum=dependencyList.size();
