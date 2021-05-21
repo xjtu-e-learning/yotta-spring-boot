@@ -108,7 +108,8 @@ public class BasicCrawler extends WebCrawler {
                     // 获取一级分面名 （即h2标题）
                     if (((Element) child).tag().getName().equals("h2")) {
                         // 这里由于中英文页面样式不同，需要分开处理
-                        facetName = isChinese ? ((Element) child).child(1).text() : ((Element) child).child(0).text();
+//                        facetName = isChinese ? ((Element) child).child(1).text() : ((Element) child).child(0).text(); // 原始应该是这样
+                        facetName = ((Element) child).child(0).text(); // 针对镜像站的修改
 
                         // 需要根据分面名查找数据库找到对应分面id
 
