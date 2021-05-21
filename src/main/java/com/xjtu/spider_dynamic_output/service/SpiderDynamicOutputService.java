@@ -21,6 +21,7 @@ import com.xjtu.spider_dynamic_output.spiders.wikicn.FacetCrawler;
 import com.xjtu.spider_dynamic_output.spiders.wikicn.TopicOnlyCrawler;
 import com.xjtu.spider_topic.service.TFSpiderService;
 import com.xjtu.topic.dao.TopicDAO;
+import com.xjtu.topic.service.TopicService;
 import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.domain.TopicContainFacet;
 import com.xjtu.topic.repository.TopicRepository;
@@ -69,6 +70,10 @@ public class SpiderDynamicOutputService {
 
     @Value("${server.port}")
     private Integer port;
+
+
+    @Autowired
+    private TopicService topicService;
 
 
 
@@ -142,7 +147,9 @@ public class SpiderDynamicOutputService {
         if(threadMap.get(topicName).getState()==TERMINATED){
             return ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_3.getCode(), ResultEnum.OUTPUTSPIDER_ERROR_3.getMsg(), null);
         }else {
+            logger.info("suspend前该线程的状态："+threadMap.get(topicName).getState().toString());
             threadMap.get(topicName).suspend();
+            logger.info("suspend后该线程的状态："+threadMap.get(topicName).getState().toString());
             logger.info("爬虫线程:"+topicName+"  已暂停运行");
 
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "爬虫线程:"+topicName+"  已暂停运行");
@@ -177,7 +184,9 @@ public class SpiderDynamicOutputService {
         if(inThreadMap.get(topicName).getState()==TERMINATED){
             return ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_3.getCode(), ResultEnum.OUTPUTSPIDER_ERROR_3.getMsg(), null);
         }else {
+            logger.info(inThreadMap.get(topicName).getState().toString());
             inThreadMap.get(topicName).suspend();
+            logger.info(inThreadMap.get(topicName).getState().toString());
             logger.info("增量爬虫线程:"+topicName+"  已暂停运行");
 
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "爬虫线程:"+topicName+"  已暂停运行");
@@ -273,7 +282,9 @@ public class SpiderDynamicOutputService {
         System.out.println("hashmap中的线程状态:"+threadMap.get(topicName).getState());
 
         if(threadMap.get(topicName).getState()==TERMINATED){
-            return ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_3.getCode(), ResultEnum.OUTPUTSPIDER_ERROR_3.getMsg(), null);
+            logger.info("爬虫线程:"+topicName+"  已停止");
+            threadMap.remove(topicName);
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "爬虫线程:"+topicName+"  已停止");
         }else {
             threadMap.get(topicName).interrupt();
             System.out.println("hashmap中的线程状态:"+threadMap.get(topicName).getState());
@@ -306,11 +317,12 @@ public class SpiderDynamicOutputService {
         System.out.println("hashmap中的线程状态:"+inThreadMap.get(topicName).getState());
 
         if(inThreadMap.get(topicName).getState()==TERMINATED){
-            return ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_3.getCode(), ResultEnum.OUTPUTSPIDER_ERROR_3.getMsg(), null);
+            logger.info("爬虫线程:"+topicName+"  已停止");
+            inThreadMap.remove(topicName);
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "爬虫线程:"+topicName+"  已停止");
         }else {
             inThreadMap.get(topicName).interrupt();
             System.out.println("hashmap中的线程状态:"+inThreadMap.get(topicName).getState());
-
             logger.info("爬虫线程:"+topicName+"  已停止");
             inThreadMap.remove(topicName);
 
@@ -455,6 +467,7 @@ public class SpiderDynamicOutputService {
             Domain domain_new = domainRepository.findByDomainName(domainName);
             TopicOnlyCrawler.storeTopic(domain_new);
         }
+        topicService.filterTopicsByDomainName(domainName);
         Domain domain_new1 = domainRepository.findByDomainName(domainName);
         Long domainId = domain_new1.getDomainId();
         List<Topic> topics = topicRepository.findByDomainId(domainId);
@@ -722,6 +735,8 @@ public class SpiderDynamicOutputService {
             System.out.println("Error!");
         }
     }
+
+
 
 }
 
