@@ -18,8 +18,9 @@ public class PythonService {
 
     public Result killPythonService() {
         Runtime runtime=Runtime.getRuntime();
-        logger.info("开始杀死python8081服务的进程");
-        killTask(getProgramName(getPID("8080")));
+        logger.info("开始杀死python8082 8082服务的进程");
+        killTask(getProgramName(getPID("8081")));
+        killTask(getProgramName(getPID("8082")));
         try {
             runtime.exec("e:");
             runtime.exec("cd E:\\mysite-with-cache-test");
@@ -105,7 +106,4 @@ public class PythonService {
             e.printStackTrace();
         }
     }
-
-
-
 }
