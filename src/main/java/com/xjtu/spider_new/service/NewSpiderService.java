@@ -608,7 +608,7 @@ public class NewSpiderService {
     public void crawlEmptyTopicByCrawler4jWithoutThread(Topic topic) throws Exception {
 
         new BasicCrawlerController().startCrawlerForFacetOnly(
-                topic.getTopicUrl(),
+                convertWikipediaMirror(topic.getTopicUrl()),
                 checkIsChinese(topic.getTopicName()),
                 topic.getDomainId(),
                 topic.getTopicId()
