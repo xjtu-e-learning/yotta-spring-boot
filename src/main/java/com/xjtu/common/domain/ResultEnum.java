@@ -149,6 +149,7 @@ public enum ResultEnum {
     DEPENDENCY_DELETE_ERROR_2(212, "主题依赖关系删除失败：主题为空或不存在"),
 
     DEPENDENCY_GENERATE_ERROR(197, "主题依赖关系生成失败：没有课程信息记录"),
+    DEPENDENCY_GENERATE_ERROR_0(197, "主题依赖关系查询失败：没有课程信息记录"),
     DEPENDENCY_GENERATE_ERROR_1(198, "主题依赖关系生成失败：主题不存在"),
     DEPENDENCY_GENERATE_ERROR_2(199, "主题依赖关系生成失败：主题碎片内容为空"),
 

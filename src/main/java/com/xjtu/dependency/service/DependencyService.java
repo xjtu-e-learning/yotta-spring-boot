@@ -141,7 +141,7 @@ public class DependencyService {
         Dependency dependency = new Dependency(startTopic.getTopicId(), endTopic.getTopicId(), 0, domain.getDomainId());
         try {
             dependencyRepository.save(dependency);
-            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "主题依赖关系插入成功");
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), dependency);
         } catch (Exception exception) {
             logger.error("主题依赖关系插入失败:插入语句执行失败");
             return ResultUtil.error(ResultEnum.DEPENDENCY_INSERT_ERROR.getCode(), ResultEnum.DEPENDENCY_INSERT_ERROR.getMsg());
@@ -784,10 +784,6 @@ public class DependencyService {
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(),"success");
 
     }
-
-
-
-
 
     /**
      * 智慧教育系统获得推荐路径，访问教育大数据组提供的war包
@@ -1600,6 +1596,41 @@ public class DependencyService {
         DependencyService dependencyService = new DependencyService();
         dependencyService.findDependenciesByDomainNameSaveAsGexf("数据结构");
     }
+
+
+    public Result generateDependencyByDomainNameWithNewTopicName(String domainName, String topicName) {
+        Domain domain = domainRepository.findByDomainName(domainName);
+        //查询错误
+        if (domain == null) {
+            logger.error("主题依赖关系生成失败：没有课程信息记录");
+            return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR.getMsg());
+        }
+        Topic topicWithMaxOutDegree = (Topic)getTopicWithMaxOutDegreeByDomainName(domainName).getData();
+        Result result = insertDependency(domainName, topicWithMaxOutDegree.getTopicName(), topicName);
+        return result;
+    }
+
+    public Result getTopicWithMaxOutDegreeByDomainName(String domainName){
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("主题依赖查询失败：没有课程信息记录");
+            return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR_0.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR_0.getMsg());
+
+        }
+        List<Topic> topicList = topicRepository.findByDomainId(domain.getDomainId());
+        int dependencyMaxNum=0;
+        Topic topicWithMaxOutDegree=null;
+        for(Topic topic:topicList){
+            List<Dependency> dependencyList = dependencyRepository.findByStartTopicId(topic.getTopicId());
+            if(dependencyList.size()>dependencyMaxNum){
+                dependencyMaxNum=dependencyList.size();
+                topicWithMaxOutDegree=topic;
+            }
+        }
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),topicWithMaxOutDegree);
+    }
+
+
 
 
 }
