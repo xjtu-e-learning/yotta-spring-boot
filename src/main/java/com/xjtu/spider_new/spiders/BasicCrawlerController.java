@@ -1,7 +1,7 @@
 package com.xjtu.spider_new.spiders;
 
 import com.xjtu.facet.domain.Facet;
-import com.xjtu.spider_new.spiders.csdn.CSDNCrawler;
+import com.xjtu.spider_new.spiders.multisource.GeneralCrawler;
 import com.xjtu.spider_new.spiders.wikicn.MysqlReadWriteDAO;
 import edu.uci.ics.crawler4j.crawler.CrawlConfig;
 import edu.uci.ics.crawler4j.crawler.CrawlController;
@@ -30,6 +30,10 @@ public class BasicCrawlerController {
         // Be polite: Make sure that we don't send more than 1 request per second (1000 milliseconds between requests).
         // Otherwise it may overload the target servers.
         config.setPolitenessDelay(1000);
+
+        // 设置线程任务执行完后回收资源的延时，这里由于任务不多，所以延时时间可以小一点
+        config.setCleanupDelaySeconds(3);
+        config.setThreadShutdownDelaySeconds(3);
 
         // You can set the maximum crawl depth here. The default value is -1 for unlimited depth.
         config.setMaxDepthOfCrawling(0);
@@ -138,8 +142,8 @@ public class BasicCrawlerController {
             controller.addSeed(targetURL);
 
             // 启动CSDNCrawler
-            CrawlController.WebCrawlerFactory<CSDNCrawler> csdnFactory =
-                    () -> new CSDNCrawler(targetURL, isChinese, domainId, topicId, facetName);
+            CrawlController.WebCrawlerFactory<GeneralCrawler> csdnFactory =
+                    () -> new GeneralCrawler(targetURL, isChinese, domainId, topicId, facetName);
 
             controller.start(csdnFactory, numberOfCrawlers);
             logger.info("Crawler is finished");
@@ -155,7 +159,10 @@ public class BasicCrawlerController {
         CrawlConfig config = new CrawlConfig();
 
         config.setCrawlStorageFolder("tmp/crawler4j/");
-        config.setPolitenessDelay(1000);
+        config.setPolitenessDelay(200);
+        // 设置线程任务执行完后回收资源的延时，这里由于任务不多，所以延时时间可以小一点
+        config.setCleanupDelaySeconds(3);
+        config.setThreadShutdownDelaySeconds(3);
         config.setMaxDepthOfCrawling(0);
         config.setMaxPagesToFetch(1000);
         config.setIncludeBinaryContentInCrawling(true);
@@ -190,13 +197,16 @@ public class BasicCrawlerController {
         int numberOfCrawlers = 2;
         String crawlStorageFolder = "/tmp/crawler4j/";
         List<CrawlController> crawlControllers = new ArrayList<>();
-        List<CrawlController.WebCrawlerFactory<CSDNCrawler>> crawlerFactories = new ArrayList<>();
+        List<CrawlController.WebCrawlerFactory<GeneralCrawler>> crawlerFactories = new ArrayList<>();
 
         for (int i = 0; i < facets.size(); i++) {
             CrawlConfig config = new CrawlConfig();
 
             config.setCrawlStorageFolder(crawlStorageFolder + "/facet" + facets.get(i).getFacetName());
-            config.setPolitenessDelay(1000);
+            config.setPolitenessDelay(500);
+            // 设置线程任务执行完后回收资源的延时，这里由于任务不多，所以延时时间可以小一点
+            config.setCleanupDelaySeconds(3);
+            config.setThreadShutdownDelaySeconds(3);
             config.setMaxDepthOfCrawling(0);
             config.setMaxPagesToFetch(50);
             config.setIncludeBinaryContentInCrawling(false);
@@ -214,10 +224,14 @@ public class BasicCrawlerController {
             config.setMaxPagesToFetch(50);
 
             String facetName = facets.get(i).getFacetName();
-            String targetURL = "https://cn.bing.com/search?q=" + topicName + facetName;
-            controller.addSeed(targetURL);
-            CrawlController.WebCrawlerFactory<CSDNCrawler> csdnFactory =
-                    () -> new CSDNCrawler("https://cn.bing.com/search?q=", true, domainId, topicId, facetName);
+            String targetURLCSDN = "https://cn.bing.com/search?q=" + topicName + facetName + " csdn";
+            String targetURLCNB = "https://cn.bing.com/search?q=" + topicName + facetName + " 博客园";
+            String targetURLJS = "https://cn.bing.com/search?q=" + topicName + facetName + " 简书";
+            controller.addSeed(targetURLCSDN);
+            controller.addSeed(targetURLCNB);
+            controller.addSeed(targetURLJS);
+            CrawlController.WebCrawlerFactory<GeneralCrawler> csdnFactory =
+                    () -> new GeneralCrawler("https://cn.bing.com/search?q=", true, domainId, topicId, facetName);
 
             crawlControllers.add(controller);
             crawlerFactories.add(csdnFactory);
@@ -233,6 +247,76 @@ public class BasicCrawlerController {
             logger.info("Crawler for " + facets.get(i).getFacetName() +  " is finished.");
         }
 
+    }
+
+    /**
+     * 增量式爬取分面列表下每个分面的碎片
+     * “增量式”设计：
+     * 根据 bing 搜索上的按最近一周内排序获取新的搜索结果并在此基础上爬碎片
+     * @param domainId 课程名，存数据库时需要使用
+     * @param topicId 主题名，存数据库时需要使用
+     * @param facets 分面列表，爬取需要
+     */
+    public void startIncrementCrawlerForAssembleOnly(Long domainId, Long topicId, List<Facet> facets) throws Exception {
+        int numberOfCrawlers = 2;
+        String crawlStorageFolder = "/tmp/crawler4j/";
+        List<CrawlController> crawlControllers = new ArrayList<>();
+        List<CrawlController.WebCrawlerFactory<GeneralCrawler>> crawlerFactories = new ArrayList<>();
+
+        for (int i = 0; i < facets.size(); i++) {
+            CrawlConfig config = new CrawlConfig();
+
+            config.setCrawlStorageFolder(crawlStorageFolder + "/facet" + facets.get(i).getFacetName());
+            config.setPolitenessDelay(1000);
+            // 设置线程任务执行完后回收资源的延时，这里由于任务不多，所以延时时间可以小一点
+            config.setCleanupDelaySeconds(3);
+            config.setThreadShutdownDelaySeconds(3);
+            config.setMaxDepthOfCrawling(0);
+            config.setMaxPagesToFetch(50);
+            config.setIncludeBinaryContentInCrawling(false);
+            config.setResumableCrawling(false);
+
+            // Instantiate the controller for this crawl.
+            PageFetcher pageFetcher = new PageFetcher(config);
+            RobotstxtConfig robotstxtConfig = new RobotstxtConfig();
+            robotstxtConfig.setEnabled(false);
+            RobotstxtServer robotstxtServer = new RobotstxtServer(robotstxtConfig, pageFetcher);
+            CrawlController controller = new CrawlController(config, pageFetcher, robotstxtServer);
+
+            String topicName = MysqlReadWriteDAO.findTopicNameByTopicId(topicId);
+            config.setMaxDepthOfCrawling(1);
+            config.setMaxPagesToFetch(50);
+
+            String facetName = facets.get(i).getFacetName();
+            // URL后拼接 &filters=ex1%3a"ez2" ，是在 bing 上筛选一周内的结果
+            String targetURLCSDN1 = "https://cn.bing.com/search?q=" + topicName + " " + facetName + " CSDN" + "&filters=ex1%3a\"ez2\"";
+            String targetURLCSDN2 = "https://cn.bing.com/search?q=" + topicName + " " + facetName + " CSDN" + "&filters=ex1%3a\"ez2\"&first=11";
+            String targetURLCNB1 = "https://cn.bing.com/search?q=" + topicName + " " + facetName + " 博客园" + "&filters=ex1%3a\"ez2\"";
+            String targetURLCNB2 = "https://cn.bing.com/search?q=" + topicName + " " + facetName + " 博客园" + "&filters=ex1%3a\"ez2\"&first=11";
+            String targetURLJS1 = "https://cn.bing.com/search?q=" + topicName + " " + facetName + " 简书" + "&filters=ex1%3a\"ez2\"";
+            String targetURLJS2 = "https://cn.bing.com/search?q=" + topicName + " " + facetName + " 简书" + "&filters=ex1%3a\"ez2\"&first=11";
+            controller.addSeed(targetURLCSDN1);
+            controller.addSeed(targetURLCSDN2);
+            controller.addSeed(targetURLCNB1);
+            controller.addSeed(targetURLCNB2);
+            controller.addSeed(targetURLJS1);
+            controller.addSeed(targetURLJS2);
+            CrawlController.WebCrawlerFactory<GeneralCrawler> csdnFactory =
+                    () -> new GeneralCrawler("https://cn.bing.com/search?q=", true, domainId, topicId, facetName);
+
+            crawlControllers.add(controller);
+            crawlerFactories.add(csdnFactory);
+
+        }
+
+        for (int i = 0; i < facets.size(); i++) {
+            crawlControllers.get(i).startNonBlocking(crawlerFactories.get(i), numberOfCrawlers);
+        }
+
+        for (int i = 0; i < facets.size(); i++) {
+            crawlControllers.get(i).waitUntilFinish();
+            logger.info("Crawler for " + facets.get(i).getFacetName() +  " is finished.");
+        }
     }
 
 }

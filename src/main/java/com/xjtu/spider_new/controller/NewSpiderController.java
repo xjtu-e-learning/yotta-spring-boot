@@ -162,12 +162,12 @@ public class NewSpiderController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-    @ApiOperation(value = "根据课程与主题增量爬取其分面下的碎片", notes = "课程名、主题名需真实存在，若主题下无分面则会对自动爬取分面")
-    @PostMapping("/crawlAssembleIncrement")
-    public ResponseEntity crawlAssembleIncrement(@RequestParam(name = "domainName") String domainName,
+    @ApiOperation(value = "根据课程与主题爬取其分面下的碎片", notes = "课程名、主题名需真实存在，若主题下无分面则会对自动爬取分面")
+    @PostMapping("/crawlAssemble")
+    public ResponseEntity crawlAssemble(@RequestParam(name = "domainName") String domainName,
                                                  @RequestParam(name = "topicName") String topicName)
     {
-        Result result = SpiderService.crawlAssembleIncrement(domainName, topicName);
+        Result result = SpiderService.crawlAssemble(domainName, topicName);
 
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
@@ -175,12 +175,25 @@ public class NewSpiderController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-    @ApiOperation(value = "查询增量爬取某主题下碎片的线程状态", notes = "msg若是“成功”，则表示爬取已结束")
+    @ApiOperation(value = "查询爬取某主题下碎片的线程状态", notes = "msg若是“成功”，则表示爬取已结束")
     @GetMapping("/getAndCheckIncrementStatus")
-    public ResponseEntity getAndCheckIncrementStatus(@RequestParam(name = "domainName") String domainName,
+    public ResponseEntity getAndCheckAssembleCrawlerStatus(@RequestParam(name = "domainName") String domainName,
                                                  @RequestParam(name = "topicName") String topicName)
     {
-        Result result = SpiderService.getIncrementFacetAssembleAndThreadStatus(domainName, topicName);
+        Result result = SpiderService.getFacetAssembleAndThreadStatus(domainName, topicName);
+
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @ApiOperation(value = "根据课程与主题 **增量** 爬取其分面下的碎片", notes = "课程名、主题名需真实存在，且主题必须有分面，该接口只负责增量爬取碎片")
+    @PostMapping("/crawlAssembleIncrement")
+    public ResponseEntity crawlAssembleIncrement(@RequestParam(name = "domainName") String domainName,
+                                                 @RequestParam(name = "topicName") String topicName)
+    {
+        Result result = SpiderService.crawlAssembleIncrement(domainName, topicName);
 
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
