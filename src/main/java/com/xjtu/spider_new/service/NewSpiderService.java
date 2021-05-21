@@ -400,7 +400,16 @@ public class NewSpiderService {
 
         incrementCrawler.start();
 
-        return ResultUtil.success(ResultEnum.Assemble_GENERATE_ERROR_2.getCode(), ResultEnum.Assemble_GENERATE_ERROR_3.getMsg(), "start");
+        return ResultUtil.success(200, ResultEnum.Assemble_GENERATE_ERROR_3.getMsg(), "start");
+    }
+
+    /**
+     * 转换维基百科镜像
+     * @param url
+     * @return
+     */
+    public String convertWikipediaMirror(String url) {
+        return url.replaceAll("https://zh.wikipedia.org/wiki/", "https://www.wanweibaike.com/wiki-");
     }
 
     public void addAssembleByDomainNameAndTopicName(String domainName, String topicName) {
