@@ -159,7 +159,7 @@ public class BasicCrawlerController {
         CrawlConfig config = new CrawlConfig();
 
         config.setCrawlStorageFolder("tmp/crawler4j/");
-        config.setPolitenessDelay(200);
+        config.setPolitenessDelay(1000);
         // 设置线程任务执行完后回收资源的延时，这里由于任务不多，所以延时时间可以小一点
         config.setCleanupDelaySeconds(3);
         config.setThreadShutdownDelaySeconds(3);
@@ -203,7 +203,7 @@ public class BasicCrawlerController {
             CrawlConfig config = new CrawlConfig();
 
             config.setCrawlStorageFolder(crawlStorageFolder + "/facet" + facets.get(i).getFacetName());
-            config.setPolitenessDelay(500);
+            config.setPolitenessDelay(1000);
             // 设置线程任务执行完后回收资源的延时，这里由于任务不多，所以延时时间可以小一点
             config.setCleanupDelaySeconds(3);
             config.setThreadShutdownDelaySeconds(3);
@@ -224,14 +224,18 @@ public class BasicCrawlerController {
             config.setMaxPagesToFetch(50);
 
             String facetName = facets.get(i).getFacetName();
-            String targetURLCSDN = "https://cn.bing.com/search?q=" + topicName + facetName + " csdn";
-            String targetURLCNB = "https://cn.bing.com/search?q=" + topicName + facetName + " 博客园";
-            String targetURLJS = "https://cn.bing.com/search?q=" + topicName + facetName + " 简书";
+//            String targetURLCSDN = "https://cn.bing.com/search?q=" + topicName + facetName + " csdn";
+//            String targetURLCNB = "https://cn.bing.com/search?q=" + topicName + facetName + " 博客园";
+//            String targetURLJS = "https://cn.bing.com/search?q=" + topicName + facetName + " 简书";
+            // 由于 www.bing.com 被墙，临时换成 www2.bing.com
+            String targetURLCSDN = "https://www2.bing.com/search?q=" + topicName + facetName + " csdn";
+            String targetURLCNB = "https://www2.bing.com/search?q=" + topicName + facetName + " 博客园";
+            String targetURLJS = "https://www2.bing.com/search?q=" + topicName + facetName + " 简书";
             controller.addSeed(targetURLCSDN);
             controller.addSeed(targetURLCNB);
             controller.addSeed(targetURLJS);
             CrawlController.WebCrawlerFactory<GeneralCrawler> csdnFactory =
-                    () -> new GeneralCrawler("https://cn.bing.com/search?q=", true, domainId, topicId, facetName);
+                    () -> new GeneralCrawler("https://www2.bing.com/search?q=", true, domainId, topicId, facetName);
 
             crawlControllers.add(controller);
             crawlerFactories.add(csdnFactory);
