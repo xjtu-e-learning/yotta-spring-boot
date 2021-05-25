@@ -9,6 +9,7 @@ import edu.uci.ics.crawler4j.parser.HtmlParseData;
 import edu.uci.ics.crawler4j.url.WebURL;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.UnsupportedEncodingException;
@@ -63,7 +64,7 @@ public class GeneralCrawler extends WebCrawler {
         return !FILTERS.matcher(href).matches() &&
                 (href.startsWith("https://blog.csdn.net/") || href.startsWith("https://www.cnblogs.com/") ||
                     href.startsWith("https://www.jianshu.com/") || href.startsWith("https://baike.baidu.com/") ||
-                        href.equals(DOMAIN.toLowerCase()));
+                            href.equals(DOMAIN.toLowerCase()));
     }
 
     /**
@@ -86,6 +87,23 @@ public class GeneralCrawler extends WebCrawler {
             String domain = page.getWebURL().getDomain(); // 查看当前爬的是哪个域
 
             switch (domain) {
+                case "gogoo.ml":
+                    Document document = Jsoup.parse(html);
+                    Elements as = document.select("a");
+                    for (Element a : as) {
+                        String href = a.attr("href");
+                        href = href.substring(0, 7).equals("/url?q=") ? href.substring(7) : href;
+                        System.out.println(href);
+
+                        if (href.startsWith("https://blog.csdn.net/") ||
+                                href.startsWith("https://www.cnblogs.com/") ||
+                                href.startsWith("https://www.jianshu.com/") ||
+                                href.startsWith("https://baike.baidu.com/") ||
+                                href.startsWith("https://juejin.cn")) {
+                            getMyController().addSeed(href);
+                        }
+                    }
+                    break;
                 case "bing.com":
                     logger.info("当前域为搜索页面，不进行处理");
                     break;
@@ -100,6 +118,10 @@ public class GeneralCrawler extends WebCrawler {
                 case "cnblogs.com":
                     // 解析博客园页面
                     parseCNBlog(html);
+                    break;
+                case "juejin.cn":
+                    // 解析掘金页面
+                    logger.info("掘金博客解析尚未开发");
                     break;
                 default:
                     logger.error("未知源");

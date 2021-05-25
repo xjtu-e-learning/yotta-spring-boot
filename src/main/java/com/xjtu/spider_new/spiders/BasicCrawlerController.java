@@ -207,8 +207,8 @@ public class BasicCrawlerController {
             // 设置线程任务执行完后回收资源的延时，这里由于任务不多，所以延时时间可以小一点
             config.setCleanupDelaySeconds(3);
             config.setThreadShutdownDelaySeconds(3);
-            config.setMaxDepthOfCrawling(0);
-            config.setMaxPagesToFetch(50);
+            config.setMaxDepthOfCrawling(2);
+            config.setMaxPagesToFetch(100);
             config.setIncludeBinaryContentInCrawling(false);
             config.setResumableCrawling(false);
 
@@ -220,22 +220,25 @@ public class BasicCrawlerController {
             CrawlController controller = new CrawlController(config, pageFetcher, robotstxtServer);
 
             String topicName = MysqlReadWriteDAO.findTopicNameByTopicId(topicId);
-            config.setMaxDepthOfCrawling(1);
-            config.setMaxPagesToFetch(50);
 
             String facetName = facets.get(i).getFacetName();
-//            String targetURLCSDN = "https://cn.bing.com/search?q=" + topicName + facetName + " csdn";
-//            String targetURLCNB = "https://cn.bing.com/search?q=" + topicName + facetName + " 博客园";
-//            String targetURLJS = "https://cn.bing.com/search?q=" + topicName + facetName + " 简书";
+            String targetURLCSDN = "https://cn.bing.com/search?q=" + topicName + facetName + "+csdn";
+            String targetURLCNB = "https://cn.bing.com/search?q=" + topicName + facetName + "+博客园";
+            String targetURLJS = "https://cn.bing.com/search?q=" + topicName + facetName + "+简书";
             // 由于 www.bing.com 被墙，临时换成 www2.bing.com
-            String targetURLCSDN = "https://www2.bing.com/search?q=" + topicName + facetName + " csdn";
-            String targetURLCNB = "https://www2.bing.com/search?q=" + topicName + facetName + " 博客园";
-            String targetURLJS = "https://www2.bing.com/search?q=" + topicName + facetName + " 简书";
+//            String targetURLCSDN = "https://www2.bing.com/search?q=" + topicName + facetName + " csdn";
+//            String targetURLCNB = "https://www2.bing.com/search?q=" + topicName + facetName + " 博客园";
+//            String targetURLJS = "https://www2.bing.com/search?q=" + topicName + facetName + " 简书";
+            // 还是不行，试试 google 的镜像站 gogoo.ml
+            // 问题：我们的系统检测到您的计算机网络中存在异常流量。此网页用于确认这些请求是由您而不是自动程序发出的
+//            String targetURLCSDN = "https://gogoo.ml/search?q=" + topicName + facetName + "+csdn";
+//            String targetURLCNB = "https://gogoo.ml/search?q=" + topicName + facetName + "+博客园";
+//            String targetURLJS = "https://gogoo.ml/search?q=" + topicName + facetName + "+简书";
             controller.addSeed(targetURLCSDN);
             controller.addSeed(targetURLCNB);
             controller.addSeed(targetURLJS);
             CrawlController.WebCrawlerFactory<GeneralCrawler> csdnFactory =
-                    () -> new GeneralCrawler("https://www2.bing.com/search?q=", true, domainId, topicId, facetName);
+                    () -> new GeneralCrawler("https://cn.bing.com/search?q=", true, domainId, topicId, facetName);
 
             crawlControllers.add(controller);
             crawlerFactories.add(csdnFactory);
