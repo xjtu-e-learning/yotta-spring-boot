@@ -106,6 +106,9 @@ public class PythonService {
     }
 
     public Result getDependencesByDomainName(String domainName,String port) {
+        if("8083".equals(port) || "8087".equals(port)){
+            return ResultUtil.success(ResultEnum.ARGUMENTS_DEVELOP_ERROR.getCode(), ResultEnum.ARGUMENTS_DEVELOP_ERROR.getMsg(), "不合法的端口号，请输入正确的django服务端口号");
+        }
         RestTemplate restTemplate = new RestTemplate();
         String url="http://47.95.145.72:"+port+"/dependences/?domainName="+domainName;
 //        String url="http://localhost:"+port+"/dependences/?domainName="+domainName;
