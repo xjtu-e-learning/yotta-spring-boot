@@ -22,13 +22,15 @@ public class PythonService {
 
     public Result killAndRestartPythonService(String port) {
         Runtime runtime=Runtime.getRuntime();
-        logger.info("开始杀死 django {} 服务的进程",port);
-        killTask(getProgramName(getPID(port)));
+        if(getPID(port)!=null && getPID(port).length()==0){
+            logger.info("开始杀死 django {} 服务的进程",port);
+            killTask(getProgramName(getPID(port)));
+        }
         try {
-//            String [] cmd={"cmd","/C","E:\\anaconda3\\anaconda3\\envs\\django\\python.exe G:\\python服务\\mysite-no-cache\\manage.py runserver 0.0.0.0:"+port};
-            String [] cmd={"cmd","/C","E:\\Software\\anconada\\envs\\django\\python.exe E:\\mysite-with-cache-test\\manage.py runserver 0.0.0.0:"+port};
+            String [] cmd={"cmd","/C","E:\\anaconda3\\anaconda3\\envs\\django\\python.exe G:\\python服务\\mysite-no-cache\\manage.py runserver 0.0.0.0:"+port};
+//            String [] cmd={"cmd","/C","E:\\Software\\anconada\\envs\\django\\python.exe E:\\mysite-with-cache-test\\manage.py runserver 0.0.0.0:"+port};
             Process exec = runtime.exec(cmd);
-            exec.waitFor();
+            Thread.sleep(2000);
             logger.info("重新启动 django {} 服务的进程完成",port);
         } catch (Exception e) {
             logger.error("重新启动进程失败");
@@ -107,11 +109,11 @@ public class PythonService {
 
     public Result getDependencesByDomainName(String domainName,String port) {
         if("8083".equals(port) || "8087".equals(port)){
-            return ResultUtil.success(ResultEnum.ARGUMENTS_DEVELOP_ERROR.getCode(), ResultEnum.ARGUMENTS_DEVELOP_ERROR.getMsg(), "不合法的端口号，请输入正确的django服务端口号");
+            return ResultUtil.error(ResultEnum.ARGUMENTS_DEVELOP_ERROR.getCode(), ResultEnum.ARGUMENTS_DEVELOP_ERROR.getMsg(), "不合法的端口号，请输入正确的django服务端口号");
         }
         RestTemplate restTemplate = new RestTemplate();
-        String url="http://47.95.145.72:"+port+"/dependences/?domainName="+domainName;
-//        String url="http://localhost:"+port+"/dependences/?domainName="+domainName;
+//        String url="http://47.95.145.72:"+port+"/dependences/?domainName="+domainName;
+        String url="http://localhost:"+port+"/dependences/?domainName="+domainName;
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("domainName",domainName);
         HttpHeaders requestHeaders = new HttpHeaders();

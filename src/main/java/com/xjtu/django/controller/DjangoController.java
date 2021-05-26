@@ -29,7 +29,7 @@ public class DjangoController {
     }
 
     @GetMapping("/dependences")
-    @ApiOperation(value = "访问django服务/dependences接口，需要自己输入对应服务器上的哪个端口", notes = "访问django服务/dependences接口，需要自己输入对应服务器上的哪个端口")
+    @ApiOperation(value = "访问django服务/dependences接口，需要自己输入对应django服务器上的哪个端口", notes = "访问django服务/dependences接口，需要自己输入对应django服务器上的哪个端口")
     public ResponseEntity getDependencesByDomainName(@RequestParam("domainName") String domainName,
                                                          @RequestParam("port")String port){
         Result result=pythonService.getDependencesByDomainName(domainName,port);
