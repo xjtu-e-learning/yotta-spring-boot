@@ -468,7 +468,7 @@ public class SpiderDynamicOutputService {
             TopicOnlyCrawler.storeTopic(domain_new);
         }
         topicService.filterTopicsByDomainName(domainName);
-
+        kill_chromedriver();
         Domain domain_new1 = domainRepository.findByDomainName(domainName);
         Long domainId = domain_new1.getDomainId();
         List<Topic> topics = topicRepository.findByDomainId(domainId);
