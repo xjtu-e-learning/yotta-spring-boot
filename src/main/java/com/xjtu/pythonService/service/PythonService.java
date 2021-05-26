@@ -18,20 +18,19 @@ public class PythonService {
 
     public Result killPythonService() {
         Runtime runtime=Runtime.getRuntime();
-        logger.info("开始杀死python8082 8082服务的进程");
+        logger.info("开始杀死 django 8081 8082服务的进程");
         killTask(getProgramName(getPID("8081")));
         killTask(getProgramName(getPID("8082")));
+        logger.info("杀死 django 8081 8082服务的进程完成");
         try {
-            runtime.exec("e:");
-            runtime.exec("cd E:\\mysite-with-cache-test");
-            runtime.exec("conda activate django");
-            runtime.exec("python manage.py runserver 0.0.0.0:8081");
-            logger.info("重新启动python8081服务的进程完成");
-            runtime.exec("e:");
-            runtime.exec("cd E:\\mysite-no-cache-test");
-            runtime.exec("conda activate django");
-            runtime.exec("python manage.py runserver 0.0.0.0:8082");
-            logger.info("重新启动python8082服务的进程完成");
+//           restart 8081
+            String [] cmd={"cmd","/C","E:\\Software\\anconada\\envs\\django\\python.exe E:\\mysite-with-cache-test\\manage.py runserver 0.0.0.0:8081"};
+            runtime.exec(cmd);
+            logger.info("重新启动 django 8081 服务的进程完成");
+//           restart 8082
+            String [] cmd2={"cmd","/C","E:\\Software\\anconada\\envs\\django\\python.exe E:\\mysite-no-cache-test\\manage.py runserver 0.0.0.0:8082"};
+            runtime.exec(cmd2);
+            logger.info("重新启动 django 8082 服务的进程完成");
         } catch (IOException e) {
             logger.error("重新启动进程失败");
             e.printStackTrace();
