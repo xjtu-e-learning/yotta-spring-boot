@@ -1,8 +1,8 @@
-package com.xjtu.pythonService.controller;
+package com.xjtu.django.controller;
 
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
-import com.xjtu.pythonService.service.PythonService;
+import com.xjtu.django.service.PythonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
