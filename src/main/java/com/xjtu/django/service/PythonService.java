@@ -1,11 +1,15 @@
-package com.xjtu.pythonService.service;
+package com.xjtu.django.service;
 
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
 import com.xjtu.utils.ResultUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,22 +20,17 @@ import java.io.InputStreamReader;
 public class PythonService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public Result killPythonService() {
+    public Result killAndRestartPythonService(String port) {
         Runtime runtime=Runtime.getRuntime();
-        logger.info("开始杀死 django 8081 8082服务的进程");
-        killTask(getProgramName(getPID("8081")));
-        killTask(getProgramName(getPID("8082")));
-        logger.info("杀死 django 8081 8082服务的进程完成");
+        logger.info("开始杀死 django {} 服务的进程",port);
+        killTask(getProgramName(getPID(port)));
         try {
-//           restart 8081
-            String [] cmd={"cmd","/C","E:\\Software\\anconada\\envs\\django\\python.exe E:\\mysite-with-cache-test\\manage.py runserver 0.0.0.0:8081"};
-            runtime.exec(cmd);
-            logger.info("重新启动 django 8081 服务的进程完成");
-//           restart 8082
-            String [] cmd2={"cmd","/C","E:\\Software\\anconada\\envs\\django\\python.exe E:\\mysite-no-cache-test\\manage.py runserver 0.0.0.0:8082"};
-            runtime.exec(cmd2);
-            logger.info("重新启动 django 8082 服务的进程完成");
-        } catch (IOException e) {
+//            String [] cmd={"cmd","/C","E:\\anaconda3\\anaconda3\\envs\\django\\python.exe G:\\python服务\\mysite-no-cache\\manage.py runserver 0.0.0.0:"+port};
+            String [] cmd={"cmd","/C","E:\\Software\\anconada\\envs\\django\\python.exe E:\\mysite-with-cache-test\\manage.py runserver 0.0.0.0:"+port};
+            Process exec = runtime.exec(cmd);
+            exec.waitFor();
+            logger.info("重新启动 django {} 服务的进程完成",port);
+        } catch (Exception e) {
             logger.error("重新启动进程失败");
             e.printStackTrace();
         }
@@ -105,4 +104,27 @@ public class PythonService {
             e.printStackTrace();
         }
     }
+
+    public Result getDependencesByDomainName(String domainName,String port) {
+        RestTemplate restTemplate = new RestTemplate();
+        String url="http://47.95.145.72:"+port+"/dependences/?domainName="+domainName;
+//        String url="http://localhost:"+port+"/dependences/?domainName="+domainName;
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("domainName",domainName);
+        HttpHeaders requestHeaders = new HttpHeaders();
+        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(params,requestHeaders);
+        ResponseEntity<String> result;
+        try {
+            result = restTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class);
+        }catch(Exception e){
+            killAndRestartPythonService(port);
+            ResponseEntity<String> result2 = restTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class);
+            if(result2.getStatusCode().equals(HttpStatus.OK)){
+                return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), result2.getBody());
+            }
+            return ResultUtil.error(result2.getStatusCodeValue(), result2.getStatusCode().getReasonPhrase());
+        }
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), result.getBody());
+    }
+
 }
