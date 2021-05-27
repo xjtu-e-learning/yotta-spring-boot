@@ -215,6 +215,7 @@ public class NewSpiderService {
             }
             System.out.print(" 的分面");
             facetExtraction(domain, sub, isChineseOrNot, true, 0);
+            // todo: 可能抽不到分面，再去维基百科上拿
         }
     }
 
@@ -335,7 +336,7 @@ public class NewSpiderService {
             System.out.println("主题 " + topic.getTopicName() + " 的分面：");
             for (String s : entry.getValue()) {
                 System.out.print(s + " ");
-//                facetRepository.save(new Facet(s, 1, topic.getTopicId(), null));
+                facetRepository.save(new Facet(s, 1, topic.getTopicId(), null));
             }
             System.out.println();
         }
