@@ -28,6 +28,8 @@ public class BasicCrawlerController {
     // 爬虫线程池
     private ExecutorService crawlerThreadPool = Executors.newCachedThreadPool();
 
+    private Object l = new Object();
+
     public void startCrawler(String url, boolean isChinese, Long domainId, Long topicId) throws Exception {
         CrawlConfig config = new CrawlConfig();
 
@@ -343,11 +345,15 @@ public class BasicCrawlerController {
      */
     public void startCrawlerForAssembleWithCSDNSearch(Long domainId, Long topicId, List<Facet> facets) {
 
-        for (Facet facet : facets) {
+//        List<CrawlController> controllers = new ArrayList<>();
 
-            // 并行执行分面的爬取，提交任务到线程池
+        CrawlController[] controllers = new CrawlController[facets.size()];
+
+        for (int i = 0; i < facets.size(); i++) {
+            Facet facet = facets.get(i);
+
+            int finalI = i;
             crawlerThreadPool.execute(() -> {
-
                 System.out.println("start");
                 // 模拟浏览器访问 CSDN 搜索获取该分面下所有链接，存在列表里
                 List<String> urls = CsdnCrawler.getCsdnUrl(
@@ -362,20 +368,85 @@ public class BasicCrawlerController {
                     System.out.println(facet.getFacetName() + " 下拿到的链接：" + url);
                 }
 
-
-                String topicName = MysqlReadWriteDAO.findTopicNameByTopicId(topicId);
                 String facetName = facet.getFacetName();
 
                 // 使用 crawler4j 进行爬取
                 String crawlStorageFolder = "/tmp/crawler4j/" + facet.getFacetName() + "/";
                 CrawlController csdnCrawlerController = createBasicController(crawlStorageFolder, -1, urls);
-                CrawlController.WebCrawlerFactory<GeneralCrawler> csdnFactory =
-                        () -> new GeneralCrawler("https://cn.bing.com/search?q=", true, domainId, topicId, facetName);
 
-                csdnCrawlerController.start(csdnFactory, 1);
-                logger.info("Crawler for " + topicName + " - " + facet.getFacetName() +  " is finished.");
-
+                controllers[finalI] = csdnCrawlerController;
             });
+
+        }
+
+
+        //todo: wait notify
+
+        for (int i = 0; i < controllers.length; i++) {
+            int finalI = i;
+            CrawlController.WebCrawlerFactory<GeneralCrawler> csdnFactory =
+                    () -> new GeneralCrawler("https://cn.bing.com/search?q=", true, domainId, topicId, facets.get(finalI).getFacetName());
+            controllers[i].startNonBlocking(csdnFactory, 1);
+        }
+
+        String topicName = MysqlReadWriteDAO.findTopicNameByTopicId(topicId);
+
+        for (int i = 0; i < controllers.length; i++) {
+            controllers[i].waitUntilFinish();
+            logger.info("Crawler for " + topicName + " - " + facets.get(i).getFacetName() +  " is finished.");
+        }
+
+    }
+
+    /**
+     * ** 串行 非并行，不开线程 **
+     * 使用 CSDN搜索（https://so.csdn.net/so/）来爬取碎片
+     * 由于 CSDN搜索 只支持浏览器访问，所以针对每个分面会先使用模拟浏览器的爬虫爬取得到一个链接列表，
+     * 再根据链接列表使用 crawler4j 来进行具体碎片的爬取
+     *
+     * 由于对速度的需求，使每个分面爬取过程并发执行，即要开启多个线程
+     */
+    public void startCrawlerForAssembleWithCSDNSearchNoThread(Long domainId, Long topicId, List<Facet> facets) {
+
+//        List<CrawlController> controllers = new ArrayList<>();
+
+        CrawlController[] controllers = new CrawlController[facets.size()];
+
+        for (int i = 0; i < facets.size(); i++) {
+            Facet facet = facets.get(i);
+
+            System.out.println("start");
+            // 模拟浏览器访问 CSDN 搜索获取该分面下所有链接，存在列表里
+            List<String> urls = CsdnCrawler.getCsdnUrl(
+                    MysqlReadWriteDAO.findTopicNameByTopicId(topicId),
+                    facet.getFacetName(),
+                    false
+            );
+            System.out.println("get url");
+
+
+            for (String url : urls) {
+                System.out.println(facet.getFacetName() + " 下拿到的链接：" + url);
+            }
+
+            String facetName = facet.getFacetName();
+
+            // 使用 crawler4j 进行爬取
+            String crawlStorageFolder = "/tmp/crawler4j/" + facet.getFacetName() + "/";
+            CrawlController csdnCrawlerController = createBasicController(crawlStorageFolder, -1, urls);
+
+            controllers[i] = csdnCrawlerController;
+            int finalI = i;
+            CrawlController.WebCrawlerFactory<GeneralCrawler> csdnFactory =
+                    () -> new GeneralCrawler("https://cn.bing.com/search?q=", true, domainId, topicId, facets.get(finalI).getFacetName());
+            controllers[i].startNonBlocking(csdnFactory, 1);
+        }
+
+        String topicName = MysqlReadWriteDAO.findTopicNameByTopicId(topicId);
+
+        for (int i = 0; i < controllers.length; i++) {
+            controllers[i].waitUntilFinish();
+            logger.info("Crawler for " + topicName + " - " + facets.get(i).getFacetName() +  " is finished.");
         }
 
     }
