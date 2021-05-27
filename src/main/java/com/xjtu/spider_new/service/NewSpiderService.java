@@ -206,10 +206,10 @@ public class NewSpiderService {
      * @param isConstruct true为构造分面，false为查看构造状态
      * @return
      */
-    public  Result facetExtraction(Domain domain,List<Topic> topicList, Boolean isChineseOrNot, boolean isConstruct, int tryTime) throws URISyntaxException, InterruptedException {
+    public Result facetExtraction(Domain domain,List<Topic> topicList, Boolean isChineseOrNot, boolean isConstruct, int tryTime) throws URISyntaxException, InterruptedException {
 
-        String facetConstruct = "http://maotoumao.xyz:5373/facet-construct";
-        String facetConstructStatus = "http://maotoumao.xyz:5373/facet-construct-status";
+        String facetConstruct = "http://zscl.xjtudlc.com:8089/facet-extraction/facet-construct";
+        String facetConstructStatus = "http://zscl.xjtudlc.com:8089/facet-extraction/facet-construct-status";
 //        String facetConstruct = "http://10.181.184.41:3747/facet-construct";
 //        String facetConstructStatus = "http://10.181.184.41:3747/facet-construct-status";
         String url = isConstruct ? facetConstruct : facetConstructStatus;
@@ -292,10 +292,33 @@ public class NewSpiderService {
             if (facetResult.getFacets() == null) {
                 return facetExtraction(domain, topicList, isChineseOrNot, true, 0);
             } else {
+                //存到数据库
+                storeFacets(domain.getDomainId(), (Map<String, List<String>>) facetResult.getFacets());
+
                 return ResultUtil.success(ResultEnum.SUCCESS.getCode(), facetResult.getMessage(), facetResult.getFacets());
             }
         }
 
+    }
+
+    /**
+     * 主要是针对 {@link NewSpiderService#facetExtraction(Domain, List, Boolean, boolean, int)} 方法
+     * 将得到的主题分面Map存入数据库中
+     * @param domainId 课程id，存储到数据库所需的必要信息
+     * @param topicFacetMap 主题分面Map
+     */
+    public void storeFacets(Long domainId, Map<String, List<String>> topicFacetMap) {
+        for (Map.Entry<String, List<String>> entry : topicFacetMap.entrySet()) {
+            Topic topic = topicRepository.findByDomainIdAndTopicName(domainId, entry.getKey());
+            System.out.println(topic.toString());
+
+            System.out.println("主题 " + topic.getTopicName() + " 的分面：");
+            for (String s : entry.getValue()) {
+                System.out.print(s + " ");
+                facetRepository.save(new Facet(s, 1, topic.getTopicId(), null));
+            }
+            System.out.println();
+        }
     }
 
 
