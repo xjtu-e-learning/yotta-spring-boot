@@ -104,6 +104,9 @@ public class NewSpiderService {
     // 记录是否在爬取分面
     private boolean isFacetCrawling = true;
 
+    // "数据不完整"的次数 （facetExtraction 方法使用）
+    private int facetErrorCount = 0;
+
     /**
      * 主题-分面-碎片爬虫方法
      *
@@ -198,23 +201,23 @@ public class NewSpiderService {
         return m.find();
     }
 
-    public void extractFacetsByGroup(Domain domain, List<Topic> topicList, Boolean isChineseOrNot) throws URISyntaxException, InterruptedException {
+    public void extractFacetsByGroup(Domain domain, List<Topic> topicList, Boolean isChineseOrNot, int groupNum) throws URISyntaxException, InterruptedException {
         int size = topicList.size();
         List<Topic> sub = null;
 
-        for (int i = 0; i < size; i += 1) {
-//            if (i + 5 > size) {
-//                sub = topicList.subList(i, size);
-//            } else {
-//                sub = topicList.subList(i, i + 5);
-//            }
-            sub = topicList.subList(i, i+1);
+        for (int i = 0; i < size; i += groupNum) {
+            if (i + groupNum > size) {
+                sub = topicList.subList(i, size);
+            } else {
+                sub = topicList.subList(i, i + groupNum);
+            }
             System.out.print("抽取 ");
             for (Topic topic : sub) {
                 System.out.print(topic.getTopicName() + " ");
             }
             System.out.print(" 的分面");
             facetExtraction(domain, sub, isChineseOrNot, true, 0);
+            System.out.println();
             // todo: 可能抽不到分面，再去维基百科上拿
         }
     }
@@ -228,7 +231,6 @@ public class NewSpiderService {
      * @return
      */
     public Result facetExtraction(Domain domain,List<Topic> topicList, Boolean isChineseOrNot, boolean isConstruct, int tryTime) throws URISyntaxException, InterruptedException {
-
         String facetConstruct = "http://zscl.xjtudlc.com:8089/facet-extraction/facet-construct";
         String facetConstructStatus = "http://zscl.xjtudlc.com:8089/facet-extraction/facet-construct-status";
 //        String facetConstruct = "http://10.181.184.41:3747/facet-construct";
@@ -250,18 +252,28 @@ public class NewSpiderService {
         boolean isDelete = false; // 记录是否删除了特殊字符的主题，若删除了要更新topicList
         for (int i = 0; i < topicList.size(); i++) {
             if (isSpecialChar(topicList.get(i).getTopicName())) {
-                // 数据异常，直接删除
-                topicRepository.delete(topicList.get(i).getTopicId());
-                isDelete = true;
+//                // 数据异常，直接删除
+//                topicRepository.delete(topicList.get(i).getTopicId());
+//                isDelete = true;
+                // 数据中有符号，会导致错误，不传入算法
 
-                Log.log("数据异常，有特殊字符 ，主题名为 " + topicList.get(i).getTopicName() + "，已删除该主题");
+
+                Log.log("数据异常，有特殊字符 ，主题名为 " + topicList.get(i).getTopicName() + "。");
             }else {
 
                 params.add("topicNames[" + index++ + "]", topicList.get(i).getTopicName());
             }
         }
-        // 若删除了要更新topicList
-        if (isDelete)   topicList = topicRepository.findEmptyTopicByDomainId(domain.getDomainId());
+//        // 若删除了要更新topicList
+//        if (isDelete)   topicList = topicRepository.findEmptyTopicByDomainId(domain.getDomainId());
+
+        // 更新topicList，不传入有特殊字符的主题
+        List<Topic> tmp = new ArrayList<>();
+        for (Topic topic : topicList) {
+            if (!isSpecialChar(topic.getTopicName()))
+                tmp.add(topic);
+        }
+        topicList = tmp;
 
         // 发送post数据并返回数据
         //设置请求header 为 APPLICATION_FORM_URLENCODED
@@ -274,9 +286,9 @@ public class NewSpiderService {
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(params, headers);
         //执行HTTP请求，将返回的结构使用ResultVO类格式化
         if (isConstruct) {
-            Thread.sleep(2000);
+//            Thread.sleep(2000);
             restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
-            Thread.sleep(2000);
+            Thread.sleep(1000);
             return facetExtraction(domain, topicList, isChineseOrNot, false, 0);
         }
 
@@ -294,23 +306,42 @@ public class NewSpiderService {
 
         if (facetResult.isRunning()) {
 //            Log.log("========================="  + "分面爬取正在进行中" + "=========================");
-            if (tryTime % 10 == 0)
+            if (tryTime % 2 == 0)
                 Log.log("===============" + Thread.currentThread().getName() + ": " + facetResult.getMessage() + "===============");
-            if (tryTime > 100) {
+            if (tryTime > 2) {
                 // 数据异常
                 Log.log("数据异常，分面爬取接口调用超时 ，主题名为 " + topicList.get(0).getTopicName() + "，课程名为" + domainName + "，错误为 " + facetResult.getMessage());
 //                topicRepository.delete(tmpId);
 //                missingRecordRepository.save(new MissingRecord(1, tmpId));
 
+                Map<String, List<String>> errorData = new HashMap<>();
+                for (Topic topic : topicList) {
+                    errorData.put(topic.getTopicName(), null);
+                }
+                storeFacets(domain.getDomainId(), errorData);
+
                 return ResultUtil.error(ResultEnum.TSPIDER_ERROR2.getCode(), ResultEnum.TSPIDER_ERROR2.getMsg(), facetResult.getMessage());
 
             }
-            Thread.sleep(5000);
+            Thread.sleep(1000);
 
 //            ResultUtil.error(ResultEnum.TSPIDER_ERROR2.getCode(), ResultEnum.TSPIDER_ERROR2.getMsg(), facetResult.getMessage());
             return facetExtraction(domain, topicList, isChineseOrNot, false, tryTime + 1);
         } else {
             if (facetResult.getFacets() == null) {
+                if (facetErrorCount > 2) {
+                    // 错误次数太多
+                    Map<String, List<String>> errorData = new HashMap<>();
+                    for (Topic topic : topicList) {
+                        errorData.put(topic.getTopicName(), null);
+                    }
+                    storeFacets(domain.getDomainId(), errorData);
+
+                    facetErrorCount = 0;
+                    return ResultUtil.error(ResultEnum.TSPIDER_ERROR2.getCode(), ResultEnum.TSPIDER_ERROR2.getMsg(), facetResult.getMessage());
+
+                }
+                facetErrorCount++;
                 return facetExtraction(domain, topicList, isChineseOrNot, true, 0);
             } else {
                 //存到数据库
@@ -334,10 +365,19 @@ public class NewSpiderService {
             System.out.println(topic.toString());
 
             System.out.println("主题 " + topic.getTopicName() + " 的分面：");
-            for (String s : entry.getValue()) {
-                System.out.print(s + " ");
-                facetRepository.save(new Facet(s, 1, topic.getTopicId(), null));
+
+            if (entry.getValue() == null|| entry.getValue().size() == 0) {
+                // 无分面生成，定义几个general的
+                System.out.print("定义 应用");
+                facetRepository.save(new Facet("定义", 1, topic.getTopicId(), null));
+                facetRepository.save(new Facet("应用", 1, topic.getTopicId(), null));
+            } else {
+                for (String s : entry.getValue()) {
+                    System.out.print(s + " ");
+                    facetRepository.save(new Facet(s, 1, topic.getTopicId(), null));
+                }
             }
+
             System.out.println();
         }
     }
