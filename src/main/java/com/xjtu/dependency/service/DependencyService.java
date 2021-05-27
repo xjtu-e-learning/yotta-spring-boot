@@ -140,7 +140,7 @@ public class DependencyService {
         //插入依赖关系
         Dependency dependency = new Dependency(startTopic.getTopicId(), endTopic.getTopicId(), 0, domain.getDomainId());
         try {
-            dependencyRepository.save(dependency);
+            dependencyRepository.saveAndFlush(dependency);
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), dependency);
         } catch (Exception exception) {
             logger.error("主题依赖关系插入失败:插入语句执行失败");

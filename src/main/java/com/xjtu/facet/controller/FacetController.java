@@ -89,6 +89,21 @@ public class FacetController {
     }
 
 
+    @ApiOperation(value = "指定课程名字，删除该分面、该分面的子分面以及对应分面下的碎片信息"
+            , notes = "指定课程名字，删除该分面、该分面的子分面以及对应分面下的碎片信息")
+    @GetMapping("/deleteFacetCompleteByDomainName")
+    public ResponseEntity deleteFacetAndChildrenFacetCompleteWithDomainName(
+            @RequestParam(name = "domainName") String domainName)
+    {
+        Result result = facetService.deleteFacetAndChildrenFacetCompleteWithDomainName(domainName);
+
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
     @ApiOperation(value = "指定课程、主题和分面名字，删除该分面、该分面的子分面以及对应分面下的碎片信息"
             , notes = "指定课程、主题和分面名字，删除该分面、该分面的子分面以及对应分面下的碎片信息")
     @GetMapping("/deleteFacetCompleteByDomainNameAndTopicNameAndFacetName")
