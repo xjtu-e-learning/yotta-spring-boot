@@ -19,6 +19,7 @@ import com.xjtu.spider_dynamic_output.spiders.csdn.CsdnThread;
 import com.xjtu.spider_dynamic_output.spiders.wikicn.AssembleCrawler;
 import com.xjtu.spider_dynamic_output.spiders.wikicn.FacetCrawler;
 import com.xjtu.spider_dynamic_output.spiders.wikicn.TopicOnlyCrawler;
+import com.xjtu.spider_new.service.NewSpiderService;
 import com.xjtu.spider_topic.service.TFSpiderService;
 import com.xjtu.topic.dao.TopicDAO;
 import com.xjtu.topic.service.TopicService;
@@ -32,6 +33,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -64,6 +67,9 @@ public class SpiderDynamicOutputService {
 
     @Autowired
     private DependencyRepository dependencyRepository;
+
+    @Autowired
+    private NewSpiderService newSpiderService;
 
     @Autowired
     private TopicDAO topicDAO;
@@ -101,12 +107,28 @@ public class SpiderDynamicOutputService {
 
         }
 
+        List<Topic> topicList=new ArrayList<>();
+        List<Facet> facetList=facetRepository.findByTopicId(topic.getTopicId());
+        if(facetList.size()==0) {
+            topicList.add(topic);
+            try {
+                newSpiderService.extractFacetsByGroup(domain,topicList,true );
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+                logger.info("分面算法抽取失败!");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                logger.info("分面算法抽取失败!");
+            }
+        }
+
         TopicContainFacet topicContainFacet = getTopicContainFacetNoAssemble(topic);
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicContainFacet);
 
 
 
     }
+
 
     /**
      * 指定课程名和主题名，爬取主题并包含其完整的下的分面、碎片数据
@@ -489,7 +511,11 @@ public class SpiderDynamicOutputService {
             TopicOnlyCrawler.storeTopic(domain_new);
         }
         topicService.filterTopicsByDomainName(domainName);
- //       kill_chromedriver();
+//        kill_chromedriver();
+
+
+
+
         Domain domain_new1 = domainRepository.findByDomainName(domainName);
         Long domainId = domain_new1.getDomainId();
         List<Topic> topics = topicRepository.findByDomainId(domainId);
