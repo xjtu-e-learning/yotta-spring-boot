@@ -63,9 +63,7 @@ public class CsdnCrawler {
 
     }
 
-    public static List<String> getCsdnUrl(Topic topic, Facet facet,Boolean incremental) {
-        String topicName=topic.getTopicName();
-        String facetName=facet.getFacetName();
+    public static List<String> getCsdnUrl(String topicName, String facetName,Boolean incremental) {
         String csdnSearchUrl = "https://so.csdn.net/so/search/blog?q=" + topicName + "%20" + facetName + "&t=blog&p=1&s=0&tm=0&lv=-1&ft=0&l=&u=";
         List<String> csdnUrlList=new ArrayList<>();
         try {

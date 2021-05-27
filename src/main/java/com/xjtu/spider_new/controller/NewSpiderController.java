@@ -167,7 +167,20 @@ public class NewSpiderController {
     public ResponseEntity crawlAssemble(@RequestParam(name = "domainName") String domainName,
                                                  @RequestParam(name = "topicName") String topicName)
     {
-        Result result = SpiderService.crawlAssemble(domainName, topicName);
+        Result result = SpiderService.crawlAssemble(domainName, topicName,true);
+
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @ApiOperation(value = "仅在CSDN搜索中，根据课程与主题爬取其分面下的碎片", notes = "（**仅在CSDN搜索中**）课程名、主题名需真实存在，若主题下无分面则会对自动爬取分面")
+    @PostMapping("/crawlAssembleByCSDNOnly")
+    public ResponseEntity crawlAssembleByCSDNOnly(@RequestParam(name = "domainName") String domainName,
+                                                 @RequestParam(name = "topicName") String topicName)
+    {
+        Result result = SpiderService.crawlAssemble(domainName, topicName,false);
 
         if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);

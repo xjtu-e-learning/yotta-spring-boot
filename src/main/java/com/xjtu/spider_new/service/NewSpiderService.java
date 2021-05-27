@@ -198,6 +198,26 @@ public class NewSpiderService {
         return m.find();
     }
 
+    public void extractFacetsByGroup(Domain domain, List<Topic> topicList, Boolean isChineseOrNot) throws URISyntaxException, InterruptedException {
+        int size = topicList.size();
+        List<Topic> sub = null;
+
+        for (int i = 0; i < size; i += 1) {
+//            if (i + 5 > size) {
+//                sub = topicList.subList(i, size);
+//            } else {
+//                sub = topicList.subList(i, i + 5);
+//            }
+            sub = topicList.subList(i, i+1);
+            System.out.print("抽取 ");
+            for (Topic topic : sub) {
+                System.out.print(topic.getTopicName() + " ");
+            }
+            System.out.print(" 的分面");
+            facetExtraction(domain, sub, isChineseOrNot, true, 0);
+        }
+    }
+
     /**
      * 调用根据lhx师兄的接口，得到返回的爬取并抽取分面结果
      * @param domain 课程
@@ -315,7 +335,7 @@ public class NewSpiderService {
             System.out.println("主题 " + topic.getTopicName() + " 的分面：");
             for (String s : entry.getValue()) {
                 System.out.print(s + " ");
-                facetRepository.save(new Facet(s, 1, topic.getTopicId(), null));
+//                facetRepository.save(new Facet(s, 1, topic.getTopicId(), null));
             }
             System.out.println();
         }
@@ -395,7 +415,14 @@ public class NewSpiderService {
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "大概好了吧");
     }
 
-    public Result crawlAssemble(String domainName, String topicName) {
+    /**
+     *
+     * @param domainName
+     * @param topicName
+     * @param isGeneralSearch true：一般搜索 false：仅在CSDN搜索（备用方案）
+     * @return
+     */
+    public Result crawlAssemble(String domainName, String topicName, boolean isGeneralSearch) {
         Domain domain = domainRepository.findByDomainName(domainName);
         if(domain == null) {
             logger.error("该课程不存在。");
@@ -417,7 +444,10 @@ public class NewSpiderService {
         incrementCrawler = new Thread(new Runnable() {
             @Override
             public void run() {
-                addAssembleByDomainNameAndTopicName(domainName, topicName);
+                if (isGeneralSearch)
+                    addAssembleByDomainNameAndTopicName(domainName, topicName);
+                else
+                    addAssembleByDomainNameAndTopicNameWithCsdnSearch(domainName, topicName);
             }
         }, "incrementCrawler");
 
@@ -460,6 +490,43 @@ public class NewSpiderService {
 
         try {
             new BasicCrawlerController().startCrawlerForAssembleOnly(domain.getDomainId(), topic.getTopicId(), facetList);
+        } catch (Exception e) {
+            logger.error("爬虫出错。");
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * {@link NewSpiderService#addAssembleByDomainNameAndTopicName(String, String)} 的替代方案
+     * 使用模拟浏览器搜索csdn，然后使用 crawler4j 爬取各详细页面
+     * @param domainName
+     * @param topicName
+     */
+    public void addAssembleByDomainNameAndTopicNameWithCsdnSearch(String domainName, String topicName) {
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if(domain == null) {
+            logger.error("该课程不存在。");
+            return;
+        }
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(), topicName);
+        if (topic == null) {
+            logger.error("该主题不存在。");
+            return;
+        }
+        List<Facet> facetList = facetRepository.findByTopicId(topic.getTopicId());
+        if (facetList.size() == 0) {
+            logger.error("该主题下不存在分面，先去维基百科爬取分面。");
+            // 先爬取分面
+            try {
+                crawlEmptyTopicByCrawler4jWithoutThread(topic);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            facetList = facetRepository.findByTopicId(topic.getTopicId());
+        }
+
+        try {
+            new BasicCrawlerController().startCrawlerForAssembleWithCSDNSearch(domain.getDomainId(), topic.getTopicId(), facetList);
         } catch (Exception e) {
             logger.error("爬虫出错。");
             e.printStackTrace();

@@ -1,6 +1,7 @@
 package com.xjtu.spider_new.spiders;
 
 import com.xjtu.facet.domain.Facet;
+import com.xjtu.spider_dynamic_output.spiders.csdn.CsdnCrawler;
 import com.xjtu.spider_new.spiders.multisource.GeneralCrawler;
 import com.xjtu.spider_new.spiders.wikicn.MysqlReadWriteDAO;
 import edu.uci.ics.crawler4j.crawler.CrawlConfig;
@@ -8,6 +9,7 @@ import edu.uci.ics.crawler4j.crawler.CrawlController;
 import edu.uci.ics.crawler4j.fetcher.PageFetcher;
 import edu.uci.ics.crawler4j.robotstxt.RobotstxtConfig;
 import edu.uci.ics.crawler4j.robotstxt.RobotstxtServer;
+import org.omg.PortableServer.THREAD_POLICY_ID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -346,8 +348,21 @@ public class BasicCrawlerController {
             // 并行执行分面的爬取，提交任务到线程池
             crawlerThreadPool.execute(() -> {
 
-                // todo: 模拟浏览器访问 CSDN 搜索获取该分面下所有链接，存在列表里
-                List<String> urls = new ArrayList<>();
+                System.out.println("start");
+                // 模拟浏览器访问 CSDN 搜索获取该分面下所有链接，存在列表里
+                List<String> urls = CsdnCrawler.getCsdnUrl(
+                        MysqlReadWriteDAO.findTopicNameByTopicId(topicId),
+                        facet.getFacetName(),
+                        false
+                );
+                System.out.println("get url");
+
+
+                for (String url : urls) {
+                    System.out.println(facet.getFacetName() + " 下拿到的链接：" + url);
+                }
+
+
                 String topicName = MysqlReadWriteDAO.findTopicNameByTopicId(topicId);
                 String facetName = facet.getFacetName();
 
@@ -361,6 +376,12 @@ public class BasicCrawlerController {
                 logger.info("Crawler for " + topicName + " - " + facet.getFacetName() +  " is finished.");
 
             });
+        }
+
+        try {
+            Thread.sleep(300000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
