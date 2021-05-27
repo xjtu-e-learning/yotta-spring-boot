@@ -11,6 +11,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class CsdnCrawler {
@@ -58,6 +60,34 @@ public class CsdnCrawler {
         } catch (Exception e) {
             Log.log("\ncsdn碎片获取失败\n链接地址：" + csdnSearchUrl);
         }
+
+    }
+
+    public static List<String> getCsdnUrl(String topicName, String facetName,Boolean incremental) {
+        String csdnSearchUrl = "https://so.csdn.net/so/search/blog?q=" + topicName + "%20" + facetName + "&t=blog&p=1&s=0&tm=0&lv=-1&ft=0&l=&u=";
+        List<String> csdnUrlList=new ArrayList<>();
+        try {
+            String csdnSearchHtml = SpiderUtils.seleniumCsdn(csdnSearchUrl);
+            Document csdnSerarchDoc = JsoupDao.parseHtmlText(csdnSearchHtml);
+            Elements csdnUrlElements = csdnSerarchDoc.select("div[class*='list-item']").select("a[class='block-title']");
+            if (csdnUrlElements.isEmpty()) {
+                Log.log("没有拿到csdn链接！");
+                return csdnUrlList;
+            }
+            int i = 0, j = 5;
+            if (incremental == true) {
+                i = 6;
+                j = 10;
+            }
+            for (; i < j; i++) {
+                Element urlElement = csdnUrlElements.get(i);
+                String csdnUrl = urlElement.attr("href");
+                csdnUrlList.add(csdnUrl);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return csdnUrlList;
 
     }
 

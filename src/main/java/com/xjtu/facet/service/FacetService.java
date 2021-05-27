@@ -172,8 +172,18 @@ public class FacetService {
     }
 
 
+    /**
+     * 根据domainName删除该分面及其子分面
+     * @param
+     * @return
+     *
+     */
+    public Result deleteFacetAndChildrenFacetCompleteWithDomainName(String domainName) {
 
+        List<Facet> facets = facetRepository.findByDomainName(domainName);
+        return deleteFacets(facets);
 
+    }
 
     /**
      * 根据facetId删除该分面及其子分面

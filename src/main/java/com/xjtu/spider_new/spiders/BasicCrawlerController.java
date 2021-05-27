@@ -1,6 +1,7 @@
 package com.xjtu.spider_new.spiders;
 
 import com.xjtu.facet.domain.Facet;
+import com.xjtu.spider_dynamic_output.spiders.csdn.CsdnCrawler;
 import com.xjtu.spider_new.spiders.multisource.GeneralCrawler;
 import com.xjtu.spider_new.spiders.wikicn.MysqlReadWriteDAO;
 import edu.uci.ics.crawler4j.crawler.CrawlConfig;
@@ -8,6 +9,7 @@ import edu.uci.ics.crawler4j.crawler.CrawlController;
 import edu.uci.ics.crawler4j.fetcher.PageFetcher;
 import edu.uci.ics.crawler4j.robotstxt.RobotstxtConfig;
 import edu.uci.ics.crawler4j.robotstxt.RobotstxtServer;
+import org.omg.PortableServer.THREAD_POLICY_ID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,10 +17,16 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class BasicCrawlerController {
     private static final Logger logger =
             LoggerFactory.getLogger(BasicCrawlerController.class);
+
+    // 爬虫线程池
+    private ExecutorService crawlerThreadPool = Executors.newCachedThreadPool();
 
     public void startCrawler(String url, boolean isChinese, Long domainId, Long topicId) throws Exception {
         CrawlConfig config = new CrawlConfig();
@@ -324,6 +332,97 @@ public class BasicCrawlerController {
             crawlControllers.get(i).waitUntilFinish();
             logger.info("Crawler for " + facets.get(i).getFacetName() +  " is finished.");
         }
+    }
+
+    /**
+     * 使用 CSDN搜索（https://so.csdn.net/so/）来爬取碎片
+     * 由于 CSDN搜索 只支持浏览器访问，所以针对每个分面会先使用模拟浏览器的爬虫爬取得到一个链接列表，
+     * 再根据链接列表使用 crawler4j 来进行具体碎片的爬取
+     *
+     * 由于对速度的需求，使每个分面爬取过程并发执行，即要开启多个线程
+     */
+    public void startCrawlerForAssembleWithCSDNSearch(Long domainId, Long topicId, List<Facet> facets) {
+
+        for (Facet facet : facets) {
+
+            // 并行执行分面的爬取，提交任务到线程池
+            crawlerThreadPool.execute(() -> {
+
+                System.out.println("start");
+                // 模拟浏览器访问 CSDN 搜索获取该分面下所有链接，存在列表里
+                List<String> urls = CsdnCrawler.getCsdnUrl(
+                        MysqlReadWriteDAO.findTopicNameByTopicId(topicId),
+                        facet.getFacetName(),
+                        false
+                );
+                System.out.println("get url");
+
+
+                for (String url : urls) {
+                    System.out.println(facet.getFacetName() + " 下拿到的链接：" + url);
+                }
+
+
+                String topicName = MysqlReadWriteDAO.findTopicNameByTopicId(topicId);
+                String facetName = facet.getFacetName();
+
+                // 使用 crawler4j 进行爬取
+                String crawlStorageFolder = "/tmp/crawler4j/" + facet.getFacetName() + "/";
+                CrawlController csdnCrawlerController = createBasicController(crawlStorageFolder, -1, urls);
+                CrawlController.WebCrawlerFactory<GeneralCrawler> csdnFactory =
+                        () -> new GeneralCrawler("https://cn.bing.com/search?q=", true, domainId, topicId, facetName);
+
+                csdnCrawlerController.start(csdnFactory, 1);
+                logger.info("Crawler for " + topicName + " - " + facet.getFacetName() +  " is finished.");
+
+            });
+        }
+
+        try {
+            Thread.sleep(300000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 创建一个最基础的 controller ，其中的参数可以自己定义
+     * 该方法是为了可读性，避免重复代码
+     * @param folderName 爬虫缓存文件目录
+     * @param maxDepthOfCrawling 最大爬取深度
+     * @param urls seed 的链接列表（一个也是可以的）
+     * @return CrawlController
+     */
+    public CrawlController createBasicController(String folderName, int maxDepthOfCrawling, List<String> urls) {
+        CrawlConfig config = new CrawlConfig();
+        config.setCrawlStorageFolder(folderName);
+        config.setPolitenessDelay(1000);
+        // 设置线程任务执行完后回收资源的延时，这里由于任务不多，所以延时时间可以小一点
+        config.setCleanupDelaySeconds(3);
+        config.setThreadShutdownDelaySeconds(3);
+        config.setMaxDepthOfCrawling(maxDepthOfCrawling);
+        config.setMaxPagesToFetch(50);
+        config.setIncludeBinaryContentInCrawling(false);
+        config.setResumableCrawling(false);
+
+        // Instantiate the controller for this crawl.
+        PageFetcher pageFetcher = new PageFetcher(config);
+        RobotstxtConfig robotstxtConfig = new RobotstxtConfig();
+        robotstxtConfig.setEnabled(false);
+        RobotstxtServer robotstxtServer = new RobotstxtServer(robotstxtConfig, pageFetcher);
+        CrawlController controller = null;
+        try {
+            controller = new CrawlController(config, pageFetcher, robotstxtServer);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // 添加 seed
+        for (String url : urls) {
+            controller.addSeed(url);
+        }
+
+        return controller;
     }
 
 }
