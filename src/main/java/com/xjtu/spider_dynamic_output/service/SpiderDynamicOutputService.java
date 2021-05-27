@@ -112,7 +112,7 @@ public class SpiderDynamicOutputService {
         if(facetList.size()==0) {
             topicList.add(topic);
             try {
-                newSpiderService.extractFacetsByGroup(domain,topicList,true );
+                newSpiderService.extractFacetsByGroup(domain,topicList,true,1 );
             } catch (URISyntaxException e) {
                 e.printStackTrace();
                 logger.info("分面算法抽取失败!");
