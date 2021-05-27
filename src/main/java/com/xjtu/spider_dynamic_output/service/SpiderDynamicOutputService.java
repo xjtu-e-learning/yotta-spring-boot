@@ -88,7 +88,25 @@ public class SpiderDynamicOutputService {
     HashMap<String,Thread> inThreadMap=new HashMap<>();//保存增量爬虫状态
 
 
+    public Result getFacetByDomainAndTopicName(String domainName,String topicName){
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("课程查询失败：没有指定课程");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_2.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_2.getMsg());
+        }
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(), topicName);
+        if (topic == null) {
+            logger.error("主题查询失败：没有指定主题");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR.getCode(), ResultEnum.TOPIC_SEARCH_ERROR.getMsg());
 
+        }
+
+        TopicContainFacet topicContainFacet = getTopicContainFacetNoAssemble(topic);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicContainFacet);
+
+
+
+    }
 
     /**
      * 指定课程名和主题名，爬取主题并包含其完整的下的分面、碎片数据
@@ -97,6 +115,9 @@ public class SpiderDynamicOutputService {
      * @param topicName
      * @return
      */
+
+
+
     public Result startFacetAssembleSpider(String domainName, String topicName){
         Domain domain = domainRepository.findByDomainName(domainName);
         if (domain == null) {
@@ -361,8 +382,6 @@ public class SpiderDynamicOutputService {
             return ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_2.getCode(), ResultEnum.OUTPUTSPIDER_ERROR_2.getMsg(), topicContainFacet);
         }
 
-
-
     }
 
     public Result startIncrementFacetAssembleSpider(String domainName, String topicName){
@@ -418,6 +437,8 @@ public class SpiderDynamicOutputService {
 
     }
 
+
+
     public Result findAllSpider(){
         HashMap<String,String> allThreadMap=new HashMap<>();//保存增量爬虫状态
         for (String key:threadMap.keySet()) {
@@ -468,7 +489,7 @@ public class SpiderDynamicOutputService {
             TopicOnlyCrawler.storeTopic(domain_new);
         }
         topicService.filterTopicsByDomainName(domainName);
-        kill_chromedriver();
+ //       kill_chromedriver();
         Domain domain_new1 = domainRepository.findByDomainName(domainName);
         Long domainId = domain_new1.getDomainId();
         List<Topic> topics = topicRepository.findByDomainId(domainId);
@@ -608,6 +629,16 @@ public class SpiderDynamicOutputService {
         }
 
     }
+    public TopicContainFacet getTopicContainFacetNoAssemble(Topic topic) {
+        List<Facet> Facets = facetRepository.findByTopicIdAndFacetLayer(topic.getTopicId(), 1);
+        //初始化Topic
+        TopicContainFacet topicContainFacet = new TopicContainFacet();
+        topicContainFacet.setTopic(topic);
+        topicContainFacet.setChildrenNumber(Facets.size());
+        topicContainFacet.setChildren(Facets);
+        return topicContainFacet;
+    }
+
 
     /**
      * 根据主题名获得该主题的分面树
