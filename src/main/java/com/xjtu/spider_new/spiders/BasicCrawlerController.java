@@ -378,11 +378,6 @@ public class BasicCrawlerController {
             });
         }
 
-        try {
-            Thread.sleep(300000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
     /**
@@ -401,7 +396,7 @@ public class BasicCrawlerController {
         config.setCleanupDelaySeconds(3);
         config.setThreadShutdownDelaySeconds(3);
         config.setMaxDepthOfCrawling(maxDepthOfCrawling);
-        config.setMaxPagesToFetch(50);
+        config.setMaxPagesToFetch(10);
         config.setIncludeBinaryContentInCrawling(false);
         config.setResumableCrawling(false);
 

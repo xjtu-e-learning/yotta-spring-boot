@@ -519,10 +519,12 @@ public class NewSpiderService {
         }
         List<Facet> facetList = facetRepository.findByTopicId(topic.getTopicId());
         if (facetList.size() == 0) {
-            logger.error("该主题下不存在分面，先去维基百科爬取分面。");
+//            logger.error("该主题下不存在分面，先去维基百科爬取分面。");
+            logger.error("该主题下不存在分面，先使用 lhx 的算法生成分面。");
             // 先爬取分面
             try {
-                crawlEmptyTopicByCrawler4jWithoutThread(topic);
+//                crawlEmptyTopicByCrawler4jWithoutThread(topic);
+                generateFacetsByEmptyTopic(topic);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -556,10 +558,12 @@ public class NewSpiderService {
         }
         List<Facet> facetList = facetRepository.findByTopicId(topic.getTopicId());
         if (facetList.size() == 0) {
-            logger.error("该主题下不存在分面，先去维基百科爬取分面。");
+//            logger.error("该主题下不存在分面，先去维基百科爬取分面。");
+            logger.error("该主题下不存在分面，先使用 lhx 的算法生成分面。");
             // 先爬取分面
             try {
-                crawlEmptyTopicByCrawler4jWithoutThread(topic);
+//                crawlEmptyTopicByCrawler4jWithoutThread(topic);
+                generateFacetsByEmptyTopic(topic);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -746,6 +750,20 @@ public class NewSpiderService {
         );
 
         logger.info(topic.getTopicName() + " 下分面爬取完毕");
+    }
+
+    /**
+     *  (不开线程) 生成 **单个** 空主题的分面，使用 lhx 师兄算法
+     */
+    public void generateFacetsByEmptyTopic(Topic topic) throws Exception {
+
+        Domain domain = domainRepository.findByDomainId(topic.getDomainId());
+
+        extractFacetsByGroup(domain, Collections.singletonList(topic), true, 1);
+
+//        List<Facet> facetList = facetRepository.findByTopicId(topic.getTopicId());
+
+        logger.info(topic.getTopicName() + " 下分面生成完毕");
     }
 
     /**
