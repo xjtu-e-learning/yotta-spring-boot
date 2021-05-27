@@ -1,9 +1,6 @@
 package com.xjtu.dependency.domain;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * 主题间依赖关系表
@@ -16,7 +13,7 @@ import javax.persistence.Table;
 public class Dependency {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long dependencyId;
     /**
      * 起始主题id
