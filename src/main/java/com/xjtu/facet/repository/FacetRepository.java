@@ -99,19 +99,6 @@ public interface FacetRepository extends JpaRepository<Facet, Long>, JpaSpecific
 
 
     /**
-     * 根据课程Name删除奉献
-     *
-     * @param domainName
-     * @return
-     */
-    @Transactional(rollbackFor = Exception.class)
-    @Query("select f from Facet f,Topic t,Domain d " +
-            "where d.domainName = ?1 and " +
-            "d.domainId = t.domainId and " +
-            "t.topicId = f.topicId")
-    List<Facet> deleteFacetCompleteByDomainName(String domainName);
-
-    /**
      * 指定主题和分面名，查询对应分面
      *
      * @param topicId
