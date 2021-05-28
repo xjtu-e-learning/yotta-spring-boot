@@ -612,7 +612,9 @@ public class NewSpiderService {
             logger.info("incrementCrawler 线程状态：" + incrementCrawler.getState());
             if (incrementCrawler.getState() == TERMINATED){
 //                incrementCrawler = null;
-                return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicContainFacet);
+                return assembleRepository.findAllAssemblesByTopicId(topic.getTopicId()).size() == 0 ?
+                        ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_1.getCode(), ResultEnum.OUTPUTSPIDER_ERROR_1.getMsg(), topicContainFacet) :
+                        ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicContainFacet);
 //            } else if (incrementCrawler.getState() == WAITING) {
 //                return ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_2.getCode(), "当前主题无分面，爬取分面中", topicContainFacet);
             } else {
