@@ -1,5 +1,7 @@
 package com.xjtu.django.service;
 
+import com.alibaba.fastjson.JSONObject;
+import com.google.gson.JsonObject;
 import com.xjtu.common.domain.Result;
 import com.xjtu.common.domain.ResultEnum;
 import com.xjtu.utils.ResultUtil;
@@ -24,11 +26,11 @@ public class PythonService {
         Runtime runtime=Runtime.getRuntime();
         if(getPID(port)!=null && getPID(port).length()==0){
             logger.info("开始杀死 django {} 服务的进程",port);
-            killTask(getProgramName(getPID(port)));
+            killByPID(getPID(port));
         }
         try {
-            String [] cmd={"cmd","/C","E:\\anaconda3\\anaconda3\\envs\\django\\python.exe G:\\python服务\\mysite-no-cache\\manage.py runserver 0.0.0.0:"+port};
-//            String [] cmd={"cmd","/C","E:\\Software\\anconada\\envs\\django\\python.exe E:\\mysite-with-cache-test\\manage.py runserver 0.0.0.0:"+port};
+//            String [] cmd={"cmd","/C","E:\\anaconda3\\anaconda3\\envs\\django\\python.exe G:\\python服务\\mysite-no-cache\\manage.py runserver 0.0.0.0:"+port};
+            String [] cmd={"cmd","/C","E:\\Software\\anconada\\envs\\django\\python.exe E:\\mysite-with-cache-test\\manage.py runserver 0.0.0.0:"+port};
             Process exec = runtime.exec(cmd);
             Thread.sleep(2000);
             logger.info("重新启动 django {} 服务的进程完成",port);
@@ -65,7 +67,17 @@ public class PythonService {
         }
         return pid;
     }
-
+    public static void killByPID(String pid){
+        String[] args = new String[]{"cmd","/C","tskill "+pid};
+        try
+        {
+            Runtime.getRuntime().exec(args);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
     //根据进程ID得到映像名称
     public static String getProgramName(String pid){
         InputStream is = null;
@@ -119,17 +131,19 @@ public class PythonService {
         HttpHeaders requestHeaders = new HttpHeaders();
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(params,requestHeaders);
         ResponseEntity<String> result;
+        JSONObject jo;
         try {
             result = restTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class);
+            jo= JSONObject.parseObject(result.getBody());
         }catch(Exception e){
             killAndRestartPythonService(port);
             ResponseEntity<String> result2 = restTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class);
+            jo= JSONObject.parseObject(result2.getBody());
             if(result2.getStatusCode().equals(HttpStatus.OK)){
-                return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), result2.getBody());
+                return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), jo);
             }
             return ResultUtil.error(result2.getStatusCodeValue(), result2.getStatusCode().getReasonPhrase());
         }
-        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), result.getBody());
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), jo);
     }
-
 }
