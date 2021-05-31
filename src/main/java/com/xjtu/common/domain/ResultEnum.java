@@ -32,6 +32,7 @@ public enum ResultEnum {
     SUBJECT_GRAPH_ERROR(197, "学科知识图谱查询失败：对应文件可能不存在"),
     SUBJECT_GRAPH_REMOVE_ERROR(198, "学科知识图谱删除失败：对应课程可能不存在"),
     SUBJECT_GRAPH_ADD_DEPEND_ERROR(199, "学科知识图谱增加失败：对应依赖课程可能不存在"),
+    SUBJECT_GRAPH_ADD_DEPEND_ALREADY_EXISTS_ERROR(199, "学科知识图谱增加失败：增加课程已经存在！"),
 
     //课程
     DOMAIN_UPDATE_ERROR_0(116, "课程质量更新失败：课程不存在"),
