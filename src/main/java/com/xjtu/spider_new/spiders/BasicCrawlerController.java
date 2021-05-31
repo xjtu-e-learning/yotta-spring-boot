@@ -212,7 +212,7 @@ public class BasicCrawlerController {
         for (int i = 0; i < facets.size(); i++) {
             CrawlConfig config = new CrawlConfig();
 
-            config.setCrawlStorageFolder(crawlStorageFolder + "/facet" + facets.get(i).getFacetName());
+            config.setCrawlStorageFolder(crawlStorageFolder + "/facet" + facets.get(i).getFacetId());
             config.setPolitenessDelay(1000);
             // 设置线程任务执行完后回收资源的延时，这里由于任务不多，所以延时时间可以小一点
             config.setCleanupDelaySeconds(3);
@@ -283,7 +283,7 @@ public class BasicCrawlerController {
         for (int i = 0; i < facets.size(); i++) {
             CrawlConfig config = new CrawlConfig();
 
-            config.setCrawlStorageFolder(crawlStorageFolder + "/facet" + facets.get(i).getFacetName());
+            config.setCrawlStorageFolder(crawlStorageFolder + "/facet" + facets.get(i).getFacetId());
             config.setPolitenessDelay(1000);
             // 设置线程任务执行完后回收资源的延时，这里由于任务不多，所以延时时间可以小一点
             config.setCleanupDelaySeconds(3);
@@ -371,7 +371,7 @@ public class BasicCrawlerController {
                 String facetName = facet.getFacetName();
 
                 // 使用 crawler4j 进行爬取
-                String crawlStorageFolder = "/tmp/crawler4j/" + facet.getFacetName() + "/";
+                String crawlStorageFolder = "/tmp/crawler4j/facet" + facet.getFacetId() + "/";
                 CrawlController csdnCrawlerController = createBasicController(crawlStorageFolder, -1, urls);
 
                 controllers[finalI] = csdnCrawlerController;
@@ -432,7 +432,7 @@ public class BasicCrawlerController {
             String facetName = facet.getFacetName();
 
             // 使用 crawler4j 进行爬取
-            String crawlStorageFolder = "/tmp/crawler4j/" + facet.getFacetName() + "/";
+            String crawlStorageFolder = "/tmp/crawler4j/facet" + facet.getFacetId() + "/";
             CrawlController csdnCrawlerController = createBasicController(crawlStorageFolder, -1, urls);
 
             controllers[i] = csdnCrawlerController;
