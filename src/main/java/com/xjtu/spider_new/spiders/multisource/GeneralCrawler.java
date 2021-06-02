@@ -1,4 +1,4 @@
-package com.xjtu.spider_new.spiders.csdn;
+package com.xjtu.spider_new.spiders.multisource;
 
 import com.xjtu.facet.domain.FacetSimple;
 import com.xjtu.spider_new.spiders.CrawlerStat;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-public class CSDNCrawler extends WebCrawler {
+public class GeneralCrawler extends WebCrawler {
 
     private static final Pattern FILTERS = Pattern.compile(
             ".*(\\.(css|js|bmp|gif|jpe?g|png|tiff?|mid|mp2|mp3|mp4|wav|avi|mov|mpeg|ram|m4v|pdf" +
@@ -41,7 +41,7 @@ public class CSDNCrawler extends WebCrawler {
     /**
      * Creates a new crawler instance.
      */
-    public CSDNCrawler(String DOMAIN, boolean isChinese, Long domainId, Long topicId, String facetName) {
+    public GeneralCrawler(String DOMAIN, boolean isChinese, Long domainId, Long topicId, String facetName) {
         this.DOMAIN = DOMAIN;
         this.isChinese = isChinese;
         this.domainId = domainId;
@@ -64,7 +64,7 @@ public class CSDNCrawler extends WebCrawler {
         return !FILTERS.matcher(href).matches() &&
                 (href.startsWith("https://blog.csdn.net/") || href.startsWith("https://www.cnblogs.com/") ||
                     href.startsWith("https://www.jianshu.com/") || href.startsWith("https://baike.baidu.com/") ||
-                        href.equals(DOMAIN.toLowerCase()));
+                            href.equals(DOMAIN.toLowerCase()));
     }
 
     /**
@@ -87,6 +87,23 @@ public class CSDNCrawler extends WebCrawler {
             String domain = page.getWebURL().getDomain(); // 查看当前爬的是哪个域
 
             switch (domain) {
+                case "gogoo.ml":
+                    Document document = Jsoup.parse(html);
+                    Elements as = document.select("a");
+                    for (Element a : as) {
+                        String href = a.attr("href");
+                        href = href.substring(0, 7).equals("/url?q=") ? href.substring(7) : href;
+                        System.out.println(href);
+
+                        if (href.startsWith("https://blog.csdn.net/") ||
+                                href.startsWith("https://www.cnblogs.com/") ||
+                                href.startsWith("https://www.jianshu.com/") ||
+                                href.startsWith("https://baike.baidu.com/") ||
+                                href.startsWith("https://juejin.cn")) {
+                            getMyController().addSeed(href);
+                        }
+                    }
+                    break;
                 case "bing.com":
                     logger.info("当前域为搜索页面，不进行处理");
                     break;
@@ -102,104 +119,13 @@ public class CSDNCrawler extends WebCrawler {
                     // 解析博客园页面
                     parseCNBlog(html);
                     break;
+                case "juejin.cn":
+                    // 解析掘金页面
+                    logger.info("掘金博客解析尚未开发");
+                    break;
                 default:
                     logger.error("未知源");
             }
-
-
-//            for (Object child : content.childNodes()) {
-//                if (child instanceof Element) {
-//
-//                    Long facetLevel1; // 一级分面id
-//                    Long facetLevel2; // 二级分面id
-//
-//                    // 获取一级分面名 （即h2标题）
-//                    if (((Element) child).tag().getName().equals("h2")) {
-//                        // 这里由于中英文页面样式不同，需要分开处理
-//                        facetName = isChinese ? ((Element) child).child(1).text() : ((Element) child).child(0).text();
-//
-//                        // 需要根据分面名查找数据库找到对应分面id
-//
-//                        // 记录下分面id，供后续碎片存储
-//
-//                        // 将二级分面id置为null防止碎片放错
-//
-//
-//                    }
-//
-//                    // 获取二级分面名 （即h3标题）
-//                    if (((Element) child).tag().getName().equals("h3")) {
-////                        System.out.println(isChinese ? ((Element) child).child(1).text() : ((Element) child).child(0).text());
-//
-//                        // 需要根据分面名查找数据库找到对应分面id
-//
-//                        // 记录下分面id，供后续碎片存储
-//
-//                    }
-//
-//                    // 获取碎片 （即h2标题下的文本）
-//                    if (((Element) child).tag().getName().equals("p")) {
-//                        String assembleHtml = ((Element) child).html();
-//                        String assemble = ((Element) child).text();
-//
-//                        if (facetName == null) {
-//                            // 为每个主题加上一个定义
-//                            if ((!isChinese && assemble.split(" ").length > 2 || isChinese && assemble.length() > 2) && !assembleHtml.equals("<br>")) {
-//                                String definition = isChinese ? "定义" : "Definition";
-//
-//                                System.out.println("获取到分面：" + definition);
-//                                System.out.println("获取到碎片：" + assemble);
-//                                System.out.println("碎片html格式：" + assembleHtml);
-//                                System.out.println("课程ID：" + domainId + " 主题ID：" + topicId);
-//
-//                                // 在数据库中存储相应分面及碎片
-//
-//                                Long facetId = MysqlReadWriteDAO.findByTopicIdAndFacetName(topicId, definition);
-//                                if (facetId == -1L) {
-//                                    List<FacetSimple> facetList = new ArrayList<>();
-//                                    facetList.add(new FacetSimple(definition, 1));
-//                                    try {
-//                                        MysqlReadWriteDAO.storeFacet(topicId, facetList); // 存分面
-//                                    } catch (Exception e) {
-//                                        e.printStackTrace();
-//                                    }
-//                                    facetId = MysqlReadWriteDAO.findByTopicIdAndFacetName(topicId, definition);
-//                                }
-//
-//                                MysqlReadWriteDAO.storeAssemble(assembleHtml, assemble, domainId, facetId, 1L); // 存碎片
-//                            }
-//                        }else if (!facetName.equals("") && !assemble.equals("") &&
-//                                (!isChinese && assemble.split(" ").length > 2 || isChinese && assemble.length() > 2) &&
-//                                !assembleHtml.equals("<br>")) {
-//                            System.out.println("获取到分面：" + facetName);
-//                            System.out.println("获取到碎片：" + assemble);
-//                            System.out.println("碎片html格式：" + assembleHtml);
-//                            System.out.println("课程ID：" + domainId + " 主题ID：" + topicId);
-//
-//                            // 在数据库中存储相应分面及碎片
-//
-//                            Long facetId = MysqlReadWriteDAO.findByTopicIdAndFacetName(topicId, facetName);
-//                            if (facetId == -1L) {
-//                                List<FacetSimple> facetList = new ArrayList<>();
-//                                facetList.add(new FacetSimple(facetName, 1));
-//                                try {
-//                                    MysqlReadWriteDAO.storeFacet(topicId, facetList); // 存分面
-//                                } catch (Exception e) {
-//                                    e.printStackTrace();
-//                                }
-//                                facetId = MysqlReadWriteDAO.findByTopicIdAndFacetName(topicId, facetName);
-//                            }
-//
-//                            MysqlReadWriteDAO.storeAssemble(assembleHtml, assemble, domainId, facetId, 1L); // 存碎片
-//
-//                        }
-//
-//
-//
-//                    }
-//
-//                }
-//            }
 
             logger.debug("Text length: {}", text.length());
             logger.debug("Html length: {}", html.length());
@@ -259,6 +185,9 @@ public class CSDNCrawler extends WebCrawler {
      * @param articleContent 碎片 text
      */
     private void storeAssemble(String articleHTML, String articleContent, Long sourceId) {
+        // 如果得到的 html 与 content 为空，则不存取
+        if (articleHTML.equals("")) return;
+
         // 在数据库中存储相应分面及碎片
         Long facetId = MysqlReadWriteDAO.findByTopicIdAndFacetName(topicId, facetName);
         if (facetId == -1L) {

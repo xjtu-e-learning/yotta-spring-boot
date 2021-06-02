@@ -1352,4 +1352,12 @@ public class AssembleService {
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), as.assembleSegment(assemble).toString());
     }
 
+    public Result getAssemblesByDomainName(String domainName) {
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if(domain==null){
+            return ResultUtil.error(ResultEnum.DOMAIN_SEARCH_ERROR.getCode(), ResultEnum.DOMAIN_SEARCH_ERROR.getMsg());
+        }
+        List<Assemble> assembleList = assembleRepository.findByDomainId(domain.getDomainId());
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), assembleList);
+    }
 }

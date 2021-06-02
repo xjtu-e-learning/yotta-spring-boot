@@ -128,6 +128,50 @@ public class DomainController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @PostMapping("/getDomainGradeByDomainId")
+    @ApiOperation(value = "根据课程id，查询课程的质量评价", notes = "根据课程id，查询课程的质量评价")
+    public ResponseEntity getDomainGradeByDomainId(@RequestParam(name="domainId") Long domainId){
+        Result result = domainService.getDomainGradeByDomainId(domainId);
+        if(!result.getCode().equals(ResultEnum.SUCCESS.getCode())){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+    @PostMapping("/getDomainGradeByDomainName")
+    @ApiOperation(value = "根据课程名，查询课程的质量评价", notes = "根据课程名，查询课程的质量评价")
+    public ResponseEntity getDomainGradeByDomainName(@RequestParam(name="domainName") String domainName){
+        Result result = domainService.getDomainGradeByDomainName(domainName);
+        if(!result.getCode().equals(ResultEnum.SUCCESS.getCode())){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @PostMapping("/updateDomainGradeByDomainId")
+    @ApiOperation(value = "根据课程id，添加课程的质量评价", notes = "根据课程id，添加课程的质量评价")
+    public ResponseEntity updateDomainGradeByDomainId(@RequestParam(name="domainId") Long domainId,
+                                                      @RequestParam(name="domainGrade") String domainGrade){
+        Result result = domainService.updateDomainGradeByDomainId(domainId, domainGrade);
+        if(!result.getCode().equals(ResultEnum.SUCCESS.getCode())){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @PostMapping("/updateDomainGradeByDomainName")
+    @ApiOperation(value = "根据课程名，添加课程的质量评价", notes = "根据课程名，添加课程的质量评价")
+    public ResponseEntity updateDomainGradeByDomainId(@RequestParam(name="domainName") String domainName,
+                                                      @RequestParam(name="domainGrade") String domainGrade){
+        Result result = domainService.updateDomainGradeByDomainName(domainName, domainGrade);
+        if(!result.getCode().equals(ResultEnum.SUCCESS.getCode())){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
+
+
     @PostMapping("/generateDomain")
     @ApiOperation(value = "构建一门课程，用于自动构建", notes = "构建一门课程，用于自动构建")
     public ResponseEntity generateDomain(@RequestParam(name = "subjectName") String subjectName,

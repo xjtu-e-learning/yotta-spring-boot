@@ -137,6 +137,24 @@ public class DependencyController {
      * 自动构建主题依赖关系
      * 通过课程名，生成该课程下主题依赖关系。需已有主题，碎片信息
      */
+    @PostMapping("/generateDependencyByDomainNameWithNewTopicName")
+    @ApiOperation(value = "自动构建新生成的主题与课程原有的其他主题的依赖关系，需要指定课程名，自动添加与出度最高主题的依赖",
+            notes = "自动构建新生成的主题与课程原有的其他主题的依赖关系，需要指定课程名，自动添加与出度最高主题的依赖")
+    public ResponseEntity generateDependencyByDomainNameWithNewTopicName(@RequestParam(name = "domainName") String domainName
+            , @RequestParam(name = "topicName") String topicName) {
+        Result result = dependencyService.generateDependencyByDomainNameWithNewTopicName(domainName, topicName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
+    /**
+     * API
+     * 自动构建主题依赖关系
+     * 通过课程名，生成该课程下主题依赖关系。需已有主题，碎片信息
+     */
     @PostMapping("/generateDependencyByDomainId")
     @ApiOperation(value = "自动构建主题依赖关系。通过课程id，生成该课程下主题依赖关系。需已有主题，碎片信息。并给出该课程是否为英文课程信息",
             notes = "自动构建主题依赖关系。通过课程id，生成该课程下主题依赖关系。需已有主题，碎片信息。并给出该课程是否为英文课程信息")

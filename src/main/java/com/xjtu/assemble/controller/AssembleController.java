@@ -74,6 +74,19 @@ public class AssembleController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @GetMapping("/getAssemblesByDomainName")
+    @ApiOperation(value = "指定课程名，查询其下碎片"
+            , notes = "指定课程名，查询其下碎片")
+    public ResponseEntity getAssemblesByDomainName(@RequestParam(name = "domainName") String domainName) {
+        Result result = assembleService.getAssemblesByDomainName(domainName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
+
 
     @PostMapping("/getAssemblesByDomainNameAndTopicNamesAndUserId")
     @ApiOperation(value = "指定课程名、主题名列表，查询其下碎片"

@@ -23,6 +23,8 @@ public class Domain {
 
     private Long subjectId;
 
+    private String domainGrade;
+
     public Domain() {
     }
     public Domain(String domainName){
@@ -31,6 +33,18 @@ public class Domain {
     public Domain(String domainName, Long subjectId) {
         this.domainName = domainName;
         this.subjectId = subjectId;
+    }
+    public Domain(String domainName, Long subjectId, String domainGrade) {
+        this(domainName,subjectId);
+        this.domainGrade=domainGrade;
+    }
+
+    public String getDomainGrade() {
+        return domainGrade;
+    }
+
+    public void setDomainGrade(String domainGrade) {
+        this.domainGrade = domainGrade;
     }
 
     public Long getDomainId() { return domainId; }
@@ -61,6 +75,7 @@ public class Domain {
                 "domainId=" + domainId +
                 ", domainName='" + domainName + '\'' +
                 ", subjectId=" + subjectId +
+                ", domainGrade='" + domainGrade + '\'' +
                 '}';
     }
 }

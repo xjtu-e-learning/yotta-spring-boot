@@ -19,8 +19,10 @@ import com.xjtu.spider_dynamic_output.spiders.csdn.CsdnThread;
 import com.xjtu.spider_dynamic_output.spiders.wikicn.AssembleCrawler;
 import com.xjtu.spider_dynamic_output.spiders.wikicn.FacetCrawler;
 import com.xjtu.spider_dynamic_output.spiders.wikicn.TopicOnlyCrawler;
+import com.xjtu.spider_new.service.NewSpiderService;
 import com.xjtu.spider_topic.service.TFSpiderService;
 import com.xjtu.topic.dao.TopicDAO;
+import com.xjtu.topic.service.TopicService;
 import com.xjtu.topic.domain.Topic;
 import com.xjtu.topic.domain.TopicContainFacet;
 import com.xjtu.topic.repository.TopicRepository;
@@ -31,6 +33,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -65,10 +69,17 @@ public class SpiderDynamicOutputService {
     private DependencyRepository dependencyRepository;
 
     @Autowired
+    private NewSpiderService newSpiderService;
+
+    @Autowired
     private TopicDAO topicDAO;
 
     @Value("${server.port}")
     private Integer port;
+
+
+    @Autowired
+    private TopicService topicService;
 
 
 
@@ -83,6 +94,40 @@ public class SpiderDynamicOutputService {
     HashMap<String,Thread> inThreadMap=new HashMap<>();//保存增量爬虫状态
 
 
+    public Result getFacetByDomainAndTopicName(String domainName,String topicName){
+        Domain domain = domainRepository.findByDomainName(domainName);
+        if (domain == null) {
+            logger.error("课程查询失败：没有指定课程");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR_2.getCode(), ResultEnum.TOPIC_SEARCH_ERROR_2.getMsg());
+        }
+        Topic topic = topicRepository.findByDomainIdAndTopicName(domain.getDomainId(), topicName);
+        if (topic == null) {
+            logger.error("主题查询失败：没有指定主题");
+            return ResultUtil.error(ResultEnum.TOPIC_SEARCH_ERROR.getCode(), ResultEnum.TOPIC_SEARCH_ERROR.getMsg());
+
+        }
+
+        List<Topic> topicList=new ArrayList<>();
+        List<Facet> facetList=facetRepository.findByTopicId(topic.getTopicId());
+        if(facetList.size()==0) {
+            topicList.add(topic);
+            try {
+                newSpiderService.extractFacetsByGroup(domain,topicList,true,1 );
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+                logger.info("分面算法抽取失败!");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                logger.info("分面算法抽取失败!");
+            }
+        }
+
+        TopicContainFacet topicContainFacet = getTopicContainFacetNoAssemble(topic);
+        return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), topicContainFacet);
+
+
+
+    }
 
 
     /**
@@ -92,6 +137,9 @@ public class SpiderDynamicOutputService {
      * @param topicName
      * @return
      */
+
+
+
     public Result startFacetAssembleSpider(String domainName, String topicName){
         Domain domain = domainRepository.findByDomainName(domainName);
         if (domain == null) {
@@ -142,7 +190,9 @@ public class SpiderDynamicOutputService {
         if(threadMap.get(topicName).getState()==TERMINATED){
             return ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_3.getCode(), ResultEnum.OUTPUTSPIDER_ERROR_3.getMsg(), null);
         }else {
+            logger.info("suspend前该线程的状态："+threadMap.get(topicName).getState().toString());
             threadMap.get(topicName).suspend();
+            logger.info("suspend后该线程的状态："+threadMap.get(topicName).getState().toString());
             logger.info("爬虫线程:"+topicName+"  已暂停运行");
 
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "爬虫线程:"+topicName+"  已暂停运行");
@@ -177,7 +227,9 @@ public class SpiderDynamicOutputService {
         if(inThreadMap.get(topicName).getState()==TERMINATED){
             return ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_3.getCode(), ResultEnum.OUTPUTSPIDER_ERROR_3.getMsg(), null);
         }else {
+            logger.info(inThreadMap.get(topicName).getState().toString());
             inThreadMap.get(topicName).suspend();
+            logger.info(inThreadMap.get(topicName).getState().toString());
             logger.info("增量爬虫线程:"+topicName+"  已暂停运行");
 
             return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "爬虫线程:"+topicName+"  已暂停运行");
@@ -273,7 +325,9 @@ public class SpiderDynamicOutputService {
         System.out.println("hashmap中的线程状态:"+threadMap.get(topicName).getState());
 
         if(threadMap.get(topicName).getState()==TERMINATED){
-            return ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_3.getCode(), ResultEnum.OUTPUTSPIDER_ERROR_3.getMsg(), null);
+            logger.info("爬虫线程:"+topicName+"  已停止");
+            threadMap.remove(topicName);
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "爬虫线程:"+topicName+"  已停止");
         }else {
             threadMap.get(topicName).interrupt();
             System.out.println("hashmap中的线程状态:"+threadMap.get(topicName).getState());
@@ -306,11 +360,12 @@ public class SpiderDynamicOutputService {
         System.out.println("hashmap中的线程状态:"+inThreadMap.get(topicName).getState());
 
         if(inThreadMap.get(topicName).getState()==TERMINATED){
-            return ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_3.getCode(), ResultEnum.OUTPUTSPIDER_ERROR_3.getMsg(), null);
+            logger.info("爬虫线程:"+topicName+"  已停止");
+            inThreadMap.remove(topicName);
+            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "爬虫线程:"+topicName+"  已停止");
         }else {
             inThreadMap.get(topicName).interrupt();
             System.out.println("hashmap中的线程状态:"+inThreadMap.get(topicName).getState());
-
             logger.info("爬虫线程:"+topicName+"  已停止");
             inThreadMap.remove(topicName);
 
@@ -348,8 +403,6 @@ public class SpiderDynamicOutputService {
         }else {
             return ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_2.getCode(), ResultEnum.OUTPUTSPIDER_ERROR_2.getMsg(), topicContainFacet);
         }
-
-
 
     }
 
@@ -406,6 +459,8 @@ public class SpiderDynamicOutputService {
 
     }
 
+
+
     public Result findAllSpider(){
         HashMap<String,String> allThreadMap=new HashMap<>();//保存增量爬虫状态
         for (String key:threadMap.keySet()) {
@@ -455,6 +510,12 @@ public class SpiderDynamicOutputService {
             Domain domain_new = domainRepository.findByDomainName(domainName);
             TopicOnlyCrawler.storeTopic(domain_new);
         }
+        topicService.filterTopicsByDomainName(domainName);
+//        kill_chromedriver();
+
+
+
+
         Domain domain_new1 = domainRepository.findByDomainName(domainName);
         Long domainId = domain_new1.getDomainId();
         List<Topic> topics = topicRepository.findByDomainId(domainId);
@@ -595,6 +656,91 @@ public class SpiderDynamicOutputService {
 
     }
 
+
+    /**
+     * 根据主题名获得该主题的分面树
+     * */
+    public TopicContainFacet getTopicContainFacetNoAssemble(Topic topic) {
+        Boolean hasFragment = false;
+        List<Facet> firstLayerFacets = facetRepository.findByTopicIdAndFacetLayer(topic.getTopicId(), 1);
+        List<Facet> secondLayerFacets = facetRepository.findByTopicIdAndFacetLayer(topic.getTopicId(), 2);
+//        List<Assemble> assembles = assembleRepository.findAllAssemblesByTopicId(topic.getTopicId());
+        List<Assemble> assembles = new ArrayList<>();
+        //初始化Topic
+        TopicContainFacet topicContainFacet = new TopicContainFacet();
+        topicContainFacet.setTopic(topic);
+        topicContainFacet.setChildrenNumber(firstLayerFacets.size());
+
+        //firstLayerFacets一级分面列表，将二级分面挂到对应一级分面下
+        List<Facet> firstLayerFacetContainAssembles = new ArrayList<>();
+        for (Facet firstLayerFacet : firstLayerFacets) {
+            if (firstLayerFacet.getFacetName().equals("匿名分面")) {
+                continue;
+            }
+            FacetContainAssemble firstLayerFacetContainAssemble = new FacetContainAssemble();
+            firstLayerFacetContainAssemble.setFacet(firstLayerFacet);
+            firstLayerFacetContainAssemble.setType("branch");
+            //设置一级分面的子节点（二级分面）
+            List<Object> secondLayerFacetContainAssembles = new ArrayList<>();
+            for (Facet secondLayerFacet : secondLayerFacets) {
+                //一级分面下的二级分面
+                if (secondLayerFacet.getParentFacetId().equals(firstLayerFacet.getFacetId())) {
+                    FacetContainAssemble secondLayerFacetContainAssemble = new FacetContainAssemble();
+                    secondLayerFacetContainAssemble.setFacet(secondLayerFacet);
+                    List<Object> assembleContainTypes = new ArrayList<>();
+                    for (Assemble assemble : assembles) {
+                        //二级分面下的碎片
+                        if (assemble.getFacetId().equals(secondLayerFacet.getFacetId())) {
+                            AssembleContainType assembleContainType = new AssembleContainType();
+                            if ("emptyAssembleContent".equals(hasFragment)) {
+                                assemble.setAssembleContent("");
+                            }
+                            assembleContainType.setAssemble(assemble);
+                            String ip = HttpUtil.getIp();
+                            assembleContainType.setUrl(ip + ":" + port + "/assemble/getAssembleContentById?assembleId=" + assemble.getAssembleId());
+                            assembleContainTypes.add(assembleContainType);
+                        }
+                    }
+                    secondLayerFacetContainAssemble.setChildren(assembleContainTypes);
+                    secondLayerFacetContainAssemble.setChildrenNumber(assembleContainTypes.size());
+                    secondLayerFacetContainAssembles.add(secondLayerFacetContainAssemble);
+                }
+            }
+            //一级分面有二级分面
+            if (secondLayerFacetContainAssembles.size() > 0) {
+                firstLayerFacetContainAssemble.setChildren(secondLayerFacetContainAssembles);
+                firstLayerFacetContainAssemble.setChildrenNumber(secondLayerFacetContainAssembles.size());
+                firstLayerFacetContainAssemble.setContainChildrenFacet(true);
+            }
+            //一级分面没有二级分面
+            else {
+                firstLayerFacetContainAssemble.setContainChildrenFacet(false);
+                List<Object> assembleContainTypes = new ArrayList<>();
+                for (Assemble assemble : assembles) {
+                    //一级分面下的碎片
+                    if (assemble.getFacetId().equals(firstLayerFacet.getFacetId())) {
+                        AssembleContainType assembleContainType = new AssembleContainType();
+                        if ("emptyAssembleContent".equals(hasFragment)) {
+                            assemble.setAssembleContent("");
+                        }
+                        assembleContainType.setAssemble(assemble);
+                        String ip = HttpUtil.getIp();
+                        assembleContainType.setUrl(ip + ":" + port + "/assemble/getAssembleContentById?assembleId=" + assemble.getAssembleId());
+
+                        assembleContainTypes.add(assembleContainType);
+                    }
+                }
+                firstLayerFacetContainAssemble.setChildren(assembleContainTypes);
+                firstLayerFacetContainAssemble.setChildrenNumber(assembleContainTypes.size());
+            }
+            firstLayerFacetContainAssembles.add(firstLayerFacetContainAssemble);
+        }
+        topicContainFacet.setChildren(firstLayerFacetContainAssembles);
+        topicContainFacet.setChildrenNumber(firstLayerFacetContainAssembles.size());
+        return topicContainFacet;
+    }
+
+
     /**
      * 根据主题名获得该主题的分面树
      * */
@@ -722,6 +868,8 @@ public class SpiderDynamicOutputService {
             System.out.println("Error!");
         }
     }
+
+
 
 }
 

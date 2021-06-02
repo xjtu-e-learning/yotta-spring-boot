@@ -81,6 +81,7 @@ public class SubjectGephiDemoAdjust {
      */
     public Result addDomainGenerateSubjectGraph(String subjectName, String addDomainName) {
 
+
         //A. 此部分是初始部分，必须的，初始Project、Workspace
         //Init a project - and therefore a workspace
         ProjectController pc = Lookup.getDefault().lookup(ProjectController.class);
@@ -113,11 +114,14 @@ public class SubjectGephiDemoAdjust {
         //new出可操作的图对象(附加为有向图)
         DirectedGraph graph = graphModel.getDirectedGraph();
         //遍历节点
-        Node n2 =null;
+        Node n2 = null;
         int max_degree = 0;
-        for(Node n : graph.getNodes()) {
+        for (Node n : graph.getNodes()) {
+            if (n.getLabel().equals(addDomainName)){
+                return ResultUtil.error(ResultEnum.SUBJECT_GRAPH_ADD_DEPEND_ALREADY_EXISTS_ERROR.getCode(), ResultEnum.SUBJECT_GRAPH_ADD_DEPEND_ALREADY_EXISTS_ERROR.getMsg());
+            }
             Node[] neighbors = graph.getNeighbors(n).toArray();
-            if(graph.getOutDegree(n)>=max_degree){
+            if (graph.getOutDegree(n) >= max_degree) {
                 n2 = n;
                 max_degree = graph.getOutDegree(n);
             }
@@ -182,8 +186,8 @@ public class SubjectGephiDemoAdjust {
         DirectedGraph graph = graphModel.getDirectedGraph();
         //根据ID获取删除课程
         Node n1 = graph.getNode(removeDomainName);
-        if (n1 == null){
-            return ResultUtil.error(ResultEnum.SUBJECT_GRAPH_REMOVE_ERROR.getCode(),ResultEnum.SUBJECT_GRAPH_REMOVE_ERROR.getMsg());
+        if (n1 == null) {
+            return ResultUtil.error(ResultEnum.SUBJECT_GRAPH_REMOVE_ERROR.getCode(), ResultEnum.SUBJECT_GRAPH_REMOVE_ERROR.getMsg());
         }
         //删除节点
         graph.removeNode(n1);
