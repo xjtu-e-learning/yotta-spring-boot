@@ -237,6 +237,7 @@ public class DependencyController {
      * API
      * 自动构建主题依赖关系
      * 通过课程名，生成该课程下主题依赖关系。需已有主题，碎片信息
+     * 该接口以前用来分析算法生成的依赖关系数据质量。后来不再使用。可以删除掉
      */
     @PostMapping("/getGenerateDependencyCSVFileByDomainName")
     @ApiOperation(value = "获得自动构建主题依赖关系CSV文件。通过课程名，生成该课程下主题依赖关系。需已有主题，碎片信息。并给出该课程是否为英文课程信息",
@@ -254,7 +255,7 @@ public class DependencyController {
 
     /**
      * API
-     * 新增知识主题时，新增该知识主题与其它知识主题间的依赖关系
+     * 新增知识主题时，新增该单个知识主题与其它知识主题间的依赖关系
      */
     @PostMapping("/getGenerateDependencyWithNewTopic")
     @ApiOperation(value = "新增知识主题时，新增该知识主题与其它知识主题间的依赖关系",
@@ -271,7 +272,7 @@ public class DependencyController {
     }
 
     /**
-     * API，训练构建认知关系分类模型
+     * API，训练构建认知关系分类模型，使用数据库中数据结构等课程作为已标注数据进行训练
      */
     @PostMapping("/trainSVMModel")
     @ApiOperation(value = "训练构建认知关系分类模型",

@@ -36,6 +36,7 @@ public class RankDependency {
                 if (term1.getText().length() == 0 || term2.getText().length() == 0 || term1.getText().equals("") || term2.getText().equals("")) {
 //                    Log.log("内容为空");
                 } else {
+                    //两个文本间的相似性值
                     double dis = 0.0;
                     if (isEnglish) {
                         dis = CosineSimilar.getSimilarityEn(term1.getText(), term2.getText());
@@ -52,6 +53,7 @@ public class RankDependency {
         logger.info("Start ranking...");
 
         List<Map.Entry<TwoTuple<TopicContainAssembleText, TopicContainAssembleText>, Double>> infoIds = new ArrayList<>(disMap.entrySet());
+        //根据相似性值排序
         Collections.sort(infoIds, (o1, o2) -> o2.getValue().compareTo(o1.getValue()));
         logger.info("Finish ranking!");
         logger.info("Start printing...");

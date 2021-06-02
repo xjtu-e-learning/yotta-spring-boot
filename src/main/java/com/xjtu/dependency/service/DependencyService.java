@@ -641,16 +641,17 @@ public class DependencyService {
          */
 //        RankDependency rankDependency = new RankDependency();
 //        List<Dependency> generated_dependencies = rankDependency.rankText(topicContainAssembleTexts, topicContainAssembleTexts.size(), isEnglish);
-        GetAsymmetry getAsymmetry = new GetAsymmetry();
+        GetAsymmetry getAsymmetry = new GetAsymmetry();   //使用不对称性算法，直接基于文本内容计算依赖关系
         List<Dependency> generated_dependencies = getAsymmetry.AsyDependency(topicList, topicContainAssembleTexts);
 
-        // 项目救急屏蔽
+        // 当不对称性算法生成的结果数量较少时，使用SVM分类算法
         if (generated_dependencies.size() < topicList.size()/2)
         {
-            generated_dependencies = predictSVMModel(domainName, isEnglish);
+            generated_dependencies = predictSVMModel(domainName, isEnglish);//使用SVM分类算法进行预测
             System.out.println("svm算法生成认知关系数量："+generated_dependencies.size());
         }
 
+        //当生成的结果数量为0时，基于文本间相似性生成依赖关系。避免生成的结果数量为0.
         if (generated_dependencies.size() == 0)
         {
             RankDependency rankDependency = new RankDependency();
@@ -857,7 +858,7 @@ public class DependencyService {
 
 
     /**
-     * 使用新的认知关系生成算法生成课程下的认知关系，并写入到csv文件中，不保存到数据库中
+     * 使用新的认知关系生成算法生成课程下的认知关系，并写入到csv文件中，不保存到数据库中。该接口后来不再使用，可以删掉
      * @param domainName  课程名
      * @param isEnglish   是否为英文课程
      * @return
@@ -1450,51 +1451,15 @@ public class DependencyService {
      */
     public List<Dependency> predictSVMModel(String domainName, Boolean isEnglish)
     {
-        List<Float> asy = new ArrayList<>();
-        List<Float> sim = new ArrayList<>();
-        List<Float> simOfName = new ArrayList<>();
-//        if (domainName == null) {
-//            logger.error("主题依赖关系查询失败：没有指定课程");
-//            return ResultUtil.error(ResultEnum.DEPENDENCY_SEARCH_ERROR_5.getCode(), ResultEnum.DEPENDENCY_SEARCH_ERROR_5.getMsg());
-//        }
+        List<Float> asy = new ArrayList<>();  //分类算法中需要的每一对知识主题对的不对称性值
+        List<Float> sim = new ArrayList<>();  //分类算法中需要的每一对知识主题对的文本资源间相似性值
+        List<Float> simOfName = new ArrayList<>();   //分类算法中需要的每一对知识主题对的相似性值
 
         Domain domain = domainRepository.findByDomainName(domainName);
-        //查询错误
-//        if (domain == null) {
-//            logger.error("主题依赖关系生成失败：没有课程信息记录");
-//            return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR.getMsg());
-//        }
 
         Long domainId = domain.getDomainId();
 
-        //查看数据库中是否已有该课程的主题依赖关系
-//        List<Dependency> dependencies = dependencyRepository.findByDomainId(domainId);
-//        if (dependencies.size() > 0)   //数据库已有该课程主题依赖关系
-//        {
-//            List<DependencyContainName> dependencyContainNames = new ArrayList<>();
-//            for (Dependency dependency : dependencies) {
-//                DependencyContainName dependencyContainName = new DependencyContainName(dependency);
-//                //获取主题名
-//                String startTopicName = topicRepository.findOne(dependency.getStartTopicId()).getTopicName();
-//                String endTopicName = topicRepository.findOne(dependency.getEndTopicId()).getTopicName();
-//
-//                //设置主题名
-//                dependencyContainName.setStartTopicName(startTopicName);
-//                dependencyContainName.setEndTopicName(endTopicName);
-//
-//                dependencyContainNames.add(dependencyContainName);
-//
-//            }
-//            return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), dependencyContainNames);
-//        }
-
-        //数据库中没有该课程的主题依赖关系，需自动构建
-        //获得课程下所有主题
         List<Topic> topicList = topicRepository.findByDomainId(domainId);
-//        if (topicList.size() < 1) {
-//            logger.error("主题依赖关系生成失败：主题不存在");
-//            return ResultUtil.error(ResultEnum.DEPENDENCY_GENERATE_ERROR_1.getCode(), ResultEnum.DEPENDENCY_GENERATE_ERROR_1.getMsg());
-//        }
 
         //获得topicContainAssembleText List，即每个主题有对应碎片文本，获得主题内容信息
         HashMap<Long, TopicContainAssembleText> topicContainAssembleTexts = new HashMap<>();
@@ -1546,14 +1511,14 @@ public class DependencyService {
                     //dis = SimilarityUtil.getSimilarity(topicContainAssembleTexts.get(startTopic.getTopicId()).getText(), topicContainAssembleTexts.get(endTopic.getTopicId()).getText());
                     dis = CosineSimilar.getSimilarity(topicContainAssembleTexts.get(startTopic.getTopicId()).getText(), topicContainAssembleTexts.get(endTopic.getTopicId()).getText());
                 }
-                sim.add((float)dis);
-                simOfName.add((float)SimilarityUtil.getSimilarity(startTopic.getTopicName(), endTopic.getTopicName()));
+                sim.add((float)dis);  //文本资源间相似性值
+                simOfName.add((float)SimilarityUtil.getSimilarity(startTopic.getTopicName(), endTopic.getTopicName()));  //知识主题对的相似性值
                 System.out.println("生成" + startTopic.getTopicName() + " " + endTopic.getTopicName() +"特征数据, " + i + " ," + j);
                 GetAsymmetry getAsymmetry = new GetAsymmetry();
                 double asy_score = getAsymmetry.singleAsyDependency(topicList, topicContainAssembleTexts.get(startTopic.getTopicId()),
-                        topicContainAssembleTexts.get(endTopic.getTopicId()));
+                        topicContainAssembleTexts.get(endTopic.getTopicId()));   //调用计算单个知识主题对间的不对称性的代码
                 if (asy_score > 0)
-                    asy.add((float)asy_score);
+                    asy.add((float)asy_score);  //知识主题对间的不对称性值
                 else
                     asy.add(0f);
                 Dependency dependency = new Dependency();
@@ -1564,7 +1529,7 @@ public class DependencyService {
             }
         }
         SVMUtil svmUtil = new SVMUtil();
-        List<Double> svmresult = svmUtil.predict(sim.size(), sim, asy, simOfName);
+        List<Double> svmresult = svmUtil.predict(sim.size(), sim, asy, simOfName);   //调用模型预测
         List<Dependency> returnDependency = new ArrayList<>();
         for (int i = 0; i<svmresult.size(); i++)
         {
