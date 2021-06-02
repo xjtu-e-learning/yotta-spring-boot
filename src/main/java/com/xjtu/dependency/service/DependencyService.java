@@ -641,6 +641,7 @@ public class DependencyService {
         if (generated_dependencies.size() < topicList.size()/2)
         {
             generated_dependencies = predictSVMModel(domainName, isEnglish);
+            System.out.println("svm算法生成认知关系数量："+generated_dependencies.size());
         }
 
         if (generated_dependencies.size() == 0)
