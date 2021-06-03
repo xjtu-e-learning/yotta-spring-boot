@@ -108,6 +108,11 @@ public class NewSpiderService {
     private int facetErrorCount = 0;
 
     /**
+     * 控制爬虫开始、暂停、继续的控制器
+     */
+    private BasicCrawlerController controller;
+
+    /**
      * 主题-分面-碎片爬虫方法
      *
      * @param subjectName 学科名
@@ -573,7 +578,8 @@ public class NewSpiderService {
         }
 
         try {
-            new BasicCrawlerController().startCrawlerForAssembleWithCSDNSearchNoThread(domain.getDomainId(), topic.getTopicId(), facetList);
+            controller = new BasicCrawlerController();
+            controller.startCrawlerForAssembleWithCSDNSearchNoThread(domain.getDomainId(), topic.getTopicId(), facetList);
 //            new BasicCrawlerController().startCrawlerForAssembleWithCSDNSearch(domain.getDomainId(), topic.getTopicId(), facetList);
         } catch (Exception e) {
             logger.error("爬虫出错。");
@@ -869,6 +875,41 @@ public class NewSpiderService {
         // 此处应该加更多错误判断
 
         return ResultUtil.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), "大概好了吧");
+    }
+
+    /**
+     * 暂停 {@link NewSpiderService#addAssembleByDomainNameAndTopicNameWithCsdnSearch(String, String)} 的爬取任务
+     */
+    public Result stopCrawl() {
+        // todo: 在模拟浏览器爬取 CSDN 搜索页面时暂停的情况未处理
+        if (controller == null)
+            return ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_2.getCode(), "停止失败，爬虫正在初始化阶段", "fail to pause");
+
+        boolean res = controller.shutdownMultiController();
+        if (res) {
+            logger.info("停止爬取线程");
+            return ResultUtil.success(200, ResultEnum.SUCCESS.getMsg(), "pause successfully");
+        } else {
+            return ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_2.getCode(), "停止失败，爬虫正在初始化阶段", "fail to pause");
+        }
+    }
+
+    /**
+     * 继续 {@link NewSpiderService#addAssembleByDomainNameAndTopicNameWithCsdnSearch(String, String)} 的爬取任务
+     */
+    public Result resumeCrawl() {
+
+        return ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_2.getCode(), "这个功能还没开发完毕", "fail");
+
+        // todo: 完成这个功能
+        //遇到的问题： Connection pool shut down
+//        if (controller == null)
+//            return ResultUtil.error(ResultEnum.OUTPUTSPIDER_ERROR_2.getCode(), "继续失败，当前没有暂停的爬虫", "fail to resume");
+//
+//        controller.continueMultiController();
+//        logger.info("继续爬取线程");
+//
+//        return ResultUtil.success(200, ResultEnum.SUCCESS.getMsg(), "resume successfully");
     }
 
     /**

@@ -214,28 +214,27 @@ public class NewSpiderController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-//    @ApiOperation(value = "暂停爬取", notes = "")
-//    @GetMapping("/pauseCrawler")
-//    public ResponseEntity pauseCrawler()
-//    {
-////        Result result = SpiderService.getIncrementFacetAssembleAndThreadStatus(domainName, topicName);
-//        Result result = SpiderService.pauseCrawler();
-//
-//        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
-//        }
-//        return ResponseEntity.status(HttpStatus.OK).body(result);
-//    }
+    @ApiOperation(value = "暂停爬取", notes = "请在爬虫尚未结束时才使用本接口")
+    @PostMapping("/pauseCrawler")
+    public ResponseEntity pauseCrawler()
+    {
+        Result result = SpiderService.stopCrawl();
 
-//    @ApiOperation(value = "恢复爬取", notes = "")
-//    @GetMapping("/recoverCrawler")
-//    public ResponseEntity recoverCrawler()
-//    {
-//        Result result = SpiderService.recoverCrawler();
-//
-//        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
-//        }
-//        return ResponseEntity.status(HttpStatus.OK).body(result);
-//    }
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @ApiOperation(value = "恢复爬取", notes = "请在暂停爬虫后才使用本接口")
+    @PostMapping("/resumeCrawler")
+    public ResponseEntity resumeCrawler()
+    {
+        Result result = SpiderService.resumeCrawl();
+
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 }
