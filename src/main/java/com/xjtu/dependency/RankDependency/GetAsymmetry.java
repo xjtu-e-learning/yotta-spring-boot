@@ -23,6 +23,8 @@ public class GetAsymmetry {
     private Double THD = 0.5;
     private Double THD0 = 0.0;
 
+    //计算所有知识主题对文本间的不对称性值
+    //计算公式：文本A中出现的知识主题对于所有知识主题来说与A的重要性（包括文本的重要性以及知识主题的相似性两方面）作为A的值，同理B也有相应的计算值。A值-B值>阈值，则A先学习
     public List<Dependency> AsyDependency(List<Topic> topicList, List<TopicContainAssembleText> termList) {
         List<Dependency> dependencies = new ArrayList<>();
         List<Dependency> dependenciesAll = new ArrayList<>();
@@ -30,7 +32,8 @@ public class GetAsymmetry {
         logger.info("Finish Hash...");
         logger.info("Start computing the hammingDistance...");
         HashMap<TwoTuple<TopicContainAssembleText, TopicContainAssembleText>, Double> disMap = new HashMap<>();
-        List<HashMap<String, Float>> tfidf = getTFIDF(topicList, termList);
+        List<HashMap<String, Float>> tfidf = getTFIDF(topicList, termList);  //计算每个知识主题对每个文本的tfidf值。list的顺序是所有文本资源的顺序，每一个hashmap的key是知识主题
+        //任意两个知识主题对间
         for (int i = 0; i < termList.size() - 1; i++) {
             for (int j = i + 1; j < termList.size(); j++) {
                 TopicContainAssembleText term1 = termList.get(i);
@@ -39,7 +42,7 @@ public class GetAsymmetry {
 //                    Log.log("内容为空");
                 } else {
 
-                    List<Double> asyResult = computeAsy(topicList, term1, term2, tfidf.get(i), tfidf.get(j));
+                    List<Double> asyResult = computeAsy(topicList, term1, term2, tfidf.get(i), tfidf.get(j));  //调用计算知识主题对
                     double Afirst = asyResult.get(0);
                     double Bfirst = asyResult.get(1);
 //                    System.out.println("Afirst: " + Afirst + "     Bfirst: " + Bfirst);
@@ -150,17 +153,19 @@ public class GetAsymmetry {
         Double sumA = 0.0;
         Double sumB = 0.0;
 
+        //对于所有知识主题
         for(Topic topic: topicList)
         {
             String topicName = topic.getTopicName();
 
             double sim1 = 0.0;
             double sim2 = 0.0;
+            //当该知识主题在text2中出现时，
             if(text2.contains(topicName))
             {
+                //则计算该知识主题对text1的重要性
                 float tfc = tfidfA.get(topicName);
-//                SimilarityUtil similarityUtil1 = new SimilarityUtil();
-                sim1 = new SimilarityUtil().getSimilarity(topic1, topicName);
+                sim1 = new SimilarityUtil().getSimilarity(topic1, topicName);  //以及该知识主题与topic1的相似性
 //                double dis1 = CosineSimilar.getSimilarity(topic1, topicName);
 
                 Bfirst += sim1 * tfc * tfidfB.get(topic2);
@@ -172,6 +177,7 @@ public class GetAsymmetry {
 //                double dis2 = CosineSimilar.getSimilarity(topic2, topicName);
                 Afirst += sim2 * tfc * tfidfA.get(topic1);
             }
+
             sumB += tfidfA.get(topicName)*sim1;
             sumA += tfidfB.get(topicName)*sim2;
 //            System.out.println(Afirst + " " + Bfirst + " " + sumA + " " + sumB + " " + tfidfA.get(topicName) + " " + tfidfB.get(topicName));
@@ -185,7 +191,7 @@ public class GetAsymmetry {
                 Afirst = 0.0;
             }
             else
-                Afirst = Afirst/sumA;
+                Afirst = Afirst/sumA;   //归一化操作
         }
         else
         {
@@ -202,6 +208,7 @@ public class GetAsymmetry {
             Bfirst = 0.0;
 
         List<Double> result = new ArrayList<>();
+        //两边的值相减
         result.add(Afirst-Bfirst);
         result.add(Bfirst-Afirst);
         return result;
@@ -280,6 +287,7 @@ public class GetAsymmetry {
         return tfidf;
     }
 
+    //计算单个知识主题与其它知识主题的不对称性值
     public List<Dependency> addDependencyWithNewTopic(List<Topic> topicList, List<TopicContainAssembleText> termList,
                                                       Topic newTopic, TopicContainAssembleText newTopicText)
     {
@@ -300,6 +308,7 @@ public class GetAsymmetry {
             }
         }
 
+        //新增的知识主题与其它知识主题的不对称性值计算
         for (int i = 0; i<termList.size(); i++)
         {
 
