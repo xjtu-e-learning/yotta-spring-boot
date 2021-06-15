@@ -24,8 +24,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/newSpiderFor2021")
 public class NewSpiderController {
-
-
     @Autowired
     private NewSpiderService SpiderService;
 
