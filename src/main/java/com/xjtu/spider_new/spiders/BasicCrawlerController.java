@@ -28,6 +28,20 @@ public class BasicCrawlerController {
     // 爬虫线程池
     private ExecutorService crawlerThreadPool = Executors.newCachedThreadPool();
 
+    /**
+     * 用于 Single 爬取
+     * 保存控制爬取的controller
+     */
+    private CrawlController mainController;
+
+    /**
+     * 用于 Multi 爬取
+     * 保存控制爬取的多个controller
+     */
+    private CrawlController[] mainControllers;
+
+    private CrawlController.WebCrawlerFactory<GeneralCrawler>[] factories;
+
     private Object l = new Object();
 
     public void startCrawler(String url, boolean isChinese, Long domainId, Long topicId) throws Exception {
@@ -410,7 +424,8 @@ public class BasicCrawlerController {
 
 //        List<CrawlController> controllers = new ArrayList<>();
 
-        CrawlController[] controllers = new CrawlController[facets.size()];
+        mainControllers = new CrawlController[facets.size()];
+        factories = new CrawlController.WebCrawlerFactory[facets.size()];
 
         for (int i = 0; i < facets.size(); i++) {
             Facet facet = facets.get(i);
@@ -435,17 +450,20 @@ public class BasicCrawlerController {
             String crawlStorageFolder = "/tmp/crawler4j/facet" + facet.getFacetId() + "/";
             CrawlController csdnCrawlerController = createBasicController(crawlStorageFolder, -1, urls);
 
-            controllers[i] = csdnCrawlerController;
             int finalI = i;
             CrawlController.WebCrawlerFactory<GeneralCrawler> csdnFactory =
                     () -> new GeneralCrawler("https://cn.bing.com/search?q=", true, domainId, topicId, facets.get(finalI).getFacetName());
-            controllers[i].startNonBlocking(csdnFactory, 1);
+
+            mainControllers[i] = csdnCrawlerController;
+            factories[i] = csdnFactory;
+
+            mainControllers[i].startNonBlocking(csdnFactory, 1);
         }
 
         String topicName = MysqlReadWriteDAO.findTopicNameByTopicId(topicId);
 
-        for (int i = 0; i < controllers.length; i++) {
-            controllers[i].waitUntilFinish();
+        for (int i = 0; i < mainControllers.length; i++) {
+            mainControllers[i].waitUntilFinish();
             logger.info("Crawler for " + topicName + " - " + facets.get(i).getFacetName() +  " is finished.");
         }
 
@@ -469,7 +487,7 @@ public class BasicCrawlerController {
         config.setMaxDepthOfCrawling(maxDepthOfCrawling);
         config.setMaxPagesToFetch(10);
         config.setIncludeBinaryContentInCrawling(false);
-        config.setResumableCrawling(false);
+        config.setResumableCrawling(true);
 
         // Instantiate the controller for this crawl.
         PageFetcher pageFetcher = new PageFetcher(config);
@@ -489,6 +507,43 @@ public class BasicCrawlerController {
         }
 
         return controller;
+    }
+
+    /**
+     * 停止多任务爬取
+     * @return 成功则为 true，失败则为 false
+     */
+    public boolean shutdownMultiController() {
+        for (CrawlController controller : mainControllers) {
+            if (controller == null) return false;
+            controller.shutdown();
+        }
+
+        return true;
+    }
+
+    /**
+     * 继续多任务爬取
+     * @return 成功则为 true，失败则为 false
+     */
+    public boolean continueMultiController() {
+        for (int i = 0; i < mainControllers.length; i++) {
+            try {
+                CrawlController newController = new CrawlController(
+                        mainControllers[i].getConfig(),
+                        mainControllers[i].getPageFetcher(),
+                        mainControllers[i].getRobotstxtServer()
+                );
+
+                mainControllers[i] = newController;
+                mainControllers[i].startNonBlocking(factories[i], 1);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        return true;
     }
 
 }
