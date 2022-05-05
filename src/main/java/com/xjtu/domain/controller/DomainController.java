@@ -128,6 +128,22 @@ public class DomainController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    /**
+     * 插入一门课程
+     * insertDomain
+     */
+    @GetMapping("/insertDomainBySubjectName")
+    @ApiOperation(value = "根据学科名字插入一门课程", notes = "根据学科名字插入一门课程")
+    public ResponseEntity insertDomainBySubjectName(@RequestParam(name = "domainName") String domainName,
+                                                    @RequestParam(name = "subjectName") String subjectName) {
+
+        Result result = domainService.insertDomainBySubjectName(domainName,subjectName);
+        if (!result.getCode().equals(ResultEnum.SUCCESS.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
     @PostMapping("/getDomainGradeByDomainId")
     @ApiOperation(value = "根据课程id，查询课程的质量评价", notes = "根据课程id，查询课程的质量评价")
     public ResponseEntity getDomainGradeByDomainId(@RequestParam(name="domainId") Long domainId){

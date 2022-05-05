@@ -183,6 +183,25 @@ public class DomainService {
         return insertDomain(domain);
     }
 
+    /**
+     * 指定学科名，在该学科下插入一门课程
+     *
+     * @param domainName 需要插入的课程名
+     * @return 插入结果
+     */
+    public Result insertDomainBySubjectName(String domainName, String subjectName) {
+        Subject subject = subjectRepository.findBySubjectName(subjectName);
+        if (subject == null) {
+            logger.error("指定学科不存在");
+            return ResultUtil.error(ResultEnum.DOMAIN_INSERT_ERROR_3.getCode(), ResultEnum.DOMAIN_INSERT_ERROR_3.getMsg(), "指定学科不存在");
+        }
+
+        Domain domain = new Domain();
+        domain.setDomainName(domainName);
+        domain.setSubjectId(subject.getSubjectId());
+        return insertDomain(domain);
+    }
+
     public Result findOrInsetDomainByDomainName(String subjectName, String domainName) {
 
         //查询该课程是否存在

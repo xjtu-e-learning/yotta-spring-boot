@@ -961,13 +961,13 @@ public class AssembleService {
         facetIds.addAll(secondLayerFacetIds);
         facetIds.addAll(lThirdLayerFacetIds);
         //查询一、二、三级分面下的碎片
-//        List<Assemble> assembles = assembleRepository.findByFacetIdIn(facetIds);
+        List<Assemble> assembles = assembleRepository.findByFacetIdIn(facetIds);
 
-        List<Assemble> assembles = new ArrayList<>();
-        for(Long fId: facetIds){
-            List<Assemble> assemble = assembleRepository.findByFacetId(fId);
-            assembles.addAll(assemble);
-        }
+//        List<Assemble> assembles = new ArrayList<>();
+//        for(Long fId: facetIds){
+//            List<Assemble> assemble = assembleRepository.findByFacetId(fId);
+//            assembles.addAll(assemble);
+//        }
         return assembles;
     }
 

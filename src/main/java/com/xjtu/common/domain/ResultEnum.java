@@ -39,6 +39,7 @@ public enum ResultEnum {
     DOMAIN_INSERT_ERROR(116, "课程信息插入失败：课程名不存在或者为空"),
     DOMAIN_INSERT_ERROR_1(117, "课程信息插入失败：插入已经存在的课程"),
     DOMAIN_INSERT_ERROR_2(118, "课程信息插入失败：数据库插入语句失败"),
+    DOMAIN_INSERT_ERROR_3(1183, "课程信息插入失败：没有对应的学科"),
     DOMAIN_DELETE_ERROR(119, "课程删除失败"),
     DOMAIN_UPDATE_ERROR(120, "课程更新失败：更新语句执行失败"),
     DOMAIN_UPDATE_ERROR_1(121, "课程更新失败：课程名不存在或者为空"),
