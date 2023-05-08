@@ -23,6 +23,7 @@ public class SwaggerConfig {
     @Bean
     public Docket adminApi() {
         return new Docket(DocumentationType.SWAGGER_2)
+                .enable(false)
                 .groupName("知识森林 API")
                 .forCodeGeneration(true)
                 .pathMapping("/")
