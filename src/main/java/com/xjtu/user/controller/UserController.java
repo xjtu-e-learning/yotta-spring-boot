@@ -41,8 +41,8 @@ public class UserController {
     @ApiOperation(value = "数据管理系统，用户登录", notes = "数据管理系统，用户登录")
     public ResponseEntity login(@RequestParam(name = "userName") String userName,
                                 @RequestParam(name = "password") String password,
-                                @RequestParam(name = "ip") String ip,
-                                @RequestParam(name = "place") String place,
+                                @RequestParam(name = "ip", required=false, defaultValue = "0.0.0.0") String ip,
+                                @RequestParam(name = "place", required=false, defaultValue = "陕西西安") String place,
                                 @RequestParam(name = "date") String date,
                                 HttpServletRequest request) {
         logger.info(HttpUtil.getHeaders(request));
