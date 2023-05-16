@@ -37,3 +37,4 @@ hs_err_pid*
 /target
 /src/main/java/com/xjtu/common/Config.java
 /src/main/resources/
+/src/main/java/com/xjtu/DisableSwaggerUiController.java
